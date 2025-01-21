@@ -24,7 +24,7 @@ pub fn gamma_pi_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-1 gamma_pi_pi
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_pi_pi_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_pi_pi_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let tau = tau_1(t);
     let pi = pi_1(p);
     let mut sum = 0.0;
@@ -40,7 +40,7 @@ fn gamma_pi_pi_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-1 gamma_tau
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let tau = tau_1(t);
     let pi = pi_1(p);
     let mut sum = 0.0;
@@ -56,7 +56,7 @@ fn gamma_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-1 gamma_tau_tau
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_tau_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_tau_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let tau = tau_1(t);
     let pi = pi_1(p);
     let mut sum = 0.0;
@@ -72,7 +72,7 @@ fn gamma_tau_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-1 gamma_pi_tau
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_pi_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_pi_tau_1(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let tau = tau_1(t);
     let pi = pi_1(p);
     let mut sum = 0.0;
