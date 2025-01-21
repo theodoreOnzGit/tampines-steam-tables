@@ -36,7 +36,14 @@ pub mod region_2_saturated_water;
 ///
 /// vapour liquid equilibrium
 /// wet steam region 
+///
+/// auxilliary equation for region 2 and 3 are also put here
 pub mod region_3_vap_liq_mixture;
+
+/// region 4
+///
+/// dry saturated steam region 
+pub mod region_4_dry_saturated_steam;
 
 
 /// region 5 
