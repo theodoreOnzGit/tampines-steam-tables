@@ -12,3 +12,7 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
+
+/// constants for the 
+pub mod constants;
+
