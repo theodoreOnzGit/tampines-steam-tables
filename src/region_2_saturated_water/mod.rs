@@ -73,3 +73,7 @@ pub mod intensive_properties;
 pub use intensive_properties::*;
 
 
+/// verification tests based on table 2.11
+/// in Kretzschmar and Wagner
+#[cfg(test)]
+pub mod tests;

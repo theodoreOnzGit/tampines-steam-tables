@@ -17,7 +17,7 @@ pub fn specific_gas_constant_of_water() -> SpecificHeatCapacity {
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
 pub fn v_tp_2(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
-    ((specific_gas_constant_of_water() * 1000.0) * t / p) * pi_2(p) * (gamma_pi_2_ideal(t, p) + gamma_pi_2_res(t, p))
+    ((specific_gas_constant_of_water() ) * t / p) * pi_2(p) * (gamma_pi_2_ideal(t, p) + gamma_pi_2_res(t, p))
 }
 
 /// Returns the region-2 enthalpy
@@ -77,7 +77,7 @@ pub fn w_tp_2(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
     let subnum = (1.0 + pi * gamma_pi_2_res(t, p) - tau * pi * gamma_pi_tau_2_res(t, p)).powi(2);
     let subden = tau.powi(2) * (gamma_tau_tau_2_ideal(t, p) + gamma_tau_tau_2_res(t, p));
     let den = 1.0 - pi.powi(2) * gamma_pi_pi_2_res(t, p) + subnum / subden;
-    ((specific_gas_constant_of_water() * 1000.0 * t) * num / den).sqrt()
+    ((specific_gas_constant_of_water()  * t) * num / den).sqrt()
 }
 
 /// Returns the region-2 isentropic exponent
@@ -125,7 +125,7 @@ use uom::typenum::{Z0, P1, P2, N1};
 // * `K`: Kind.
 pub type InversePressure = Quantity<ISQ<P1, N1, P2, Z0, Z0, Z0, Z0>, SI<f64>, f64>;
 /// Returns the region-1 isobaric isothermal compressibility
-pub fn kappa_t_tp_1(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
+pub fn kappa_t_tp_2(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
     let pi = pi_2(p);
     let num = 1.0 - pi.powi(2) * gamma_pi_pi_2_res(t, p);
     let den = 1.0 + pi * gamma_pi_2_res(t, p);
