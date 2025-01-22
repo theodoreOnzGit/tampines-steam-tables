@@ -1,3 +1,4 @@
+use uom::si::mass_density::kilogram_per_cubic_meter;
 use uom::si::ratio::ratio;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::temperature_coefficient::per_kelvin;
@@ -8,11 +9,22 @@ use uom::si::thermodynamic_temperature::kelvin;
 use uom::si::f64::*;
 
 use crate::region_2_vapour::*;
+use crate::region_3_vap_liq_mixture_plus_critical_point::p_rho_t_3;
 
 #[test] 
 pub fn pressure_regression_set_a(){
 
-    todo!()
+    let ref_pressure_mpa = 0.255837018e2;
+    let t = ThermodynamicTemperature::new::<kelvin>(650.0);
+    let rho = MassDensity::new::<kilogram_per_cubic_meter>(500.0);
+
+    let pressure_test_mpa = 
+        p_rho_t_3(rho, t).get::<megapascal>();
+
+    approx::assert_relative_eq!(
+        ref_pressure_mpa,
+        pressure_test_mpa,
+        max_relative=1e-9);
     
 }
 
