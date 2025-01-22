@@ -74,7 +74,9 @@ pub fn w_tp_1(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
     let gamma_tau_tau = gamma_tau_tau_1(t, p);
     let term = (gamma_pi - tau * gamma_pi_tau).powi(2) / (tau.powi(2) * gamma_tau_tau);
 
+    // in rust_steam 
     // The multiplication by 1000 is necessary to convert R from kJ/kg.K to J/kg.K
-    let square = (specific_gas_constant_of_water() * 1000.0) * t * (gamma_pi.powi(2) / (term - gamma_pi_pi));
+    // however, the units of measure crate takes care of it
+    let square = (specific_gas_constant_of_water() ) * t * (gamma_pi.powi(2) / (term - gamma_pi_pi));
     square.sqrt()
 }
