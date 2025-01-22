@@ -1,3 +1,5 @@
+use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+
 pub const R_KJ_PER_KG_KELVIN: f64 = 0.461526;
 pub const T_C_KELVIN: f64 = 647.096;
 pub const P_C_MPA: f64 = 22.064;
@@ -13,3 +15,14 @@ pub const P_NORMAL_BP_MPA: f64 = 0.101325;
 
 pub const MOLAR_MASS_WATER_G_PER_GMOL: f64 = 18.015257;
 pub const R_M_J_PER_MOL_KELVIN: f64 = 8.31451;
+
+// dimensioned properties 
+
+#[inline]
+pub fn specific_gas_constant_of_water() -> SpecificHeatCapacity {
+    let r = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+        R_KJ_PER_KG_KELVIN
+    );
+
+    r
+}

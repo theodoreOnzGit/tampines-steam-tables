@@ -19,6 +19,11 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.0.4 
+Added region 4 vapour liq saturation temp and pressure 
+line up to critical point. This includes triple point, 
+normal boiling point (100C at 1 atm) and critical point of water.
+
 v0.0.3 
 Added region 3, and the saturation temperature and pressure boundary equation 
 p23 and b23.

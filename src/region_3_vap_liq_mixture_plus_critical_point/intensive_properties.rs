@@ -1,16 +1,8 @@
-use crate::constants::R_KJ_PER_KG_KELVIN;
+
+use crate::constants::specific_gas_constant_of_water;
 
 use super::{delta_3, phi_3, phi_delta_3, phi_delta_delta_3, phi_delta_tau_3, phi_tau_3, phi_tau_tau_3, tau_3};
-use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
-#[inline]
-pub fn specific_gas_constant_of_water() -> SpecificHeatCapacity {
-    let r = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
-        R_KJ_PER_KG_KELVIN
-    );
-
-    r
-}
-
+use uom::si::f64::*;
 
 /// Returns the pressure given t and rho
 /// Temperature is assumed to be in K

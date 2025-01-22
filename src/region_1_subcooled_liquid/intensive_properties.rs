@@ -1,18 +1,11 @@
-use crate::constants::R_KJ_PER_KG_KELVIN;
 use uom::si::temperature_coefficient::per_kelvin;
 use uom::si::thermodynamic_temperature::kelvin;
-use uom::si::{f64::*, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use uom::si::{f64::*, ratio::ratio};
+
+use crate::constants::specific_gas_constant_of_water;
 
 use super::{gamma_1, gamma_pi_1, gamma_pi_pi_1, gamma_pi_tau_1, gamma_tau_1, gamma_tau_tau_1, pi_1, tau_1};
 
-#[inline]
-pub fn specific_gas_constant_of_water() -> SpecificHeatCapacity {
-    let r = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
-        R_KJ_PER_KG_KELVIN
-    );
-
-    r
-}
 
 /// Returns the region-1 specific enthalpy
 /// Temperature is assumed to be in K
