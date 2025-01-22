@@ -59,8 +59,12 @@ pub use phi_deriviatives::*;
 pub mod intensive_properties;
 pub use intensive_properties::*;
 
+/// region_2_3_auxiliary_boundary 
+pub mod aux_eqn_boundary_region_2_and_region_3;
+pub use aux_eqn_boundary_region_2_and_region_3::*;
 
 /// tests 
 #[cfg(test)]
 mod tests;
+
 
