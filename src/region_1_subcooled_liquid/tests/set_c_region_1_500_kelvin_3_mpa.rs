@@ -28,7 +28,7 @@ pub fn specific_vol_regression_set_c(){
 
 #[test] 
 pub fn specific_enthalpy_regression_set_c(){
-    let ref_enthalpy_kj_per_kg = 0.115331273e3;
+    let ref_enthalpy_kj_per_kg = 0.975542239e3;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -45,7 +45,7 @@ pub fn specific_enthalpy_regression_set_c(){
 
 #[test] 
 pub fn specific_internal_energy_regression_set_c(){
-    let ref_internal_energy_kj_per_kg = 0.112324818e3;
+    let ref_internal_energy_kj_per_kg = 0.971934985e3;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -63,7 +63,7 @@ pub fn specific_internal_energy_regression_set_c(){
 
 #[test] 
 pub fn specific_entropy_regression_set_c(){
-    let ref_entropy_kj_per_kg_kelvin = 0.392294792;
+    let ref_entropy_kj_per_kg_kelvin = 0.258041912e1;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -81,7 +81,7 @@ pub fn specific_entropy_regression_set_c(){
 
 #[test] 
 pub fn cp_regression_set_c(){
-    let ref_cp_kj_per_kg_kelvin = 0.417301218e1;
+    let ref_cp_kj_per_kg_kelvin = 0.465580682e1;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -99,7 +99,7 @@ pub fn cp_regression_set_c(){
 
 #[test] 
 pub fn cv_regression_set_c(){
-    let ref_cv_kj_per_kg_kelvin = 0.412120160e1;
+    let ref_cv_kj_per_kg_kelvin = 0.322139223e1;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -117,7 +117,7 @@ pub fn cv_regression_set_c(){
 
 #[test] 
 pub fn speed_of_sound_regression_set_c(){
-    let ref_speed_of_sound_kj_per_kg_kelvin = 0.150773921e4;
+    let ref_speed_of_sound_kj_per_kg_kelvin = 0.124071337e4;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -135,7 +135,7 @@ pub fn speed_of_sound_regression_set_c(){
 
 #[test] 
 pub fn isentropic_exponent_regression_set_c(){
-    let ref_kappa = 0.756132220e3;
+    let ref_kappa = 0.426742799e3;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -153,7 +153,7 @@ pub fn isentropic_exponent_regression_set_c(){
 
 #[test] 
 pub fn isobaric_cubic_expansion_coeff_regression_set_c(){
-    let ref_alpha_v = 0.277354533e-3;
+    let ref_alpha_v = 0.164118128e-2;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
@@ -171,7 +171,7 @@ pub fn isobaric_cubic_expansion_coeff_regression_set_c(){
 
 #[test] 
 pub fn isothermal_compressibility_coeff_regression_set_c(){
-    let ref_kappa_t = 0.446382123e-3;
+    let ref_kappa_t = 0.112892188e-2;
     let t = ThermodynamicTemperature::new::<kelvin>(500.0);
     let p = Pressure::new::<megapascal>(3.0);
 
