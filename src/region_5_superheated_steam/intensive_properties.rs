@@ -57,3 +57,69 @@ pub fn cv_tp_5(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity
                 / (1.0 - pi.powi(2) * gamma_pi_pi_5_res(t, p)))
 }
 
+/// Returns the region-5 sound velocity
+/// Temperature is assumed to be in K
+/// Pressure is assumed to be in Pa
+pub fn w_tp_5(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
+    let tau = tau_5(t);
+    let pi = pi_5(p);
+    let num = 1.0 + 2.0 * pi * gamma_pi_5_res(t, p) + pi.powi(2) * gamma_pi_5_res(t, p).powi(2);
+    let subnum = (1.0 + pi * gamma_pi_5_res(t, p) - tau * pi * gamma_pi_tau_5_res(t, p)).powi(2);
+    let subden = tau.powi(2) * (gamma_tau_tau_5_ideal(t, p) + gamma_tau_tau_5_res(t, p));
+    let den = 1.0 - pi.powi(2) * gamma_pi_pi_5_res(t, p) + subnum / subden;
+    ((specific_gas_constant_of_water()  * t) * num / den).sqrt()
+}
+
+/// Returns the region-5 isentropic exponent
+pub fn kappa_tp_5(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
+    let tau = tau_5(t);
+    let pi = pi_5(p);
+    let num = 1.0 + 2.0 * pi * gamma_pi_5_res(t, p) + pi.powi(2) * gamma_pi_5_res(t, p).powi(2);
+    let subnum = (1.0 + pi * gamma_pi_5_res(t, p) - tau * pi * gamma_pi_tau_5_res(t, p)).powi(2);
+    let subden = tau.powi(2) * (gamma_tau_tau_5_ideal(t, p) + gamma_tau_tau_5_res(t, p));
+    let den = (1.0 - pi.powi(2) * gamma_pi_pi_5_res(t, p) 
+        + subnum / subden) * pi * (gamma_pi_5_ideal(t, p) + gamma_pi_5_res(t, p));
+
+    return (num/den).into();
+}
+
+
+/// Returns the region-5 isobaric cubic expansion coeff
+pub fn alpha_v_tp_5(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCoefficient {
+    let tau = tau_5(t);
+    let pi = pi_5(p);
+    let one_over_t: TemperatureCoefficient = 
+        t.recip();
+    let num = 1.0 + pi * gamma_pi_5_res(t, p) - tau * pi * gamma_pi_tau_5_res(t, p);
+    let den = 1.0 + pi * gamma_pi_5_res(t, p);
+
+    return one_over_t * num/den;
+
+}
+
+
+// to make the inverse pressure type 
+// it is m s^2 / kg 
+use uom::si::{ISQ, SI, Quantity};
+use uom::typenum::{Z0, P1, P2, N1};
+
+// quantity is defined
+// ## Generic Parameters
+// * `L`: Length dimension.
+// * `M`: Mass dimension.
+// * `T`: Time dimension.
+// * `I`: Electric current dimension.
+// * `Th`: Thermodynamic temperature dimension.
+// * `N`: Amount of substance dimension.
+// * `J`: Luminous intensity dimension.
+// * `K`: Kind.
+pub type InversePressure = Quantity<ISQ<P1, N1, P2, Z0, Z0, Z0, Z0>, SI<f64>, f64>;
+/// Returns the region-5 isobaric isothermal compressibility
+pub fn kappa_t_tp_5(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
+    let pi = pi_5(p);
+    let num = 1.0 - pi.powi(2) * gamma_pi_pi_5_res(t, p);
+    let den = 1.0 + pi * gamma_pi_5_res(t, p);
+
+    return (num/den)/p;
+
+}
