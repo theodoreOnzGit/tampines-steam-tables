@@ -80,3 +80,20 @@ pub fn w_tp_1(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
     let square = (specific_gas_constant_of_water() ) * t * (gamma_pi.powi(2) / (term - gamma_pi_pi));
     square.sqrt()
 }
+
+
+/// Returns the region-1 isentropic exponent
+pub fn kappa_tp_1(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
+    let tau = tau_1(t);
+    let pi = pi_1(p);
+    let gamma_pi = gamma_pi_1(t, p);
+    let gamma_pi_tau = gamma_pi_tau_1(t, p);
+    let gamma_pi_pi = gamma_pi_pi_1(t, p);
+    let gamma_tau_tau = gamma_tau_tau_1(t, p);
+    let denominator = (gamma_pi - tau * gamma_pi_tau).powi(2) / (tau.powi(2) * gamma_tau_tau)*pi - pi * gamma_pi_pi;
+
+    let numerator = gamma_pi;
+
+    return (numerator/denominator).into();
+
+}
