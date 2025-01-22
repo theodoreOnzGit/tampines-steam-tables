@@ -1,3 +1,4 @@
+/// residual part
 const REGION_2_COEFFS_RES: [[f64; 3]; 43] = [
     [1.0, 0.0, -0.0017731742473213],
     [1.0, 1.0, -0.017834862292358],
@@ -44,6 +45,7 @@ const REGION_2_COEFFS_RES: [[f64; 3]; 43] = [
     [24.0, 58.0, -9.436970724121E-07],
 ];
 
+/// ideal gas part
 const REGION_2_COEFFS_IDEAL: [[f64; 2]; 9] = [
     [0.0, -0.96927686500217e1],
     [1.0, 0.10086655968018e2],
@@ -55,3 +57,10 @@ const REGION_2_COEFFS_IDEAL: [[f64; 2]; 9] = [
     [2.0, -0.28408632460772],
     [3.0, 0.21268463753307e-1],
 ];
+
+pub mod gamma_ideal_gas;
+pub use gamma_ideal_gas::*;
+
+
+pub mod gamma_residual;
+pub use gamma_residual::*;
