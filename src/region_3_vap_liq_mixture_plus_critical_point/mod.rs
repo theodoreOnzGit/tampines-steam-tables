@@ -55,5 +55,12 @@ pub use phi_dimensionless_helmholtz_free_energy::*;
 pub mod phi_deriviatives;
 pub use phi_deriviatives::*;
 
+/// intensive properties for forward equations in region 3
 pub mod intensive_properties;
 pub use intensive_properties::*;
+
+
+/// tests 
+#[cfg(test)]
+mod tests;
+
