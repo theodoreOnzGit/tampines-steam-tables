@@ -19,6 +19,11 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.0.3 
+Added region 3, and the saturation temperature and pressure boundary equation 
+p23 and b23.
+Only forward eqns added. That is (T,P) flash.
+
 v0.0.2
 
 Added region 2, including metastable, dimensioned equations, with verification tests.
