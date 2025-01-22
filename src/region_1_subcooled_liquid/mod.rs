@@ -115,7 +115,7 @@ pub use intensive_properties::*;
 
 /// important tests to ensure things are working correctly
 #[cfg(test)]
-pub mod tests;
+mod tests;
 
 use uom::si::f64::*;
 use uom::si::pressure::pascal;

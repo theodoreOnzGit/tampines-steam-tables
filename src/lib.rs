@@ -14,16 +14,19 @@ pub mod region_1_subcooled_liquid;
 
 /// region 2 
 ///
-/// Saturated water region
-pub mod region_2_saturated_water;
+/// vapour region
+pub mod region_2_vapour;
 
 /// region 3 
 ///
 /// vapour liquid equilibrium
-/// wet steam region 
+/// wet steam region, also includes supercritical region 
+/// and critical point
 ///
 /// auxilliary equation for region 2 and 3 are also put here
-pub mod region_3_vap_liq_mixture;
+///
+///
+pub mod region_3_vap_liq_mixture_plus_critical_point;
 
 /// region 4
 ///
