@@ -15,3 +15,19 @@ const REGION_5_COEFFS_IDEAL: [[f64; 2]; 6] = [
     [-1.0, -0.31161318213925e1],
     [2.0, -0.32961626538917],
 ];
+
+pub mod dimensionless_tau_and_pi;
+pub use dimensionless_tau_and_pi::*;
+
+pub mod gamma_ideal_gas_plus_derivatives;
+pub use gamma_ideal_gas_plus_derivatives::*;
+
+pub mod gamma_residual_plus_derivatives;
+pub use gamma_residual_plus_derivatives::*;
+
+pub mod intensive_properties;
+pub use intensive_properties::*;
+
+#[cfg(test)]
+mod tests;
+

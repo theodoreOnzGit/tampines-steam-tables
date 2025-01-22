@@ -1,3 +1,4 @@
+#[warn(missing_docs)]
 /// constants for the steam table calculations
 pub mod constants;
 
