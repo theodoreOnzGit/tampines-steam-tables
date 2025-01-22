@@ -1,6 +1,7 @@
 # TAMPINES Steam Tables
 In house steam tables for the Thermo-hydraulic Artificial intelligence 
-Multi-Phase INtegrated Emulator System (TAMPINES) solver
+Multi-Phase INtegrated Emulator System (TAMPINES) solver.
+
 
 This relies heavily upon the [Rust-steam](https://github.com/marciorvneto/rusteam)
 library licensed using the MIT license. 
@@ -15,6 +16,18 @@ International steam tables. Springer Berlin Heidelberg.
 
 Significant portions of code will be copied from the rust-steam package.
 Hence, I am putting the rust-steam license here.
+
+# Changelog 
+
+v0.0.2
+
+Added region 2, including metastable, dimensioned equations, with verification tests.
+Only forward eqns added. That is (T,P) flash.
+
+v0.0.1 
+
+Added region 1 dimensioned equations, with verification tests.
+Only forward eqns added. That is (T,P) flash.
 
 ## Rust-steam license:
 
