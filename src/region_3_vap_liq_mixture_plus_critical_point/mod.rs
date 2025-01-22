@@ -51,3 +51,6 @@ pub use dimensionless_tau_and_delta::*;
 pub mod phi_dimensionless_helmholtz_free_energy;
 pub use phi_dimensionless_helmholtz_free_energy::*;
 
+
+pub mod phi_deriviatives;
+pub use phi_deriviatives::*;

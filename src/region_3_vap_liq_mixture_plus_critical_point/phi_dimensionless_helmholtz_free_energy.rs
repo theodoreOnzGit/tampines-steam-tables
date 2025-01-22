@@ -6,7 +6,7 @@ use uom::si::f64::*;
 /// remember, phi is dimensionless_helmholtz_free_energy
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn phi_3(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
+pub fn phi_3(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
     let mut sum: f64 = 0.0;
     let tau: f64 = tau_3(t);
     let delta: f64 = delta_3(rho);
