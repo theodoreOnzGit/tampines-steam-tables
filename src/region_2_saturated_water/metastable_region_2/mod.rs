@@ -39,3 +39,8 @@ pub use metastable_ideal_gas_gamma::*;
 /// metastable residual correlations
 pub mod metastable_residual_gamma;
 pub use metastable_residual_gamma::*;
+
+/// intensive properties in metastable region 2 
+pub mod intensive_properties;
+pub use intensive_properties::*;
+
