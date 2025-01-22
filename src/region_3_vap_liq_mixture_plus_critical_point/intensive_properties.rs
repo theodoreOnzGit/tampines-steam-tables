@@ -16,7 +16,7 @@ pub fn specific_gas_constant_of_water() -> SpecificHeatCapacity {
 /// Temperature is assumed to be in K
 /// density is assumed to be in kg/m^3
 pub fn p_rho_t_3(rho: MassDensity, t: ThermodynamicTemperature) -> Pressure {
-    rho * (specific_gas_constant_of_water() * 1000.0) * t * delta_3(rho) * phi_delta_3(rho, t)
+    rho * (specific_gas_constant_of_water()) * t * delta_3(rho) * phi_delta_3(rho, t)
 }
 
 /// Returns the internal energy given t and rho
@@ -67,7 +67,6 @@ pub fn w_rho_t_3(rho: MassDensity, t: ThermodynamicTemperature) -> Velocity {
         .powi(2)
             / (tau_3(t).powi(2) * phi_tau_tau_3(rho, t))))
         * specific_gas_constant_of_water()
-        * 1000.0
         * t)
         .sqrt()
 }
