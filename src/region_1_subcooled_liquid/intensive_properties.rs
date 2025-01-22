@@ -24,8 +24,10 @@ AvailableEnergy {
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
 pub fn v_tp_1(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
+    // in rust_steam 
     // The multiplication by 1000 is necessary to convert R from kJ/kg.K to J/kg.K
-    ((specific_gas_constant_of_water() * 1000.0) * t / p) * pi_1(p) * gamma_pi_1(t, p)
+    // but the uom package takes care of that so we are not dealing with this anymore
+    ((specific_gas_constant_of_water() ) * t / p) * pi_1(p) * gamma_pi_1(t, p)
 }
 
 /// Returns the region-1 specific internal energy

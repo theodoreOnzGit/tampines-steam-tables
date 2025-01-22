@@ -106,11 +106,16 @@ pub use gamma_derivatives::*;
 /// specific cp 
 /// specific cv 
 /// speed of sound 
-/// isentropic exponent
-/// isobaric cubic expansion coeff 
-/// isothermal compressibility
+/// isentropic exponent (not done)
+/// isobaric cubic expansion coeff (not done)
+/// isothermal compressibility (not done)
 pub mod intensive_properties;
 pub use intensive_properties::*;
+
+
+/// important tests to ensure things are working correctly
+#[cfg(test)]
+pub mod tests;
 
 use uom::si::f64::*;
 use uom::si::pressure::pascal;

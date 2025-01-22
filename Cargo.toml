@@ -5,3 +5,8 @@ edition = "2021"
 
 [dependencies]
 uom = "0.36.0"
+
+[dev-dependencies]
+approx = "0.5.1"
+
+
