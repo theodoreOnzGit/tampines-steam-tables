@@ -117,10 +117,10 @@ pub fn alpha_v_rho_t_3(rho: MassDensity, t: ThermodynamicTemperature) -> Tempera
     let tau = tau_3(t);
     let phi_delta = phi_delta_3(rho, t);
     let phi_delta_tau = phi_delta_tau_3(rho, t);
-    let phi_tau_tau = phi_tau_tau_3(rho, t);
+    let phi_delta_delta = phi_delta_delta_3(rho, t);
 
     let num = phi_delta - tau * phi_delta_tau;
-    let den = 2.0 * phi_delta + delta * phi_tau_tau;
+    let den = 2.0 * phi_delta + delta * phi_delta_delta;
 
     return t.recip() * (num/den);
 
