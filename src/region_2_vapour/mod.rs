@@ -81,4 +81,4 @@ pub use metastable_region_2::*;
 /// verification tests based on table 2.11
 /// in Kretzschmar and Wagner
 #[cfg(test)]
-pub mod tests;
+mod tests;
