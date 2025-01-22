@@ -79,3 +79,57 @@ pub fn w_tp_2(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
     let den = 1.0 - pi.powi(2) * gamma_pi_pi_2_res(t, p) + subnum / subden;
     ((specific_gas_constant_of_water() * 1000.0 * t) * num / den).sqrt()
 }
+
+/// Returns the region-2 isentropic exponent
+pub fn kappa_tp_2(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
+    let tau = tau_2(t);
+    let pi = pi_2(p);
+    let num = 1.0 + 2.0 * pi * gamma_pi_2_res(t, p) + pi.powi(2) * gamma_pi_2_res(t, p).powi(2);
+    let subnum = (1.0 + pi * gamma_pi_2_res(t, p) - tau * pi * gamma_pi_tau_2_res(t, p)).powi(2);
+    let subden = tau.powi(2) * (gamma_tau_tau_2_ideal(t, p) + gamma_tau_tau_2_res(t, p));
+    let den = (1.0 - pi.powi(2) * gamma_pi_pi_2_res(t, p) 
+        + subnum / subden) * pi * (gamma_pi_2_ideal(t, p) + gamma_pi_2_res(t, p));
+
+    return (num/den).into();
+}
+
+
+/// Returns the region-2 isobaric cubic expansion coeff
+pub fn alpha_v_tp_2(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCoefficient {
+    let tau = tau_2(t);
+    let pi = pi_2(p);
+    let one_over_t: TemperatureCoefficient = 
+        t.recip();
+    let num = 1.0 + pi * gamma_pi_2_res(t, p) - tau * pi * gamma_pi_tau_2_res(t, p);
+    let den = 1.0 + pi * gamma_pi_2_res(t, p);
+
+    return one_over_t * num/den;
+
+}
+
+
+// to make the inverse pressure type 
+// it is m s^2 / kg 
+use uom::si::{ISQ, SI, Quantity};
+use uom::typenum::{Z0, P1, P2, N1};
+
+// quantity is defined
+// ## Generic Parameters
+// * `L`: Length dimension.
+// * `M`: Mass dimension.
+// * `T`: Time dimension.
+// * `I`: Electric current dimension.
+// * `Th`: Thermodynamic temperature dimension.
+// * `N`: Amount of substance dimension.
+// * `J`: Luminous intensity dimension.
+// * `K`: Kind.
+pub type InversePressure = Quantity<ISQ<P1, N1, P2, Z0, Z0, Z0, Z0>, SI<f64>, f64>;
+/// Returns the region-1 isobaric isothermal compressibility
+pub fn kappa_t_tp_1(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
+    let pi = pi_2(p);
+    let num = 1.0 - pi.powi(2) * gamma_pi_pi_2_res(t, p);
+    let den = 1.0 + pi * gamma_pi_2_res(t, p);
+
+    return (num/den)/p;
+
+}
