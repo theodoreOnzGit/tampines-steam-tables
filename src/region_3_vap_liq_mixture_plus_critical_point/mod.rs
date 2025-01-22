@@ -54,3 +54,6 @@ pub use phi_dimensionless_helmholtz_free_energy::*;
 
 pub mod phi_deriviatives;
 pub use phi_deriviatives::*;
+
+pub mod intensive_properties;
+pub use intensive_properties::*;
