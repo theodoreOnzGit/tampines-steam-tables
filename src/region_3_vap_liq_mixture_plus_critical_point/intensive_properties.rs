@@ -153,3 +153,17 @@ pub fn alpha_p_rho_t_3(rho: MassDensity, t: ThermodynamicTemperature) -> Tempera
     return t.recip() * (1.0 - tau * phi_delta_tau/phi_delta );
 
 }
+
+
+/// Returns the region-3 isothermal stress coefficient
+pub fn beta_p_rho_t_3(rho: MassDensity, t: ThermodynamicTemperature) -> MassDensity {
+
+    let delta = delta_3(rho);
+    let phi_delta = phi_delta_3(rho, t);
+    let phi_delta_delta = phi_delta_delta_3(rho, t);
+
+    let num = 2.0 + delta * phi_delta_delta / phi_delta;
+
+    return rho * num;
+
+}
