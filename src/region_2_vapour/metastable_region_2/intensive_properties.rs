@@ -1,17 +1,9 @@
-use crate::constants::R_KJ_PER_KG_KELVIN;
+use crate::constants::specific_gas_constant_of_water;
 use crate::region_2_vapour::{pi_2, tau_2};
-use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use uom::si::f64::*;
 use super::{gamma_metastable_2_ideal, gamma_metastable_2_res, gamma_metastable_pi_2_ideal, gamma_metastable_pi_2_res, gamma_metastable_pi_pi_2_res, gamma_metastable_pi_tau_2_res, gamma_metastable_tau_2_ideal, gamma_metastable_tau_2_res, gamma_metastable_tau_tau_2_ideal, gamma_metastable_tau_tau_2_res};
 
 
-#[inline]
-pub fn specific_gas_constant_of_water() -> SpecificHeatCapacity {
-    let r = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
-        R_KJ_PER_KG_KELVIN
-    );
-
-    r
-}
 /// Returns the region-2 specific volume
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
