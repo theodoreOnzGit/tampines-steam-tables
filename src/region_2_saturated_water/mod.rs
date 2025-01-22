@@ -65,29 +65,11 @@ pub use gamma_ideal_gas_plus_derivatives::*;
 pub mod gamma_residual_plus_derivatives;
 pub use gamma_residual_plus_derivatives::*;
 
-pub mod gamma_dimensionless_specific_gibbs_free_energy;
-pub use gamma_dimensionless_specific_gibbs_free_energy::*;
+/// dimensionless temperature and pressure
+pub mod dimensionless_tau_and_pi;
+pub use dimensionless_tau_and_pi::*;
 
 pub mod intensive_properties;
 pub use intensive_properties::*;
 
-use uom::si::f64::*;
-use uom::si::pressure::megapascal;
-use uom::si::thermodynamic_temperature::kelvin;
 
-/// Returns the region-2 tau (dimensionless temperature)
-/// Pressure is assumed to be in Pa
-pub fn tau_2(t: ThermodynamicTemperature) -> f64 {
-    // Temperature is assumed to be in K
-    let t_kelvin = t.get::<kelvin>();
-    540.0 / t_kelvin
-}
-
-/// Returns the region-2 pi (dimensionless pressure)
-/// Temperature is assumed to be in K
-pub fn pi_2(p: Pressure) -> f64 {
-
-    let p_megapascals = p.get::<megapascal>();
-    // Pressure is assumed to be in Pa
-    p_megapascals / (1.0)
-}
