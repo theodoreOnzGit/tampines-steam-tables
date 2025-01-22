@@ -1,5 +1,7 @@
 use crate::constants::{self, R_KJ_PER_KG_KELVIN};
-use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use uom::si::temperature_coefficient::per_kelvin;
+use uom::si::thermodynamic_temperature::kelvin;
+use uom::si::{f64::*, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
 
 use super::{gamma_1, gamma_pi_1, gamma_pi_pi_1, gamma_pi_tau_1, gamma_tau_1, gamma_tau_tau_1, pi_1, tau_1};
 
@@ -95,5 +97,48 @@ pub fn kappa_tp_1(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
     let numerator = gamma_pi;
 
     return (numerator/denominator).into();
+
+}
+
+
+/// Returns the region-1 isobaric cubic expansion coeff
+pub fn alpha_v_tp_1(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCoefficient {
+    let tau = tau_1(t);
+    let gamma_pi = gamma_pi_1(t, p);
+    let gamma_pi_tau = gamma_pi_tau_1(t, p);
+
+    let dimensionless_alpha: Ratio = Ratio::new::<ratio>(1.0 - tau * gamma_pi_tau / gamma_pi);
+    let t_kelvin = t.get::<kelvin>();
+
+    return dimensionless_alpha * TemperatureCoefficient::new::<per_kelvin>(t_kelvin.recip());
+
+}
+
+
+// to make the inverse pressure type 
+// it is m s^2 / kg 
+use uom::si::{ISQ, SI, Quantity};
+use uom::typenum::{Z0, P1, P2, N1};
+
+// quantity is defined
+// ## Generic Parameters
+// * `L`: Length dimension.
+// * `M`: Mass dimension.
+// * `T`: Time dimension.
+// * `I`: Electric current dimension.
+// * `Th`: Thermodynamic temperature dimension.
+// * `N`: Amount of substance dimension.
+// * `J`: Luminous intensity dimension.
+// * `K`: Kind.
+pub type InversePressure = Quantity<ISQ<P1, N1, P2, Z0, Z0, Z0, Z0>, SI<f64>, f64>;
+/// Returns the region-1 isobaric isothermal compressibility
+pub fn kappa_t_tp_1(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
+    let pi = pi_1(p);
+    let gamma_pi = gamma_pi_1(t, p);
+    let gamma_pi_pi = gamma_pi_pi_1(t, p);
+
+    let dimensionless_kappa_t: Ratio = -Ratio::new::<ratio>( pi * gamma_pi_pi / gamma_pi );
+
+    return dimensionless_kappa_t/p;
 
 }

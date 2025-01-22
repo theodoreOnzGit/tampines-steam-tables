@@ -1,12 +1,14 @@
+use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
+use uom::si::temperature_coefficient::per_kelvin;
 use uom::si::velocity::meter_per_second;
 use uom::si::{available_energy::kilojoule_per_kilogram, pressure::megapascal};
 use uom::si::specific_volume::cubic_meter_per_kilogram;
 use uom::si::thermodynamic_temperature::kelvin;
 use uom::si::f64::*;
 
-use crate::region_1_subcooled_liquid::{cp_tp_1, cv_tp_1, h_tp_1, kappa_tp_1, s_tp_1, u_tp_1, v_tp_1, w_tp_1};
+use crate::region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, u_tp_1, v_tp_1, w_tp_1};
 
 #[test] 
 pub fn specific_vol_regression_set_a(){
@@ -144,6 +146,43 @@ pub fn isentropic_exponent_regression_set_a(){
     approx::assert_relative_eq!(
         ref_kappa,
         tested_kappa,
+        max_relative=1e-8);
+
+    
+}
+
+
+#[test] 
+pub fn isobaric_cubic_expansion_coeff_regression_set_a(){
+    let ref_alpha_v = 0.277354533e-3;
+    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
+    let p = Pressure::new::<megapascal>(3.0);
+
+    let tested_alpha_v = 
+        alpha_v_tp_1(t, p).get::<per_kelvin>();
+
+    approx::assert_relative_eq!(
+        ref_alpha_v,
+        tested_alpha_v,
+        max_relative=1e-8);
+
+    
+}
+
+
+#[test] 
+pub fn isothermal_compressibility_coeff_regression_set_a(){
+    let ref_kappa_t = 0.446382123e-3;
+    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
+    let p = Pressure::new::<megapascal>(3.0);
+
+    let tested_kappa_t_inverse = 
+        kappa_t_tp_1(t, p).recip().get::<megapascal>();
+    let tested_kappa_t = tested_kappa_t_inverse.recip();
+
+    approx::assert_relative_eq!(
+        ref_kappa_t,
+        tested_kappa_t,
         max_relative=1e-8);
 
     
