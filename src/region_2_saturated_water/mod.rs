@@ -68,6 +68,9 @@ pub use gamma_residual_plus_derivatives::*;
 pub mod gamma_dimensionless_specific_gibbs_free_energy;
 pub use gamma_dimensionless_specific_gibbs_free_energy::*;
 
+pub mod intensive_properties;
+pub use intensive_properties::*;
+
 use uom::si::f64::*;
 use uom::si::pressure::megapascal;
 use uom::si::thermodynamic_temperature::kelvin;

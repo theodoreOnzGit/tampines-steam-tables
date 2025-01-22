@@ -5,7 +5,7 @@ use uom::si::f64::*;
 /// Returns the region-2 residual gamma
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let pi = pi_2(p);
     let mut sum: f64 = 0.0;
     let tau = tau_2(t);
@@ -22,7 +22,7 @@ fn gamma_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-2 residual gamma_tau
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let mut sum: f64 = 0.0;
     let tau = tau_2(t);
     let pi = pi_2(p);
@@ -38,7 +38,7 @@ fn gamma_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-2 residual gamma_tau_tau
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_tau_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_tau_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let mut sum: f64 = 0.0;
     let tau = tau_2(t);
     let pi = pi_2(p);
@@ -54,7 +54,7 @@ fn gamma_tau_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-2 residual gamma_pi
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_pi_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_pi_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let mut sum: f64 = 0.0;
     let tau = tau_2(t);
     let pi = pi_2(p);
@@ -70,7 +70,7 @@ fn gamma_pi_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-2 residual gamma_pi_pi
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_pi_pi_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_pi_pi_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let mut sum: f64 = 0.0;
     let tau = tau_2(t);
     let pi = pi_2(p);
@@ -86,7 +86,7 @@ fn gamma_pi_pi_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
 /// Returns the region-2 residual gamma_pi_tau
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
-fn gamma_pi_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
+pub fn gamma_pi_tau_2_res(t: ThermodynamicTemperature, p: Pressure) -> f64 {
     let mut sum: f64 = 0.0;
     let tau = tau_2(t);
     let pi = pi_2(p);
