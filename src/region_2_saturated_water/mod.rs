@@ -72,6 +72,11 @@ pub use dimensionless_tau_and_pi::*;
 pub mod intensive_properties;
 pub use intensive_properties::*;
 
+/// section 2.2.3.2 page 34 of 390 on pdf 
+/// page 20 according to internal numbering
+pub mod metastable_region_2;
+pub use metastable_region_2::*;
+
 
 /// verification tests based on table 2.11
 /// in Kretzschmar and Wagner
