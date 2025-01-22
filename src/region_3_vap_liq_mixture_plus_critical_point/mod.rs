@@ -42,3 +42,12 @@ const REGION_3_COEFFS: [[f64; 3]; 40] = [
     [10.0, 1.0, -0.16557679795037e-3],
     [11.0, 26.0, -0.44923899061815e-4],
 ];
+
+/// dimensionless temperature (tau)
+/// and dimensionless density (delta)
+pub mod dimensionless_tau_and_delta;
+pub use dimensionless_tau_and_delta::*;
+
+pub mod phi_dimensionless_helmholtz_free_energy;
+pub use phi_dimensionless_helmholtz_free_energy::*;
+

@@ -1,6 +1,6 @@
 use uom::si::f64::*;
 
-use crate::region_2_saturated_water::{pi_2, tau_2};
+use crate::region_2_vapour::{pi_2, tau_2};
 
 use super::METASTABLE_REGION_2_COEFFS_IDEAL;
 
