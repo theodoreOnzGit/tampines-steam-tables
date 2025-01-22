@@ -96,6 +96,22 @@ pub use gamma_dimensionless_specific_gibbs_free_energy::*;
 pub mod gamma_derivatives;
 pub use gamma_derivatives::*;
 
+/// intensive properties caluclated using the gamma_derivatives
+///
+/// these include 
+/// specific volume 
+/// specific enthalpy
+/// specific internal energy 
+/// specific entropy
+/// specific cp 
+/// specific cv 
+/// speed of sound 
+/// isentropic exponent
+/// isobaric cubic expansion coeff 
+/// isothermal compressibility
+pub mod intensive_properties;
+pub use intensive_properties::*;
+
 use uom::si::f64::*;
 use uom::si::pressure::pascal;
 use uom::si::thermodynamic_temperature::kelvin;
