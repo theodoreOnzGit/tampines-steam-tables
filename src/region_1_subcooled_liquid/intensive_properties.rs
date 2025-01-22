@@ -1,4 +1,4 @@
-use crate::constants::{self, R_KJ_PER_KG_KELVIN};
+use crate::constants::R_KJ_PER_KG_KELVIN;
 use uom::si::temperature_coefficient::per_kelvin;
 use uom::si::thermodynamic_temperature::kelvin;
 use uom::si::{f64::*, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
