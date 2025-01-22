@@ -12,7 +12,7 @@ pub fn p_boundary_2_3(t: ThermodynamicTemperature) -> Pressure {
     let t_ref = ThermodynamicTemperature::new::<kelvin>(1.0);
     // theta is dimensionless temp
     let theta: f64 = (t/t_ref).into();
-    let dimensionless_pressure = 1e6 * (n[0] + n[1] * theta + n[2] * theta.powi(2));
+    let dimensionless_pressure = n[0] + n[1] * theta + n[2] * theta.powi(2);
     
     return p_ref * dimensionless_pressure;
 
@@ -30,7 +30,7 @@ pub fn t_boundary_2_3(p: Pressure) -> ThermodynamicTemperature {
     let t_ref = ThermodynamicTemperature::new::<kelvin>(1.0);
     let dimensionless_p: f64 = (p/p_ref).into();
     // theta is dimensionless temp
-    let theta = n[3] + (((dimensionless_p * 1e-6) - n[4]) / n[2]).sqrt();
+    let theta = n[3] + (((dimensionless_p) - n[4]) / n[2]).sqrt();
     return t_ref * theta;
     
 }
