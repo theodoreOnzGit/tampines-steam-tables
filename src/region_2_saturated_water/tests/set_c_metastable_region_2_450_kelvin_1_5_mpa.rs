@@ -13,8 +13,8 @@ use crate::region_2_saturated_water::*;
 #[ignore = "metastable region 2 todo"]
 pub fn specific_vol_regression_set_c(){
     let ref_vol_m3_per_kg = 0.394913866e2;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let specific_vol_test_m3_per_kg = 
         v_tp_2(t, p).get::<cubic_meter_per_kilogram>();
@@ -31,8 +31,8 @@ pub fn specific_vol_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn specific_enthalpy_regression_set_c(){
     let ref_enthalpy_kj_per_kg = 0.254991145e4;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let specific_enthalpy_test_kj_per_kg = 
         h_tp_2(t, p).get::<kilojoule_per_kilogram>();
@@ -49,8 +49,8 @@ pub fn specific_enthalpy_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn specific_internal_energy_regression_set_c(){
     let ref_internal_energy_kj_per_kg = 0.241169160e4;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let specific_internal_energy_test_kj_per_kg = 
         u_tp_2(t, p).get::<kilojoule_per_kilogram>();
@@ -68,8 +68,8 @@ pub fn specific_internal_energy_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn specific_entropy_regression_set_c(){
     let ref_entropy_kj_per_kg_kelvin = 0.852238967e1;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let specific_entropy_test_kj_per_kg_kelvin = 
         s_tp_2(t, p).get::<kilojoule_per_kilogram_kelvin>();
@@ -87,8 +87,8 @@ pub fn specific_entropy_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn cp_regression_set_c(){
     let ref_cp_kj_per_kg_kelvin = 0.191300162e1;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let cp_test_kj_per_kg_kelvin = 
         cp_tp_2(t, p).get::<kilojoule_per_kilogram_kelvin>();
@@ -106,8 +106,8 @@ pub fn cp_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn cv_regression_set_c(){
     let ref_cv_kj_per_kg_kelvin = 0.144132662e1;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let cv_test_kj_per_kg_kelvin = 
         cv_tp_2(t, p).get::<kilojoule_per_kilogram_kelvin>();
@@ -125,8 +125,8 @@ pub fn cv_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn speed_of_sound_regression_set_c(){
     let ref_speed_of_sound_kj_per_kg_kelvin = 0.427920172e3;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let specific_speed_of_sound_test_kj_per_kg_kelvin = 
         w_tp_2(t, p).get::<meter_per_second>();
@@ -144,8 +144,8 @@ pub fn speed_of_sound_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn isentropic_exponent_regression_set_c(){
     let ref_kappa = 0.132481456e1;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let tested_kappa = 
         kappa_tp_2(t, p).get::<ratio>();
@@ -163,8 +163,8 @@ pub fn isentropic_exponent_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn isobaric_cubic_expansion_coeff_regression_set_c(){
     let ref_alpha_v = 0.337578289e-2;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let tested_alpha_v = 
         alpha_v_tp_2(t, p).get::<per_kelvin>();
@@ -182,8 +182,8 @@ pub fn isobaric_cubic_expansion_coeff_regression_set_c(){
 #[ignore = "metastable region 2 todo"]
 pub fn isothermal_compressibility_coeff_regression_set_c(){
     let ref_kappa_t = 0.286239651e3;
-    let t = ThermodynamicTemperature::new::<kelvin>(300.0);
-    let p = Pressure::new::<megapascal>(0.0035);
+    let t = ThermodynamicTemperature::new::<kelvin>(450.0);
+    let p = Pressure::new::<megapascal>(1.5);
 
     let tested_kappa_t_inverse = 
         kappa_t_tp_2(t, p).recip().get::<megapascal>();
