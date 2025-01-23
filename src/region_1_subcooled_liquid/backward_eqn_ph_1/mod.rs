@@ -21,7 +21,7 @@ const REGION_1_BACK_COEFFS_PH: [[f64; 3]; 20] = [
     [6.0, 32.0, -0.15020185953503e-16],
 ];
 
-use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, thermodynamic_temperature::degree_celsius};
+use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, thermodynamic_temperature::kelvin};
 /// Returns the region-1 eta for backwards calculations
 /// Enthalpy is assumed to be in kJ/kg
 pub fn eta_1_back(h: AvailableEnergy) -> f64 {
@@ -39,7 +39,7 @@ pub fn pi_1_back(p: Pressure) -> f64 {
 ///
 /// the reference temperature is 1K
 pub fn t_ph_1(p: Pressure, h: AvailableEnergy,) -> ThermodynamicTemperature {
-    let t = ThermodynamicTemperature::new::<degree_celsius>(
+    let t = ThermodynamicTemperature::new::<kelvin>(
         1.0 * theta_ph_1(p, h)
     );
 
