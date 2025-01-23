@@ -22,6 +22,25 @@ Hence, I am putting the rust-steam license here.
 v0.0.6
 beginning the addition of backwards eqns
 
+First, pressure and enthalpy (p,h) flash. 
+This is applicable for 
+
+region 1, which forward equations are (p,t) flash:
+- T(p,h)
+
+region 2, which forward eqns are (p,t) flash:
+- T(p,h) 
+
+region 3, which forward equations are (v,t) flash, so it accounts for quality:
+- T(p,h)
+- V(p,h)
+
+once (p,h) flash is done for regions 1,2 and 3, then you can get T,
+for region 1 and 2 or (V,T) for region 3
+
+and then get all your other thermodynamic variables
+
+
 v0.0.5
 Add Region 5 equations (no backwards equations here)
 
