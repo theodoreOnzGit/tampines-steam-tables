@@ -141,3 +141,8 @@ pub fn pi_1(p: Pressure) -> f64 {
 
 
 
+/// contains code and functions for backward equations for region 1 
+/// pressure and enthalpy (p,h) flash
+pub mod backward_eqn_ph_1;
+pub use backward_eqn_ph_1::*;
+
