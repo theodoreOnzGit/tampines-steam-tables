@@ -19,6 +19,9 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.0.6
+beginning the addition of backwards eqns
+
 v0.0.5
 Add Region 5 equations (no backwards equations here)
 
