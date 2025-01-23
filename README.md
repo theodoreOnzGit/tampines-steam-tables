@@ -19,6 +19,9 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.0.5
+Add Region 5 equations (no backwards equations here)
+
 v0.0.4 
 Added region 4 vapour liq saturation temp and pressure 
 line up to critical point. This includes triple point, 

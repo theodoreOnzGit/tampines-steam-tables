@@ -115,7 +115,7 @@ use uom::typenum::{Z0, P1, P2, N1};
 // * `J`: Luminous intensity dimension.
 // * `K`: Kind.
 pub type InversePressure = Quantity<ISQ<P1, N1, P2, Z0, Z0, Z0, Z0>, SI<f64>, f64>;
-/// Returns the region-1 isobaric isothermal compressibility
+/// Returns the region-2 isobaric isothermal compressibility
 pub fn kappa_t_tp_2(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
     let pi = pi_2(p);
     let num = 1.0 - pi.powi(2) * gamma_pi_pi_2_res(t, p);
