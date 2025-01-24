@@ -35,4 +35,3 @@ pub fn boundary_2b2c_enthalpy(){
 
 }
 
-
