@@ -58,7 +58,7 @@ pub fn v3a_ph_test3(){
 pub fn v3b_ph_test1(){
     let p = Pressure::new::<megapascal>(20.0);
     let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2500.0);
-    let v_verification_m3_per_kg = 6.670547043e-3;
+    let v_verification_m3_per_kg = 6.670_547_043e-3;
 
 
     let v_test_m3_per_kg = 
@@ -75,7 +75,7 @@ pub fn v3b_ph_test1(){
 pub fn v3b_ph_test2(){
     let p = Pressure::new::<megapascal>(50.0);
     let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2400.0);
-    let v_verification_m3_per_kg = 2.801244590e-3;
+    let v_verification_m3_per_kg = 2.801_244_590e-3;
 
 
     let v_test_m3_per_kg = 
@@ -92,7 +92,7 @@ pub fn v3b_ph_test2(){
 pub fn v3b_ph_test3(){
     let p = Pressure::new::<megapascal>(100.0);
     let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2700.0);
-    let v_verification_m3_per_kg = 2.404234998e-3;
+    let v_verification_m3_per_kg = 2.404_234_998e-3;
 
 
     let v_test_m3_per_kg = 
