@@ -6,7 +6,7 @@ pub fn t_ph_2(p: Pressure, h: AvailableEnergy) -> ThermodynamicTemperature {
     let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(2000.0);
     let pi: f64 = (p / p_ref).into();
     let eta: f64 = (h / h_ref).into();
-    let p_2b2c = p_2b2c(eta);
+    let p_2b2c = p_2b2c(h);
 
     match p.get::<pascal>() {
         pres if (0.0..=4.0e6).contains(&pres) => t_ph_2a(pi, eta),
@@ -16,17 +16,36 @@ pub fn t_ph_2(p: Pressure, h: AvailableEnergy) -> ThermodynamicTemperature {
 }
 
 /// eqn for determining pressure boundary between subregion 2b and 2c
-/// using dimensionles enthalpy eta
+/// using dimensionless enthalpy eta
 #[inline]
-pub fn p_2b2c(eta: f64,) -> Pressure {
+pub fn p_2b2c(h: AvailableEnergy) -> Pressure {
 
     let p_ref = Pressure::new::<megapascal>(1.0);
+    let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(1.0);
+    let eta: f64 = (h/h_ref).into();
     let n1 = 0.90584278514723e3;
     let n2 = -0.67955786399241;
     let n3 = 0.12809002730136e-3;
     let p_2b2c = (n1 +  n2 * eta +  n3 * eta.powi(2)) * p_ref;
 
     p_2b2c
+}
+
+/// eqn for determining enthalpy boundary between subregion 2b and 2c
+/// using dimensionless pressure pi
+#[inline] 
+pub fn h_2b2c(p: Pressure) -> AvailableEnergy {
+    let p_ref = Pressure::new::<megapascal>(1.0);
+    let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(1.0);
+    let pi: f64 = (p/p_ref).into();
+    let n3 = 0.12809002730136e-3;
+    let n4 = 0.265_265_719_084_28e4;
+    let n5 = 0.452_575_789_059_48e1;
+
+    let h_2b2c = n4 + ( (pi-n5)/n3 ).sqrt();
+
+    return h_2b2c * h_ref;
+
 }
 
 #[inline]
