@@ -2,7 +2,7 @@ use uom::si::f64::*;
 
 use crate::constants::specific_gas_constant_of_water;
 
-use super::{gamma_2_ideal, gamma_2_res, gamma_pi_2_ideal, gamma_pi_2_res, gamma_pi_pi_2_res, gamma_pi_tau_2_res, gamma_tau_2_ideal, gamma_tau_2_res, gamma_tau_tau_2_ideal, gamma_tau_tau_2_res, pi_2, tau_2};
+use super::{gamma_2_ideal, gamma_2_res, gamma_pi_2_ideal, gamma_pi_2_res, gamma_pi_pi_2_res, gamma_pi_tau_2_res, gamma_tau_2_ideal, gamma_tau_2_res, gamma_tau_tau_2_ideal, gamma_tau_tau_2_res, pi_2, tau_2, InversePressure};
 
 /// Returns the region-2 specific volume
 /// Temperature is assumed to be in K
@@ -99,22 +99,6 @@ pub fn alpha_v_tp_2(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCoef
 }
 
 
-// to make the inverse pressure type 
-// it is m s^2 / kg 
-use uom::si::{ISQ, SI, Quantity};
-use uom::typenum::{Z0, P1, P2, N1};
-
-// quantity is defined
-// ## Generic Parameters
-// * `L`: Length dimension.
-// * `M`: Mass dimension.
-// * `T`: Time dimension.
-// * `I`: Electric current dimension.
-// * `Th`: Thermodynamic temperature dimension.
-// * `N`: Amount of substance dimension.
-// * `J`: Luminous intensity dimension.
-// * `K`: Kind.
-pub type InversePressure = Quantity<ISQ<P1, N1, P2, Z0, Z0, Z0, Z0>, SI<f64>, f64>;
 /// Returns the region-2 isobaric isothermal compressibility
 pub fn kappa_t_tp_2(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
     let pi = pi_2(p);
