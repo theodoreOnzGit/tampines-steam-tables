@@ -1,6 +1,6 @@
 use uom::si::{f64::*, pressure::pascal, thermodynamic_temperature::kelvin};
 
-use crate::{region_1_subcooled_liquid::{cp_tp_1, cv_tp_1, h_tp_1, s_tp_1, u_tp_1, v_tp_1, w_tp_1}, region_2_vapour::{cp_tp_2, cv_tp_2, h_tp_2, s_tp_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3, region_4_vap_liq_equilibrium::sat_pressure_4, region_5_superheated_steam::{cp_tp_5, cv_tp_5, h_tp_5, s_tp_5, u_tp_5, v_tp_5, w_tp_5}};
+use crate::{region_1_subcooled_liquid::{cp_tp_1, cv_tp_1, h_tp_1, s_tp_1, u_tp_1, v_tp_1, w_tp_1}, region_2_vapour::{cp_tp_2, cv_tp_2, h_tp_2, s_tp_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{cp_tp_3, cv_tp_3, h_tp_3, p_boundary_2_3, s_tp_3, u_tp_3, v_tp_3, w_tp_3}, region_4_vap_liq_equilibrium::sat_pressure_4, region_5_superheated_steam::{cp_tp_5, cv_tp_5, h_tp_5, s_tp_5, u_tp_5, v_tp_5, w_tp_5}};
 
 /// an enum to help represent the appropriate 
 /// regions in the forward equations
@@ -70,7 +70,7 @@ pub fn h_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
     match region {
         FwdEqnRegion::Region1 => h_tp_1(t, p),
         FwdEqnRegion::Region2 => h_tp_2(t, p),
-        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        FwdEqnRegion::Region3 => h_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
         FwdEqnRegion::Region5 => h_tp_5(t, p),
     }
@@ -83,7 +83,7 @@ pub fn u_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
     match region {
         FwdEqnRegion::Region1 => u_tp_1(t, p),
         FwdEqnRegion::Region2 => u_tp_2(t, p),
-        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        FwdEqnRegion::Region3 => u_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
         FwdEqnRegion::Region5 => u_tp_5(t, p),
     }
@@ -97,7 +97,7 @@ pub fn s_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacit
     match region {
         FwdEqnRegion::Region1 => s_tp_1(t, p),
         FwdEqnRegion::Region2 => s_tp_2(t, p),
-        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        FwdEqnRegion::Region3 => s_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
         FwdEqnRegion::Region5 => s_tp_5(t, p),
     }
@@ -110,7 +110,7 @@ pub fn cp_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapaci
     match region {
         FwdEqnRegion::Region1 => cp_tp_1(t, p),
         FwdEqnRegion::Region2 => cp_tp_2(t, p),
-        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        FwdEqnRegion::Region3 => cp_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
         FwdEqnRegion::Region5 => cp_tp_5(t, p),
     }
@@ -124,7 +124,7 @@ pub fn cv_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapaci
     match region {
         FwdEqnRegion::Region1 => cv_tp_1(t, p),
         FwdEqnRegion::Region2 => cv_tp_2(t, p),
-        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        FwdEqnRegion::Region3 => cv_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
         FwdEqnRegion::Region5 => cv_tp_5(t, p),
     }
@@ -140,7 +140,8 @@ pub fn v_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
     match region {
         FwdEqnRegion::Region1 => v_tp_1(t, p),
         FwdEqnRegion::Region2 => v_tp_2(t, p),
-        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        // note that for region 3, the backward eqn is used
+        FwdEqnRegion::Region3 => v_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
         FwdEqnRegion::Region5 => v_tp_5(t, p),
     }
@@ -154,7 +155,7 @@ pub fn w_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
     match region {
         FwdEqnRegion::Region1 => w_tp_1(t, p),
         FwdEqnRegion::Region2 => w_tp_2(t, p),
-        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        FwdEqnRegion::Region3 => w_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
