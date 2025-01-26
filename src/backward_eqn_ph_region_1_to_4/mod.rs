@@ -26,8 +26,12 @@
 // for boundary between 2 and 3, the T-B23 line is used 
 // 
 
+/// this is the boundary eqn ps3 for the critical temp 
+/// isotherm between region 4 and 3
 pub mod boundary_eqn_ps3;
 pub use boundary_eqn_ps3::*;
+
+
 
 #[cfg(test)]
 mod tests;
