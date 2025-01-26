@@ -16,3 +16,5 @@ pub mod saturation_temp_and_pressure;
 pub mod region_3_backward_v_ph;
 
 pub mod region_3_backward_t_ph;
+
+pub mod region_3a3b_ph_boundary;
