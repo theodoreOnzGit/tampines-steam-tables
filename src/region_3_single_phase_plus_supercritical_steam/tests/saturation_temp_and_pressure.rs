@@ -1,7 +1,7 @@
 use uom::si::pressure::megapascal;
 use uom::si::thermodynamic_temperature::kelvin;
 use uom::si::f64::*;
-use crate::region_3_vap_liq_mixture_plus_critical_point::{p_boundary_2_3, t_boundary_2_3};
+use crate::region_3_single_phase_plus_supercritical_steam::{p_boundary_2_3, t_boundary_2_3};
 
 #[test] 
 pub fn sat_temp_to_pressure_p_b23(){

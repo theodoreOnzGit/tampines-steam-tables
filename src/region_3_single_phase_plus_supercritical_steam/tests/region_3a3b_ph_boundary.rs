@@ -1,6 +1,6 @@
 use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal};
 
-use crate::region_3_vap_liq_mixture_plus_critical_point::h_3a3b_backwards_ph_boundary;
+use crate::region_3_single_phase_plus_supercritical_steam::h_3a3b_backwards_ph_boundary;
 
 #[test]
 pub fn ph_3a_3b_boundary(){

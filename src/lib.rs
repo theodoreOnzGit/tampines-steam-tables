@@ -27,15 +27,20 @@ pub mod region_2_vapour;
 /// auxilliary equation for region 2 and 3 are also put here
 ///
 ///
-pub mod region_3_vap_liq_mixture_plus_critical_point;
+pub mod region_3_single_phase_plus_supercritical_steam;
 
 /// region 4
 ///
-/// dry saturated steam region 
-pub mod region_4_dry_saturated_steam;
+/// two phase region
+pub mod region_4_vap_liq_equilibrium;
 
 
 /// region 5 
 ///
-/// superheated steam region 
+/// superheated steam region (ultra high temp)
 pub mod region_5_superheated_steam;
+
+
+/// backward equations ph boundary equations
+/// overall equation
+pub mod backward_eqn_ph_region_1_to_4;
