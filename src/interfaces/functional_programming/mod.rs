@@ -7,7 +7,7 @@
 ///
 /// water/steam is assumed at thermodynamic equilibrium,
 /// ie not metastable
-pub mod pt_flash;
+pub mod pt_flash_eqm;
 
 /// this pt_flash allows for metastable steam
 /// which is NOT at thermodynamic equilibrium
