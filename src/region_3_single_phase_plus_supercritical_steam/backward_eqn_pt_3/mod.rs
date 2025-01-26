@@ -1,5 +1,5 @@
 
-enum BackwardPTRegion3 {
+pub(crate) enum BackwardPTRegion3 {
     SubregionA,
     SubregionB,
     SubregionC,
