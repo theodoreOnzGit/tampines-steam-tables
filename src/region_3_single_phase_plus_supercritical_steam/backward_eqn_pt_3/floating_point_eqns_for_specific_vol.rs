@@ -1796,3 +1796,38 @@ pub(crate) fn subregion(t: f64, p: f64) -> BackwardPTRegion3 {
         _ => BackwardPTRegion3::SubregionZ,
     }
 }
+
+
+/// Returns the specific volume given t and rho
+/// Temperature is assumed to be in K
+/// density is assumed to be in kg/m^3
+pub(crate) fn v_tp_3(t: f64, p: f64) -> f64 {
+    match subregion(t, p) {
+        BackwardPTRegion3::SubregionA => subregion_a(t, p),
+        BackwardPTRegion3::SubregionB => subregion_b(t, p),
+        BackwardPTRegion3::SubregionC => subregion_c(t, p),
+        BackwardPTRegion3::SubregionD => subregion_d(t, p),
+        BackwardPTRegion3::SubregionE => subregion_e(t, p),
+        BackwardPTRegion3::SubregionF => subregion_f(t, p),
+        BackwardPTRegion3::SubregionG => subregion_g(t, p),
+        BackwardPTRegion3::SubregionH => subregion_h(t, p),
+        BackwardPTRegion3::SubregionI => subregion_i(t, p),
+        BackwardPTRegion3::SubregionJ => subregion_j(t, p),
+        BackwardPTRegion3::SubregionK => subregion_k(t, p),
+        BackwardPTRegion3::SubregionL => subregion_l(t, p),
+        BackwardPTRegion3::SubregionM => subregion_m(t, p),
+        BackwardPTRegion3::SubregionN => subregion_n(t, p),
+        BackwardPTRegion3::SubregionO => subregion_o(t, p),
+        BackwardPTRegion3::SubregionP => subregion_p(t, p),
+        BackwardPTRegion3::SubregionQ => subregion_q(t, p),
+        BackwardPTRegion3::SubregionR => subregion_r(t, p),
+        BackwardPTRegion3::SubregionS => subregion_s(t, p),
+        BackwardPTRegion3::SubregionT => subregion_t(t, p),
+        BackwardPTRegion3::SubregionU => subregion_u(t, p),
+        BackwardPTRegion3::SubregionV => subregion_v(t, p),
+        BackwardPTRegion3::SubregionW => subregion_w(t, p),
+        BackwardPTRegion3::SubregionX => subregion_x(t, p),
+        BackwardPTRegion3::SubregionY => subregion_y(t, p),
+        _ => subregion_z(t, p),
+    }
+}
