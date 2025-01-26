@@ -1,6 +1,6 @@
 use uom::si::{f64::*, pressure::pascal, thermodynamic_temperature::kelvin};
 
-use crate::{region_3_single_phase_plus_supercritical_steam::p_boundary_2_3, region_4_vap_liq_equilibrium::sat_pressure_4};
+use crate::{region_1_subcooled_liquid::h_tp_1, region_2_vapour::h_tp_2, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3, region_4_vap_liq_equilibrium::sat_pressure_4, region_5_superheated_steam::h_tp_5};
 
 /// an enum to help represent the appropriate 
 /// regions in the forward equations
@@ -22,13 +22,7 @@ pub enum FwdEqnRegion {
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
 ///
-/// Example
-///
-/// ```compile_fail
-/// use rust_steam::iapws97::{region};
-/// let region = region(300.0, 101325.0).unwrap();
-/// ```
-fn region(t: ThermodynamicTemperature, p: Pressure) -> FwdEqnRegion {
+pub fn region_fwd_eqn(t: ThermodynamicTemperature, p: Pressure) -> FwdEqnRegion {
     let p_sat_reg4 = sat_pressure_4(t);
 
     let p_boundary_23 = p_boundary_2_3(t);
@@ -66,5 +60,18 @@ fn region(t: ThermodynamicTemperature, p: Pressure) -> FwdEqnRegion {
                 FwdEqnRegion::Region1
             }
         _ => panic!("out of bounds!"),
+    }
+}
+
+/// returns the enthalpy given temperature and pressure
+pub fn h_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
+    let region = region_fwd_eqn(t, p);
+
+    match region {
+        FwdEqnRegion::Region1 => h_tp_1(t, p),
+        FwdEqnRegion::Region2 => h_tp_2(t, p),
+        FwdEqnRegion::Region3 => todo!("(t,p) flash for region 3 not yet implemented"),
+        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region5 => h_tp_5(t, p),
     }
 }
