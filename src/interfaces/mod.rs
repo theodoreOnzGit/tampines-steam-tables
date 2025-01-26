@@ -9,3 +9,10 @@ pub mod functional_programming;
 /// and then use that for extracting data, 
 /// this is where the stuff is stored
 pub mod object_oriented_programming;
+
+/// these tests show you how to use the interfaces 
+///
+/// i may attempt to produce part or whole of the 
+/// steam tables here
+#[cfg(test)]
+pub mod tests_and_examples;
