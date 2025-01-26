@@ -19,6 +19,13 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.0.7
+
+Starting development of an interface for the forward and backward flash.
+First using functional programming, then object oriented programming.
+
+Firstly, (p,T) flash, then (p,H) flash.
+
 v0.0.6
 beginning the addition of backwards eqns
 

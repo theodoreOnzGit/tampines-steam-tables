@@ -44,3 +44,18 @@ pub mod region_5_superheated_steam;
 /// backward equations ph boundary equations
 /// overall equation
 pub mod backward_eqn_ph_region_1_to_4;
+
+
+/// public facing interfaces where the user 
+/// simply inputs pressure and temperature 
+/// or pressure and enthalpy etc 
+/// and gets all the required data automatically
+///
+/// the logic for splitting between regions is 
+/// mostly here 
+pub mod interfaces;
+
+/// allows for easy importing as with most rust 
+/// crates. 
+pub mod prelude;
+
