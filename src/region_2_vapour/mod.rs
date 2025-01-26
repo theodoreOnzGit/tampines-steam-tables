@@ -77,6 +77,11 @@ pub use intensive_properties::*;
 pub mod metastable_region_2;
 pub use metastable_region_2::*;
 
+/// backward equations for pressure enthalpy flash 
+pub mod backward_eqn_ph_2;
+pub use backward_eqn_ph_2::*;
+
+
 
 /// verification tests based on table 2.11
 /// in Kretzschmar and Wagner

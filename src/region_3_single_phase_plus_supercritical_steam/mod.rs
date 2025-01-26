@@ -63,6 +63,10 @@ pub use intensive_properties::*;
 pub mod aux_eqn_boundary_region_2_and_region_3;
 pub use aux_eqn_boundary_region_2_and_region_3::*;
 
+/// region 3 ph equations 
+pub mod backward_eqn_ph_3;
+pub use backward_eqn_ph_3::*;
+
 /// tests 
 #[cfg(test)]
 mod tests;

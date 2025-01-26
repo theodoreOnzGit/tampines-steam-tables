@@ -1,6 +1,6 @@
 use uom::si::{f64::*, pressure::megapascal, thermodynamic_temperature::kelvin};
 
-use crate::region_4_dry_saturated_steam::{sat_pressure_4, sat_temp_4};
+use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4};
 
 #[test]
 pub fn sat_pressure_test_1(){
