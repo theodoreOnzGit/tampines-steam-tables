@@ -11,4 +11,6 @@ pub mod pt_flash_eqm;
 
 /// this pt_flash allows for metastable steam
 /// which is NOT at thermodynamic equilibrium
+///
+/// this mostly deals with areas around region 2
 pub mod pt_flash_metastable;
