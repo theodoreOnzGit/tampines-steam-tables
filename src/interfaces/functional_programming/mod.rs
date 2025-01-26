@@ -9,6 +9,9 @@
 /// ie not metastable
 pub mod pt_flash_eqm;
 
+/// allows for pressure enthalpy flash
+pub mod ph_flash_eqm;
+
 /// this pt_flash allows for metastable steam
 /// which is NOT at thermodynamic equilibrium
 ///
