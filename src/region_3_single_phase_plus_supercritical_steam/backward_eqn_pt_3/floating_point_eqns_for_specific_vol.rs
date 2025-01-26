@@ -1801,7 +1801,13 @@ pub(crate) fn subregion(t: f64, p: f64) -> BackwardPTRegion3 {
 /// Returns the specific volume given t and rho
 /// Temperature is assumed to be in K
 /// density is assumed to be in kg/m^3
-pub(crate) fn v_tp_3(t: f64, p: f64) -> f64 {
+///
+/// imported from rusteam
+///
+/// note that this will not cover (t,p) values outside 
+/// region 3, 
+///
+pub(crate) fn v_tp_3_float(t: f64, p: f64) -> f64 {
     match subregion(t, p) {
         BackwardPTRegion3::SubregionA => subregion_a(t, p),
         BackwardPTRegion3::SubregionB => subregion_b(t, p),
