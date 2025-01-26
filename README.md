@@ -40,6 +40,11 @@ for region 1 and 2 or (V,T) for region 3
 
 and then get all your other thermodynamic variables
 
+the ps3 equations (enthalpy to pressure equations) are also added
+
+However, the interface for an overall ph flash or tp flash is not yet 
+available.
+
 
 v0.0.5
 Add Region 5 equations (no backwards equations here)
