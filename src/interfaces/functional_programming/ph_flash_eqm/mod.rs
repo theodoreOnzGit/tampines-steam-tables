@@ -13,8 +13,6 @@ pub(crate) fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
     todo!()
 }
 
-/// this checks for boundary between single phase regions (1 to 3) 
-///
 
 /// panics if outside validity region
 /// see page 38 top left
@@ -36,3 +34,9 @@ fn check_if_within_ph_validity_region(p: Pressure, h: AvailableEnergy,){
 /// of region 1 to 4
 pub(crate) mod validity_range;
 pub(crate) use validity_range::*;
+
+
+/// this checks for boundary between single phase regions (1 to 3) 
+///
+pub(crate) mod boundaries_from_single_phase_regions_to_region_4_multiphase;
+pub(crate) use boundaries_from_single_phase_regions_to_region_4_multiphase::*;
