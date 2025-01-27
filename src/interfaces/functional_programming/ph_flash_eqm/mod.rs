@@ -1,6 +1,6 @@
 use uom::si::{f64::*, thermodynamic_temperature::kelvin};
 
-use crate::{region_1_subcooled_liquid::t_ph_1, region_2_vapour::t_ph_2, region_4_vap_liq_equilibrium::sat_pressure_4};
+use crate::{region_1_subcooled_liquid::t_ph_1, region_2_vapour::t_ph_2, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -11,7 +11,11 @@ pub fn t_ph_flash(p: Pressure, h: AvailableEnergy,) -> ThermodynamicTemperature 
         FwdEqnRegion::Region1 => t_ph_1(p, h),
         FwdEqnRegion::Region2 => t_ph_2(p, h),
         FwdEqnRegion::Region3 => todo!("region 3 needs to be coded "),
-        FwdEqnRegion::Region4 => todo!("todo vle ph flash"),
+        FwdEqnRegion::Region4 => {
+            // if region 4, then just use the pressure to 
+            // determine saturation temperature 
+            sat_temp_4(p)
+        },
         FwdEqnRegion::Region5 => todo!("region 5 ph flash not implemented"),
     }
 }
