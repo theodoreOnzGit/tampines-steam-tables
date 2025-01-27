@@ -43,8 +43,11 @@ pub(crate) fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
     // if pressure is above 16.529 mpa,
     // then we have region 1,2,3 and 4
     // but we need to check the enthalpy as well because there are several 
-    // regimes
-    // this is the two phase region
+    // regimes this is the two phase region
+    // this is from h = 1670.9 kJ/kg to about 2563.6 kJ/kg
+    // and from 16.529 MPa to 22.064 Mpa (critical point)
+    // here is where things are potentially two phase
+
 
     
 
