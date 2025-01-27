@@ -327,3 +327,24 @@ pub fn region_3_test_4(){
 
 
 }
+
+
+/// region around h = 2563.6 kJ/kg
+/// region around p = 37 MPa
+#[test] 
+pub fn region_3_test_5(){
+
+    let reference_region = FwdEqnRegion::Region3;
+    let p = Pressure::new::<megapascal>(37.0);
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2600.0);
+
+
+    let test_region = ph_flash_region(p, h);
+
+    assert_eq!(
+        reference_region,
+        test_region
+        );
+
+
+}
