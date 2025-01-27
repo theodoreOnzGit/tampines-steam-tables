@@ -84,7 +84,7 @@ pub(crate) fn is_ph_point_subcooled_liquid_region1_and_below_16_529_mpa(p: Press
 
     // if enthalpy is less than saturated liquid enthalpy, then it is subcooled liq
 
-    if h < h_sat_liq {
+    if h <= h_sat_liq {
         return true;
     };
 
@@ -110,7 +110,7 @@ pub(crate) fn is_ph_point_superheat_vap_region2_and_below_16_529_mpa(p: Pressure
 
     // if enthalpy is less than saturated liquid enthalpy, then it is subcooled liq
 
-    if h > h_sat_vap {
+    if h >= h_sat_vap {
         return true;
     };
 
