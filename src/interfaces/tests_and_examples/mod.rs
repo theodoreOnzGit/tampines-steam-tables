@@ -7,3 +7,8 @@ pub fn note_to_self_do_steam_table_pt_flash(){
 pub fn note_to_self_do_steam_table_ph_flash(){
     todo!()
 }
+
+/// these are tests to check the functionality 
+/// of ph flash regions
+pub mod ph_flash_regions;
+
