@@ -1,4 +1,22 @@
 use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, thermodynamic_temperature::kelvin};
+
+use crate::constants::P_C_MPA;
+// assuming we are already in region 3
+// calculate temperature given p and h
+#[inline]
+pub fn t_ph_3(p: Pressure, h: AvailableEnergy,) -> ThermodynamicTemperature {
+
+    let is_region_3a = is_3a_when_in_region_3(p, h);
+
+    if is_region_3a {
+        t_ph_3a(p, h)
+    } else {
+        t_ph_3b(p, h)
+    }
+
+}
+
+use super::h_3a3b_backwards_ph_boundary;
 const T_PH_SUBREGION_3A_COEFFS: [[f64; 3]; 31] = [
     [-12.0,0.0,-0.133_645_667_811_215e-6],
     [-12.0,1.0,0.455_912_656_802_978e-5],
@@ -116,4 +134,39 @@ pub fn t_ph_3b(p: Pressure, h: AvailableEnergy) -> ThermodynamicTemperature {
 
     return theta * t_ref_kelvin;
 
+}
+
+/// see page 48
+///
+/// given we are in region 3 already, this eqn 
+/// determines if we are in 3a or 3b
+#[inline] 
+pub(crate) fn is_3a_when_in_region_3(p: Pressure, h: AvailableEnergy) -> bool {
+
+    // now below critical pressure (enthalpy)
+    //
+    // for 3a or 3b determination, we check if the 
+    // enthalpy is above or below the appropriate boundary
+    //
+    let p_crit = Pressure::new::<megapascal>(P_C_MPA);
+
+    // the dividing line if we are already in region 3 is 
+    // in page 48 of the text, 
+    // the boundary line h_3a3b_backwards_ph_boundary
+    // belongs to region 3a
+
+    let mut h_3ab_boundary = h_3a3b_backwards_ph_boundary(p);
+
+    if p < p_crit {
+        h_3ab_boundary = h_3a3b_backwards_ph_boundary(p_crit);
+    };
+
+    // so if enthalpy is greater than the boundary,
+    // it is region 3b
+    if h > h_3ab_boundary {
+        return false;
+    };
+
+    // otherwise, it's region 3a
+    return true;
 }
