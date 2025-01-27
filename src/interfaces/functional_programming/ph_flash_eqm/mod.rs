@@ -1,4 +1,4 @@
-use uom::si::{f64::*, pressure::megapascal, thermodynamic_temperature::kelvin};
+use uom::si::{f64::*, thermodynamic_temperature::kelvin};
 
 use crate::region_4_vap_liq_equilibrium::sat_pressure_4;
 
@@ -63,6 +63,8 @@ pub fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
 
     // the checks for if it is region 1 or 2 already exclude points 
     // outside h = 1670.9 kJ/kg to about 2563.6 kJ/kg
+    //
+    // this is above 22.064 MPa
 
     let is_region_3_above_supercrit 
         = is_ph_point_region_3_and_above_critical_point(p, h);
@@ -70,6 +72,9 @@ pub fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
     if is_region_3_above_supercrit {
         return FwdEqnRegion::Region3;
     };
+
+    // we want to check if this is region 3 and in the range 
+    // 16.520 MPa up to crit point 22.064 MPa
 
     // now we shall have to decide if it is region 3 or 4
 
