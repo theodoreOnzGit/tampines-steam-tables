@@ -103,7 +103,7 @@ pub(crate) fn is_ph_point_region_3_and_above_critical_point(p: Pressure,
     let max_pressure = Pressure::new::<megapascal>(100.0);
 
     if p < min_pressure {
-        panic!("p in (p,h) point is outside validity range");
+        return false;
     };
     if p > max_pressure {
         panic!("p in (p,h) point is outside validity range");

@@ -75,6 +75,12 @@ pub fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
 
     // we want to check if this is region 3 and in the range 
     // 16.520 MPa up to crit point 22.064 MPa
+    let is_region_3_below_supercrit
+        = is_ph_point_region_3_and_from_16_529_mpa_to_crit_temp(p, h);
+
+    if is_region_3_below_supercrit {
+        return FwdEqnRegion::Region3;
+    };
 
     // now we shall have to decide if it is region 3 or 4
 

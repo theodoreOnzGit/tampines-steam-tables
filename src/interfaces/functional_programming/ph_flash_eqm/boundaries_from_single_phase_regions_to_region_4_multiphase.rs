@@ -8,6 +8,7 @@
 use crate::backward_eqn_ph_region_1_to_4::p_s3_h;
 use crate::region_1_subcooled_liquid::h_tp_1;
 use crate::region_2_vapour::h_tp_2;
+use crate::region_3_single_phase_plus_supercritical_steam::t_boundary_2_3;
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
 use crate::region_4_vap_liq_equilibrium::sat_pressure_4;
 use uom::si::f64::*;
@@ -62,27 +63,24 @@ pub(crate) fn is_ph_point_region_4_and_above_16_529_mpa(p: Pressure, h: Availabl
 pub(crate) fn is_ph_point_region_3_and_from_16_529_mpa_to_crit_temp(p: Pressure, h: AvailableEnergy) -> bool {
 
     // before anything, check if enthalpy is within enthalpy validity range 
-    let ref_temperature = ThermodynamicTemperature::new::<kelvin>(623.15);
-
+    let t_high_bound = t_boundary_2_3(p);
     let t_low_bound = ThermodynamicTemperature::new::<kelvin>(623.15);
 
     let h_min = h_tp_1(t_low_bound, p);
-    let h_max = h_tp_2(ref_temperature, p);
+    let h_max = h_tp_2(t_high_bound, p);
 
     if h > h_max {
-        panic!(" enthalpy of p,h point is outside validity range");
+        panic!("enthalpy of p,h point is outside validity range");
     };
     if h < h_min {
-        panic!(" enthalpy of p,h point is outside validity range");
+        panic!("enthalpy of p,h point is outside validity range");
     };
 
-    todo!();
+    // next is to see the temperature
 
     // now, if within this range, we can check pressure
     // in comparison to the saturation enthalpy
     let mut p_sat_line = p_s3_h(h);
-
-
 
     // if the h is very close to the two phase region 
     // we need to correct this slightly
@@ -96,7 +94,7 @@ pub(crate) fn is_ph_point_region_3_and_from_16_529_mpa_to_crit_temp(p: Pressure,
     // if pressure is greater than this pressure, then it is region 3 
     // otherwise it's region 4 
 
-    if p < p_sat_line {
+    if p >= p_sat_line {
 
         return true;
 
