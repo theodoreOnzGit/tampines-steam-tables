@@ -15,7 +15,7 @@ use uom::si::ratio::ratio;
 use uom::si::thermodynamic_temperature::kelvin;
 
 /// see page 38 
-pub(crate) fn is_ph_point_region_4_and_above_16_259_mpa(p: Pressure, h: AvailableEnergy) -> bool {
+pub(crate) fn is_ph_point_region_4_and_above_16_529_mpa(p: Pressure, h: AvailableEnergy) -> bool {
 
     // before anything, check if enthalpy is within enthalpy validity range 
     let ref_temperature = ThermodynamicTemperature::new::<kelvin>(623.15);
