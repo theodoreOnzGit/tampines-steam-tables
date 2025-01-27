@@ -2,7 +2,7 @@ use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapa
 
 use crate::{region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, t_ph_1, u_tp_1, v_tp_1, w_tp_1, InversePressure}, region_2_vapour::{alpha_v_tp_2, cp_tp_2, cv_tp_2, h_tp_2, kappa_t_tp_2, kappa_tp_2, s_tp_2, t_ph_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{alpha_v_tp_3, cp_tp_3, cv_tp_3, kappa_t_tp_3, kappa_tp_3, s_tp_3, t_ph_3, u_tp_3, v_ph_3, w_tp_3}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}, region_5_superheated_steam::{alpha_v_tp_5, cp_tp_5, cv_tp_5, kappa_t_tp_5, kappa_tp_5, s_tp_5, u_tp_5, w_tp_5}};
 
-use super::pt_flash_eqm::{region_fwd_eqn, FwdEqnRegion};
+use super::pt_flash_eqm::FwdEqnRegion;
 
 /// obtains temperature given pressure and enthalpy
 pub fn t_ph_eqm(p: Pressure, h: AvailableEnergy,) -> ThermodynamicTemperature {
@@ -54,7 +54,7 @@ pub fn v_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificVolume {
 /// returns the internal energy given temperature and pressure
 pub fn u_ph_eqm(p: Pressure, h: AvailableEnergy) -> AvailableEnergy {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => u_tp_1(t, p),
@@ -81,7 +81,7 @@ pub fn u_ph_eqm(p: Pressure, h: AvailableEnergy) -> AvailableEnergy {
 /// returns the specific entropy given temperature and pressure
 pub fn s_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => s_tp_1(t, p),
@@ -107,7 +107,7 @@ pub fn s_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
 /// returns the isobaric (const pressure) heat capacitygiven temperature and pressure
 pub fn cp_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => cp_tp_1(t, p),
@@ -134,7 +134,7 @@ pub fn cp_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
 /// returns the isochoric (const vol) heat capacity given temperature and pressure
 pub fn cv_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => cv_tp_1(t, p),
@@ -163,7 +163,7 @@ pub fn cv_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
 /// returns the speed of sound given temperature and pressure
 pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => w_tp_1(t, p),
@@ -190,7 +190,7 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
 /// returns the isentropic exponent 
 pub fn kappa_ph_eqm(p: Pressure, h: AvailableEnergy) -> Ratio {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => kappa_tp_1(t, p),
@@ -216,7 +216,7 @@ pub fn kappa_ph_eqm(p: Pressure, h: AvailableEnergy) -> Ratio {
 /// returns the isobaric cubic expansion coefficient
 pub fn alpha_v_ph_eqm(p: Pressure, h: AvailableEnergy) -> TemperatureCoefficient {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => alpha_v_tp_1(t, p),
@@ -243,7 +243,7 @@ pub fn alpha_v_ph_eqm(p: Pressure, h: AvailableEnergy) -> TemperatureCoefficient
 /// returns the isothermal compressibility
 pub fn kappa_t_ph_eqm(p: Pressure, h: AvailableEnergy) -> InversePressure {
     let t = t_ph_eqm(p, h);
-    let region = region_fwd_eqn(t, p);
+    let region = ph_flash_region(p, h);
 
     match region {
         FwdEqnRegion::Region1 => kappa_t_tp_1(t, p),
