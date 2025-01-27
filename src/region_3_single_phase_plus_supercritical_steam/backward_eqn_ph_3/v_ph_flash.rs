@@ -1,4 +1,6 @@
 use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, specific_volume::cubic_meter_per_kilogram};
+
+use super::is_3a_when_in_region_3;
 /// from table 2.41
 const V_PH_SUBREGION_3A_COEFFS: [[f64; 3]; 32] = [
     [-12.0, 6.0, 0.529_944_062_966_028e-2],
@@ -34,6 +36,20 @@ const V_PH_SUBREGION_3A_COEFFS: [[f64; 3]; 32] = [
     [  5.0, 2.0, 0.110_533_464_706_142e1],
     [  8.0, 2.0, -0.408_757_344_495_612e-1],
 ];
+// assuming we are already in region 3
+// calculate temperature given p and h
+#[inline]
+pub fn v_ph_3(p: Pressure, h: AvailableEnergy,) -> SpecificVolume {
+
+    let is_region_3a = is_3a_when_in_region_3(p, h);
+
+    if is_region_3a {
+        v_ph_3a(p, h)
+    } else {
+        v_ph_3b(p, h)
+    }
+
+}
 
 #[inline]
 pub fn v_ph_3a(p: Pressure, h: AvailableEnergy) -> SpecificVolume {

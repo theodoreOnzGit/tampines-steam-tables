@@ -1,6 +1,6 @@
 use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
-use crate::{region_1_subcooled_liquid::{h_tp_1, t_ph_1}, region_2_vapour::{h_tp_2, t_ph_2}, region_3_single_phase_plus_supercritical_steam::t_ph_3, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}};
+use crate::{region_1_subcooled_liquid::{h_tp_1, t_ph_1, v_tp_1}, region_2_vapour::{h_tp_2, t_ph_2, v_tp_2}, region_3_single_phase_plus_supercritical_steam::{t_ph_3, v_ph_3}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -18,6 +18,37 @@ pub fn t_ph_flash(p: Pressure, h: AvailableEnergy,) -> ThermodynamicTemperature 
             sat_temp_4(p)
         },
         FwdEqnRegion::Region5 => todo!("region 5 ph flash not implemented"),
+    }
+}
+
+/// obtains volume given pressure and enthalpy (except for region 5)
+pub fn v_ph_flash(p: Pressure, h: AvailableEnergy) -> SpecificVolume {
+    let region = ph_flash_region(p, h);
+
+    match region {
+        FwdEqnRegion::Region1 => {
+            let t = t_ph_1(p, h);
+            v_tp_1(t, p)
+        },
+        FwdEqnRegion::Region2 => {
+            let t = t_ph_2(p, h);
+            v_tp_2(t, p)
+        },
+        FwdEqnRegion::Region3 => v_ph_3(p, h),
+        FwdEqnRegion::Region4 => {
+            // in region 4 we get steam quality first
+            // and then sat temp
+            let steam_quality = x_ph_flash(p, h);
+            let t_sat = sat_temp_4(p);
+
+            let v_liq = v_tp_1(t_sat, p);
+            let v_vap = v_tp_2(t_sat, p);
+
+            let v = steam_quality * v_vap + (1.0 - steam_quality) * v_liq;
+
+            v
+        },
+        FwdEqnRegion::Region5 => todo!("ph flash not implemented for region 5"),
     }
 }
 
