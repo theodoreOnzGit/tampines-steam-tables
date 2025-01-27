@@ -64,6 +64,13 @@ pub fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
     // the checks for if it is region 1 or 2 already exclude points 
     // outside h = 1670.9 kJ/kg to about 2563.6 kJ/kg
 
+    let is_region_3_above_supercrit 
+        = is_ph_point_region_3_and_above_critical_point(p, h);
+
+    if is_region_3_above_supercrit {
+        return FwdEqnRegion::Region3;
+    };
+
     // now we shall have to decide if it is region 3 or 4
 
     let is_region_4 = 
