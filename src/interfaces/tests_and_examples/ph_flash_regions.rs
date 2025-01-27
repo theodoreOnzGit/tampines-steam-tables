@@ -5,7 +5,7 @@ use uom::si::f64::*;
 use crate::interfaces::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::interfaces::functional_programming::pt_flash_eqm::FwdEqnRegion;
 use crate::region_1_subcooled_liquid::h_tp_1;
-use crate::region_4_vap_liq_equilibrium::sat_temp_4;
+use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4};
 
 #[test] 
 pub fn test_pts_outside_validity_range(){
@@ -95,6 +95,28 @@ pub fn region_1_test_4_t_623_15k_isotherm(){
     let reference_region = FwdEqnRegion::Region1;
     let p = Pressure::new::<megapascal>(84.0);
     let t = ThermodynamicTemperature::new::<kelvin>(623.15);
+    let h = h_tp_1(t, p);
+
+    let test_region = ph_flash_region(p, h);
+
+    assert_eq!(
+        reference_region,
+        test_region
+        );
+
+
+}
+
+
+/// saturated liquid line 
+/// at 16.529 MPa 
+/// should be region 1 
+#[test] 
+pub fn region_1_test_5_t_623_15k_isotherm_and_sat_liq_line(){
+
+    let reference_region = FwdEqnRegion::Region1;
+    let t = ThermodynamicTemperature::new::<kelvin>(623.15);
+    let p = sat_pressure_4(t);
     let h = h_tp_1(t, p);
 
     let test_region = ph_flash_region(p, h);
