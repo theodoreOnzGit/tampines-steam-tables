@@ -1,9 +1,10 @@
-use uom::si::{f64::*, thermodynamic_temperature::kelvin};
+use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
-use crate::{region_1_subcooled_liquid::t_ph_1, region_2_vapour::t_ph_2, region_3_single_phase_plus_supercritical_steam::t_ph_3, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}};
+use crate::{region_1_subcooled_liquid::{h_tp_1, t_ph_1}, region_2_vapour::{h_tp_2, t_ph_2}, region_3_single_phase_plus_supercritical_steam::t_ph_3, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
+/// obtains temperature given pressure and enthalpy
 pub fn t_ph_flash(p: Pressure, h: AvailableEnergy,) -> ThermodynamicTemperature {
     let region = ph_flash_region(p, h);
 
@@ -19,6 +20,63 @@ pub fn t_ph_flash(p: Pressure, h: AvailableEnergy,) -> ThermodynamicTemperature 
         FwdEqnRegion::Region5 => todo!("region 5 ph flash not implemented"),
     }
 }
+
+/// obtains steam quality (vap fraction) given 
+/// pressure and enthalpy 
+pub fn x_ph_flash(p: Pressure, h: AvailableEnergy,) -> f64 {
+
+    let region = ph_flash_region(p, h);
+    match region {
+        // region 1 is liquid (but above crit point, doesn't really mater
+        FwdEqnRegion::Region1 => 0.0,
+        // region 2 is vapour, but above crit point doesn't really matter
+        FwdEqnRegion::Region2 => 0.0,
+        FwdEqnRegion::Region3 => {
+            // region 3 is special, if it is equal or above 
+            // crit point, then just consider it vapour,
+            // doesn't really matter
+            if p >= Pressure::new::<megapascal>(22.064) {
+                return 1.0;
+            };
+
+            // otherwise, in region 3, we check if 
+            // the enthalpy is below critical enthalpy 
+            let h_crit = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
+
+            if h < h_crit {
+                return 0.0;
+            } else {
+                return 1.0;
+            };
+        },
+        FwdEqnRegion::Region4 => {
+            // for this we consider vapour liquid equilibrium
+            //
+            // h = hvap (x) + hliq (1-x)
+            // h = x (hvap - hliq) + hliq
+            // h-hliq = x (hvap - hliq)
+            // x = (h-hliq)/(hvap - hliq)
+            
+            // first let's take saturation pressure 
+            let t_sat = sat_temp_4(p);
+
+            let h_liq = h_tp_1(t_sat, p);
+            let h_vap = h_tp_2(t_sat, p);
+
+            let x: Ratio = (h-h_liq)/(h_vap-h_liq);
+
+            return x.get::<ratio>();
+
+        },
+        // this is a placeholder, 
+        // but technically if in region 5, the vapour 
+        // quality is 1.0
+        FwdEqnRegion::Region5 => 1.0,
+    }
+
+}
+
+
 
 // allows the user to check which region one is in based on a ph flash
 //
