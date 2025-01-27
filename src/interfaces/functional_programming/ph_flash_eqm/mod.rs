@@ -7,7 +7,7 @@ use super::pt_flash_eqm::FwdEqnRegion;
 // allows the user to check which region one is in based on a ph flash
 //
 // note that ph flash does not work in region 5
-pub(crate) fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
+pub fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
 
     check_if_within_ph_validity_region(p, h);
 
@@ -48,12 +48,33 @@ pub(crate) fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
     // and from 16.529 MPa to 22.064 Mpa (critical point)
     // here is where things are potentially two phase
 
+    let is_region_1 
+        = is_ph_point_region_1_and_above_16_529_mpa(p, h);
 
-    
+    if is_region_1 {
+        return FwdEqnRegion::Region1;
+    };
 
-    
+    let is_region_2 
+        = is_ph_point_region_2_and_above_16_529_mpa(p, h);
+    if is_region_2 {
+        return FwdEqnRegion::Region2;
+    };
 
-    todo!()
+    // the checks for if it is region 1 or 2 already exclude points 
+    // outside h = 1670.9 kJ/kg to about 2563.6 kJ/kg
+
+    // now we shall have to decide if it is region 3 or 4
+
+    let is_region_4 = 
+        is_ph_point_region_4_and_above_16_529_mpa(p, h);
+    if is_region_4 {
+        return FwdEqnRegion::Region4;
+    };
+
+    // otherwise it's region 3 
+
+    return FwdEqnRegion::Region3;
 }
 
 
