@@ -99,7 +99,7 @@ pub fn s_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacit
         FwdEqnRegion::Region1 => s_tp_1(t, p),
         FwdEqnRegion::Region2 => s_tp_2(t, p),
         FwdEqnRegion::Region3 => s_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find entropy of mixture without steam quality"),
         FwdEqnRegion::Region5 => s_tp_5(t, p),
     }
 }
@@ -112,7 +112,7 @@ pub fn cp_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapaci
         FwdEqnRegion::Region1 => cp_tp_1(t, p),
         FwdEqnRegion::Region2 => cp_tp_2(t, p),
         FwdEqnRegion::Region3 => cp_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find cp of mixture without steam quality"),
         FwdEqnRegion::Region5 => cp_tp_5(t, p),
     }
 }
@@ -126,7 +126,7 @@ pub fn cv_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapaci
         FwdEqnRegion::Region1 => cv_tp_1(t, p),
         FwdEqnRegion::Region2 => cv_tp_2(t, p),
         FwdEqnRegion::Region3 => cv_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find cv of mixture without steam quality"),
         FwdEqnRegion::Region5 => cv_tp_5(t, p),
     }
 }
@@ -143,7 +143,7 @@ pub fn v_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
         FwdEqnRegion::Region2 => v_tp_2(t, p),
         // note that for region 3, the backward eqn is used
         FwdEqnRegion::Region3 => v_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find specific vol of mixture without steam quality"),
         FwdEqnRegion::Region5 => v_tp_5(t, p),
     }
 }
@@ -157,7 +157,7 @@ pub fn w_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
         FwdEqnRegion::Region1 => w_tp_1(t, p),
         FwdEqnRegion::Region2 => w_tp_2(t, p),
         FwdEqnRegion::Region3 => w_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find speed of sound of mixture without steam quality"),
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
 }
@@ -171,7 +171,7 @@ pub fn kappa_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
         FwdEqnRegion::Region1 => kappa_tp_1(t, p),
         FwdEqnRegion::Region2 => kappa_tp_2(t, p),
         FwdEqnRegion::Region3 => kappa_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find isentropic exponent of mixture without steam quality"),
         FwdEqnRegion::Region5 => kappa_tp_5(t, p),
     }
 }
@@ -184,7 +184,7 @@ pub fn alpha_v_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCo
         FwdEqnRegion::Region1 => alpha_v_tp_1(t, p),
         FwdEqnRegion::Region2 => alpha_v_tp_2(t, p),
         FwdEqnRegion::Region3 => alpha_v_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find isobaric cubic exp coeff of mixture without steam quality"),
         FwdEqnRegion::Region5 => alpha_v_tp_5(t, p),
     }
 }
@@ -198,7 +198,7 @@ pub fn kappa_t_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> InversePressu
         FwdEqnRegion::Region1 => kappa_t_tp_1(t, p),
         FwdEqnRegion::Region2 => kappa_t_tp_2(t, p),
         FwdEqnRegion::Region3 => kappa_t_tp_3(t, p),
-        FwdEqnRegion::Region4 => todo!("cannot find enthalpy of mixture without steam quality"),
+        FwdEqnRegion::Region4 => todo!("cannot find isothermal compressibility of mixture without steam quality"),
         FwdEqnRegion::Region5 => kappa_t_tp_5(t, p),
     }
 }
