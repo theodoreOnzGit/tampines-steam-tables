@@ -10,6 +10,46 @@ use super::pt_flash_eqm::FwdEqnRegion;
 pub(crate) fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
 
     check_if_within_ph_validity_region(p, h);
+
+    // if inside validity range, then we will start partitioning
+    // first, we check if pressure is smaller or greater than 16.529 MPa
+    // this is saturation pressure at 623.15K 
+
+    let t_for_pressure_boundary = ThermodynamicTemperature::new::<kelvin>(623.15);
+    let p_boundary = sat_pressure_4(t_for_pressure_boundary);
+
+    let is_p_below_16_529_mpa = p < p_boundary;
+
+    // if p is below 16.529 mpa, then we use the eqns for below 16.529 mpa 
+
+    if is_p_below_16_529_mpa {
+
+        let is_region_1
+            = is_ph_point_subcooled_liquid_region1_and_below_16_529_mpa(p, h);
+        if is_region_1 {
+            return FwdEqnRegion::Region1;
+        };
+        let is_region_2
+            = is_ph_point_superheat_vap_region2_and_below_16_529_mpa(p, h);
+
+        if is_region_2 {
+            return FwdEqnRegion::Region2;
+        };
+        // else return region 4 
+        return FwdEqnRegion::Region4;
+
+
+    } 
+    // if pressure is above 16.529 mpa,
+    // then we have region 1,2,3 and 4
+    // but we need to check the enthalpy as well because there are several 
+    // regimes
+    // this is the two phase region
+
+    
+
+    
+
     todo!()
 }
 
