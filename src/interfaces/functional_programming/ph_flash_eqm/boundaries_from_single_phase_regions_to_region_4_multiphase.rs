@@ -58,6 +58,53 @@ pub(crate) fn is_ph_point_region_4_and_above_16_529_mpa(p: Pressure, h: Availabl
     return false;
 
 }
+/// see page 38 
+pub(crate) fn is_ph_point_region_3_and_from_16_529_mpa_to_crit_temp(p: Pressure, h: AvailableEnergy) -> bool {
+
+    // before anything, check if enthalpy is within enthalpy validity range 
+    let ref_temperature = ThermodynamicTemperature::new::<kelvin>(623.15);
+
+    let t_low_bound = ThermodynamicTemperature::new::<kelvin>(623.15);
+
+    let h_min = h_tp_1(t_low_bound, p);
+    let h_max = h_tp_2(ref_temperature, p);
+
+    if h > h_max {
+        panic!(" enthalpy of p,h point is outside validity range");
+    };
+    if h < h_min {
+        panic!(" enthalpy of p,h point is outside validity range");
+    };
+
+    todo!();
+
+    // now, if within this range, we can check pressure
+    // in comparison to the saturation enthalpy
+    let mut p_sat_line = p_s3_h(h);
+
+
+
+    // if the h is very close to the two phase region 
+    // we need to correct this slightly
+    //
+    // This is in the section after table 2.30
+    if ((p - p_sat_line)/p).get::<ratio>() < 1e-4 {
+        p_sat_line = p_sat_line * (1.0 - 4.3e-6);
+    };
+    
+
+    // if pressure is greater than this pressure, then it is region 3 
+    // otherwise it's region 4 
+
+    if p < p_sat_line {
+
+        return true;
+
+    };
+
+    return false;
+
+}
 
 
 /// now, we are given (p,h) points,
