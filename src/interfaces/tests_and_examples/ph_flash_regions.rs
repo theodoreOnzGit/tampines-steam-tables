@@ -244,7 +244,7 @@ pub fn region_2_test_6_sat_vap_t_b23(){
 
     let reference_region = FwdEqnRegion::Region2;
     let t = ThermodynamicTemperature::new::<kelvin>(623.15);
-    let p = p_boundary_2_3(t);
+    let p = sat_pressure_4(t);
     let h = h_tp_2(t, p);
 
     let test_region = ph_flash_region(p, h);
