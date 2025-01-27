@@ -133,7 +133,7 @@ pub fn region_1_test_5_t_623_15k_isotherm_and_sat_liq_line(){
 
 }
 
-/// now region 2 tests
+// ================== now region 2 tests ===================
 ///
 /// this one is below 16.529 MPa
 #[test] 
@@ -153,7 +153,6 @@ pub fn region_2_test_1(){
 }
 
 
-/// now region 2 tests
 ///
 /// this one is at 16.529 MPa
 #[test] 
@@ -173,7 +172,6 @@ pub fn region_2_test_2(){
 }
 
 
-/// now region 2 tests
 ///
 /// this one is above 16.529 MPa
 #[test] 
@@ -193,7 +191,6 @@ pub fn region_2_test_3(){
 }
 
 
-/// now region 2 tests
 ///
 /// this one is above 16.529 MPa
 /// at the Tb23 line
@@ -215,7 +212,6 @@ pub fn region_2_test_4_tb23_line(){
 }
 
 
-/// now region 2 tests
 ///
 /// sat vap line below 16.529 MPa
 #[test] 
@@ -236,7 +232,6 @@ pub fn region_2_test_5_sat_vap_line(){
 }
 
 
-/// now region 2 tests
 ///
 /// sat vap line below 16.529 MPa
 #[test] 
@@ -254,4 +249,60 @@ pub fn region_2_test_6_sat_vap_t_b23(){
         test_region
         );
 
+}
+
+
+// ================== now region 3 tests ===================
+/// region 3 above critical point test
+#[test] 
+pub fn region_3_test_1(){
+    let reference_region = FwdEqnRegion::Region3;
+    let p = Pressure::new::<megapascal>(23.0);
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2100.0);
+
+    let test_region = ph_flash_region(p, h);
+
+    assert_eq!(
+        reference_region,
+        test_region
+        );
+}
+
+
+/// region 3 below critical point test
+/// but above 16.529 MPa
+/// sat liq
+///
+/// looking at ph graph fig 2.5 roughly
+#[test] 
+pub fn region_3_test_2(){
+    let reference_region = FwdEqnRegion::Region3;
+    let p = Pressure::new::<megapascal>(18.0);
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(1700.0);
+
+    let test_region = ph_flash_region(p, h);
+
+    assert_eq!(
+        reference_region,
+        test_region
+        );
+}
+
+
+/// region 3 below critical point test
+/// but above 16.529 MPa
+///
+/// looking at ph graph fig 2.5 roughly
+#[test] 
+pub fn region_3_test_3(){
+    let reference_region = FwdEqnRegion::Region3;
+    let p = Pressure::new::<megapascal>(18.0);
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2600.0);
+
+    let test_region = ph_flash_region(p, h);
+
+    assert_eq!(
+        reference_region,
+        test_region
+        );
 }
