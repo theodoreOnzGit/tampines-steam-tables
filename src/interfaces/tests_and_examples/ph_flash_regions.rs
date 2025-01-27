@@ -132,6 +132,25 @@ pub fn region_1_test_5_t_623_15k_isotherm_and_sat_liq_line(){
 
 
 }
+/// region around h = 1670.9 kJ/kg
+/// region around p = 37 MPa
+#[test] 
+pub fn region_1_test_6(){
+
+    let reference_region = FwdEqnRegion::Region1;
+    let p = Pressure::new::<megapascal>(37.0);
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(1660.0);
+
+
+    let test_region = ph_flash_region(p, h);
+
+    assert_eq!(
+        reference_region,
+        test_region
+        );
+
+
+}
 
 // ================== now region 2 tests ===================
 ///
