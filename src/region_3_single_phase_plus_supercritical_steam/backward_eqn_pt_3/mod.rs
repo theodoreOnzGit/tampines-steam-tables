@@ -105,6 +105,65 @@ pub fn v_tp_3r(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
         v_m3_per_kg);
 }
 
+/// these are needed for ph flashing at saturation line 
+/// vap phase specific vol
+/// from 643.15 K, 21.0434 Mpa to 21.9316 MPa
+///
+#[inline]
+pub fn v_tp_3u(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
+    let t_kelvin = t.get::<kelvin>();
+    let p_pascal = p.get::<pascal>();
+
+    let v_m3_per_kg = subregion_u(t_kelvin, p_pascal);
+
+    return SpecificVolume::new::<cubic_meter_per_kilogram>(
+        v_m3_per_kg);
+}
+
+/// these are needed for ph flashing at saturation line 
+/// vap phase specific vol
+/// from 21.9316 MPa to crit pt at 22.064 Mpa (crit pt)
+///
+#[inline]
+pub fn v_tp_3y(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
+    let t_kelvin = t.get::<kelvin>();
+    let p_pascal = p.get::<pascal>();
+
+    let v_m3_per_kg = subregion_y(t_kelvin, p_pascal);
+
+    return SpecificVolume::new::<cubic_meter_per_kilogram>(
+        v_m3_per_kg);
+}
+/// these are needed for ph flashing at saturation line 
+/// vap phase specific vol
+/// from 643.15 K, 21.0434 Mpa to 21.9010 MPa
+///
+#[inline]
+pub fn v_tp_3x(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
+    let t_kelvin = t.get::<kelvin>();
+    let p_pascal = p.get::<pascal>();
+
+    let v_m3_per_kg = subregion_x(t_kelvin, p_pascal);
+
+    return SpecificVolume::new::<cubic_meter_per_kilogram>(
+        v_m3_per_kg);
+}
+/// these are needed for ph flashing at saturation line 
+/// vap phase specific vol
+/// from 21.9010 MPa to crit pt at 22.064 Mpa (crit pt)
+///
+#[inline]
+pub fn v_tp_3z(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
+    let t_kelvin = t.get::<kelvin>();
+    let p_pascal = p.get::<pascal>();
+
+    let v_m3_per_kg = subregion_z(t_kelvin, p_pascal);
+
+    return SpecificVolume::new::<cubic_meter_per_kilogram>(
+        v_m3_per_kg);
+}
+
+
 
 pub mod intensive_properties;
 pub use intensive_properties::*;
