@@ -507,7 +507,6 @@ pub fn x_ph_flash(p: Pressure, h: AvailableEnergy,) -> f64 {
                 // using a slightly colder temperature than tsat 
                 // and for vapour I get it slightly higher than  
                 // the tsat
-                let p_mpa = p.get::<megapascal>();
                 let v_vap: SpecificVolume = {
                     // this covers up to tsat at 643.15 K
                     if t_sat_kelvin <= 640.691 {
@@ -515,7 +514,7 @@ pub fn x_ph_flash(p: Pressure, h: AvailableEnergy,) -> f64 {
                     } else if t_sat_kelvin <= 643.15 {
                         v_tp_3r(t_sat, p)
                     } else // this covers pressure from 21.0434 Mpa to crit point 
-                    if p_mpa <= 21.9010 {
+                    if t_sat_kelvin <= 646.599 {
                         v_tp_3x(t_sat, p)
                     } else {
                         v_tp_3z(t_sat, p)
@@ -528,7 +527,7 @@ pub fn x_ph_flash(p: Pressure, h: AvailableEnergy,) -> f64 {
                         v_tp_3c(t_sat, p)
                     } else if t_sat_kelvin <= 643.15 {
                         v_tp_3s(t_sat, p)
-                    } else if p_mpa <= 21.9316 {
+                    } else if t_sat_kelvin <= 646.483 {
                         v_tp_3u(t_sat, p)
                     } else {
                         v_tp_3y(t_sat, p)
