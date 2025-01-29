@@ -453,7 +453,7 @@ pub fn x_ph_flash(p: Pressure, h: AvailableEnergy,) -> f64 {
         // region 1 is liquid (but above crit point, doesn't really mater
         FwdEqnRegion::Region1 => 0.0,
         // region 2 is vapour, but above crit point doesn't really matter
-        FwdEqnRegion::Region2 => 0.0,
+        FwdEqnRegion::Region2 => 1.0,
         FwdEqnRegion::Region3 => {
             // region 3 is special, if it is equal or above 
             // crit point, then just consider it vapour,
