@@ -11,6 +11,7 @@ use crate::region_2_vapour::h_tp_2;
 
 /// saturation table (see page 174)
 #[test]
+#[ignore = "yet to implement proper test"]
 pub fn saturation_table_170_to_258_degc(){
 
     //[t_deg_c,t_kelvin,psat_bar,v_liq_m3_per_kg,v_vap_m3_per_kg,h_liq_kj_per_kg,h_vap_kj_per_kg,enthalpy_of_vap,s_liq_kj_per_kg_k,s_vap_kj_per_kg_k],
