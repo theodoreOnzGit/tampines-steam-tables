@@ -40,7 +40,6 @@ pub fn v_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificVolume {
             // and then sat temp
             let steam_quality = x_ph_flash(p, h);
             let t_sat = sat_temp_4(p);
-            dbg!(&t_sat);
 
             // there are two cases for this... in region 4 
             // boundary one is where temperature is below 
