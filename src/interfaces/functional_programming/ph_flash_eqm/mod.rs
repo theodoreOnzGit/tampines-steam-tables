@@ -541,6 +541,12 @@ pub fn x_ph_flash(p: Pressure, h: AvailableEnergy,) -> f64 {
                 let h_liq = h_rho_t_3(v_liq.recip(), t_sat);
                 let h_vap = h_rho_t_3(v_vap.recip(), t_sat);
 
+                if h_liq == h_vap {
+                    // at supercritical point, just assume vapour
+                    // this prevents a divide by zero error
+                    return 1.0;
+                };
+
 
                 let x: Ratio = (h-h_liq)/(h_vap-h_liq);
                 return x.get::<ratio>();
