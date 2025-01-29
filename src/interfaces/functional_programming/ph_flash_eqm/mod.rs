@@ -153,17 +153,35 @@ pub fn u_ph_eqm(p: Pressure, h: AvailableEnergy) -> AvailableEnergy {
                 // and for vapour I get it slightly higher than  
                 // the tsat
 
-                let t_sat_liq = 
-                    ThermodynamicTemperature::new::<kelvin>(
-                        t_sat_kelvin - 1e-9
-                    );
-                let t_sat_vap = 
-                    ThermodynamicTemperature::new::<kelvin>(
-                        t_sat_kelvin + 1e-9
-                    );
+                let p_mpa = p.get::<megapascal>();
+                let v_vap: SpecificVolume = {
+                    // this covers up to tsat at 643.15 K
+                    if t_sat_kelvin <= 640.691 {
+                        v_tp_3t(t_sat, p)
+                    } else if t_sat_kelvin <= 643.15 {
+                        v_tp_3r(t_sat, p)
+                    } else // this covers pressure from 21.0434 Mpa to crit point 
+                    if p_mpa <= 21.9010 {
+                        v_tp_3x(t_sat, p)
+                    } else {
+                        v_tp_3z(t_sat, p)
+                    }
+                };
 
-                let v_liq = v_tp_3(t_sat_liq, p);
-                let v_vap = v_tp_3(t_sat_vap, p);
+                let v_liq: SpecificVolume = {
+                    // this covers up to tsat at 643.15 K
+                    if t_sat_kelvin <= 634.659 {
+                        v_tp_3c(t_sat, p)
+                    } else if t_sat_kelvin <= 643.15 {
+                        v_tp_3s(t_sat, p)
+                    } else if p_mpa <= 21.9316 {
+                        v_tp_3u(t_sat, p)
+                    } else {
+                        v_tp_3y(t_sat, p)
+                    }
+
+
+                };
 
                 // now let's get u for liquid and vapour 
 
@@ -222,17 +240,35 @@ pub fn s_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
                 // and for vapour I get it slightly higher than  
                 // the tsat
 
-                let t_sat_liq = 
-                    ThermodynamicTemperature::new::<kelvin>(
-                        t_sat_kelvin - 1e-9
-                    );
-                let t_sat_vap = 
-                    ThermodynamicTemperature::new::<kelvin>(
-                        t_sat_kelvin + 1e-9
-                    );
+                let p_mpa = p.get::<megapascal>();
+                let v_vap: SpecificVolume = {
+                    // this covers up to tsat at 643.15 K
+                    if t_sat_kelvin <= 640.691 {
+                        v_tp_3t(t_sat, p)
+                    } else if t_sat_kelvin <= 643.15 {
+                        v_tp_3r(t_sat, p)
+                    } else // this covers pressure from 21.0434 Mpa to crit point 
+                    if p_mpa <= 21.9010 {
+                        v_tp_3x(t_sat, p)
+                    } else {
+                        v_tp_3z(t_sat, p)
+                    }
+                };
 
-                let v_liq = v_tp_3(t_sat_liq, p);
-                let v_vap = v_tp_3(t_sat_vap, p);
+                let v_liq: SpecificVolume = {
+                    // this covers up to tsat at 643.15 K
+                    if t_sat_kelvin <= 634.659 {
+                        v_tp_3c(t_sat, p)
+                    } else if t_sat_kelvin <= 643.15 {
+                        v_tp_3s(t_sat, p)
+                    } else if p_mpa <= 21.9316 {
+                        v_tp_3u(t_sat, p)
+                    } else {
+                        v_tp_3y(t_sat, p)
+                    }
+
+
+                };
 
                 let s_liq = s_rho_t_3(v_liq.recip(), t);
                 let s_vap = s_rho_t_3(v_vap.recip(), t);
