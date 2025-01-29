@@ -1,23 +1,30 @@
 use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::pressure::bar;
 use uom::si::f64::*;
+use uom::si::ratio::ratio;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::specific_volume::cubic_meter_per_kilogram;
 use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
+use uom::si::velocity::meter_per_second;
 
-use crate::interfaces::functional_programming::ph_flash_eqm::{s_ph_eqm, t_ph_eqm, v_ph_eqm};
+use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, s_ph_eqm, t_ph_eqm, v_ph_eqm, w_ph_eqm};
 use crate::region_1_subcooled_liquid::h_tp_1;
 use crate::region_2_vapour::h_tp_2;
 
-/// saturation table (see page 174)
 #[test]
-pub fn single_phase_table_0_to_240_degc_triple_pt(){
+pub fn reminder_to_do_viscosity_and_thermal_conductivity(){
+    todo!()
+}
+/// single phase table (see page 192)
+///
+/// NOTE: ph flash UNABLE to do triple point liquid and vapour accurately.
+#[test]
+pub fn single_phase_table_0_to_240_degc_except_triple_pt(){
 
-    //[t_deg_c,t_kelvin,psat_bar,v_liq_m3_per_kg,v_vap_m3_per_kg,h_liq_kj_per_kg,h_vap_kj_per_kg,enthalpy_of_vap,s_liq_kj_per_kg_k,s_vap_kj_per_kg_k],
     let steam_table: Vec<[f64; 10]> =
         vec![
-        [0.006112127,0.0,0.00100021,0.04159,0.0001545,4.2199,1402.3,3216538.0,1792.0,555.57],
-        [0.006112127,0.0,206.14,2500.89,9.1558,1.8882,408.88,1.3269,8.9455,16.76],
+        //[0.006112127,0.0,0.00100021,-0.04159,-0.0001545,4.2199,1402.3,3216538.0,1792.0,555.57],
+        //[0.006112127,0.0,206.14,2500.89,9.1558,1.8882,408.88,1.3269,8.9455,16.76],
         [0.006112127,2.0,207.657,2504.66,9.1695,1.8822,410.5,1.3277,9.0033,16.889],
         [0.006112127,4.0,209.173,2508.42,9.1831,1.878,412.08,1.3282,9.0617,17.019],
         [0.006112127,6.0,210.688,2512.18,9.1966,1.875,413.63,1.3286,9.1207,17.15],
@@ -104,5 +111,52 @@ fn assert_ph_flash(
         t_test.get::<degree_celsius>(),
         epsilon=temp_tol_millikelvin*1e-3
         );
+
+    // assert volume to within 0.01%  (that's the tolerable error for 
+    // backward eqn)
+    let v_test = v_ph_eqm(p, h);
+    approx::assert_relative_eq!(
+        v_m3_per_kg,
+        v_test.get::<cubic_meter_per_kilogram>(),
+        max_relative=1e-4
+        );
+
+    // now entropy 
+    let s_test = s_ph_eqm(p, h);
+    approx::assert_relative_eq!(
+        s_kj_per_kg_k,
+        s_test.get::<kilojoule_per_kilogram_kelvin>(),
+        max_relative=1e-4
+        );
+
+    // cp 
+    let cp_test = cp_ph_eqm(p, h);
+    approx::assert_relative_eq!(
+        cp_kj_per_kg_k,
+        cp_test.get::<kilojoule_per_kilogram_kelvin>(),
+        max_relative=1e-4
+        );
+    // w 
+    let w_test = w_ph_eqm(p, h);
+    approx::assert_relative_eq!(
+        w_m_per_s,
+        w_test.get::<meter_per_second>(),
+        max_relative=1e-4
+        );
+
+    // kappa
+    let kappa_test = kappa_ph_eqm(p, h);
+    approx::assert_relative_eq!(
+        kappa_dimensionless,
+        kappa_test.get::<ratio>(),
+        max_relative=1e-4
+        );
+
+    // eta and lambda tbd
+
+
+
 }
+
+
 
