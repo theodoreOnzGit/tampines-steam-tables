@@ -79,6 +79,45 @@ pub fn saturation_table_260_degc_to_350_degc(){
         }
 
 }
+
+
+/// saturation table (see page 182)
+///
+/// this is region 3 and region 4
+#[test]
+pub fn saturation_table_355_degc_to_crit_373_degc(){
+
+    //[t_deg_c,t_kelvin,psat_bar,v_liq_m3_per_kg,v_vap_m3_per_kg,h_liq_kj_per_kg,h_vap_kj_per_kg,enthalpy_of_vap,s_liq_kj_per_kg_k,s_vap_kj_per_kg_k],
+    let steam_table: Vec<[f64; 10]> =
+        vec![
+        [355.0,628.15,175.701,0.0018078,0.007866,1713.71,2526.45,812.74,3.8438,5.1377],
+        [360.0,633.15,186.664,0.00189451,0.0069449,1761.49,2480.99,719.5,3.9164,5.0527],
+        [365.0,638.15,198.222,0.00201561,0.0060044,1817.59,2422.0,604.41,4.0011,4.9482],
+        [370.0,643.15,210.434,0.00222209,0.0049462,1892.64,2333.5,440.86,4.1142,4.7996],
+        [371.0,644.15,212.964,0.0022902,0.0046914,1913.25,2307.45,394.2,4.1453,4.7573],
+        [372.0,645.15,215.528,0.0023817,0.0043985,1938.54,2274.69,336.15,4.1836,4.7046],
+        [373.0,646.15,218.132,0.00252643,0.0040212,1974.14,2227.55,253.42,4.2377,4.6299],
+        ];
+
+        for dataset in steam_table {
+            let t_deg_c = dataset[0];
+            let t_kelvin = dataset[1];
+            let psat_bar = dataset[2];
+            let v_liq_m3_per_kg = dataset[3];
+            let v_vap_m3_per_kg = dataset[4];
+            let h_liq_kj_per_kg = dataset[5];
+            let h_vap_kj_per_kg = dataset[6];
+            let enthalpy_of_vap_kj_per_kg = dataset[7];
+            let s_liq_kj_per_kg_k = dataset[8];
+            let s_vap_kj_per_kg_k = dataset[9];
+            assert_ph_flash(t_deg_c, t_kelvin, psat_bar, 
+                v_liq_m3_per_kg, v_vap_m3_per_kg, h_liq_kj_per_kg, 
+                h_vap_kj_per_kg, enthalpy_of_vap_kj_per_kg, 
+                s_liq_kj_per_kg_k, s_vap_kj_per_kg_k);
+        }
+
+}
+
 /// saturation table (see page 182)
 #[test]
 pub fn saturation_table_crit_pt(){
