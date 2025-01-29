@@ -1,6 +1,6 @@
 use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
-use crate::{region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, t_ph_1, u_tp_1, v_tp_1, w_tp_1, InversePressure}, region_2_vapour::{alpha_v_tp_2, cp_tp_2, cv_tp_2, h_tp_2, kappa_t_tp_2, kappa_tp_2, s_tp_2, t_ph_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{alpha_v_tp_3, cp_tp_3, cv_tp_3, h_rho_t_3, kappa_t_tp_3, kappa_tp_3, s_rho_t_3, s_tp_3, t_ph_3, u_rho_t_3, u_tp_3, v_ph_3, v_tp_3c, v_tp_3r, v_tp_3s, v_tp_3t, v_tp_3u, v_tp_3x, v_tp_3y, v_tp_3z, w_tp_3}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}, region_5_superheated_steam::{alpha_v_tp_5, cp_tp_5, cv_tp_5, kappa_t_tp_5, kappa_tp_5, s_tp_5, u_tp_5, w_tp_5}};
+use crate::{region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, t_ph_1, u_tp_1, v_tp_1, w_tp_1, InversePressure}, region_2_vapour::{alpha_v_tp_2, cp_tp_2, cv_tp_2, h_tp_2, kappa_t_tp_2, kappa_tp_2, s_tp_2, t_ph_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{alpha_v_tp_3, cp_tp_3, cv_tp_3, h_3a3b_backwards_ph_boundary, h_rho_t_3, kappa_t_tp_3, kappa_tp_3, s_rho_t_3, s_tp_3, t_ph_3, u_rho_t_3, u_tp_3, v_ph_3, v_tp_3c, v_tp_3r, v_tp_3s, v_tp_3t, v_tp_3u, v_tp_3x, v_tp_3y, v_tp_3z, w_tp_3}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}, region_5_superheated_steam::{alpha_v_tp_5, cp_tp_5, cv_tp_5, kappa_t_tp_5, kappa_tp_5, s_tp_5, u_tp_5, w_tp_5}};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -464,7 +464,7 @@ pub fn x_ph_flash(p: Pressure, h: AvailableEnergy,) -> f64 {
 
             // otherwise, in region 3, we check if 
             // the enthalpy is below critical enthalpy 
-            let h_crit = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
+            let h_crit = h_3a3b_backwards_ph_boundary(p);
 
             if h < h_crit {
                 return 0.0;
