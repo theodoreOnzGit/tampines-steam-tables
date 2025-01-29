@@ -84,6 +84,8 @@ pub fn v_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificVolume {
 
                 let v_liq = v_tp_3(t_sat_liq, p);
                 let v_vap = v_tp_3(t_sat_vap, p);
+                // yea this didn't work well... 
+                // I'm going to use the tp equations in their individual regions
 
                 let v = steam_quality * v_vap + (1.0 - steam_quality) * v_liq;
 
