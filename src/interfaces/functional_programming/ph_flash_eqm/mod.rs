@@ -1,6 +1,6 @@
 use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
-use crate::{backward_eqn_ph_region_1_to_4::p_s3_h, constants::P_C_MPA, region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, t_ph_1, u_tp_1, v_tp_1, w_tp_1, InversePressure}, region_2_vapour::{alpha_v_tp_2, cp_tp_2, cv_tp_2, h_tp_2, kappa_t_tp_2, kappa_tp_2, s_tp_2, t_ph_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{alpha_v_tp_3, cp_tp_3, cv_tp_3, h_3a3b_backwards_ph_boundary, kappa_t_tp_3, kappa_tp_3, s_tp_3, t_boundary_2_3, t_ph_3, u_tp_3, v_ph_3, v_ph_3a, v_ph_3b, v_tp_3, w_tp_3}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}, region_5_superheated_steam::{alpha_v_tp_5, cp_tp_5, cv_tp_5, kappa_t_tp_5, kappa_tp_5, s_tp_5, u_tp_5, w_tp_5}};
+use crate::{backward_eqn_ph_region_1_to_4::p_s3_h, constants::P_C_MPA, region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, t_ph_1, u_tp_1, v_tp_1, w_tp_1, InversePressure}, region_2_vapour::{alpha_v_tp_2, cp_tp_2, cv_tp_2, h_tp_2, kappa_t_tp_2, kappa_tp_2, s_tp_2, t_ph_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{alpha_v_tp_3, cp_tp_3, cv_tp_3, h_3a3b_backwards_ph_boundary, kappa_t_tp_3, kappa_tp_3, s_rho_t_3, s_tp_3, t_boundary_2_3, t_ph_3, u_rho_t_3, u_tp_3, v_ph_3, v_ph_3a, v_ph_3b, v_tp_3, w_tp_3}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}, region_5_superheated_steam::{alpha_v_tp_5, cp_tp_5, cv_tp_5, kappa_t_tp_5, kappa_tp_5, s_tp_5, u_tp_5, w_tp_5}};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -75,17 +75,12 @@ pub fn v_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificVolume {
 
                 let t_sat_liq = 
                     ThermodynamicTemperature::new::<kelvin>(
-                        t_sat_kelvin - 1e-9
+                        t_sat_kelvin - 1e-5
                     );
                 let t_sat_vap = 
                     ThermodynamicTemperature::new::<kelvin>(
-                        t_sat_kelvin + 1e-9
+                        t_sat_kelvin + 1e-5
                     );
-
-
-
-
-                // not exactly sure how to do this without iteration...
 
                 let v_liq = v_tp_3(t_sat_liq, p);
                 let v_vap = v_tp_3(t_sat_vap, p);
@@ -112,15 +107,56 @@ pub fn u_ph_eqm(p: Pressure, h: AvailableEnergy) -> AvailableEnergy {
         FwdEqnRegion::Region4 => {
             // for region 4 specifically, we determine 
             // steam quality first
-            let steam_quality = x_ph_flash(p, h);
             let t_sat = sat_temp_4(p);
+            let t_sat_kelvin = t_sat.get::<kelvin>();
+            let steam_quality = x_ph_flash(p, h);
+            if t_sat_kelvin <= 623.15 {
 
-            let u_liq = u_tp_1(t_sat, p);
-            let u_vap = u_tp_2(t_sat, p);
+                let u_liq = u_tp_1(t_sat, p);
+                let u_vap = u_tp_2(t_sat, p);
 
-            let u = steam_quality * u_vap + (1.0 - steam_quality) * u_liq;
+                let u = steam_quality * u_vap + (1.0 - steam_quality) * u_liq;
 
-            u
+                u
+            } else {
+                // in the case we hit region 3, the algorithm must differ
+
+                // looks like all I need to do is use the backward equations 
+                // v(t,p)
+                // let's do the liquid one first 
+
+                // this is with reference to the pt equations on 
+                // fig 2.24 page 109
+                //
+                // alternatively, this is a cheat way... 
+                // I look at t_sat, and force it to find liquid volume 
+                // using a slightly colder temperature than tsat 
+                // and for vapour I get it slightly higher than  
+                // the tsat
+
+                let t_sat_liq = 
+                    ThermodynamicTemperature::new::<kelvin>(
+                        t_sat_kelvin - 1e-9
+                    );
+                let t_sat_vap = 
+                    ThermodynamicTemperature::new::<kelvin>(
+                        t_sat_kelvin + 1e-9
+                    );
+
+                let v_liq = v_tp_3(t_sat_liq, p);
+                let v_vap = v_tp_3(t_sat_vap, p);
+
+                // now let's get u for liquid and vapour 
+
+                let u_liq = u_rho_t_3(v_liq.recip(), t);
+                let u_vap = u_rho_t_3(v_vap.recip(), t);
+
+
+                let u = steam_quality * u_vap + (1.0 - steam_quality) * u_liq;
+
+                u
+
+            }
         },
         FwdEqnRegion::Region5 => u_tp_5(t, p),
     }
@@ -139,15 +175,54 @@ pub fn s_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
         FwdEqnRegion::Region4 => {
             // I'm just using quality to interpolate here 
             // not sure if 100% correct
-            let steam_quality = x_ph_flash(p, h);
             let t_sat = sat_temp_4(p);
+            let t_sat_kelvin = t_sat.get::<kelvin>();
+            let steam_quality = x_ph_flash(p, h);
 
-            let s_liq = s_tp_1(t_sat, p);
-            let s_vap = s_tp_2(t_sat, p);
+            if t_sat_kelvin <= 623.15 {
 
-            let s = steam_quality * s_vap + (1.0 - steam_quality) * s_liq;
+                let s_liq = s_tp_1(t_sat, p);
+                let s_vap = s_tp_2(t_sat, p);
 
-            s
+                let s = steam_quality * s_vap + (1.0 - steam_quality) * s_liq;
+
+                s 
+            } else {
+                // in the case we hit region 3, the algorithm must differ
+
+                // looks like all I need to do is use the backward equations 
+                // v(t,p)
+                // let's do the liquid one first 
+
+                // this is with reference to the pt equations on 
+                // fig 2.24 page 109
+                //
+                // alternatively, this is a cheat way... 
+                // I look at t_sat, and force it to find liquid volume 
+                // using a slightly colder temperature than tsat 
+                // and for vapour I get it slightly higher than  
+                // the tsat
+
+                let t_sat_liq = 
+                    ThermodynamicTemperature::new::<kelvin>(
+                        t_sat_kelvin - 1e-9
+                    );
+                let t_sat_vap = 
+                    ThermodynamicTemperature::new::<kelvin>(
+                        t_sat_kelvin + 1e-9
+                    );
+
+                let v_liq = v_tp_3(t_sat_liq, p);
+                let v_vap = v_tp_3(t_sat_vap, p);
+
+                let s_liq = s_rho_t_3(v_liq.recip(), t);
+                let s_vap = s_rho_t_3(v_vap.recip(), t);
+
+                let s = steam_quality * s_vap + (1.0 - steam_quality) * s_liq;
+
+                s 
+
+            }
         },
         FwdEqnRegion::Region5 => s_tp_5(t, p),
     }
