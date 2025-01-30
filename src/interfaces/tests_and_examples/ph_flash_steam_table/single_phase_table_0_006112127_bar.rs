@@ -4,12 +4,10 @@ use uom::si::f64::*;
 use uom::si::ratio::ratio;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::specific_volume::cubic_meter_per_kilogram;
-use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
+use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
 use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, s_ph_eqm, t_ph_eqm, v_ph_eqm, w_ph_eqm};
-use crate::region_1_subcooled_liquid::h_tp_1;
-use crate::region_2_vapour::h_tp_2;
 
 #[test]
 pub fn reminder_to_do_viscosity_and_thermal_conductivity(){
