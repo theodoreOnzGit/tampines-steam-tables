@@ -12,6 +12,7 @@ use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_p
 /// single phase table (see page 192)
 ///
 /// NOTE: ph flash UNABLE to do triple point liquid and vapour accurately.
+/// or even close to 0 degc
 #[test]
 pub fn single_phase_table_0_to_240_degc_except_triple_pt(){
 
