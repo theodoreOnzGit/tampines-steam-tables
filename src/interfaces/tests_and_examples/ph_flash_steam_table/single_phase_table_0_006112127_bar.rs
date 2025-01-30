@@ -83,6 +83,7 @@ pub fn single_phase_table_0_to_240_degc_except_triple_pt(){
         }
 
 }
+#[test]
 pub fn single_phase_table_250_to_800_degc(){
 
     let steam_table: Vec<[f64; 10]> =
