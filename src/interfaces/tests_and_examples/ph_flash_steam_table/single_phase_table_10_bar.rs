@@ -17,7 +17,7 @@ use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_p
 /// also cannot do 800 degC ph flash due to small errors 
 /// (temp exceed 800 degC)
 #[test]
-pub fn single_phase_table_2_to_798_degc(){
+pub fn single_phase_table_2_to_750_degc(){
 
     let steam_table: Vec<[f64; 10]> =
         vec![
