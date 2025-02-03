@@ -5,3 +5,5 @@ pub mod saturation_table_170_to_258_degc;
 
 pub mod saturation_table_260_degc_to_crit_temp_373_946_degc;
 
+pub mod region_determination_with_steam_quality;
+
