@@ -47,12 +47,37 @@ pub fn region_fwd_eqn_two_phase(
     // then return region 4
     
     let multiphase_steam: bool = x > 0.0 && x < 1.0;
+    let steam_pressure_equal_sat_pressure = p == p_sat_reg4;
+    let temp_above_623_15_k = t.get::<kelvin>() > 623.15;
 
-    if p == p_sat_reg4 && multiphase_steam {
+    if steam_pressure_equal_sat_pressure && multiphase_steam {
         return FwdEqnRegion::Region4;
     };
+    // next, we also need to be extra careful about bubble and dew point 
+    let dew_point: bool = x == 1.0;
+    let bubble_point: bool = x == 0.0;
 
-    // if this condition is not satisfied, return single phase
+    // first case, bubble/dew point at or below 623.15
+    if !temp_above_623_15_k && steam_pressure_equal_sat_pressure 
+        && bubble_point {
+            return FwdEqnRegion::Region1;
+    };
+    if !temp_above_623_15_k && steam_pressure_equal_sat_pressure 
+        && dew_point {
+            return FwdEqnRegion::Region2;
+    };
+
+    // if bubble or dew point is in region 3,
+    if temp_above_623_15_k && steam_pressure_equal_sat_pressure 
+        && bubble_point {
+            return FwdEqnRegion::Region3;
+    };
+    if temp_above_623_15_k && steam_pressure_equal_sat_pressure 
+        && dew_point {
+            return FwdEqnRegion::Region3;
+    };
+    
+    // if none of the conditions are satisfied, return single phase
     
     return region_fwd_eqn_single_phase(t, p);
 
