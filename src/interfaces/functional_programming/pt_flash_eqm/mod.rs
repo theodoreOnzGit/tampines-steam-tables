@@ -7,12 +7,27 @@ use crate::{region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, 
 /// regions in the forward equations
 pub enum FwdEqnRegion {
     /// this is from T = 273.15 K to T=623.15K 
+    /// liquid
     Region1,
+    /// this is vapour then line p23/t23 
+    /// all the way up to 1073.15 K (800 degC)
+    ///
     Region2,
+    /// this is supercritical region and 
+    /// single phase liquid  / vapour near 
+    /// supercritical region
     Region3,
+    /// two phase vapour liq equilibrium 
+    /// region up to supercritical region
+    /// (saturation line, but not including the line itself)
     Region4,
+    /// ultra high temperature steam  (more than 800 degC)
+    /// 1073.15 K to 2273.15 K 
+    /// pressure from triple pt pressure to 500 bar
     Region5,
 }
+
+
 
 /// Determines which region of the pT chart
 /// a point belongs to.
