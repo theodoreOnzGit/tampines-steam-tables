@@ -165,28 +165,37 @@ fn assert_ph_flash(
         max_relative=7e-3
         );
 
-    // cp 
-    let cp_test = cp_ph_eqm(p, h);
-    approx::assert_relative_eq!(
-        cp_kj_per_kg_k,
-        cp_test.get::<kilojoule_per_kilogram_kelvin>(),
-        max_relative=5e-3
+    // on page 183 footnotes, 
+    // in the saturated steam table 
+    // cp, w kappa, eta and lambda are NOT 
+    // accurate enough
+    // hence no asserts will be performed for cp, w, kappa, eta and lambda
+    // at near critical region (373.707) 
+    // which is near critical temperature of 373.946 C
+    if t_deg_c != 373.707 {
+        let cp_test = cp_ph_eqm(p, h);
+        approx::assert_relative_eq!(
+            cp_kj_per_kg_k,
+            cp_test.get::<kilojoule_per_kilogram_kelvin>(),
+            max_relative=5e-3
         );
-    // w 
-    let w_test = w_ph_eqm(p, h);
-    approx::assert_relative_eq!(
-        w_m_per_s,
-        w_test.get::<meter_per_second>(),
-        max_relative=5e-3
+        // w 
+        let w_test = w_ph_eqm(p, h);
+        approx::assert_relative_eq!(
+            w_m_per_s,
+            w_test.get::<meter_per_second>(),
+            max_relative=5e-3
         );
 
-    // kappa
-    let kappa_test = kappa_ph_eqm(p, h);
-    approx::assert_relative_eq!(
-        kappa_dimensionless,
-        kappa_test.get::<ratio>(),
-        max_relative=6e-3
+        // kappa
+        let kappa_test = kappa_ph_eqm(p, h);
+        approx::assert_relative_eq!(
+            kappa_dimensionless,
+            kappa_test.get::<ratio>(),
+            max_relative=6e-3
         );
+
+    }
 
     // eta and lambda tbd
 
