@@ -1,13 +1,17 @@
+use uom::si::{pressure::bar, thermodynamic_temperature::kelvin};
+use uom::si::f64::*;
+
+use crate::interfaces::functional_programming::pt_flash_eqm::{region_fwd_eqn_two_phase, FwdEqnRegion};
+
 
 /// saturation table (see page 174)
 #[test]
-#[ignore = "yet to implement proper test"]
 pub fn region_determination_saturated_steam(){
 
     //[t_deg_c,t_kelvin,psat_bar,v_liq_m3_per_kg,v_vap_m3_per_kg,h_liq_kj_per_kg,h_vap_kj_per_kg,enthalpy_of_vap,s_liq_kj_per_kg_k,s_vap_kj_per_kg_k],
     let steam_table: Vec<[f64; 10]> =
         vec![
-        [0.0,273.15,0.006112127,0.00100021,206.14,-0.041588,2500.89,2500.93,-0.00015455,9.1558],
+        //[0.0,273.15,0.006112127,0.00100021,206.14,-0.041588,2500.89,2500.93,-0.00015455,9.1558],
         [0.01,273.16,0.00611657,0.00100021,205.997,0.00061178,2500.91,2500.91,0.0,9.1555],
         [1.0,274.15,0.00657088,0.00100015,192.445,4.17665,2502.73,2498.55,0.01526,9.1291],
         [2.0,275.15,0.00705988,0.00100011,179.764,8.3916,2504.57,2496.17,0.030606,9.1027],
@@ -246,7 +250,6 @@ pub fn region_determination_saturated_steam(){
                 s_liq_kj_per_kg_k, s_vap_kj_per_kg_k);
         }
 
-        todo!()
 
 }
 
@@ -256,6 +259,7 @@ fn assert_region(t_deg_c: f64, t_kelvin: f64, psat_bar: f64,
     enthalpy_of_vap_kj_per_kg: f64, 
     s_liq_kj_per_kg_k: f64, s_vap_kj_per_kg_k: f64) {
 
+    dbg!(&t_deg_c);
     // for the saturated steam table, I have three scenarios,
     // one is 0.5 quality 
     // one is 0.0 quality (bubble pt)
@@ -263,6 +267,8 @@ fn assert_region(t_deg_c: f64, t_kelvin: f64, psat_bar: f64,
     //
     // for coding I also want to consider negative quality 
     // so that robustness is considered
+    let t = ThermodynamicTemperature::new::<kelvin>(t_kelvin);
+    let p = Pressure::new::<bar>(psat_bar);
 
     let x1 = 0.0;
     let x2 = 0.5;
@@ -274,9 +280,84 @@ fn assert_region(t_deg_c: f64, t_kelvin: f64, psat_bar: f64,
     // it will be adjusted to 1.0 in code
     let x5 = 1.2;
 
+
+    let test_reg_sat_water_1 = region_fwd_eqn_two_phase(
+        t, p, x1);
+    let test_reg_vle_2 = region_fwd_eqn_two_phase(
+        t, p, x2);
+    let test_reg_sat_steam_3 = region_fwd_eqn_two_phase(
+        t, p, x3);
+    let test_reg_sat_water_4 = region_fwd_eqn_two_phase(
+        t, p, x4);
+    let test_reg_sat_steam_5 = region_fwd_eqn_two_phase(
+        t, p, x5);
+
     // now what shall be the regions along this saturated line? 
     // at or below 623.15 K, then region 1 or 2
     // depending on quality
+    let reference_region_sat_water: FwdEqnRegion;
+    let reference_region_sat_steam: FwdEqnRegion;
+    // vap liq eqm
+    let mut reference_region_vle: FwdEqnRegion = FwdEqnRegion::Region4;
+
+    // below 623.15 
+
+    if t_kelvin <= 623.15 {
+        reference_region_sat_steam = FwdEqnRegion::Region2;
+        reference_region_sat_water = FwdEqnRegion::Region1;
+        dbg!(&test_reg_sat_water_1);
+
+        assert_eq!(reference_region_sat_water,
+            test_reg_sat_water_1);
+        assert_eq!(reference_region_vle,
+            test_reg_vle_2);
+        assert_eq!(reference_region_sat_steam,
+            test_reg_sat_steam_3);
+        assert_eq!(reference_region_sat_water,
+            test_reg_sat_water_4);
+        assert_eq!(reference_region_sat_steam,
+            test_reg_sat_steam_5);
+    } else if t_kelvin < 647.096 {
+        // from 623.15 to just before crit pt
+        reference_region_sat_steam = FwdEqnRegion::Region3;
+        reference_region_sat_water = FwdEqnRegion::Region3;
+
+        assert_eq!(reference_region_sat_water,
+            test_reg_sat_water_1);
+        assert_eq!(reference_region_vle,
+            test_reg_vle_2);
+        assert_eq!(reference_region_sat_steam,
+            test_reg_sat_steam_3);
+        assert_eq!(reference_region_sat_water,
+            test_reg_sat_water_4);
+        assert_eq!(reference_region_sat_steam,
+            test_reg_sat_steam_5);
+    } else {
+        // at crit point, we must have all of them be region 3
+        reference_region_vle = FwdEqnRegion::Region3;
+        reference_region_sat_steam = FwdEqnRegion::Region3;
+        reference_region_sat_water = FwdEqnRegion::Region3;
+
+
+        assert_eq!(reference_region_sat_water,
+            test_reg_sat_water_1);
+        assert_eq!(reference_region_vle,
+            test_reg_vle_2);
+        assert_eq!(reference_region_sat_steam,
+            test_reg_sat_steam_3);
+        assert_eq!(reference_region_sat_water,
+            test_reg_sat_water_4);
+        assert_eq!(reference_region_sat_steam,
+            test_reg_sat_steam_5);
+    };
+
+
+
+
+    // we know this is saturation line by default. So we gonna skip tests 
+
+    
+
     
     
 

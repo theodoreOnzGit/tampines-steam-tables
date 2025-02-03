@@ -1,3 +1,5 @@
+use uom::si::ratio::ratio;
+
 use crate::constants::{p_crit_water, t_crit_water};
 
 use super::*;
@@ -47,7 +49,14 @@ pub fn region_fwd_eqn_two_phase(
     // then return region 4
     
     let multiphase_steam: bool = x > 0.0 && x < 1.0;
-    let steam_pressure_equal_sat_pressure = p == p_sat_reg4;
+    // for this, I need to give some leeway due to numerical precision error
+    //let steam_pressure_equal_sat_pressure = p == p_sat_reg4;
+    // at least to within 0.01%
+    let steam_pressure_equal_sat_pressure 
+        = ((p/p_sat_reg4).get::<ratio>() - 1.0).abs() < 1e-4;
+
+
+
     let temp_above_623_15_k = t.get::<kelvin>() > 623.15;
 
     if steam_pressure_equal_sat_pressure && multiphase_steam {
