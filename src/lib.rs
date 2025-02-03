@@ -20,8 +20,8 @@ pub mod region_2_vapour;
 
 /// region 3 
 ///
-/// vapour liquid equilibrium
-/// wet steam region, also includes supercritical region 
+/// single phase liquid and vapour 
+/// region, also includes supercritical region 
 /// and critical point
 ///
 /// auxilliary equation for region 2 and 3 are also put here
@@ -32,13 +32,14 @@ pub mod region_3_single_phase_plus_supercritical_steam;
 /// region 4
 ///
 /// two phase region
+/// where vapour liq equilibrium exists
 pub mod region_4_vap_liq_equilibrium;
 
 
 /// region 5 
 ///
 /// superheated steam region (ultra high temp)
-pub mod region_5_superheated_steam;
+pub mod region_5_steam_at_800_plus_degc;
 
 
 /// backward equations ph boundary equations
