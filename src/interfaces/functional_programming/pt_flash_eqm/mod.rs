@@ -23,7 +23,7 @@ pub enum FwdEqnRegion {
 /// Temperature is assumed to be in K
 /// Pressure is assumed to be in Pa
 ///
-pub fn region_fwd_eqn(t: ThermodynamicTemperature, p: Pressure) -> FwdEqnRegion {
+pub fn region_fwd_eqn_single_phase(t: ThermodynamicTemperature, p: Pressure) -> FwdEqnRegion {
     let p_sat_reg4 = sat_pressure_4(t);
 
     let p_boundary_23 = p_boundary_2_3(t);
@@ -67,7 +67,7 @@ pub fn region_fwd_eqn(t: ThermodynamicTemperature, p: Pressure) -> FwdEqnRegion 
 /// returns the enthalpy given temperature and pressure
 /// single phase only!
 pub fn h_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
-    let region = region_fwd_eqn(t, p);
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => h_tp_1(t, p),
@@ -80,7 +80,7 @@ pub fn h_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Availa
 
 /// returns the internal energy given temperature and pressure
 pub fn u_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
-    let region = region_fwd_eqn(t, p);
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => u_tp_1(t, p),
@@ -94,7 +94,7 @@ pub fn u_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Availa
 
 /// returns the specific entropy given temperature and pressure
 pub fn s_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
-    let region = region_fwd_eqn(t, p);
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => s_tp_1(t, p),
@@ -107,7 +107,7 @@ pub fn s_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Specif
 
 /// returns the isobaric (const pressure) heat capacitygiven temperature and pressure
 pub fn cp_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
-    let region = region_fwd_eqn(t, p);
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => cp_tp_1(t, p),
@@ -121,7 +121,7 @@ pub fn cp_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Speci
 
 /// returns the isochoric (const vol) heat capacity given temperature and pressure
 pub fn cv_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
-    let region = region_fwd_eqn(t, p);
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => cv_tp_1(t, p),
@@ -137,7 +137,7 @@ pub fn cv_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Speci
 
 /// returns the specific volume given temperature and pressure
 pub fn v_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
-    let region = region_fwd_eqn(t, p);
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => v_tp_1(t, p),
@@ -151,8 +151,8 @@ pub fn v_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Specif
 
 
 /// returns the speed of sound given temperature and pressure
-pub fn w_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
-    let region = region_fwd_eqn(t, p);
+pub fn w_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => w_tp_1(t, p),
@@ -165,8 +165,8 @@ pub fn w_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> Velocity {
 
 
 /// returns the isentropic exponent 
-pub fn kappa_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
-    let region = region_fwd_eqn(t, p);
+pub fn kappa_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => kappa_tp_1(t, p),
@@ -178,8 +178,8 @@ pub fn kappa_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> Ratio {
 }
 
 /// returns the isobaric cubic expansion coefficient
-pub fn alpha_v_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCoefficient {
-    let region = region_fwd_eqn(t, p);
+pub fn alpha_v_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCoefficient {
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => alpha_v_tp_1(t, p),
@@ -193,7 +193,7 @@ pub fn alpha_v_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> TemperatureCo
 
 /// returns the isothermal compressibility
 pub fn kappa_t_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> InversePressure {
-    let region = region_fwd_eqn(t, p);
+    let region = region_fwd_eqn_single_phase(t, p);
 
     match region {
         FwdEqnRegion::Region1 => kappa_t_tp_1(t, p),
