@@ -244,7 +244,7 @@ pub fn region_determination_saturated_steam(){
             let enthalpy_of_vap_kj_per_kg = dataset[7];
             let s_liq_kj_per_kg_k = dataset[8];
             let s_vap_kj_per_kg_k = dataset[9];
-            assert_region(t_deg_c, t_kelvin, psat_bar, 
+            assert_region_sat_point(t_deg_c, t_kelvin, psat_bar, 
                 v_liq_m3_per_kg, v_vap_m3_per_kg, h_liq_kj_per_kg, 
                 h_vap_kj_per_kg, enthalpy_of_vap_kj_per_kg, 
                 s_liq_kj_per_kg_k, s_vap_kj_per_kg_k);
@@ -253,11 +253,11 @@ pub fn region_determination_saturated_steam(){
 
 }
 
-fn assert_region(t_deg_c: f64, t_kelvin: f64, psat_bar: f64, 
-    v_liq_m3_per_kg: f64, v_vap_m3_per_kg: f64, 
-    h_liq_kj_per_kg: f64, h_vap_kj_per_kg: f64, 
-    enthalpy_of_vap_kj_per_kg: f64, 
-    s_liq_kj_per_kg_k: f64, s_vap_kj_per_kg_k: f64) {
+fn assert_region_sat_point(t_deg_c: f64, t_kelvin: f64, psat_bar: f64, 
+    _v_liq_m3_per_kg: f64, _v_vap_m3_per_kg: f64, 
+    _h_liq_kj_per_kg: f64, _h_vap_kj_per_kg: f64, 
+    _enthalpy_of_vap_kj_per_kg: f64, 
+    _s_liq_kj_per_kg_k: f64, _s_vap_kj_per_kg_k: f64) {
 
     dbg!(&t_deg_c);
     // for the saturated steam table, I have three scenarios,
@@ -354,7 +354,6 @@ fn assert_region(t_deg_c: f64, t_kelvin: f64, psat_bar: f64,
 
 
 
-    // we know this is saturation line by default. So we gonna skip tests 
 
     
 
