@@ -126,7 +126,19 @@ pub fn u_ph_eqm(p: Pressure, h: AvailableEnergy) -> AvailableEnergy {
     match region {
         FwdEqnRegion::Region1 => u_tp_1(t, p),
         FwdEqnRegion::Region2 => u_tp_2(t, p),
-        FwdEqnRegion::Region3 => u_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+            // near supercritical point, we have to be a little bit more careful
+            // need to take into account steam quality too
+
+            // so first, test if we are JUST on the saturation line
+            // because that is part of the check
+            //
+            // or rather, just get the volume first
+            // this will make it much easier
+            let v = v_ph_eqm(p, h);
+            let rho = v.recip();
+            u_rho_t_3(rho, t)
+        },
         FwdEqnRegion::Region4 => {
             // for region 4 specifically, we determine 
             // steam quality first
@@ -308,7 +320,20 @@ pub fn cp_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
     match region {
         FwdEqnRegion::Region1 => cp_tp_1(t, p),
         FwdEqnRegion::Region2 => cp_tp_2(t, p),
-        FwdEqnRegion::Region3 => cp_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+
+            // near supercritical point, we have to be a little bit more careful
+            // need to take into account steam quality too
+
+            // so first, test if we are JUST on the saturation line
+            // because that is part of the check
+            //
+            // or rather, just get the volume first
+            // this will make it much easier
+            let v = v_ph_eqm(p, h);
+            let rho = v.recip();
+            cp_rho_t_3(rho, t)
+        },
         FwdEqnRegion::Region4 => {
             // I'm just using quality to interpolate here 
             // not sure if 100% correct
@@ -364,7 +389,19 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
     match region {
         FwdEqnRegion::Region1 => w_tp_1(t, p),
         FwdEqnRegion::Region2 => w_tp_2(t, p),
-        FwdEqnRegion::Region3 => w_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+            // near supercritical point, we have to be a little bit more careful
+            // need to take into account steam quality too
+
+            // so first, test if we are JUST on the saturation line
+            // because that is part of the check
+            //
+            // or rather, just get the volume first
+            // this will make it much easier
+            let v = v_ph_eqm(p, h);
+            let rho = v.recip();
+            w_rho_t_3(rho, t)
+        },
         FwdEqnRegion::Region4 => {
             // I'm just using quality to interpolate here 
             // not sure if 100% correct
@@ -417,7 +454,19 @@ pub fn alpha_v_ph_eqm(p: Pressure, h: AvailableEnergy) -> TemperatureCoefficient
     match region {
         FwdEqnRegion::Region1 => alpha_v_tp_1(t, p),
         FwdEqnRegion::Region2 => alpha_v_tp_2(t, p),
-        FwdEqnRegion::Region3 => alpha_v_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+            // near supercritical point, we have to be a little bit more careful
+            // need to take into account steam quality too
+
+            // so first, test if we are JUST on the saturation line
+            // because that is part of the check
+            //
+            // or rather, just get the volume first
+            // this will make it much easier
+            let v = v_ph_eqm(p, h);
+            let rho = v.recip();
+            alpha_v_rho_t_3(rho, t)
+        },
         FwdEqnRegion::Region4 => {
             // I'm just using quality to interpolate here 
             // not sure if 100% correct

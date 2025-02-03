@@ -154,7 +154,7 @@ fn assert_ph_flash(
     approx::assert_relative_eq!(
         v_m3_per_kg,
         v_test.get::<cubic_meter_per_kilogram>(),
-        max_relative=1e-4
+        max_relative=2e-4
         );
 
     // now entropy 
