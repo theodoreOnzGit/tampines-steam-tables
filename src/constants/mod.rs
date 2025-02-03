@@ -1,4 +1,4 @@
-use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use uom::si::{f64::*, pressure::megapascal, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
 
 /// gas constant for water 
 pub const R_KJ_PER_KG_KELVIN: f64 = 0.461526;
@@ -37,3 +37,17 @@ pub fn specific_gas_constant_of_water() -> SpecificHeatCapacity {
 
     r
 }
+
+/// returns the dimensioned critical temperature of water
+#[inline]
+pub fn t_crit_water() -> ThermodynamicTemperature {
+    ThermodynamicTemperature::new::<kelvin>(T_C_KELVIN)
+}
+
+/// returns the dimensioned critical pressure of water 
+#[inline]
+pub fn p_crit_water() -> Pressure {
+    Pressure::new::<megapascal>(P_C_MPA)
+}
+
+

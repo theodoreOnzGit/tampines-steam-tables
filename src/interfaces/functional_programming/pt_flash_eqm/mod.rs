@@ -27,6 +27,8 @@ pub enum FwdEqnRegion {
     Region5,
 }
 
+pub mod multiphase_flashing;
+pub use multiphase_flashing::*;
 
 
 /// Determines which region of the pT chart
@@ -75,7 +77,7 @@ pub fn region_fwd_eqn_single_phase(t: ThermodynamicTemperature, p: Pressure) -> 
             {
                 FwdEqnRegion::Region1
             }
-        _ => panic!("out of bounds!"),
+        _ => panic!("t,p flashing at eqm out of bounds!"),
     }
 }
 
