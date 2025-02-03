@@ -1,6 +1,6 @@
 use uom::si::{f64::*, pressure::megapascal, thermodynamic_temperature::kelvin};
 
-use crate::{interfaces::functional_programming::pt_flash_eqm::h_tp_eqm, region_4_vap_liq_equilibrium::sat_pressure_4};
+use crate::{interfaces::functional_programming::pt_flash_eqm::h_tp_eqm_single_phase, region_4_vap_liq_equilibrium::sat_pressure_4};
 
 // checks if pressure is 
 // lower than saturation pressure at 273.15K or higher than 100 MPa
@@ -41,7 +41,7 @@ pub(crate) fn is_below_isotherm_t_273_15(p: Pressure, h: AvailableEnergy) -> boo
     // let's have the lower enthalpy range 
     let lower_temp_bound = ThermodynamicTemperature::new::<kelvin>(273.15);
 
-    let lower_bound_enthalpy = h_tp_eqm(lower_temp_bound, p);
+    let lower_bound_enthalpy = h_tp_eqm_single_phase(lower_temp_bound, p);
 
     if h < lower_bound_enthalpy {
         return true;
@@ -60,7 +60,7 @@ pub(crate) fn is_above_isotherm_t_1073_15(p: Pressure,h: AvailableEnergy) -> boo
 
     let upper_temp_bound = ThermodynamicTemperature::new::<kelvin>(1073.15);
 
-    let upper_bound_enthalpy = h_tp_eqm(upper_temp_bound, p);
+    let upper_bound_enthalpy = h_tp_eqm_single_phase(upper_temp_bound, p);
 
     if h > upper_bound_enthalpy {
         return true;

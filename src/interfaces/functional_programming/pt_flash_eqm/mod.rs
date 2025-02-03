@@ -65,7 +65,8 @@ pub fn region_fwd_eqn(t: ThermodynamicTemperature, p: Pressure) -> FwdEqnRegion 
 }
 
 /// returns the enthalpy given temperature and pressure
-pub fn h_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
+/// single phase only!
+pub fn h_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
     let region = region_fwd_eqn(t, p);
 
     match region {
@@ -78,7 +79,7 @@ pub fn h_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
 }
 
 /// returns the internal energy given temperature and pressure
-pub fn u_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
+pub fn u_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
     let region = region_fwd_eqn(t, p);
 
     match region {
@@ -92,7 +93,7 @@ pub fn u_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> AvailableEnergy {
 
 
 /// returns the specific entropy given temperature and pressure
-pub fn s_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
+pub fn s_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
     let region = region_fwd_eqn(t, p);
 
     match region {
@@ -105,7 +106,7 @@ pub fn s_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacit
 }
 
 /// returns the isobaric (const pressure) heat capacitygiven temperature and pressure
-pub fn cp_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
+pub fn cp_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
     let region = region_fwd_eqn(t, p);
 
     match region {
@@ -119,7 +120,7 @@ pub fn cp_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapaci
 
 
 /// returns the isochoric (const vol) heat capacity given temperature and pressure
-pub fn cv_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
+pub fn cv_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapacity {
     let region = region_fwd_eqn(t, p);
 
     match region {
@@ -135,7 +136,7 @@ pub fn cv_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificHeatCapaci
 
 
 /// returns the specific volume given temperature and pressure
-pub fn v_tp_eqm(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
+pub fn v_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> SpecificVolume {
     let region = region_fwd_eqn(t, p);
 
     match region {
