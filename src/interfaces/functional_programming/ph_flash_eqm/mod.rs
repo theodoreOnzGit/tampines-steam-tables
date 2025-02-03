@@ -212,7 +212,20 @@ pub fn s_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
     match region {
         FwdEqnRegion::Region1 => s_tp_1(t, p),
         FwdEqnRegion::Region2 => s_tp_2(t, p),
-        FwdEqnRegion::Region3 => s_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+            // near supercritical point, we have to be a little bit more careful
+            // need to take into account steam quality too
+
+            // so first, test if we are JUST on the saturation line
+            // because that is part of the check
+            //
+            // or rather, just get the volume first
+            // this will make it much easier
+            let v = v_ph_eqm(p, h);
+            let rho = v.recip();
+
+            s_rho_t_3(rho, t)
+        },
         FwdEqnRegion::Region4 => {
             // I'm just using quality to interpolate here 
             // not sure if 100% correct
@@ -655,6 +668,8 @@ pub fn ph_flash_region(p: Pressure, h: AvailableEnergy) -> FwdEqnRegion {
     if is_region_4 {
         return FwdEqnRegion::Region4;
     };
+
+    
 
     // otherwise it's region 3 
 
