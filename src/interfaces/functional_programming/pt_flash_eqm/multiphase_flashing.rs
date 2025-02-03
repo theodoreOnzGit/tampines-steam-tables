@@ -29,11 +29,11 @@ pub fn region_fwd_eqn_two_phase(
     // if beyond critical point, don't even need to consider two phase
     //
     // this will cover region 5 automatically
-    if t > t_crit_water() {
+    if t >= t_crit_water() {
         return region_fwd_eqn_single_phase(t, p);
     };
 
-    if p > p_crit_water() {
+    if p >= p_crit_water() {
         return region_fwd_eqn_single_phase(t, p);
     };
 
