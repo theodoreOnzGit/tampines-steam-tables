@@ -1,7 +1,7 @@
 use uom::si::{pressure::megapascal, ratio::ratio};
 
 use crate::region_3_single_phase_plus_supercritical_steam::{alpha_v_rho_t_3, cp_rho_t_3, cv_rho_t_3, h_rho_t_3, kappa_rho_t_3, kappa_t_rho_t_3, s_rho_t_3, u_rho_t_3, v_tp_3c, v_tp_3r, v_tp_3s, v_tp_3t, v_tp_3u, v_tp_3x, v_tp_3y, v_tp_3z, w_rho_t_3};
-use crate::constants::{p_crit_water, t_crit_water};
+use crate::constants::{p_crit_water, t_crit_water, T_C_KELVIN};
 
 use super::*;
 
@@ -102,10 +102,82 @@ pub fn h_tp_eqm_two_phase(
     let region = region_fwd_eqn_two_phase(t, p, x);
 
 
+    // note that if x = 1.0  or 0.0 exactly, 
+    // if goes straight to region 3
+    // in that case we must be extra careful
+
+
     match region {
         FwdEqnRegion::Region1 => h_tp_1(t, p),
         FwdEqnRegion::Region2 => h_tp_2(t, p),
-        FwdEqnRegion::Region3 => h_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+            // in the case we hit region 3 and region 4 boundary, the algorithm must differ
+
+            // looks like all I need to do is use the backward equations 
+            // v(t,p)
+            // let's do the liquid one first 
+
+            // this is with reference to the pt equations on 
+            // fig 2.24 page 109
+            //
+            // alternatively, this is a cheat way... 
+            // I look at t_sat, and force it to find liquid volume 
+            // using a slightly colder temperature than tsat 
+            // and for vapour I get it slightly higher than  
+            // the tsat
+            let p_mpa = p.get::<megapascal>();
+            let t_kelvin = t.get::<kelvin>();
+            let mut steam_quality = x;
+            if steam_quality < 0.0 {
+                steam_quality = 0.0;
+            } else if steam_quality > 1.0 {
+                steam_quality = 1.0;
+            }; 
+            let v_vap: SpecificVolume = {
+                // this covers up to tsat at 643.15 K
+                if t_kelvin <= 640.691 {
+                    v_tp_3t(t, p)
+                } else if t_kelvin <= 643.15 {
+                    v_tp_3r(t, p)
+                } else if t_kelvin <= 646.483 {
+                    v_tp_3x(t, p)
+                } else {
+                    v_tp_3z(t, p)
+                }
+            };
+
+            let v_liq: SpecificVolume = {
+                // this covers up to tsat at 643.15 K
+                if t_kelvin <= 634.659 {
+                    v_tp_3c(t, p)
+                } else if t_kelvin <= 643.15 {
+                    v_tp_3s(t, p)
+                } else if t_kelvin <= 646.599 {
+                    v_tp_3u(t, p)
+                } else {
+                    v_tp_3y(t, p)
+                }
+
+
+            };
+
+            let h_liq = h_rho_t_3(v_liq.recip(), t);
+            let h_vap = h_rho_t_3(v_vap.recip(), t);
+            let h_saturated = steam_quality * h_vap + (1.0 - steam_quality) * h_liq;
+
+            let near_critical_point: bool = ((h_vap-h_liq)/h_liq ).get::<ratio>() < 9e-3;
+            let near_saturation_line: bool = (p_mpa - sat_pressure_4(t).get::<megapascal>()).abs() < 1e-4 ;
+            // if we are ON the saturated line, we must be mindful
+            if near_critical_point && near_saturation_line {
+                return h_tp_3(t, p);
+            } else if near_saturation_line {
+                return h_saturated;
+            };
+
+
+            // otherwise
+            h_tp_3(t, p)
+        },
         FwdEqnRegion::Region4 => {
             // the only time we get region 4 is in multiphase steam
             // but I'm having this here anyway cause I kiasu
@@ -124,7 +196,7 @@ pub fn h_tp_eqm_two_phase(
                 let h = steam_quality * h_vap + (1.0 - steam_quality) * h_liq;
 
                 h
-            } else {
+            } else if t_sat_kelvin < T_C_KELVIN {
                 // in the case we hit region 3 and region 4 boundary, the algorithm must differ
 
                 // looks like all I need to do is use the backward equations 
@@ -174,6 +246,9 @@ pub fn h_tp_eqm_two_phase(
                 let h = steam_quality * h_vap + (1.0 - steam_quality) * h_liq;
 
                 h
+            } else {
+                // this is exactly at crit point
+                h_tp_3(t, p)
             }
 
         },
@@ -275,7 +350,70 @@ pub fn s_tp_eqm_two_phase(t: ThermodynamicTemperature, p: Pressure,
     match region {
         FwdEqnRegion::Region1 => s_tp_1(t, p),
         FwdEqnRegion::Region2 => s_tp_2(t, p),
-        FwdEqnRegion::Region3 => s_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+            // in the case we hit region 3 and region 4 boundary, the algorithm must differ
+
+            // looks like all I need to do is use the backward equations 
+            // v(t,p)
+            // let's do the liquid one first 
+
+            // this is with reference to the pt equations on 
+            // fig 2.24 page 109
+            //
+            // alternatively, this is a cheat way... 
+            // I look at t_sat, and force it to find liquid volume 
+            // using a slightly colder temperature than tsat 
+            // and for vapour I get it slightly higher than  
+            // the tsat
+            let p_mpa = p.get::<megapascal>();
+            let t_kelvin = t.get::<kelvin>();
+            let mut steam_quality = x;
+            if steam_quality < 0.0 {
+                steam_quality = 0.0;
+            } else if steam_quality > 1.0 {
+                steam_quality = 1.0;
+            }; 
+            let v_vap: SpecificVolume = {
+                // this covers up to tsat at 643.15 K
+                if t_kelvin <= 640.691 {
+                    v_tp_3t(t, p)
+                } else if t_kelvin <= 643.15 {
+                    v_tp_3r(t, p)
+                } else // this covers pressure from 21.0434 Mpa to crit point 
+                    if p_mpa <= 21.9010 {
+                        v_tp_3x(t, p)
+                    } else {
+                        v_tp_3z(t, p)
+                    }
+            };
+
+            let v_liq: SpecificVolume = {
+                // this covers up to tsat at 643.15 K
+                if t_kelvin <= 634.659 {
+                    v_tp_3c(t, p)
+                } else if t_kelvin <= 643.15 {
+                    v_tp_3s(t, p)
+                } else if p_mpa <= 21.9316 {
+                    v_tp_3u(t, p)
+                } else {
+                    v_tp_3y(t, p)
+                }
+
+
+            };
+
+            let s_liq = s_rho_t_3(v_liq.recip(), t);
+            let s_vap = s_rho_t_3(v_vap.recip(), t);
+            let s_saturated = steam_quality * s_vap + (1.0 - steam_quality) * s_liq;
+
+            // if we are ON the saturated line, we must be mindful
+            if (p_mpa - sat_pressure_4(t).get::<megapascal>()) < 1e-4 {
+                return s_saturated;
+            };
+
+            // otherwise
+            s_tp_3(t, p)
+        },
         FwdEqnRegion::Region4 => {
             // the only time we get region 4 is in multiphase steam
             // but I'm having this here anyway cause I kiasu
@@ -533,7 +671,68 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
         FwdEqnRegion::Region1 => v_tp_1(t, p),
         FwdEqnRegion::Region2 => v_tp_2(t, p),
         // note that for region 3, the backward eqn is used
-        FwdEqnRegion::Region3 => v_tp_3(t, p),
+        FwdEqnRegion::Region3 => {
+            // in the case we hit region 3 and region 4 boundary, the algorithm must differ
+
+            // looks like all I need to do is use the backward equations 
+            // v(t,p)
+            // let's do the liquid one first 
+
+            // this is with reference to the pt equations on 
+            // fig 2.24 page 109
+            //
+            // alternatively, this is a cheat way... 
+            // I look at t_sat, and force it to find liquid volume 
+            // using a slightly colder temperature than tsat 
+            // and for vapour I get it slightly higher than  
+            // the tsat
+            let p_mpa = p.get::<megapascal>();
+            let t_kelvin = t.get::<kelvin>();
+            let mut steam_quality = x;
+            if steam_quality < 0.0 {
+                steam_quality = 0.0;
+            } else if steam_quality > 1.0 {
+                steam_quality = 1.0;
+            }; 
+            let v_vap: SpecificVolume = {
+                // this covers up to tsat at 643.15 K
+                if t_kelvin <= 640.691 {
+                    v_tp_3t(t, p)
+                } else if t_kelvin <= 643.15 {
+                    v_tp_3r(t, p)
+                } else // this covers pressure from 21.0434 Mpa to crit point 
+                    if p_mpa <= 21.9010 {
+                        v_tp_3x(t, p)
+                    } else {
+                        v_tp_3z(t, p)
+                    }
+            };
+
+            let v_liq: SpecificVolume = {
+                // this covers up to tsat at 643.15 K
+                if t_kelvin <= 634.659 {
+                    v_tp_3c(t, p)
+                } else if t_kelvin <= 643.15 {
+                    v_tp_3s(t, p)
+                } else if p_mpa <= 21.9316 {
+                    v_tp_3u(t, p)
+                } else {
+                    v_tp_3y(t, p)
+                }
+
+
+            };
+
+            let v_saturated = steam_quality * v_vap + (1.0 - steam_quality) * v_liq;
+
+            // if we are ON the saturated line, we must be mindful
+            if (p_mpa - sat_pressure_4(t).get::<megapascal>()) < 1e-4 {
+                return v_saturated;
+            };
+
+            // otherwise
+            v_tp_3(t, p)
+        },
         FwdEqnRegion::Region4 => {
             // the only time we get region 4 is in multiphase steam
             // but I'm having this here anyway cause I kiasu

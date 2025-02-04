@@ -3,12 +3,9 @@ use uom::si::pressure::bar;
 use uom::si::f64::*;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::specific_volume::cubic_meter_per_kilogram;
-use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
+use uom::si::thermodynamic_temperature::degree_celsius;
 
-use crate::interfaces::functional_programming::ph_flash_eqm::{s_ph_eqm, t_ph_eqm, v_ph_eqm};
 use crate::interfaces::functional_programming::pt_flash_eqm::{h_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase};
-use crate::region_1_subcooled_liquid::h_tp_1;
-use crate::region_2_vapour::h_tp_2;
 
 /// saturation table (see page 174)
 #[test]
