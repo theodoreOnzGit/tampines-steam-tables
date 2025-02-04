@@ -10,4 +10,5 @@ pub mod region_determination_with_steam_quality;
 
 pub mod single_phase_table_0_00611_bar_to_10_bar;
 pub mod single_phase_table_20_bar_to_200_bar;
+pub mod single_phase_table_220_bar_to_1000_bar;
 
