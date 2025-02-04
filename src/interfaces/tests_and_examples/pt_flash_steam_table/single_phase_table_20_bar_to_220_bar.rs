@@ -1233,11 +1233,12 @@ fn assert_pt_flash(
 
     // assert volume to within 0.1%  (that's the tolerable error for 
     // backward eqn)
+    dbg!(&x);
     let v_test = v_tp_eqm_two_phase(t, p, x);
     approx::assert_relative_eq!(
         v_m3_per_kg,
         v_test.get::<cubic_meter_per_kilogram>(),
-        max_relative=1e-3
+        max_relative=2e-4
         );
 
     // now entropy 

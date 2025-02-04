@@ -920,6 +920,10 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
             let v_saturated = steam_quality * v_vap + (1.0 - steam_quality) * v_liq;
             let near_saturation_line = 
                 (p_mpa - sat_pressure_4(t).get::<megapascal>()).abs() < 1e-4;
+            dbg!(&v_liq);
+            dbg!(&v_vap);
+            dbg!(&v_saturated);
+            dbg!(&v_tp_3(t,p));
 
             // if we are ON the saturated line, we must be mindful
             if near_saturation_line {
