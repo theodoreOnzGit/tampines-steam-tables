@@ -54,7 +54,7 @@ pub fn region_fwd_eqn_two_phase(
     //let steam_pressure_equal_sat_pressure = p == p_sat_reg4;
     // at least to within 0.01%
     let steam_pressure_equal_sat_pressure 
-        = ((p/p_sat_reg4).get::<ratio>() - 1.0).abs() < 1e-4;
+        = ((p/p_sat_reg4).get::<ratio>() - 1.0).abs() < 5e-4;
 
 
 
