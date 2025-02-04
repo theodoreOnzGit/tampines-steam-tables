@@ -1,4 +1,4 @@
-use uom::si::available_energy::kilojoule_per_kilogram;
+use uom::si::{available_energy::kilojoule_per_kilogram, temperature_interval};
 use uom::si::pressure::bar;
 use uom::si::f64::*;
 use uom::si::ratio::ratio;
@@ -7,7 +7,7 @@ use uom::si::specific_volume::cubic_meter_per_kilogram;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
-use crate::interfaces::functional_programming::{ph_flash_eqm::x_ph_flash, pt_flash_eqm::{cp_tp_eqm_two_phase, h_tp_eqm_two_phase, kappa_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase, w_tp_eqm_two_phase}};
+use crate::{interfaces::functional_programming::{ph_flash_eqm::x_ph_flash, pt_flash_eqm::{cp_tp_eqm_two_phase, h_tp_eqm_two_phase, kappa_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase, w_tp_eqm_two_phase}}, region_4_vap_liq_equilibrium::sat_temp_4};
 
 /// single phase table (see page 192)
 ///
@@ -926,7 +926,7 @@ pub fn single_phase_table_2_to_750_degc_10_bar(){
         [10.000,650.000,0.424497,3810.55,8.1557,2.2555,731.51000,1.26060,34.63700,86.30500],
         [10.000,700.000,0.447829,3924.12,8.2755,2.2875,749.86000,1.25560,36.60700,92.92900],
         [10.000,750.000,0.471121,4039.31,8.3909,2.3201,767.64000,1.25080,38.55300,99.66700],
-        //[10.000,800.000,0.49438,4156.14,8.5024,2.3532,784.91000,1.24620,40.47300,106.50000],
+        [10.000,800.000,0.49438,4156.14,8.5024,2.3532,784.91000,1.24620,40.47300,106.50000],
 
         ];
 
@@ -963,7 +963,19 @@ fn assert_pt_flash(
     let p = Pressure::new::<bar>(p_bar);
     let t = ThermodynamicTemperature::new::<degree_celsius>(t_deg_c);
     let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(h_kj_per_kg);
-    let x = x_ph_flash(p, h_ref);
+    // check if t is less than or equal to tsat 
+    
+    let t_sat = sat_temp_4(p);
+    let fifty_kelvin = TemperatureInterval::new::<temperature_interval::kelvin>(50.0);
+    
+    let x: f64;
+    
+    if t > t_sat + fifty_kelvin {
+        x = 1.0;
+    } else {
+        x = x_ph_flash(p, h_ref);
+    };
+
 
     // assert h
     let h_test = h_tp_eqm_two_phase(t, p, x);
