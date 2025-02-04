@@ -1137,7 +1137,7 @@ fn assert_pt_flash(
     approx::assert_relative_eq!(
         s_kj_per_kg_k,
         s_test.get::<kilojoule_per_kilogram_kelvin>(),
-        max_relative=1e-3
+        max_relative=5e-4
         );
 
     // cp 
