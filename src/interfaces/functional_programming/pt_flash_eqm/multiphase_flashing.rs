@@ -166,10 +166,16 @@ pub fn h_tp_eqm_two_phase(
             let h_vap = h_rho_t_3(v_vap.recip(), t);
             let h_saturated = steam_quality * h_vap + (1.0 - steam_quality) * h_liq;
 
-            let near_critical_point: bool = ((h_vap-h_liq)/h_liq ).get::<ratio>() < 9e-3;
-            let near_saturation_line: bool = (p_mpa - sat_pressure_4(t).get::<megapascal>()).abs() < 1e-4 ;
+            let near_critical_point: bool = (t_kelvin - 647.096).abs() < 0.025;
+            let near_saturation_line: bool = (p_mpa - sat_pressure_4(t).get::<megapascal>()).abs() < 5e-4 ;
             // if we are ON the saturated line, we must be mindful
+            //dbg!(&(h_liq,h_vap,h_saturated,steam_quality));
+
+            dbg!(&near_critical_point);
+            dbg!(&(near_saturation_line,h_liq,h_vap,h_saturated));
             if near_critical_point && near_saturation_line {
+                // this was intended to get the enthalpy of vapourisation 
+                // to zero near critical point
                 return h_tp_3(t, p);
             } else if near_saturation_line {
                 return h_saturated;
@@ -191,7 +197,7 @@ pub fn h_tp_eqm_two_phase(
 
             let t_sat_kelvin = t.get::<kelvin>();
             if t_sat_kelvin <= 623.15 {
-                let h_liq = h_tp_1(t, p);
+               let h_liq = h_tp_1(t, p);
                 let h_vap = h_tp_2(t, p);
 
                 let h = steam_quality * h_vap + (1.0 - steam_quality) * h_liq;
@@ -244,8 +250,8 @@ pub fn h_tp_eqm_two_phase(
 
                 let h_liq = h_rho_t_3(v_liq.recip(), t);
                 let h_vap = h_rho_t_3(v_vap.recip(), t);
+                
                 let h = steam_quality * h_vap + (1.0 - steam_quality) * h_liq;
-
                 h
             } else {
                 // this is exactly at crit point
@@ -861,7 +867,6 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
     p: Pressure,
     x: f64) -> SpecificVolume {
     let region = region_fwd_eqn_two_phase(t, p, x);
-    dbg!(&region);
 
     match region {
         FwdEqnRegion::Region1 => v_tp_1(t, p),
@@ -922,8 +927,8 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
             let near_saturation_line = 
                 (p_mpa - sat_pressure_4(t).get::<megapascal>()).abs() < 1e-4;
 
-            // extremely near critical point, about 373.707 K
-            // or anything more than 370K, 
+            // extremely near critical point, about 373.707 degc
+            // or anything more than 370K degc
             // ph flashing algorithm tends to do better 
             let v_region_3 = v_tp_3(t, p);
             // if not at critical point but 

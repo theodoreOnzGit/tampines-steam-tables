@@ -1232,15 +1232,14 @@ fn assert_pt_flash(
         max_relative=5e-3
         );
 
-    // assert volume to within 0.1%  (that's the tolerable error for 
-    // backward eqn)
-    dbg!(&x);
+    // assert volume to within 3% because at critical point 
+    // we are unable to predict volume using backward eqn with 
+    // high fidelity
     let v_test = v_tp_eqm_two_phase(t, p, x);
-    dbg!(&h_ref);
     approx::assert_relative_eq!(
         v_m3_per_kg,
         v_test.get::<cubic_meter_per_kilogram>(),
-        max_relative=2e-4
+        max_relative=3e-2
         );
 
     // now entropy 
@@ -1248,7 +1247,7 @@ fn assert_pt_flash(
     approx::assert_relative_eq!(
         s_kj_per_kg_k,
         s_test.get::<kilojoule_per_kilogram_kelvin>(),
-        max_relative=5e-4
+        max_relative=5e-3
         );
 
     // if at/near critical point, skip them tests
@@ -1275,11 +1274,17 @@ fn assert_pt_flash(
             kappa_test.get::<ratio>(),
             max_relative=9e-3
         );
-        // if not at critical point, assert a tighter volume contorl
+        // if not at critical point, assert a tighter volume control
+        // and entropy as well
         approx::assert_relative_eq!(
             v_m3_per_kg,
             v_test.get::<cubic_meter_per_kilogram>(),
             max_relative=1e-4
+        );
+        approx::assert_relative_eq!(
+            s_kj_per_kg_k,
+            s_test.get::<kilojoule_per_kilogram_kelvin>(),
+            max_relative=5e-4
         );
     }
 
