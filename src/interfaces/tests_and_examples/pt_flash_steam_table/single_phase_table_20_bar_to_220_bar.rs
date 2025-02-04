@@ -7,6 +7,7 @@ use uom::si::specific_volume::cubic_meter_per_kilogram;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
+use crate::interfaces::functional_programming::ph_flash_eqm::v_ph_eqm;
 use crate::interfaces::functional_programming::{ph_flash_eqm::x_ph_flash, pt_flash_eqm::{cp_tp_eqm_two_phase, h_tp_eqm_two_phase, kappa_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase, w_tp_eqm_two_phase}};
 
 /// single phase table (see page 201)
@@ -1235,6 +1236,7 @@ fn assert_pt_flash(
     // backward eqn)
     dbg!(&x);
     let v_test = v_tp_eqm_two_phase(t, p, x);
+    dbg!(&h_ref);
     approx::assert_relative_eq!(
         v_m3_per_kg,
         v_test.get::<cubic_meter_per_kilogram>(),

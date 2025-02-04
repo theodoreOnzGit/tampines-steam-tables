@@ -1,5 +1,6 @@
 use uom::si::{pressure::megapascal, ratio::ratio};
 
+use crate::interfaces::functional_programming::ph_flash_eqm::v_ph_eqm;
 use crate::region_3_single_phase_plus_supercritical_steam::{alpha_v_rho_t_3, cp_rho_t_3, cv_rho_t_3, h_rho_t_3, kappa_rho_t_3, kappa_t_rho_t_3, s_rho_t_3, u_rho_t_3, v_tp_3c, v_tp_3r, v_tp_3s, v_tp_3t, v_tp_3u, v_tp_3x, v_tp_3y, v_tp_3z, w_rho_t_3};
 use crate::constants::{p_crit_water, t_crit_water, T_C_KELVIN};
 
@@ -860,6 +861,7 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
     p: Pressure,
     x: f64) -> SpecificVolume {
     let region = region_fwd_eqn_two_phase(t, p, x);
+    dbg!(&region);
 
     match region {
         FwdEqnRegion::Region1 => v_tp_1(t, p),
@@ -894,12 +896,11 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
                     v_tp_3t(t, p)
                 } else if t_kelvin <= 643.15 {
                     v_tp_3r(t, p)
-                } else // this covers pressure from 21.0434 Mpa to crit point 
-                    if p_mpa <= 21.9010 {
-                        v_tp_3x(t, p)
-                    } else {
-                        v_tp_3z(t, p)
-                    }
+                } else if t_kelvin <= 646.483 {
+                    v_tp_3x(t, p)
+                } else {
+                    v_tp_3z(t, p)
+                }
             };
 
             let v_liq: SpecificVolume = {
@@ -908,7 +909,7 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
                     v_tp_3c(t, p)
                 } else if t_kelvin <= 643.15 {
                     v_tp_3s(t, p)
-                } else if p_mpa <= 21.9316 {
+                } else if t_kelvin <= 646.599 {
                     v_tp_3u(t, p)
                 } else {
                     v_tp_3y(t, p)
@@ -920,18 +921,18 @@ pub fn v_tp_eqm_two_phase(t: ThermodynamicTemperature,
             let v_saturated = steam_quality * v_vap + (1.0 - steam_quality) * v_liq;
             let near_saturation_line = 
                 (p_mpa - sat_pressure_4(t).get::<megapascal>()).abs() < 1e-4;
-            dbg!(&v_liq);
-            dbg!(&v_vap);
-            dbg!(&v_saturated);
-            dbg!(&v_tp_3(t,p));
 
-            // if we are ON the saturated line, we must be mindful
+            // extremely near critical point, about 373.707 K
+            // or anything more than 370K, 
+            // ph flashing algorithm tends to do better 
+            let v_region_3 = v_tp_3(t, p);
+            // if not at critical point but 
+            // we are ON the saturated line, we must be mindful
             if near_saturation_line {
                 return v_saturated;
             };
-
             // otherwise
-            v_tp_3(t, p)
+            v_region_3
         },
         FwdEqnRegion::Region4 => {
             // the only time we get region 4 is in multiphase steam
