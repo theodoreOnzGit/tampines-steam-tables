@@ -14,7 +14,7 @@ use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_p
 /// NOTE: ph flash UNABLE to do triple point liquid and vapour accurately.
 /// or even close to 0 degc
 #[test]
-#[ignore = "at 1000 bar, ph flash algorithm tends to go out of bounds"]
+#[ignore = "At 1000 bar, ph flashing goes out of bounds for some reason, yet to debug"]
 pub fn single_phase_table_2_to_750_degc(){
 
     let steam_table: Vec<[f64; 10]> =

@@ -77,7 +77,10 @@ pub fn region_fwd_eqn_single_phase(t: ThermodynamicTemperature, p: Pressure) -> 
             {
                 FwdEqnRegion::Region1
             }
-        _ => panic!("t,p flashing at eqm out of bounds!"),
+        _ => {
+            dbg!(&(t,p));
+            panic!("t,p flashing at eqm out of bounds!")
+        },
     }
 }
 
