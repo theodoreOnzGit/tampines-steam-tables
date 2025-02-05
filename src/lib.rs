@@ -46,6 +46,9 @@ pub mod region_5_steam_at_800_plus_degc;
 /// overall equation
 pub mod backward_eqn_ph_region_1_to_4;
 
+/// dynamic viscosity calcs
+pub mod dynamic_viscosity;
+
 
 /// public facing interfaces where the user 
 /// simply inputs pressure and temperature 

@@ -1,4 +1,4 @@
-use uom::si::{f64::*, pressure::megapascal, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
+use uom::si::{f64::*, mass_density::kilogram_per_cubic_meter, pressure::megapascal, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
 
 /// gas constant for water 
 pub const R_KJ_PER_KG_KELVIN: f64 = 0.461526;
@@ -50,4 +50,10 @@ pub fn p_crit_water() -> Pressure {
     Pressure::new::<megapascal>(P_C_MPA)
 }
 
+
+/// returns the dimensioned critical density of water
+#[inline]
+pub fn rho_crit_water() -> MassDensity {
+    MassDensity::new::<kilogram_per_cubic_meter>(RHO_C_KG_PER_M3)
+}
 
