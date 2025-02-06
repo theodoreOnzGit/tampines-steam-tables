@@ -51,7 +51,7 @@ pub fn psi_1_viscosity_test(){
     let t4 = ThermodynamicTemperature::new::<kelvin>(1173.15);
 
     let rho1 = MassDensity::new::<kilogram_per_cubic_meter>(0.997_047_435e3);
-    let rho2 = MassDensity::new::<kilogram_per_cubic_meter>(0.549_921_814e3);
+    let rho2 = MassDensity::new::<kilogram_per_cubic_meter>(0.549_921_814e2);
     let rho3 = MassDensity::new::<kilogram_per_cubic_meter>(0.612_391_201e3);
     let rho4 = MassDensity::new::<kilogram_per_cubic_meter>(0.377_584_847e2);
 
@@ -66,19 +66,19 @@ pub fn psi_1_viscosity_test(){
         psi_test,
         max_relative=1e-8
         );
-    let psi_test = psi_0_viscosity(t2);
+    let psi_test = psi_1_viscosity(t2,rho2);
     approx::assert_relative_eq!(
         psi_1_2,
         psi_test,
         max_relative=1e-8
         );
-    let psi_test = psi_0_viscosity(t3);
+    let psi_test = psi_1_viscosity(t3,rho3);
     approx::assert_relative_eq!(
         psi_1_3,
         psi_test,
         max_relative=1e-8
         );
-    let psi_test = psi_0_viscosity(t4);
+    let psi_test = psi_1_viscosity(t4,rho4);
     approx::assert_relative_eq!(
         psi_1_4,
         psi_test,
