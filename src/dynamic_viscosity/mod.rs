@@ -1,4 +1,4 @@
-use uom::si::{f64::*, ratio::ratio};
+use uom::si::{dynamic_viscosity::pascal_second, f64::*, ratio::ratio};
 
 use crate::constants::{rho_crit_water, t_crit_water};
 
@@ -33,6 +33,16 @@ const PSI_1_COEFFS: [[f64; 4]; 21] = [
     [20.0, 6.0, 3.0, -0.435_673e-2],
     [21.0, 6.0, 5.0, -0.593_264e-3],
 ];
+
+pub fn water_viscosity_rho_t(t: ThermodynamicTemperature,
+    rho: MassDensity,) -> DynamicViscosity {
+
+    let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
+    let eta_star = DynamicViscosity::new::<pascal_second>(1.0e-6);
+
+    return psi * eta_star;
+
+}
 
 pub(crate) fn psi_0_viscosity(t: ThermodynamicTemperature) -> f64 {
     let t_crit_water = t_crit_water();
