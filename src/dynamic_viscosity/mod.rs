@@ -1,6 +1,6 @@
 use uom::si::{dynamic_viscosity::pascal_second, f64::*, ratio::ratio};
 
-use crate::{constants::{rho_crit_water, t_crit_water}, interfaces::functional_programming::pt_flash_eqm::v_tp_eqm_single_phase};
+use crate::{constants::{rho_crit_water, t_crit_water}, interfaces::functional_programming::{ph_flash_eqm::{t_ph_eqm, v_ph_eqm}, pt_flash_eqm::{v_tp_eqm_single_phase, v_tp_eqm_two_phase}}};
 
 
 const PSI_0_COEFFS: [[f64; 2]; 4] = [
@@ -34,7 +34,20 @@ const PSI_1_COEFFS: [[f64; 4]; 21] = [
     [21.0, 6.0, 5.0, -0.593_264e-3],
 ];
 
-pub fn water_viscosity_p_t(t: ThermodynamicTemperature,
+/// for viscosity estimates in two phase region
+/// and single phase region
+pub fn mu_tp_eqm_two_phase(t: ThermodynamicTemperature,
+    p: Pressure,
+    x: f64) -> DynamicViscosity {
+    let rho = v_tp_eqm_two_phase(t, p, x).recip();
+    let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
+    let eta_star = DynamicViscosity::new::<pascal_second>(1.0e-6);
+
+    return psi * eta_star;
+
+}
+/// for viscosity estimates in single phase region
+pub fn mu_tp_eqm_single_phase(t: ThermodynamicTemperature,
     p: Pressure) -> DynamicViscosity {
     let rho = v_tp_eqm_single_phase(t, p).recip();
     let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
@@ -43,13 +56,27 @@ pub fn water_viscosity_p_t(t: ThermodynamicTemperature,
     return psi * eta_star;
 
 }
-pub fn water_viscosity_rho_t(t: ThermodynamicTemperature,
+/// for viscosity estimates in two phase region
+/// and single phase region
+pub fn mu_rho_t_eqm(t: ThermodynamicTemperature,
     rho: MassDensity,) -> DynamicViscosity {
 
     let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
     let eta_star = DynamicViscosity::new::<pascal_second>(1.0e-6);
 
     return psi * eta_star;
+
+}
+/// for viscosity estimates in two phase region
+/// and single phase region
+/// using enthalpy and pressure
+pub fn mu_ph_eqm(p: Pressure,
+    h: AvailableEnergy) -> DynamicViscosity {
+
+    let t = t_ph_eqm(p, h);
+    let rho = v_ph_eqm(p, h).recip();
+
+    return mu_rho_t_eqm(t, rho);
 
 }
 

@@ -756,3 +756,6 @@ pub(crate) use boundaries_from_single_phase_regions_to_region_4_multiphase::*;
 /// this checks for boundary in between single phase regions (1 to 3) 
 pub(crate) mod boundaries_between_single_phase_regions;
 pub(crate) use boundaries_between_single_phase_regions::*;
+
+/// viscosity 
+pub use crate::dynamic_viscosity::mu_ph_eqm as mu_ph_eqm;

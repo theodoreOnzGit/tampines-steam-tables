@@ -1607,3 +1607,5 @@ pub fn kappa_t_tp_eqm(t: ThermodynamicTemperature, p: Pressure, x: f64) -> Inver
     }
 }
 
+/// viscosity function import
+pub use crate::dynamic_viscosity::mu_tp_eqm_two_phase as mu_tp_eqm_two_phase;

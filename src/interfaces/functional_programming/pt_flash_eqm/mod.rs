@@ -232,3 +232,5 @@ pub use crate::region_3_single_phase_plus_supercritical_steam::alpha_p_rho_t_3;
 /// region 3 isothermal stress coeff (other regions don't have it)
 pub use crate::region_3_single_phase_plus_supercritical_steam::beta_p_rho_t_3;
 
+/// viscosity function import
+pub use crate::dynamic_viscosity::mu_tp_eqm_single_phase as mu_tp_eqm_single_phase;
