@@ -49,6 +49,9 @@ pub mod backward_eqn_ph_region_1_to_4;
 /// dynamic viscosity calcs
 pub mod dynamic_viscosity;
 
+/// thermal conductivity calcs 
+pub mod thermal_conductivity;
+
 
 /// public facing interfaces where the user 
 /// simply inputs pressure and temperature 
