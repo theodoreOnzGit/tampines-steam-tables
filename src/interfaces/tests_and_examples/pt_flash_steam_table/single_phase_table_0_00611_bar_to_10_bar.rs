@@ -1,3 +1,4 @@
+use uom::si::dynamic_viscosity::micropascal_second;
 use uom::si::{available_energy::kilojoule_per_kilogram, temperature_interval};
 use uom::si::pressure::bar;
 use uom::si::f64::*;
@@ -7,6 +8,7 @@ use uom::si::specific_volume::cubic_meter_per_kilogram;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
+use crate::dynamic_viscosity::mu_tp_eqm_two_phase;
 use crate::{interfaces::functional_programming::{ph_flash_eqm::x_ph_flash, pt_flash_eqm::{cp_tp_eqm_two_phase, h_tp_eqm_two_phase, kappa_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase, w_tp_eqm_two_phase}}, region_4_vap_liq_equilibrium::sat_temp_4};
 
 /// single phase table (see page 192)
@@ -1025,7 +1027,15 @@ fn assert_pt_flash(
         max_relative=9e-3
         );
 
-    // eta and lambda tbd
+    // lambda tbd
+    //
+    let eta_micropascal_second_test = mu_tp_eqm_two_phase(t, p, x)
+        .get::<micropascal_second>();
+    approx::assert_relative_eq!(
+        eta_micropascal_second,
+        eta_micropascal_second_test,
+        max_relative=2e-2
+        );
 
 
 
