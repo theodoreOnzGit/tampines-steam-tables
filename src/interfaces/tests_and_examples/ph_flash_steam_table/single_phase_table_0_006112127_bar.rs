@@ -11,7 +11,7 @@ use uom::si::velocity::meter_per_second;
 use crate::{dynamic_viscosity::mu_ph_eqm, interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, s_ph_eqm, t_ph_eqm, v_ph_eqm, w_ph_eqm}};
 
 #[test]
-pub fn reminder_to_do_viscosity_and_thermal_conductivity(){
+pub fn reminder_to_do_thermal_conductivity(){
     todo!()
 }
 /// single phase table (see page 192)
