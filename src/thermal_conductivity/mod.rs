@@ -2,7 +2,7 @@ use std::ops::Index;
 
 use uom::si::{f64::*, ratio::ratio};
 
-use crate::constants::{rho_crit_water, t_crit_water};
+use crate::{constants::{rho_crit_water, t_crit_water}, dynamic_viscosity::{psi_0_viscosity, psi_1_viscosity}};
 
 const LAMBDA_0_COEFFS: [[f64; 2]; 5] = [
     [1.0,  0.244_322_1e-2],
@@ -135,6 +135,17 @@ pub(crate) fn lambda_1(rho: MassDensity,
 
 pub(crate) fn lambda_2_crit_enhancement_term(
     rho: MassDensity, t: ThermodynamicTemperature,) -> f64 {
+    let t_c = t_crit_water();
+    let theta_f64: f64 = (t/t_c).get::<ratio>();
+    let rho_c = rho_crit_water();
+    let delta_f64: f64 = (rho/rho_c).get::<ratio>();
+
+    // this is dimensionless viscosity
+    let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
+
+
+    
+
 
     todo!()
 }
