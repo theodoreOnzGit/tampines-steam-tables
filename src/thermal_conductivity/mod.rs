@@ -2,7 +2,10 @@ use std::ops::Index;
 
 use uom::si::{f64::*, ratio::ratio};
 
-use crate::{constants::{rho_crit_water, t_crit_water}, dynamic_viscosity::{psi_0_viscosity, psi_1_viscosity}};
+use crate::constants::rho_crit_water;
+use crate::constants::t_crit_water;
+use crate::dynamic_viscosity::psi_1_viscosity;
+use crate::dynamic_viscosity::psi_0_viscosity;
 
 const LAMBDA_0_COEFFS: [[f64; 2]; 5] = [
     [1.0,  0.244_322_1e-2],
@@ -134,7 +137,8 @@ pub(crate) fn lambda_1(rho: MassDensity,
 }
 
 pub(crate) fn lambda_2_crit_enhancement_term(
-    rho: MassDensity, t: ThermodynamicTemperature,) -> f64 {
+    rho: MassDensity, t: ThermodynamicTemperature,
+    p: Pressure) -> f64 {
     let t_c = t_crit_water();
     let theta_f64: f64 = (t/t_c).get::<ratio>();
     let rho_c = rho_crit_water();
@@ -149,6 +153,28 @@ pub(crate) fn lambda_2_crit_enhancement_term(
     let n3 = 0.135_882_142_589_674e1;
     let n4 = 0.508_474_576_271;
     let n5 = 1.5;
+
+    // now, looks like we need to calculate certain properties 
+    // such as cp, cv and kappa_t
+    //
+    // those require p,h or tp flashing in order to work outside region 3 
+    //
+    // we only have rho and t now
+    // which doesn't exactly work outside region 3
+    // so without iterations, this will be a problem.
+    //
+    // However, perhaps one can assume pressure is given since 
+    // we often use tp or ph flashing, that makes things a lot easier
+    //
+    //
+    // so a pt flash would be good.
+    //
+    // However, it won't work in region 4 as there are two phases 
+    // to deal with
+    //
+    // it may be more reasonable to work with p,h flash from the get go
+    //
+    // okay this is stressing my brain now lol... maybe try layer
 
     
 
