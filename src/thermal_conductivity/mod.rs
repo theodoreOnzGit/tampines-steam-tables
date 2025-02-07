@@ -2,7 +2,7 @@ use std::ops::Index;
 
 use uom::si::{f64::*, ratio::ratio};
 
-use crate::constants::{p_crit_water, rho_crit_water, t_crit_water};
+use crate::constants::{rho_crit_water, t_crit_water};
 
 const LAMBDA_0_COEFFS: [[f64; 2]; 5] = [
     [1.0,  0.244_322_1e-2],
@@ -74,8 +74,8 @@ const LAMBDA_1_COEFFS_NI6: [[f64; 2]; 5] = [
     [4.0,  0.0],
     [5.0,  0.129_138_420e-1],
 ];
-pub(crate) fn lambda_1(t: ThermodynamicTemperature,
-    rho: MassDensity) -> f64 {
+pub(crate) fn lambda_1(rho: MassDensity,
+    t: ThermodynamicTemperature,) -> f64 {
     let t_c = t_crit_water();
     let theta_f64: f64 = (t/t_c).get::<ratio>();
     let rho_c = rho_crit_water();
@@ -132,6 +132,13 @@ pub(crate) fn lambda_1(t: ThermodynamicTemperature,
     exponent.exp()
 
 }
+
+pub(crate) fn lambda_2_crit_enhancement_term(
+    rho: MassDensity, t: ThermodynamicTemperature,) -> f64 {
+
+    todo!()
+}
+
 
 #[cfg(test)]
 mod tests;

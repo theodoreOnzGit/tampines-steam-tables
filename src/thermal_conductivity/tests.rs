@@ -59,25 +59,25 @@ pub fn lambda_1_test(){
     let lambda_1_3 = 0.726_398_725e1;
     let lambda_1_4 = 0.115_280_540e1;
 
-    let lambda_1_test = lambda_1(t1,rho1);
+    let lambda_1_test = lambda_1(rho1,t1);
     approx::assert_relative_eq!(
         lambda_1_1,
         lambda_1_test,
         max_relative=1e-8
         );
-    let lambda_1_test = lambda_1(t2,rho2);
+    let lambda_1_test = lambda_1(rho2,t2);
     approx::assert_relative_eq!(
         lambda_1_2,
         lambda_1_test,
         max_relative=1e-8
         );
-    let lambda_1_test = lambda_1(t3,rho3);
+    let lambda_1_test = lambda_1(rho3,t3);
     approx::assert_relative_eq!(
         lambda_1_3,
         lambda_1_test,
         max_relative=1e-8
         );
-    let lambda_1_test = lambda_1(t4,rho4);
+    let lambda_1_test = lambda_1(rho4,t4);
     approx::assert_relative_eq!(
         lambda_1_4,
         lambda_1_test,
