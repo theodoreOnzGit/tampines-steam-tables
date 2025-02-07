@@ -1,3 +1,5 @@
+use std::ops::Index;
+
 use uom::si::{f64::*, ratio::ratio};
 
 use crate::constants::{p_crit_water, t_crit_water};
@@ -79,37 +81,55 @@ pub(crate) fn lambda_1(t: ThermodynamicTemperature,
     let p_c = p_crit_water();
     let delta_f64: f64 = (p/p_c).get::<ratio>();
 
-    fn inner_sum(i: f64, delta: f64, j: f64) -> f64{
+    fn inner_sum_over_all_j(i: usize, delta: f64) -> f64{
 
-        let coeff_arr: [[f64;2]; 5];
+        let ni1 = LAMBDA_1_COEFFS_NI1.index(i-1)[1];
+        let ni2 = LAMBDA_1_COEFFS_NI2.index(i-1)[1];
+        let ni3 = LAMBDA_1_COEFFS_NI3.index(i-1)[1];
+        let ni4 = LAMBDA_1_COEFFS_NI4.index(i-1)[1];
+        let ni5 = LAMBDA_1_COEFFS_NI5.index(i-1)[1];
+        let ni6 = LAMBDA_1_COEFFS_NI6.index(i-1)[1];
 
-        if j == 1.0 {
-            coeff_arr = LAMBDA_1_COEFFS_NI1;
-        } else if j == 2.0 {
-            coeff_arr = LAMBDA_1_COEFFS_NI2;
-        } else if j == 3.0 {
-            coeff_arr = LAMBDA_1_COEFFS_NI3;
-        } else if j == 4.0 {
-            coeff_arr = LAMBDA_1_COEFFS_NI4;
-        } else if j == 5.0 {
-            coeff_arr = LAMBDA_1_COEFFS_NI5;
-        } else {
-            coeff_arr = LAMBDA_1_COEFFS_NI6;
-        };
+        let inner_sum: f64 = 
+            ni1 * (delta - 1.0).powf(1.0 -  1.0)
+            + ni2 * (delta - 1.0).powf(2.0 - 1.0)
+            + ni3 * (delta - 1.0).powf(3.0 - 1.0)
+            + ni4 * (delta - 1.0).powf(4.0 - 1.0)
+            + ni5 * (delta - 1.0).powf(5.0 - 1.0)
+            + ni6 * (delta - 1.0).powf(6.0 - 1.0);
 
-        let mut sum = 0.0;
-
-        for coeffs in coeff_arr {
-            let nij = coeffs[1];
-
-            sum += nij * (delta - 1.0).powf(j-1.0);
-        }
-
-        sum
+        return inner_sum;
 
     }
 
-    todo!()
+    
+    let mut exponent: f64 = 0.0;
+
+    // I know I should be using a for loop, but this makes coding 
+    // easier to visualise given the nested sum.. lol
+    let i = 1;
+    exponent += delta_f64 * (theta_f64.recip() - 1.0)
+        .powi(i - 1) * 
+        inner_sum_over_all_j(i as usize, delta_f64);
+    let i = 2;
+    exponent += delta_f64 * (theta_f64.recip() - 1.0)
+        .powi(i - 1) * 
+        inner_sum_over_all_j(i as usize, delta_f64);
+    let i = 3;
+    exponent += delta_f64 * (theta_f64.recip() - 1.0)
+        .powi(i - 1) * 
+        inner_sum_over_all_j(i as usize, delta_f64);
+    let i = 4;
+    exponent += delta_f64 * (theta_f64.recip() - 1.0)
+        .powi(i - 1) * 
+        inner_sum_over_all_j(i as usize, delta_f64);
+    let i = 5;
+    exponent += delta_f64 * (theta_f64.recip() - 1.0)
+        .powi(i - 1) * 
+        inner_sum_over_all_j(i as usize, delta_f64);
+
+
+    exponent.exp()
 
 }
 
