@@ -143,6 +143,12 @@ pub(crate) fn lambda_2_crit_enhancement_term(
     // this is dimensionless viscosity
     let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
 
+    // these terms are independent of density
+    let n1 = 0.177_851_4e3;;
+    let n2 = 0.636_619_772_367_581;
+    let n3 = 0.135_882_142_589_674e1;
+    let n4 = 0.508_474_576_271;
+    let n5 = 1.5;
 
     
 
