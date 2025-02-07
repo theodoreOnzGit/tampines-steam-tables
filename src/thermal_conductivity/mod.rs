@@ -6,6 +6,10 @@ use crate::constants::rho_crit_water;
 use crate::constants::t_crit_water;
 use crate::dynamic_viscosity::psi_1_viscosity;
 use crate::dynamic_viscosity::psi_0_viscosity;
+use crate::interfaces::functional_programming::pt_flash_eqm::cp_tp_eqm_single_phase;
+use crate::interfaces::functional_programming::pt_flash_eqm::cv_tp_eqm_single_phase;
+use crate::interfaces::functional_programming::pt_flash_eqm::kappa_tp_eqm_single_phase;
+use crate::interfaces::functional_programming::pt_flash_eqm::v_tp_eqm_single_phase;
 
 const LAMBDA_0_COEFFS: [[f64; 2]; 5] = [
     [1.0,  0.244_322_1e-2],
@@ -136,9 +140,11 @@ pub(crate) fn lambda_1(rho: MassDensity,
 
 }
 
-pub(crate) fn lambda_2_crit_enhancement_term(
-    rho: MassDensity, t: ThermodynamicTemperature,
+pub(crate) fn lambda_2_crit_enhancement_term_tp_single_phase(
+    t: ThermodynamicTemperature,
     p: Pressure) -> f64 {
+
+    let rho = v_tp_eqm_single_phase(t, p).recip();
     let t_c = t_crit_water();
     let theta_f64: f64 = (t/t_c).get::<ratio>();
     let rho_c = rho_crit_water();
@@ -174,12 +180,50 @@ pub(crate) fn lambda_2_crit_enhancement_term(
     //
     // it may be more reasonable to work with p,h flash from the get go
     //
-    // okay this is stressing my brain now lol... maybe try layer
 
+    let cp = cp_tp_eqm_single_phase(t, p);
+    let cv = cv_tp_eqm_single_phase(t, p);
+    let kappa_t = kappa_tp_eqm_single_phase(t, p);
+
+    let b: Ratio = cp/cv;
+    let captial_a: f64;
+    let capital_b: f64;
+    let captial_c: f64;
     
 
 
     todo!()
+}
+
+fn captial_c(delta: f64) -> f64{
+
+    let n1: f64;
+    let n2: f64;
+    let n3: f64;
+    let n4: f64;
+    let n5: f64;
+    let n6: f64;
+
+    // this takes from table 3.7
+    //
+    if delta <= 0.310_559_006 {
+        n1 = 0.653_786_807_199_516e1;
+        n2 = -0.561_149_954_923_348e1;
+        n3 = 0.339_624_167_361_325e1;
+        n4 = -0.227_492_629_730_878e1;
+        n5 = 0.102_631_854_662_709e2;
+        n6 = 0.197_815_050_331_519e1;
+    } else if delta <= 0.776_397_516 {
+
+    } else if delta <= 1.242_236_025 {
+
+    } else if delta <= 1.863_354_037 {
+
+    } else {
+
+    }
+    todo!();
+
 }
 
 
