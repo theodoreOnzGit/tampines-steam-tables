@@ -2,6 +2,7 @@ use std::ops::Index;
 
 use uom::si::pressure::megapascal;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
+use uom::si::thermal_conductivity::watt_per_meter_kelvin;
 use uom::si::{f64::*, ratio::ratio};
 
 use crate::constants::p_crit_water;
@@ -22,6 +23,21 @@ const LAMBDA_0_COEFFS: [[f64; 2]; 5] = [
     [4.0,  -0.345_458_6e-2],
     [5.0,  0.409_626_6e-3],
 ];
+
+pub fn lambda_tp_flash(t: ThermodynamicTemperature,
+    p: Pressure) -> ThermalConductivity {
+
+    let rho = v_tp_eqm_single_phase(t, p).recip();
+    let lambda_0 = lambda_0(t);
+    let lambda_1 = lambda_1(rho, t);
+    let lambda_2 = lambda_2_crit_enhancement_term_tp_single_phase(t, p);
+    let lambda_star = ThermalConductivity::new::<watt_per_meter_kelvin>(1.0e-3);
+
+    let dimensionless_lambda = lambda_0 * lambda_1 + lambda_2;
+
+    return lambda_star * dimensionless_lambda;
+
+}
 
 pub(crate) fn lambda_0(t: ThermodynamicTemperature) -> f64 {
     let t_c = t_crit_water();

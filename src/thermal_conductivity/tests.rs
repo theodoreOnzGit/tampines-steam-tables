@@ -404,3 +404,54 @@ fn lambda_2_test(){
         epsilon=0.0
         );
 }
+
+
+#[test]
+fn lambda_test_tp_flash(){
+    let t1 = ThermodynamicTemperature::new::<kelvin>(298.15);
+    let t2 = ThermodynamicTemperature::new::<kelvin>(873.15);
+    let t3 = ThermodynamicTemperature::new::<kelvin>(673.15);
+    let t4 = ThermodynamicTemperature::new::<kelvin>(1173.15);
+
+    let p1 = Pressure::new::<megapascal>(0.1);
+    let p2 = Pressure::new::<megapascal>(10.0);
+    let p3 = Pressure::new::<megapascal>(40.0);
+    let p4 = Pressure::new::<megapascal>(20.0);
+
+
+
+    // lambda_2_1 and lambda_2_4 values are not given in the table, 
+    let lambda_1_watt_per_m_k = 0.606_515_827e0;
+    let lambda_2_watt_per_m_k = 0.870_767_659e-1;
+    let lambda_3_watt_per_m_k = 0.412_517_936e0;
+    let lambda_4_watt_per_m_k = 0.137_859_512e0;
+
+
+
+
+    let lambda_2_test = lambda_tp_flash(t1, p1).get::<watt_per_meter_kelvin>();
+    approx::assert_relative_eq!(
+        lambda_1_watt_per_m_k,
+        lambda_2_test,
+        max_relative=1e-8
+        );
+    let lambda_2_test = lambda_tp_flash(t2, p2).get::<watt_per_meter_kelvin>();
+        approx::assert_relative_eq!(
+        lambda_2_watt_per_m_k,
+        lambda_2_test,
+        max_relative=1e-8
+        );
+    let lambda_2_test = lambda_tp_flash(t3, p3).get::<watt_per_meter_kelvin>();
+    approx::assert_relative_eq!(
+        lambda_3_watt_per_m_k,
+        lambda_2_test,
+        max_relative=1e-6
+        );
+    
+    let lambda_2_test = lambda_tp_flash(t4, p4).get::<watt_per_meter_kelvin>();
+    approx::assert_relative_eq!(
+        lambda_4_watt_per_m_k,
+        lambda_2_test,
+        max_relative=1e-8
+        );
+}
