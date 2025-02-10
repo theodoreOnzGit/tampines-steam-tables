@@ -429,26 +429,26 @@ fn lambda_test_tp_flash(){
 
 
 
-    let lambda_2_test = lambda_tp_flash(t1, p1).get::<watt_per_meter_kelvin>();
+    let lambda_2_test = lambda_tp_eqm_single_phase(t1, p1).get::<watt_per_meter_kelvin>();
     approx::assert_relative_eq!(
         lambda_1_watt_per_m_k,
         lambda_2_test,
         max_relative=1e-8
         );
-    let lambda_2_test = lambda_tp_flash(t2, p2).get::<watt_per_meter_kelvin>();
+    let lambda_2_test = lambda_tp_eqm_single_phase(t2, p2).get::<watt_per_meter_kelvin>();
         approx::assert_relative_eq!(
         lambda_2_watt_per_m_k,
         lambda_2_test,
         max_relative=1e-8
         );
-    let lambda_2_test = lambda_tp_flash(t3, p3).get::<watt_per_meter_kelvin>();
+    let lambda_2_test = lambda_tp_eqm_single_phase(t3, p3).get::<watt_per_meter_kelvin>();
     approx::assert_relative_eq!(
         lambda_3_watt_per_m_k,
         lambda_2_test,
         max_relative=1e-6
         );
     
-    let lambda_2_test = lambda_tp_flash(t4, p4).get::<watt_per_meter_kelvin>();
+    let lambda_2_test = lambda_tp_eqm_single_phase(t4, p4).get::<watt_per_meter_kelvin>();
     approx::assert_relative_eq!(
         lambda_4_watt_per_m_k,
         lambda_2_test,

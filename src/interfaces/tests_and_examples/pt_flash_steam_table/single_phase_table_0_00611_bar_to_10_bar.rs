@@ -1,4 +1,5 @@
 use uom::si::dynamic_viscosity::micropascal_second;
+use uom::si::thermal_conductivity::milliwatt_per_meter_kelvin;
 use uom::si::{available_energy::kilojoule_per_kilogram, temperature_interval};
 use uom::si::pressure::bar;
 use uom::si::f64::*;
@@ -9,6 +10,7 @@ use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
 use crate::dynamic_viscosity::mu_tp_eqm_two_phase;
+use crate::thermal_conductivity::lambda_tp_eqm_two_phase;
 use crate::{interfaces::functional_programming::{ph_flash_eqm::x_ph_flash, pt_flash_eqm::{cp_tp_eqm_two_phase, h_tp_eqm_two_phase, kappa_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase, w_tp_eqm_two_phase}}, region_4_vap_liq_equilibrium::sat_temp_4};
 
 /// single phase table (see page 192)
@@ -1027,8 +1029,7 @@ fn assert_pt_flash(
         max_relative=9e-3
         );
 
-    // lambda tbd
-    //
+    // dynamic_viscosity
     let eta_micropascal_second_test = mu_tp_eqm_two_phase(t, p, x)
         .get::<micropascal_second>();
     approx::assert_relative_eq!(
@@ -1037,6 +1038,15 @@ fn assert_pt_flash(
         max_relative=2e-2
         );
 
+    // thermal_conductivity
+
+    let lambda_milliwatt_per_meter_kelvin_test 
+        = lambda_tp_eqm_two_phase(t, p, x).get::<milliwatt_per_meter_kelvin>();
+    approx::assert_relative_eq!(
+        lambda_milliwatt_per_meter_kelvin,
+        lambda_milliwatt_per_meter_kelvin_test,
+        max_relative=1.5e-2
+        );
 
 
 }

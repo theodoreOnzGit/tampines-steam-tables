@@ -10,7 +10,7 @@ use crate::constants::rho_crit_water;
 use crate::constants::t_crit_water;
 use crate::dynamic_viscosity::psi_1_viscosity;
 use crate::dynamic_viscosity::psi_0_viscosity;
-use crate::interfaces::functional_programming::pt_flash_eqm::cp_tp_eqm_single_phase;
+use crate::interfaces::functional_programming::pt_flash_eqm::{cp_tp_eqm_single_phase, v_tp_eqm_two_phase};
 use crate::interfaces::functional_programming::pt_flash_eqm::cv_tp_eqm_single_phase;
 use crate::interfaces::functional_programming::pt_flash_eqm::kappa_t_tp_eqm;
 use crate::interfaces::functional_programming::pt_flash_eqm::v_tp_eqm_single_phase;
@@ -24,13 +24,28 @@ const LAMBDA_0_COEFFS: [[f64; 2]; 5] = [
     [5.0,  0.409_626_6e-3],
 ];
 
-pub fn lambda_tp_flash(t: ThermodynamicTemperature,
+pub fn lambda_tp_eqm_single_phase(t: ThermodynamicTemperature,
     p: Pressure) -> ThermalConductivity {
 
     let rho = v_tp_eqm_single_phase(t, p).recip();
     let lambda_0 = lambda_0(t);
     let lambda_1 = lambda_1(rho, t);
     let lambda_2 = lambda_2_crit_enhancement_term_tp_single_phase(t, p);
+    let lambda_star = ThermalConductivity::new::<watt_per_meter_kelvin>(1.0e-3);
+
+    let dimensionless_lambda = lambda_0 * lambda_1 + lambda_2;
+
+    return lambda_star * dimensionless_lambda;
+
+}
+pub fn lambda_tp_eqm_two_phase(t: ThermodynamicTemperature,
+    p: Pressure,
+    x: f64) -> ThermalConductivity {
+
+    let rho = v_tp_eqm_two_phase(t, p, x).recip();
+    let lambda_0 = lambda_0(t);
+    let lambda_1 = lambda_1(rho, t);
+    let lambda_2 = lambda_2_crit_enhancement_term_tp_two_phase_estimate(t, p, x);
     let lambda_star = ThermalConductivity::new::<watt_per_meter_kelvin>(1.0e-3);
 
     let dimensionless_lambda = lambda_0 * lambda_1 + lambda_2;
@@ -158,6 +173,74 @@ pub(crate) fn lambda_1(rho: MassDensity,
 
     exponent.exp()
 
+}
+pub(crate) fn lambda_2_crit_enhancement_term_tp_two_phase_estimate(
+    t: ThermodynamicTemperature,
+    p: Pressure,
+    x: f64) -> f64 {
+
+    let rho = v_tp_eqm_two_phase(t, p, x).recip();
+    let t_c = t_crit_water();
+    let theta_f64: f64 = (t/t_c).get::<ratio>();
+    let rho_c = rho_crit_water();
+    let delta_f64: f64 = (rho/rho_c).get::<ratio>();
+
+    // this is dimensionless viscosity
+    let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
+
+    // these terms are independent of density
+    let n1 = 0.177_851_4e3;
+    let n2 = 0.636_619_772_367_581;
+    let n3 = 0.135_882_142_589_674e1;
+    let n4 = 0.508_474_576_271;
+    let n5 = 1.5;
+
+    // now, looks like we need to calculate certain properties 
+    // such as cp, cv and kappa_t
+    //
+    // those require p,h or tp flashing in order to work outside region 3 
+    //
+    // we only have rho and t now
+    // which doesn't exactly work outside region 3
+    // so without iterations, this will be a problem.
+    //
+    // However, perhaps one can assume pressure is given since 
+    // we often use tp or ph flashing, that makes things a lot easier
+    //
+    //
+    // so a pt flash would be good.
+    //
+    // However, it won't work in region 4 as there are two phases 
+    // to deal with
+    //
+    // it may be more reasonable to work with p,h flash from the get go
+    //
+
+    let mut cp = cp_tp_eqm_single_phase(t, p);
+
+    if cp.get::<kilojoule_per_kilogram_kelvin>() < 0.0 {
+        cp = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(1.0e13);
+    } else if cp.get::<kilojoule_per_kilogram_kelvin>() > 1.0e13 {
+        cp = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(1.0e13);
+    };
+    let cv = cv_tp_eqm_single_phase(t, p);
+    let kappa_t = kappa_t_tp_eqm(t, p);
+
+    let b: f64 = (cp/cv).get::<ratio>();
+    let captial_a: f64 = captial_a(n2, n3, delta_f64, theta_f64, 
+        kappa_t, n4, n5, b);
+
+
+    let gas_constant_r = 
+        SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+            0.461_518_05
+        );
+    
+    let lambda_2 = n1 * delta_f64 * theta_f64 / psi * 
+        cp/gas_constant_r * captial_a;
+
+
+    return lambda_2.get::<ratio>();
 }
 
 pub(crate) fn lambda_2_crit_enhancement_term_tp_single_phase(

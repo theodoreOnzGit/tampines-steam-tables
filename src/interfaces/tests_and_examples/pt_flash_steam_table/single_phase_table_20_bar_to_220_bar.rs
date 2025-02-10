@@ -1,6 +1,7 @@
 use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::dynamic_viscosity::micropascal_second;
 use uom::si::pressure::bar;
+use uom::si::thermal_conductivity::milliwatt_per_meter_kelvin;
 use uom::si::{f64::*, temperature_interval};
 use uom::si::ratio::ratio;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
@@ -11,6 +12,7 @@ use uom::si::velocity::meter_per_second;
 use crate::dynamic_viscosity::mu_tp_eqm_two_phase;
 use crate::interfaces::functional_programming::{ph_flash_eqm::x_ph_flash, pt_flash_eqm::{cp_tp_eqm_two_phase, h_tp_eqm_two_phase, kappa_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase, w_tp_eqm_two_phase}};
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
+use crate::thermal_conductivity::lambda_tp_eqm_two_phase;
 
 /// single phase table (see page 201)
 ///
@@ -1302,14 +1304,141 @@ fn assert_pt_flash(
         );
     }
 
-    // lambda tbd
-    //
+    // dynamic viscosity
     let eta_micropascal_second_test = mu_tp_eqm_two_phase(t, p, x)
         .get::<micropascal_second>();
     approx::assert_relative_eq!(
         eta_micropascal_second,
         eta_micropascal_second_test,
         max_relative=2e-2
+        );
+
+    // thermal_conductivity
+
+    let lambda_milliwatt_per_meter_kelvin_test 
+        = lambda_tp_eqm_two_phase(t, p, x).get::<milliwatt_per_meter_kelvin>();
+    approx::assert_relative_eq!(
+        lambda_milliwatt_per_meter_kelvin,
+        lambda_milliwatt_per_meter_kelvin_test,
+        max_relative=4.0e-2
+        );
+
+
+
+}
+
+
+
+fn assert_pt_flash_near_supercritical_region(
+    p_bar: f64,
+    t_deg_c: f64,
+    v_m3_per_kg: f64,
+    h_kj_per_kg: f64,
+    s_kj_per_kg_k: f64,
+    cp_kj_per_kg_k: f64,
+    w_m_per_s: f64,
+    kappa_dimensionless: f64,
+    eta_micropascal_second: f64,
+    lambda_milliwatt_per_meter_kelvin: f64,
+){
+    let p = Pressure::new::<bar>(p_bar);
+    let t = ThermodynamicTemperature::new::<degree_celsius>(t_deg_c);
+    let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(h_kj_per_kg);
+    // check if t is less than or equal to tsat 
+    
+    let t_sat = sat_temp_4(p);
+    let fifty_kelvin = TemperatureInterval::new::<temperature_interval::kelvin>(50.0);
+    
+    let x: f64;
+    
+    if t > t_sat + fifty_kelvin {
+        x = 1.0;
+    } else {
+        x = x_ph_flash(p, h_ref);
+    };
+
+
+    // assert h
+    let h_test = h_tp_eqm_two_phase(t, p, x);
+    approx::assert_relative_eq!(
+        h_kj_per_kg,
+        h_test.get::<kilojoule_per_kilogram>(),
+        max_relative=5e-3
+        );
+
+    // assert volume to within 3% because at critical point 
+    // we are unable to predict volume using backward eqn with 
+    // high fidelity
+    let v_test = v_tp_eqm_two_phase(t, p, x);
+    approx::assert_relative_eq!(
+        v_m3_per_kg,
+        v_test.get::<cubic_meter_per_kilogram>(),
+        max_relative=3e-2
+        );
+
+    // now entropy 
+    let s_test = s_tp_eqm_two_phase(t, p, x);
+    approx::assert_relative_eq!(
+        s_kj_per_kg_k,
+        s_test.get::<kilojoule_per_kilogram_kelvin>(),
+        max_relative=5e-3
+        );
+
+    // if at/near critical point, skip them tests
+    // cp 
+    if t_deg_c != 373.707 {
+        let cp_test = cp_tp_eqm_two_phase(t, p, x);
+        approx::assert_relative_eq!(
+            cp_kj_per_kg_k,
+            cp_test.get::<kilojoule_per_kilogram_kelvin>(),
+            max_relative=1e-3
+        );
+        // w 
+        let w_test = w_tp_eqm_two_phase(t, p, x);
+        approx::assert_relative_eq!(
+            w_m_per_s,
+            w_test.get::<meter_per_second>(),
+            max_relative=5e-3
+        );
+
+        // kappa
+        let kappa_test = kappa_tp_eqm_two_phase(t, p, x);
+        approx::assert_relative_eq!(
+            kappa_dimensionless,
+            kappa_test.get::<ratio>(),
+            max_relative=9e-3
+        );
+        // if not at critical point, assert a tighter volume control
+        // and entropy as well
+        approx::assert_relative_eq!(
+            v_m3_per_kg,
+            v_test.get::<cubic_meter_per_kilogram>(),
+            max_relative=1e-4
+        );
+        approx::assert_relative_eq!(
+            s_kj_per_kg_k,
+            s_test.get::<kilojoule_per_kilogram_kelvin>(),
+            max_relative=5e-4
+        );
+    }
+
+    // dynamic viscosity
+    let eta_micropascal_second_test = mu_tp_eqm_two_phase(t, p, x)
+        .get::<micropascal_second>();
+    approx::assert_relative_eq!(
+        eta_micropascal_second,
+        eta_micropascal_second_test,
+        max_relative=2e-2
+        );
+
+    // thermal_conductivity
+
+    let lambda_milliwatt_per_meter_kelvin_test 
+        = lambda_tp_eqm_two_phase(t, p, x).get::<milliwatt_per_meter_kelvin>();
+    approx::assert_relative_eq!(
+        lambda_milliwatt_per_meter_kelvin,
+        lambda_milliwatt_per_meter_kelvin_test,
+        max_relative=20.0e-2
         );
 
 
