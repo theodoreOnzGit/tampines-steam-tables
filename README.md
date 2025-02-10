@@ -23,8 +23,23 @@ v0.0.7
 
 Starting development of an interface for the forward and backward flash.
 First using functional programming, then object oriented programming.
+OOP not implemented in this version yet.
 
 Firstly, (p,T) flash, then (p,H) flash.
+This is done for all steam table values except for 1000 bar. 
+There is a problem for (p,T) and (p,H) flashing at 1000 bar 
+as the algorithm complains it's out of range. Will take some debugging 
+to settle.
+
+Dynamic viscosity added, can reproduce steam table to within 2%.
+Thermal conductivity can reproduce steam table values to within 1% 
+except for regions near critical point (220 bar) and from 100 bar 
+up to 200 bar.
+Thermal conductivity yet to be implemented for (p,H) flash,
+requires some debugging.
+
+
+
 
 v0.0.6
 beginning the addition of backwards eqns
