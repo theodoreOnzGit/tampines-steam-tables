@@ -11,7 +11,6 @@ use crate::thermal_conductivity::lambda_0;
 use crate::thermal_conductivity::lambda_1;
 use crate::thermal_conductivity::lambda_2_crit_enhancement_term_tp_two_phase_estimate;
 
-use super::pt_flash_eqm::{lambda_tp_eqm_two_phase, v_tp_eqm_two_phase};
 use super::pt_flash_eqm::FwdEqnRegion;
 
 /// obtains temperature given pressure and enthalpy
