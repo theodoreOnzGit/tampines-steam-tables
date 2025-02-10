@@ -16,7 +16,8 @@
 //
 // for boundary between 1 and 3, 
 //
-// the isotherm at T = 623.15 K is used (crit temp) 
+// the isotherm at T = 623.15 K is used (close to 
+// crit temp but not quite crti temp) 
 // 
 // the boundary at region 1 to 3 is part of region 1,
 // and the boundary at region 2 to 3 is considered 

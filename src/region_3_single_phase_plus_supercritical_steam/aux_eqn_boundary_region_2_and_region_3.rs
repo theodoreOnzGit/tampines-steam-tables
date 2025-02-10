@@ -1,5 +1,7 @@
 use uom::si::{f64::*, pressure::megapascal, thermodynamic_temperature::kelvin};
 
+/// boundary equation between region 2 and 3
+/// note that points ON this line belong to region 2
 pub fn p_boundary_2_3(t: ThermodynamicTemperature) -> Pressure {
     let n: [f64; 5] = [
         0.34805185628969e3,
@@ -17,7 +19,8 @@ pub fn p_boundary_2_3(t: ThermodynamicTemperature) -> Pressure {
     return p_ref * dimensionless_pressure;
 
 }
-
+/// boundary equation between region 2 and 3
+/// note that points ON this line belong to region 2
 pub fn t_boundary_2_3(p: Pressure) -> ThermodynamicTemperature {
     let n: [f64; 5] = [
         0.34805185628969e3,
