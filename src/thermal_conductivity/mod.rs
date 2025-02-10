@@ -1,15 +1,19 @@
 use std::ops::Index;
 
+use uom::si::pressure::megapascal;
 use uom::si::{f64::*, ratio::ratio};
 
+use crate::constants::p_crit_water;
 use crate::constants::rho_crit_water;
 use crate::constants::t_crit_water;
 use crate::dynamic_viscosity::psi_1_viscosity;
 use crate::dynamic_viscosity::psi_0_viscosity;
 use crate::interfaces::functional_programming::pt_flash_eqm::cp_tp_eqm_single_phase;
 use crate::interfaces::functional_programming::pt_flash_eqm::cv_tp_eqm_single_phase;
+use crate::interfaces::functional_programming::pt_flash_eqm::kappa_t_tp_eqm;
 use crate::interfaces::functional_programming::pt_flash_eqm::kappa_tp_eqm_single_phase;
 use crate::interfaces::functional_programming::pt_flash_eqm::v_tp_eqm_single_phase;
+use crate::region_5_steam_at_800_plus_degc::InversePressure;
 
 const LAMBDA_0_COEFFS: [[f64; 2]; 5] = [
     [1.0,  0.244_322_1e-2],
@@ -183,7 +187,7 @@ pub(crate) fn lambda_2_crit_enhancement_term_tp_single_phase(
 
     let cp = cp_tp_eqm_single_phase(t, p);
     let cv = cv_tp_eqm_single_phase(t, p);
-    let kappa_t = kappa_tp_eqm_single_phase(t, p);
+    let kappa_t = kappa_t_tp_eqm(t, p);
 
     let b: Ratio = cp/cv;
     let captial_a: f64;
@@ -193,6 +197,32 @@ pub(crate) fn lambda_2_crit_enhancement_term_tp_single_phase(
 
 
     todo!()
+}
+
+fn captial_b(delta: f64, theta: f64, kappa_t: InversePressure,
+    n5: f64) -> f64 {
+    let captial_c = captial_c(delta);
+    let p_c = p_crit_water();
+    let corrected_kappa_t: InversePressure;
+    if kappa_t.value < 0.0 {
+        corrected_kappa_t = 1.0e13 * Pressure::new::<megapascal>(1.0).recip();
+    } else if kappa_t.recip().get::<megapascal>() < 1.0e13_f64.recip() {
+        corrected_kappa_t = 1.0e13 * Pressure::new::<megapascal>(1.0).recip();
+    } else {
+        corrected_kappa_t = kappa_t;
+    };
+
+
+    let mut captial_b = (p_c * delta * corrected_kappa_t).get::<ratio>() 
+        - n5 * theta.recip() * captial_c;
+
+    if captial_b < 0.0 {
+        captial_b = 0.0;
+    }
+
+    return captial_b;
+
+    
 }
 
 fn captial_c(delta: f64) -> f64{
