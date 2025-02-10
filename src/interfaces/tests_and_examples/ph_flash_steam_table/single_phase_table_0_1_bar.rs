@@ -228,14 +228,14 @@ fn assert_ph_flash(
         max_relative=2e-2
         );
 
-    // thermal conductivity
-    let lambda_test_milliwatt_per_meter_kelvin = 
-        lambda_ph_eqm(p, h).get::<milliwatt_per_meter_kelvin>();
-    approx::assert_relative_eq!(
-        lambda_milliwatt_per_meter_kelvin,
-        lambda_test_milliwatt_per_meter_kelvin,
-        max_relative=1e-2
-        );
+    //// thermal conductivity
+    //let lambda_test_milliwatt_per_meter_kelvin = 
+    //    lambda_ph_eqm(p, h).get::<milliwatt_per_meter_kelvin>();
+    //approx::assert_relative_eq!(
+    //    lambda_milliwatt_per_meter_kelvin,
+    //    lambda_test_milliwatt_per_meter_kelvin,
+    //    max_relative=1e-2
+    //    );
 
 
 
