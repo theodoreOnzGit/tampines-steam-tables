@@ -7,6 +7,7 @@ use crate::region_2_vapour::*;
 use crate::region_1_subcooled_liquid::*;
 use crate::region_1_subcooled_liquid::InversePressure;
 
+use super::pt_flash_eqm::lambda_tp_eqm_two_phase;
 use super::pt_flash_eqm::FwdEqnRegion;
 
 /// obtains temperature given pressure and enthalpy
@@ -759,3 +760,11 @@ pub(crate) use boundaries_between_single_phase_regions::*;
 
 /// viscosity 
 pub use crate::dynamic_viscosity::mu_ph_eqm as mu_ph_eqm;
+
+pub fn lambda_ph_eqm(p: Pressure, h: AvailableEnergy) -> ThermalConductivity {
+    let t = t_ph_eqm(p, h);
+    let x = x_ph_flash(p, h);
+
+    return lambda_tp_eqm_two_phase(t, p, x);
+    
+}
