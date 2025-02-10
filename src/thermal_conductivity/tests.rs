@@ -201,3 +201,70 @@ fn captial_b_test(){
         );
     
 }
+
+
+#[test]
+fn small_a_test(){
+    let t1 = ThermodynamicTemperature::new::<kelvin>(298.15);
+    let t2 = ThermodynamicTemperature::new::<kelvin>(873.15);
+    let t3 = ThermodynamicTemperature::new::<kelvin>(673.15);
+    let t4 = ThermodynamicTemperature::new::<kelvin>(1173.15);
+
+    let rho1 = MassDensity::new::<kilogram_per_cubic_meter>(0.997_047_435e3);
+    let rho2 = MassDensity::new::<kilogram_per_cubic_meter>(0.260_569_558e2);
+    let rho3 = MassDensity::new::<kilogram_per_cubic_meter>(0.523_371_289e3);
+    let rho4 = MassDensity::new::<kilogram_per_cubic_meter>(0.377_584_848e2);
+
+    let delta_1: f64 = (rho1/rho_crit_water()).get::<ratio>();
+    let delta_2: f64 = (rho2/rho_crit_water()).get::<ratio>();
+    let delta_3: f64 = (rho3/rho_crit_water()).get::<ratio>();
+    let delta_4: f64 = (rho4/rho_crit_water()).get::<ratio>();
+
+    let theta_1: f64 = (t1/t_crit_water()).get::<ratio>();
+    let theta_2: f64 = (t2/t_crit_water()).get::<ratio>();
+    let theta_3: f64 = (t3/t_crit_water()).get::<ratio>();
+    let theta_4: f64 = (t4/t_crit_water()).get::<ratio>();
+
+    let kappa_t_1 = 0.451_570_597e-3 * Pressure::new::<megapascal>(1.0).recip();
+    let kappa_t_2 = 0.105_138_803e0 * Pressure::new::<megapascal>(1.0).recip();
+    let kappa_t_3 = 0.141_857_631e-1 * Pressure::new::<megapascal>(1.0).recip();
+    let kappa_t_4 = 0.510_625_539e-1 * Pressure::new::<megapascal>(1.0).recip();
+
+    // a1 and a4 values are not given in the table, 
+    let a_1 = 0.0;
+    let a_2 = 0.271_968_296e-1;
+    let a_3 = 0.105_363_489e1;
+    let a_4 = 0.0;
+
+    let n3 = 0.135_882_142_589_674e1;
+    let n4 = 0.508_474_576_271;
+    let n5 = 1.5;
+
+    dbg!(&(delta_1,delta_2,delta_3,delta_4));
+
+    let a_test = small_a(n3, delta_1, theta_1, kappa_t_1, n4, n5);
+    approx::assert_abs_diff_eq!(
+        a_1,
+        a_test,
+        epsilon=0.0
+        );
+    let a_test = small_a(n3, delta_2, theta_2, kappa_t_2, n4, n5);
+    approx::assert_relative_eq!(
+        a_2,
+        a_test,
+        max_relative=1e-7
+        );
+    let a_test = small_a(n3, delta_3, theta_3, kappa_t_3, n4, n5);
+    approx::assert_relative_eq!(
+        a_3,
+        a_test,
+        max_relative=1e-8
+        );
+    
+    let a_test = small_a(n3, delta_4, theta_4, kappa_t_4, n4, n5);
+    approx::assert_abs_diff_eq!(
+        a_4,
+        a_test,
+        epsilon=0.0
+        );
+}

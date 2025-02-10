@@ -1,6 +1,7 @@
 use std::ops::Index;
 
 use uom::si::pressure::megapascal;
+use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::{f64::*, ratio::ratio};
 
 use crate::constants::p_crit_water;
@@ -185,14 +186,20 @@ pub(crate) fn lambda_2_crit_enhancement_term_tp_single_phase(
     // it may be more reasonable to work with p,h flash from the get go
     //
 
-    let cp = cp_tp_eqm_single_phase(t, p);
+    let mut cp = cp_tp_eqm_single_phase(t, p);
+
+    if cp.get::<kilojoule_per_kilogram_kelvin>() < 0.0 {
+        cp = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(1.0e13);
+    } else if cp.get::<kilojoule_per_kilogram_kelvin>() > 1.0e13 {
+        cp = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(1.0e13);
+    };
     let cv = cv_tp_eqm_single_phase(t, p);
     let kappa_t = kappa_t_tp_eqm(t, p);
 
     let b: Ratio = cp/cv;
     let captial_a: f64;
-    let capital_b: f64;
-    let captial_c: f64;
+    let capital_b: f64 = captial_b(delta_f64, theta_f64, kappa_t, n5);
+    let captial_c: f64 = captial_c(delta_f64);
     
 
 
@@ -288,6 +295,16 @@ fn captial_c(delta: f64) -> f64{
     return den.recip();
         
 
+}
+
+fn small_a(n3: f64, delta: f64, theta: f64, kappa_t: InversePressure, 
+    n4: f64,
+    n5: f64) -> f64 {
+    let captial_b = captial_b(delta, theta, kappa_t, n5);
+
+    let exponent = (delta * captial_b).powf(n4);
+
+    return n3 * exponent;
 }
 
 
