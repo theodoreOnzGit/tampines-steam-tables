@@ -43,6 +43,7 @@ pub fn lambda_tp_eqm_two_phase(t: ThermodynamicTemperature,
     x: f64) -> ThermalConductivity {
 
     let rho = v_tp_eqm_two_phase(t, p, x).recip();
+    dbg!(&rho);
     let lambda_0 = lambda_0(t);
     let lambda_1 = lambda_1(rho, t);
     let lambda_2 = lambda_2_crit_enhancement_term_tp_two_phase_estimate(t, p, x);
