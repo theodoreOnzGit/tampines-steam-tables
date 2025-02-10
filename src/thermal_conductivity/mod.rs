@@ -12,7 +12,6 @@ use crate::dynamic_viscosity::psi_0_viscosity;
 use crate::interfaces::functional_programming::pt_flash_eqm::cp_tp_eqm_single_phase;
 use crate::interfaces::functional_programming::pt_flash_eqm::cv_tp_eqm_single_phase;
 use crate::interfaces::functional_programming::pt_flash_eqm::kappa_t_tp_eqm;
-use crate::interfaces::functional_programming::pt_flash_eqm::kappa_tp_eqm_single_phase;
 use crate::interfaces::functional_programming::pt_flash_eqm::v_tp_eqm_single_phase;
 use crate::region_5_steam_at_800_plus_degc::InversePressure;
 
@@ -305,6 +304,33 @@ fn small_a(n3: f64, delta: f64, theta: f64, kappa_t: InversePressure,
     let exponent = (delta * captial_b).powf(n4);
 
     return n3 * exponent;
+}
+
+fn captial_a(n2: f64, n3: f64, delta: f64,
+    theta: f64, kappa_t: InversePressure, n4: f64,
+    n5: f64, b: f64) -> f64 {
+    let a = small_a(n3, delta, theta, kappa_t, n4, n5);
+
+    // first guard clause
+    if a < 1.2e-7 {
+        return 0.0;
+    };
+
+    let n2_by_a = n2/a;
+
+    let mut bracket_term: f64 = 0.0;
+    bracket_term += (1.0 - b.recip()) * a.atan();
+    bracket_term += a/b - 1.0;
+    bracket_term += (
+        -(a.recip() + 3.0_f64.recip() * a.powi(2) * delta.powi(-2))
+    ).recip().exp();
+
+    return n2_by_a * bracket_term;
+
+
+
+
+
 }
 
 
