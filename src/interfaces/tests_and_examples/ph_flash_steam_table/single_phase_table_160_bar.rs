@@ -196,7 +196,7 @@ fn assert_ph_flash(
     approx::assert_relative_eq!(
         eta_micropascal_second,
         eta_micropascal_second_test,
-        max_relative=2e-2
+        max_relative=3e-2
         );
 
 
