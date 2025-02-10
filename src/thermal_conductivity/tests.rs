@@ -350,3 +350,57 @@ fn capital_a_test(){
         epsilon=0.0
         );
 }
+
+
+#[test]
+fn lambda_2_test(){
+    let t1 = ThermodynamicTemperature::new::<kelvin>(298.15);
+    let t2 = ThermodynamicTemperature::new::<kelvin>(873.15);
+    let t3 = ThermodynamicTemperature::new::<kelvin>(673.15);
+    let t4 = ThermodynamicTemperature::new::<kelvin>(1173.15);
+
+    let p1 = Pressure::new::<megapascal>(0.1);
+    let p2 = Pressure::new::<megapascal>(10.0);
+    let p3 = Pressure::new::<megapascal>(40.0);
+    let p4 = Pressure::new::<megapascal>(20.0);
+
+
+
+    // lambda_2_1 and lambda_2_4 values are not given in the table, 
+    let lambda_2_1 = 0.0;
+    let lambda_2_2 = 0.286_724_816e-1;
+    let lambda_2_3 = 0.163_158_335e2;
+    let lambda_2_4 = 0.0;
+
+
+
+
+    let lambda_2_test = lambda_2_crit_enhancement_term_tp_single_phase(t1, p1);
+    approx::assert_abs_diff_eq!(
+        lambda_2_1,
+        lambda_2_test,
+        epsilon=0.0
+        );
+    let lambda_2_test = 
+        lambda_2_crit_enhancement_term_tp_single_phase(t2, p2);
+        approx::assert_relative_eq!(
+        lambda_2_2,
+        lambda_2_test,
+        max_relative=1e-7
+        );
+    let lambda_2_test = 
+        lambda_2_crit_enhancement_term_tp_single_phase(t3, p3);
+    approx::assert_relative_eq!(
+        lambda_2_3,
+        lambda_2_test,
+        max_relative=1e-5
+        );
+    
+    let lambda_2_test = 
+        lambda_2_crit_enhancement_term_tp_single_phase(t4, p4);
+    approx::assert_abs_diff_eq!(
+        lambda_2_4,
+        lambda_2_test,
+        epsilon=0.0
+        );
+}

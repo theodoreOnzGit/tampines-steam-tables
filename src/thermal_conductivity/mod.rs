@@ -158,7 +158,7 @@ pub(crate) fn lambda_2_crit_enhancement_term_tp_single_phase(
     let psi = psi_0_viscosity(t) * psi_1_viscosity(t, rho);
 
     // these terms are independent of density
-    let n1 = 0.177_851_4e3;;
+    let n1 = 0.177_851_4e3;
     let n2 = 0.636_619_772_367_581;
     let n3 = 0.135_882_142_589_674e1;
     let n4 = 0.508_474_576_271;
@@ -195,14 +195,21 @@ pub(crate) fn lambda_2_crit_enhancement_term_tp_single_phase(
     let cv = cv_tp_eqm_single_phase(t, p);
     let kappa_t = kappa_t_tp_eqm(t, p);
 
-    let b: Ratio = cp/cv;
-    let captial_a: f64;
-    let capital_b: f64 = captial_b(delta_f64, theta_f64, kappa_t, n5);
-    let captial_c: f64 = captial_c(delta_f64);
+    let b: f64 = (cp/cv).get::<ratio>();
+    let captial_a: f64 = captial_a(n2, n3, delta_f64, theta_f64, 
+        kappa_t, n4, n5, b);
+
+
+    let gas_constant_r = 
+        SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+            0.461_518_05
+        );
     
+    let lambda_2 = n1 * delta_f64 * theta_f64 / psi * 
+        cp/gas_constant_r * captial_a;
 
 
-    todo!()
+    return lambda_2.get::<ratio>();
 }
 
 fn captial_b(delta: f64, theta: f64, kappa_t: InversePressure,
