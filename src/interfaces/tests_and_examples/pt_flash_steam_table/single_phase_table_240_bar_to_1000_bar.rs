@@ -1159,7 +1159,7 @@ fn assert_pt_flash(
     approx::assert_relative_eq!(
         eta_micropascal_second,
         eta_micropascal_second_test,
-        max_relative=2e-2
+        max_relative=1e-3
         );
 
 
@@ -1169,7 +1169,7 @@ fn assert_pt_flash(
     approx::assert_relative_eq!(
         lambda_milliwatt_per_meter_kelvin,
         lambda_milliwatt_per_meter_kelvin_test,
-        max_relative=4.0e-2
+        max_relative=1e-4
         );
 
 
