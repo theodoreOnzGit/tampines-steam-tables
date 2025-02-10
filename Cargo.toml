@@ -3,6 +3,13 @@ name = "tampines-steam-tables"
 version = "0.0.7"
 edition = "2021"
 
+license = "Apache-2.0"
+description = "Steam Tables for the TAMPINES Library"
+homepage = "https://github.com/theodoreOnzGit/tampines-steam-tables"
+repository ="https://github.com/theodoreOnzGit/tampines-steam-tables"
+readme = "README.md"
+categories = ["science"]
+
 [dependencies]
 uom = "0.36.0"
 
