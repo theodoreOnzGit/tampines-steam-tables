@@ -38,3 +38,19 @@ pub fn subregion_2a_t_ps_test_2(){
         );
 
 }
+
+#[test]
+pub fn subregion_2a_t_ps_test_3(){
+    let p = Pressure::new::<megapascal>(2.5);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(8.0);
+    let t_expected_kelvin = 0.103_984_917e4;
+
+    let t_test = t_ps_2a(p, s);
+
+    approx::assert_relative_eq!(
+        t_expected_kelvin,
+        t_test.get::<kelvin>(),
+        max_relative=1e-8
+        );
+
+}
