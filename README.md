@@ -19,6 +19,17 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.0.8
+Implemented thermal conductivity for ph flash. However, for 160 bar 
+and 220 bar steam tables, the max error is 30 and 40% respectively.
+For the 220 bar steam tables, it is quite near critical point, 
+so thermal conductivity equations were not meant to be accurate there.
+However, for 160 bar, it is sufficiently far from critical point that this 
+shouldn't be the case.
+
+I'm quite puzzled as to why that is the case. But this is a bug that needs 
+to be fixed.
+
 v0.0.7
 
 Starting development of an interface for the forward and backward flash.

@@ -1,3 +1,4 @@
+use uom::si::thermal_conductivity::watt_per_meter_kelvin;
 use uom::si::{f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
 use crate::region_5_steam_at_800_plus_degc::*;
@@ -6,8 +7,10 @@ use crate::region_3_single_phase_plus_supercritical_steam::*;
 use crate::region_2_vapour::*;
 use crate::region_1_subcooled_liquid::*;
 use crate::region_1_subcooled_liquid::InversePressure;
+use crate::thermal_conductivity::lambda_0;
+use crate::thermal_conductivity::lambda_1;
+use crate::thermal_conductivity::lambda_2_crit_enhancement_term_tp_two_phase_estimate;
 
-use super::pt_flash_eqm::lambda_tp_eqm_two_phase;
 use super::pt_flash_eqm::FwdEqnRegion;
 
 /// obtains temperature given pressure and enthalpy
@@ -764,7 +767,15 @@ pub use crate::dynamic_viscosity::mu_ph_eqm as mu_ph_eqm;
 pub fn lambda_ph_eqm(p: Pressure, h: AvailableEnergy) -> ThermalConductivity {
     let t = t_ph_eqm(p, h);
     let x = x_ph_flash(p, h);
+    let rho = v_ph_eqm(p, h).recip();
 
-    return lambda_tp_eqm_two_phase(t, p, x);
+    let lambda_0 = lambda_0(t);
+    let lambda_1 = lambda_1(rho, t);
+    let lambda_2 = lambda_2_crit_enhancement_term_tp_two_phase_estimate(t, p, x);
+    let lambda_star = ThermalConductivity::new::<watt_per_meter_kelvin>(1.0e-3);
+
+    let dimensionless_lambda = lambda_0 * lambda_1 + lambda_2;
+
+    return lambda_star * dimensionless_lambda;
     
 }

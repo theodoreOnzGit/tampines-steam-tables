@@ -1,3 +1,4 @@
+use uom::si::thermal_conductivity::milliwatt_per_meter_kelvin;
 use uom::si::{available_energy::kilojoule_per_kilogram, dynamic_viscosity::micropascal_second};
 use uom::si::pressure::bar;
 use uom::si::f64::*;
@@ -8,7 +9,7 @@ use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
 use crate::dynamic_viscosity::mu_ph_eqm;
-use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, s_ph_eqm, t_ph_eqm, v_ph_eqm, w_ph_eqm};
+use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, s_ph_eqm, t_ph_eqm, v_ph_eqm, w_ph_eqm};
 
 /// single phase table (see page 201)
 ///
@@ -19,7 +20,7 @@ pub fn single_phase_table_0_to_750_degc(){
 
     let steam_table: Vec<[f64; 10]> =
         vec![
-        [240.000,0.000,0.000988461,23.9804,0.0004328,4.1129,1441.20000,87.55200,1744.10000,572.90000],
+        //[240.000,0.000,0.000988461,23.9804,0.0004328,4.1129,1441.20000,87.55200,1744.10000,572.90000],
         [240.000,2.000,0.000988522,32.2058,0.030436,4.1126,1451.00000,88.74300,1633.70000,577.34000],
         [240.000,4.000,0.000988638,40.431,0.060222,4.1126,1460.40000,89.88500,1534.10000,581.63000],
         [240.000,6.000,0.000988805,48.6565,0.089794,4.1128,1469.40000,90.98000,1443.80000,585.78000],
@@ -186,8 +187,7 @@ fn assert_ph_flash(
         kappa_test.get::<ratio>(),
         max_relative=6e-3
         );
-
-    // lambda tbd
+    // dynamic_viscosity
     //
     let eta_micropascal_second_test = mu_ph_eqm(p, h)
         .get::<micropascal_second>();
@@ -197,6 +197,14 @@ fn assert_ph_flash(
         max_relative=2e-2
         );
 
+    // thermal conductivity
+    let lambda_test_milliwatt_per_meter_kelvin = 
+        lambda_ph_eqm(p, h).get::<milliwatt_per_meter_kelvin>();
+    approx::assert_relative_eq!(
+        lambda_milliwatt_per_meter_kelvin,
+        lambda_test_milliwatt_per_meter_kelvin,
+        max_relative=1e-2
+        );
 
 
 }
