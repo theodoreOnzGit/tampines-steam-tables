@@ -13,11 +13,6 @@ pub(crate) fn t_ps_1_kelvin(p: f64, s: f64) -> f64 {
     sum
 }
 
-/// Returns the region-1 eta for backwards calculations
-/// Enthalpy is assumed to be in kJ/kg
-pub(crate) fn eta_1_back_ps(h_kj_per_kg: f64) -> f64 {
-    h_kj_per_kg / 2500.0
-}
 
 /// Returns the region-1 pi for backwards calculations
 /// Pressure is assumed to be in Pa
