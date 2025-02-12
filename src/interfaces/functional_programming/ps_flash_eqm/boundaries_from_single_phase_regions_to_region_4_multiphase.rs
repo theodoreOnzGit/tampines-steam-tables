@@ -16,7 +16,7 @@ use uom::si::ratio::ratio;
 use uom::si::thermodynamic_temperature::kelvin;
 
 /// see page 55
-pub(crate) fn is_ph_point_region_4_and_above_16_529_mpa(
+pub(crate) fn is_ps_point_region_4_and_above_16_529_mpa(
     p: Pressure, s: SpecificHeatCapacity) -> bool {
 
     // before anything, check if entropy is within entropy validity range 

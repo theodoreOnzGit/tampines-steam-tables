@@ -17,10 +17,10 @@ pub(crate) fn is_ps_point_region_1_and_above_16_529_mpa(
     let max_pressure = Pressure::new::<megapascal>(100.0);
 
     if p < min_pressure {
-        panic!("p in (p,h) point is outside validity range");
+        panic!("p in (p,s) point is outside validity range");
     };
     if p > max_pressure {
-        panic!("p in (p,h) point is outside validity range");
+        panic!("p in (p,s) point is outside validity range");
     };
 
     // note that points along this boundary belongs to region 1 
@@ -57,10 +57,10 @@ pub(crate) fn is_ps_point_region_2_and_above_16_529_mpa(p: Pressure,
     let max_pressure = Pressure::new::<megapascal>(100.0);
 
     if p < min_pressure {
-        panic!("p in (p,h) point is outside validity range");
+        panic!("p in (p,s) point is outside validity range");
     };
     if p > max_pressure {
-        panic!("p in (p,h) point is outside validity range");
+        panic!("p in (p,s) point is outside validity range");
     };
 
     // note that points along this boundary belongs to region 1 
@@ -103,7 +103,7 @@ pub(crate) fn is_ps_point_region_3_and_above_critical_point(p: Pressure,
         return false;
     };
     if p > max_pressure {
-        panic!("p in (p,h) point is outside validity range");
+        panic!("p in (p,s) point is outside validity range");
     };
 
     // note that points along this boundary belongs to region 1 
