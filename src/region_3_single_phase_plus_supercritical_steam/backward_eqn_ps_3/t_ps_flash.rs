@@ -1,84 +1,86 @@
-use uom::si::{f64::*, pressure::megapascal, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin, specific_volume::cubic_meter_per_kilogram};
+use uom::si::{f64::*, pressure::megapascal, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin, specific_volume::cubic_meter_per_kilogram, thermodynamic_temperature::kelvin};
 
-pub(crate) fn t_ps_3a(p: Pressure, s: SpecificHeatCapacity) -> SpecificVolume {
+pub(crate) fn t_ps_3a(p: Pressure, s: SpecificHeatCapacity) -> ThermodynamicTemperature {
 
-    let v_ref = SpecificVolume::new::<cubic_meter_per_kilogram>(0.0028);
     let p_ref = Pressure::new::<megapascal>(100.0);
+    let t_ref = ThermodynamicTemperature::new::<kelvin>(760.0);
     let s_ref = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(4.4);
 
     let sigma: f64 = (s/s_ref).get::<ratio>();
     let pi: f64 = (p/p_ref).get::<ratio>();
 
-    let mut omega = 0.0;
+    let mut theta = 0.0;
 
     for coeffs in T_PS_SUBREGION_3A_COEFFS {
         let ii = coeffs[0];
         let ji = coeffs[1];
         let ni = coeffs[2];
 
-        omega += ni * (pi + 0.187).powf(ii) * (sigma - 0.755).powf(ji);
+        theta += ni * (pi + 0.240).powf(ii) * (sigma - 0.703).powf(ji);
     };
 
-    return omega * v_ref;
+    return theta * t_ref;
 }
 
-const T_PS_SUBREGION_3A_COEFFS: [[f64; 3]; 28] = [
-    [-12.0, 10.0, 0.795_544_074_093_975e2],
-    [-12.0, 12.0, -0.238_261_242_984_590e4],
-    [-12.0, 14.0, 0.176_813_100_617_787e5],
-    [-10.0, 4.0, -0.110_524_727_080_379e-2],
-    [-10.0, 8.0, -0.153_213_833_655_326e2],
-    [-10.0, 10.0, 0.297_544_599_376_982e3],
-    [-10.0, 20.0, -0.350_315_206_871_242e8],
-    [-8.0, 5.0, 0.277_513_761_062_119],
-    [-8.0, 6.0, -0.523_964_271_036_888],
-    [-8.0, 14.0, -0.148_011_182_995_403e6],
-    [-8.0, 16.0, 0.160_014_899_374_266e7],
-    [-6.0, 28.0, 0.170_802_322_663_427e13],
-    [-5.0, 1.0, 0.246_866_996_006_494e-3],
-    [-4.0, 5.0, 0.165_326_084_797_980e1],
-    [-3.0, 2.0, -0.118_008_384_666_987],
-    [-3.0, 4.0, 0.253_798_642_355_900e1],
-    [-2.0, 3.0, 0.965_127_704_669_424],
-    [-2.0, 8.0, -0.282_172_420_532_826e2],
-    [-1.0, 1.0, 0.203_224_612_353_823],
-    [-1.0, 2.0, 0.110_648_186_063_513e1],
-    [0.0, 0.0, 0.526_127_948_451_280],
-    [0.0, 1.0, 0.277_000_018_736_321],
-    [0.0, 3.0, 0.108_153_340_501_132e1],
-    [1.0, 0.0, -0.744_127_885_357_893e-1],
-    [2.0, 0.0, 0.164_094_443_541_384e-1],
-    [4.0, 2.0, -0.680_468_275_301_065e-1],
-    [5.0, 2.0, 0.257_988_576_101_640e-1],
-    [6.0, 0.0, -0.145_749_861_944_416e-3],
+const T_PS_SUBREGION_3A_COEFFS: [[f64; 3]; 33] = [
+    [-12.0, 28.0, 0.150_042_008_263_875e10],
+    [-12.0, 32.0, -0.159_397_258_480_424e12],
+    [-10.0, 4.0, 0.502_181_140_217_975e-3],
+    [-10.0, 10.0, -0.672_057_767_855_466e2],
+    [-10.0, 12.0, 0.145_058_545_404_456e4],
+    [-10.0, 14.0, -0.823_889_534_888_890e4],
+    [-8.0, 5.0, -0.154_852_214_233_853],
+    [-8.0, 7.0, 0.112_305_046_746_695e2],
+    [-8.0, 8.0, -0.297_000_213_482_822e2],
+    [-8.0, 28.0, 0.438_565_132_635_495e11],
+    [-6.0, 2.0, 0.137_837_838_635_464e-2],
+    [-6.0, 6.0, -0.297_478_527_157_462e1],
+    [-6.0, 32.0, 0.971_777_947_349_413e13],
+    [-5.0, 0.0, -0.571_527_767_052_397e-4],
+    [-5.0, 14.0, 0.288_307_949_778_420e5],
+    [-5.0, 32.0 , -0.744_428_289_262_703e14],
+    [-4.0, 6.0, 0.128_017_324_848_921e2],
+    [-4.0, 10.0, -0.368_275_545_889_071e3],
+    [-4.0, 36.0, 0.664_768_904_779_177e16],
+    [-2.0, 1.0, 0.449_359_251_958_880e-1],
+    [-2.0, 4.0, -0.422_897_836_099_655e1],
+    [-1.0, 1.0, -0.240_614_376_434_179],
+    [-1.0, 6.0, -0.474_341_365_254_924e1],
+    [0.0, 0.0, 0.724_093_999_126_110],
+    [0.0, 1.0, 0.923_874_349_695_897],
+    [0.0, 4.0, 0.399_043_655_281_015e1],
+    [1.0, 0.0, 0.384_066_651_868_099e-1],
+    [2.0, 0.0, -0.359_344_365_571_848e-2],
+    [2.0, 3.0, -0.735_196_448_821_653],
+    [3.0, 2.0, 0.188_367_048_396_131],
+    [8.0, 0.0, 0.141_064_266_818_704e-3],
+    [8.0, 1.0, -0.257_418_501_496_337e-2],
+    [10.0, 2.0, 0.123_220_024_851_555e-2],
 ];
 
-pub(crate) fn t_ps_3b(p: Pressure, s: SpecificHeatCapacity) -> SpecificVolume {
+pub(crate) fn t_ps_3b(p: Pressure, s: SpecificHeatCapacity) -> ThermodynamicTemperature {
 
-    let v_ref = SpecificVolume::new::<cubic_meter_per_kilogram>(0.0088);
     let p_ref = Pressure::new::<megapascal>(100.0);
     let s_ref = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.3);
+    let t_ref = ThermodynamicTemperature::new::<kelvin>(860.0);
 
     let sigma: f64 = (s/s_ref).get::<ratio>();
     let pi: f64 = (p/p_ref).get::<ratio>();
 
-    let mut omega = 0.0;
+    let mut theta = 0.0;
 
     for coeffs in T_PS_SUBREGION_3B_COEFFS {
         let ii = coeffs[0];
         let ji = coeffs[1];
         let ni = coeffs[2];
 
-        omega += ni * (pi + 0.298).powf(ii) * (sigma - 0.816).powf(ji);
+        theta += ni * (pi + 0.760).powf(ii) * (sigma - 0.818).powf(ji);
     };
 
-    return omega * v_ref;
+    return theta * t_ref;
 }
 
-const T_PS_SUBREGION_3B_COEFFS: [[f64; 3]; 31] = [
-    [-12.0, 0.0, 0.591_599_780_322_238e-4],
-    [-12.0, 1.0, -0.185_465_997_137_856e-2],
-    [-12.0, 2.0, 0.104_190_510_480_013e-1],
+const T_PS_SUBREGION_3B_COEFFS: [[f64; 3]; 28] = [
     [-12.0, 3.0, 0.598_647_302_038_590e-2],
     [-12.0, 5.0, -0.771_391_189_901_699],
     [-12.0, 6.0, 0.172_549_765_557_036e1],
