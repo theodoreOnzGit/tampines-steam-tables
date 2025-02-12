@@ -1,3 +1,4 @@
+use t_ps_flash::{t_ps_3a, t_ps_3b};
 use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
 use v_ps_flash::{v_ps_3a, v_ps_3b};
 #[inline]
@@ -21,5 +22,18 @@ pub fn v_ps_3(p: Pressure, s: SpecificHeatCapacity) -> SpecificVolume {
         return v_ps_3b(p, s);
     } else {
         return v_ps_3a(p,s);
+    };
+}
+
+
+#[inline]
+pub fn t_ps_3(p: Pressure, s: SpecificHeatCapacity) -> ThermodynamicTemperature {
+
+    let s_boundary = s_3a3b_backwards_ps_boundary();
+
+    if s > s_boundary {
+        return t_ps_3b(p, s);
+    } else {
+        return t_ps_3a(p,s);
     };
 }
