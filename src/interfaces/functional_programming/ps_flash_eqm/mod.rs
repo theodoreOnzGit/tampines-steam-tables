@@ -13,7 +13,7 @@ pub(crate) mod boundaries_between_single_phase_regions;
 pub(crate) use boundaries_between_single_phase_regions::*;
 use uom::si::{f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
-use crate::{region_1_subcooled_liquid::{s_tp_1, t_ps_1, v_tp_1}, region_2_vapour::{s_tp_2, t_ps_2, v_tp_2}, region_3_single_phase_plus_supercritical_steam::{s_3a3b_backwards_ps_boundary, s_rho_t_3, t_ps_3, v_ps_3, v_tp_3c, v_tp_3r, v_tp_3s, v_tp_3t, v_tp_3u, v_tp_3x, v_tp_3y, v_tp_3z}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}};
+use crate::{region_1_subcooled_liquid::{s_tp_1, t_ps_1, u_tp_1, v_tp_1}, region_2_vapour::{s_tp_2, t_ps_2, u_tp_2, v_tp_2}, region_3_single_phase_plus_supercritical_steam::{s_3a3b_backwards_ps_boundary, s_rho_t_3, t_ps_3, u_rho_t_3, v_ps_3, v_tp_3c, v_tp_3r, v_tp_3s, v_tp_3t, v_tp_3u, v_tp_3x, v_tp_3y, v_tp_3z}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}, region_5_steam_at_800_plus_degc::u_tp_5};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 /// obtains temperature given pressure and entropy
@@ -242,6 +242,104 @@ pub fn x_ps_flash(p: Pressure, s: SpecificHeatCapacity,) -> f64 {
         FwdEqnRegion::Region5 => 1.0,
     }
 
+}
+
+
+/// returns the internal energy given entropy and pressure
+pub fn u_ph_eqm(p: Pressure, s: SpecificHeatCapacity) -> AvailableEnergy {
+    let t = t_ps_eqm(p, s);
+    let region = ps_flash_region(p, s);
+
+    match region {
+        FwdEqnRegion::Region1 => u_tp_1(t, p),
+        FwdEqnRegion::Region2 => u_tp_2(t, p),
+        FwdEqnRegion::Region3 => {
+            // near supercritical point, we have to be a little bit more careful
+            // need to take into account steam quality too
+
+            // so first, test if we are JUST on the saturation line
+            // because that is part of the check
+            //
+            // or rather, just get the volume first
+            // this will make it much easier
+            let v = v_ps_eqm(p, s);
+            let rho = v.recip();
+            u_rho_t_3(rho, t)
+        },
+        FwdEqnRegion::Region4 => {
+            // for region 4 specifically, we determine 
+            // steam quality first
+            let t_sat = sat_temp_4(p);
+            let t_sat_kelvin = t_sat.get::<kelvin>();
+            let steam_quality = x_ps_flash(p, s);
+            if t_sat_kelvin <= 623.15 {
+
+                let u_liq = u_tp_1(t_sat, p);
+                let u_vap = u_tp_2(t_sat, p);
+
+                let u = steam_quality * u_vap + (1.0 - steam_quality) * u_liq;
+
+                u
+            } else {
+                // in the case we hit region 3, the algorithm must differ
+
+                // looks like all I need to do is use the backward equations 
+                // v(t,p)
+                // let's do the liquid one first 
+
+                // this is with reference to the pt equations on 
+                // fig 2.24 page 109
+                //
+                // alternatively, this is a cheat way... 
+                // I look at t_sat, and force it to find liquid volume 
+                // using a slightly colder temperature than tsat 
+                // and for vapour I get it slightly higher than  
+                // the tsat
+
+                let p_mpa = p.get::<megapascal>();
+                let v_vap: SpecificVolume = {
+                    // this covers up to tsat at 643.15 K
+                    if t_sat_kelvin <= 640.691 {
+                        v_tp_3t(t_sat, p)
+                    } else if t_sat_kelvin <= 643.15 {
+                        v_tp_3r(t_sat, p)
+                    } else // this covers pressure from 21.0434 Mpa to crit point 
+                    if p_mpa <= 21.9010 {
+                        v_tp_3x(t_sat, p)
+                    } else {
+                        v_tp_3z(t_sat, p)
+                    }
+                };
+
+                let v_liq: SpecificVolume = {
+                    // this covers up to tsat at 643.15 K
+                    if t_sat_kelvin <= 634.659 {
+                        v_tp_3c(t_sat, p)
+                    } else if t_sat_kelvin <= 643.15 {
+                        v_tp_3s(t_sat, p)
+                    } else if p_mpa <= 21.9316 {
+                        v_tp_3u(t_sat, p)
+                    } else {
+                        v_tp_3y(t_sat, p)
+                    }
+
+
+                };
+
+                // now let's get u for liquid and vapour 
+
+                let u_liq = u_rho_t_3(v_liq.recip(), t);
+                let u_vap = u_rho_t_3(v_vap.recip(), t);
+
+
+                let u = steam_quality * u_vap + (1.0 - steam_quality) * u_liq;
+
+                u
+
+            }
+        },
+        FwdEqnRegion::Region5 => u_tp_5(t, p),
+    }
 }
 
 // allows the user to check which region one is in based on a ps flash
