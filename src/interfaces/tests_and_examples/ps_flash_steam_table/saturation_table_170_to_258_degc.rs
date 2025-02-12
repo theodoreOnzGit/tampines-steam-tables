@@ -6,7 +6,7 @@ use uom::si::specific_volume::cubic_meter_per_kilogram;
 use uom::si::thermodynamic_temperature::degree_celsius;
 
 use crate::interfaces::functional_programming::ps_flash_eqm::v_ps_eqm;
-use crate::interfaces::functional_programming::{ps_flash_eqm::t_ps_eqm, pt_flash_eqm::{h_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase}};
+use crate::interfaces::functional_programming::ps_flash_eqm::t_ps_eqm;
 use crate::region_1_subcooled_liquid::h_tp_1;
 use crate::region_2_vapour::h_tp_2;
 

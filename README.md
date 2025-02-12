@@ -25,12 +25,16 @@ and 220 bar steam tables, the max error is 30 and 40% respectively.
 For the 220 bar steam tables, it is quite near critical point, 
 so thermal conductivity equations were not meant to be accurate there.
 However, for 160 bar, it is sufficiently far from critical point that this 
-shouldn't be the case.
+shouldn't be the case. But i'm leaving it as such for now, till such time 
+there is a better reference for such properties.
 
 Near critical temperatures and pressures, eg. 180 bar about 
 357+ degrees C, the speed of sound, isentropic exponent
 the specific heat capacity are not accurate to within 1%. Some discrepancies 
-are larger than 5-10% esp near critical region
+are larger than 5-10% esp near critical region for these properties.
+
+The thermal conductivity and dynamic viscosity also have similar-ish degrees 
+of uncertainty.
 
 
 v0.0.8
