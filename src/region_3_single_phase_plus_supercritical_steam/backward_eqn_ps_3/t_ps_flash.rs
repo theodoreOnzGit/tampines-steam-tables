@@ -1,4 +1,4 @@
-use uom::si::{f64::*, pressure::megapascal, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin, specific_volume::cubic_meter_per_kilogram, thermodynamic_temperature::kelvin};
+use uom::si::{f64::*, pressure::megapascal, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
 
 pub(crate) fn t_ps_3a(p: Pressure, s: SpecificHeatCapacity) -> ThermodynamicTemperature {
 

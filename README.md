@@ -19,6 +19,20 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.0.9
+Implemented thermal conductivity for ps flash. However, for 160 bar 
+and 220 bar steam tables, the max error is 30 and 40% respectively.
+For the 220 bar steam tables, it is quite near critical point, 
+so thermal conductivity equations were not meant to be accurate there.
+However, for 160 bar, it is sufficiently far from critical point that this 
+shouldn't be the case.
+
+Near critical temperatures and pressures, eg. 180 bar about 
+357+ degrees C, the speed of sound, isentropic exponent
+the specific heat capacity are not accurate to within 1%. Some discrepancies 
+are larger than 5-10% esp near critical region
+
+
 v0.0.8
 Implemented thermal conductivity for ph flash. However, for 160 bar 
 and 220 bar steam tables, the max error is 30 and 40% respectively.
