@@ -1,4 +1,5 @@
 use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use v_ps_flash::{v_ps_3a, v_ps_3b};
 #[inline]
 pub fn s_3a3b_backwards_ps_boundary() -> SpecificHeatCapacity {
     let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
@@ -10,3 +11,15 @@ pub fn s_3a3b_backwards_ps_boundary() -> SpecificHeatCapacity {
 
 pub mod v_ps_flash;
 pub mod t_ps_flash;
+
+#[inline]
+pub fn v_ps_3(p: Pressure, s: SpecificHeatCapacity) -> SpecificVolume {
+
+    let s_boundary = s_3a3b_backwards_ps_boundary();
+
+    if s > s_boundary {
+        return v_ps_3b(p, s);
+    } else {
+        return v_ps_3a(p,s);
+    };
+}
