@@ -17,3 +17,7 @@ pub mod ph_flash_eqm;
 ///
 /// this mostly deals with areas around region 2
 pub mod pt_flash_metastable;
+
+
+/// allows for pressure entropy flash 
+pub mod ps_flash_eqm;

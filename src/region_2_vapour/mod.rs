@@ -81,6 +81,9 @@ pub use metastable_region_2::*;
 pub mod backward_eqn_ph_2;
 pub use backward_eqn_ph_2::*;
 
+/// backward eqns for pressure entropy flash 
+pub mod backward_eqn_ps_2;
+pub use backward_eqn_ps_2::*;
 
 
 /// verification tests based on table 2.11

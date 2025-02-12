@@ -100,6 +100,7 @@ pub fn h_tp_eqm_two_phase(
     t: ThermodynamicTemperature, p: Pressure,
     x: f64) -> AvailableEnergy {
     let region = region_fwd_eqn_two_phase(t, p, x);
+    dbg!(&region);
 
 
 
