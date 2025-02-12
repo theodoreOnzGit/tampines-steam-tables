@@ -8,6 +8,9 @@ pub(crate) use validity_range::*;
 pub(crate) mod boundaries_from_single_phase_regions_to_region_4_multiphase;
 pub(crate) use boundaries_from_single_phase_regions_to_region_4_multiphase::*;
 
+/// this checks for boundary in between single phase regions (1 to 3) 
+pub(crate) mod boundaries_between_single_phase_regions;
+pub(crate) use boundaries_between_single_phase_regions::*;
 use uom::si::f64::*;
 
 fn check_if_within_ps_validity_region(p: Pressure, s: SpecificHeatCapacity,){
