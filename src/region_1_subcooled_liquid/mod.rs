@@ -150,3 +150,5 @@ pub use backward_eqn_ph_1::*;
 /// pressure and entropy (p,s) flash 
 pub mod backward_eqn_ps_1;
 pub use backward_eqn_ps_1::*;
+
+pub mod backward_eqn_hs_1;
