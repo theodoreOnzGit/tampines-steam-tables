@@ -1,11 +1,14 @@
-use uom::si::available_energy::kilojoule_per_kilogram;
+use uom::si::{available_energy::kilojoule_per_kilogram, thermodynamic_temperature::kelvin};
 use uom::si::pressure::bar;
 use uom::si::f64::*;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::specific_volume::cubic_meter_per_kilogram;
 use uom::si::thermodynamic_temperature::degree_celsius;
 
-use crate::interfaces::functional_programming::pt_flash_eqm::{h_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase};
+use crate::interfaces::functional_programming::ps_flash_eqm::v_ps_eqm;
+use crate::interfaces::functional_programming::{ps_flash_eqm::t_ps_eqm, pt_flash_eqm::{h_tp_eqm_two_phase, s_tp_eqm_two_phase, v_tp_eqm_two_phase}};
+use crate::region_1_subcooled_liquid::h_tp_1;
+use crate::region_2_vapour::h_tp_2;
 
 
 /// saturation table (see page 174)
@@ -73,7 +76,7 @@ pub fn saturation_table_170_to_258_degc(){
             let enthalpy_of_vap_kj_per_kg = dataset[7];
             let s_liq_kj_per_kg_k = dataset[8];
             let s_vap_kj_per_kg_k = dataset[9];
-            assert_pt_flash(t_deg_c, t_kelvin, psat_bar, 
+            assert_ps_flash(t_deg_c, t_kelvin, psat_bar, 
                 v_liq_m3_per_kg, v_vap_m3_per_kg, h_liq_kj_per_kg, 
                 h_vap_kj_per_kg, enthalpy_of_vap_kj_per_kg, 
                 s_liq_kj_per_kg_k, s_vap_kj_per_kg_k);
@@ -82,8 +85,8 @@ pub fn saturation_table_170_to_258_degc(){
 }
 
 
-fn assert_pt_flash(t_deg_c: f64,
-    _t_kelvin: f64,
+fn assert_ps_flash(t_deg_c: f64,
+    t_kelvin: f64,
     psat_bar: f64,
     v_liq_m3_per_kg: f64,
     v_vap_m3_per_kg: f64,
@@ -94,51 +97,54 @@ fn assert_pt_flash(t_deg_c: f64,
     s_vap_kj_per_kg_k: f64){
 
     // specify a vapour quality
-    let x_ref = 0.7;
+    let x_ref = 0.3;
     let p = Pressure::new::<bar>(psat_bar);
-    let t = ThermodynamicTemperature::new::<degree_celsius>(t_deg_c);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+        (1.0-x_ref) * s_liq_kj_per_kg_k + x_ref * s_vap_kj_per_kg_k);
 
-    // first test enthalpy 
-    let x = x_ref;
-    let h_test = h_tp_eqm_two_phase(t, p, x);
-    let h_ref = x_ref * h_vap_kj_per_kg + (1.0-x_ref) * h_liq_kj_per_kg;
+    // first test temperatures 
 
+    let t = t_ps_eqm(p, s);
+
+    approx::assert_abs_diff_eq!(
+        t_deg_c,
+        t.get::<degree_celsius>(),
+        epsilon=1e-3
+        );
     approx::assert_relative_eq!(
-        h_ref,
-        h_test.get::<kilojoule_per_kilogram>(),
+        t_kelvin,
+        t.get::<kelvin>(),
         max_relative=1e-5
         );
 
     // then liquid and vapour specific vol
     let v_ref_m3_per_kg = (1.0 - x_ref) * v_liq_m3_per_kg + x_ref * v_vap_m3_per_kg;
-    let v = v_tp_eqm_two_phase(t, p, x);
+    let v = v_ps_eqm(p, s);
 
     approx::assert_relative_eq!(
         v_ref_m3_per_kg,
         v.get::<cubic_meter_per_kilogram>(),
-        max_relative=1e-5
+        max_relative=1e-4
         );
 
-    // liquid and vapour s 
-    let s_ref_kj_per_kg_k = 
-        (1.0 - x_ref) * s_liq_kj_per_kg_k 
-        + x_ref * s_vap_kj_per_kg_k;
 
-    let s = s_tp_eqm_two_phase(t, p, x);
+    let h_liq = h_tp_1(t, p);
+    let h_vap = h_tp_2(t, p);
 
     approx::assert_relative_eq!(
-        s_ref_kj_per_kg_k,
-        s.get::<kilojoule_per_kilogram_kelvin>(),
+        h_liq_kj_per_kg,
+        h_liq.get::<kilojoule_per_kilogram>(),
         max_relative=1e-5
         );
-
-
+    approx::assert_relative_eq!(
+        h_vap_kj_per_kg,
+        h_vap.get::<kilojoule_per_kilogram>(),
+        max_relative=1e-4
+        );
     // enthalpy of vaporisation
     // a.k.a latent heat
     // kind of manual, not really in the flashing function
-    // per se, but it works!
-    let enthalpy_of_vap = h_tp_eqm_two_phase(t, p, 1.0)
-        - h_tp_eqm_two_phase(t, p, 0.0);
+    let enthalpy_of_vap = h_vap - h_liq;
 
     approx::assert_relative_eq!(
         enthalpy_of_vap_kj_per_kg,
