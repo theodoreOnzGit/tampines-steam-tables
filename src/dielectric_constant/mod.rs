@@ -61,8 +61,6 @@ fn captial_a(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
     let delta: f64 = (rho/rho_c).get::<ratio>();
     let t_c_by_228_k: f64 = t_c.get::<kelvin>()/(228.0);
 
-    dbg!(&delta);
-
     // harris alder g-bar factor
     let mut g_bar: f64 = 1.0;
     // seems the term 2 was OUTSIDE the summation
