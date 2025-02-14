@@ -65,7 +65,9 @@ fn captial_a(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
 
     // harris alder g-bar factor
     let mut g_bar: f64 = 1.0;
-    // wow, even just term 1 by itself gets u pretty close!
+    // seems the term 2 was OUTSIDE the summation
+    //
+    // thank you Jesus and EJT
     let term_2 = n12 * delta * (t_c_by_228_k * tau.recip() - 1.0).powf(-1.2);
     g_bar += term_2;
     for coeffs in G_BAR_COEFFS_DIELECTRIC_CONST {
@@ -73,6 +75,7 @@ fn captial_a(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
         let ji = coeffs[1];
         let ni = coeffs[2];
 
+        // wow, even just term 1 by itself gets u pretty close!
         let term_1 = ni * delta.powf(ii) * tau.powf(ji);
 
 
