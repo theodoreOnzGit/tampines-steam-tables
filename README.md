@@ -19,6 +19,12 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.1.0 
+
+Added dielectric constant and surface tension functions.
+Didn't yet test across the whole steam table, but it works for the 
+small unit tests.
+
 v0.0.9
 Implemented thermal conductivity for ps flash. However, for 160 bar 
 and 220 bar steam tables, the max error is 30 and 40% respectively.

@@ -46,37 +46,41 @@ const G_BAR_COEFFS_DIELECTRIC_CONST: [[f64; 3]; 11] = [
 
 #[inline]
 fn captial_a(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
+    // constants
     let na = avogadro_number_na();
     let mu = molecular_dipole_moment_mu();
-
-    // harris alder g-bar factor
-    let mut g_bar: f64 = 1.0;
-    let t_c = t_crit_water();
+    let mol_wt_water = molar_mass_water_for_dielectric_const();
+    let epsilon_0 = permittivity_of_vacuum_eps_0();
+    let k = boltzmann_constant_k();
     let rho_c = rho_crit_water();
+    let t_c = t_crit_water();
+    let n12: f64 = 0.196_096_504_426e-2;
+
+    // intermediate quantities
     let tau: f64 = (t_c/t).get::<ratio>();
     let delta: f64 = (rho/rho_c).get::<ratio>();
     let t_c_by_228_k: f64 = t_c.get::<kelvin>()/228.0;
 
-    let n12: f64 = 0.196_096_504_426e-2;
 
+    // harris alder g-bar factor
+    let mut g_bar: f64 = 1.0;
     for coeffs in G_BAR_COEFFS_DIELECTRIC_CONST {
         let ii = coeffs[0];
         let ji = coeffs[1];
         let ni = coeffs[2];
 
+        let term_1 = ni * delta.powf(ii) * tau.powf(ji);
+        let term_2 = n12 * delta * (t_c_by_228_k * tau.recip() - 1.0).powf(-1.2);
 
-        g_bar += ni * delta.powf(ii) * tau.powf(ji) 
-            + n12 * delta * (t_c_by_228_k * tau.recip() - 1.0).powf(-1.2);
+
+        g_bar += term_1 + term_2;
 
     }
 
-    let captial_m = molar_mass_water_for_dielectric_const();
-    let epsilon_0 = permittivity_of_vacuum_eps_0();
-    let k = boltzmann_constant_k();
 
 
     let num = na * mu * mu * rho * g_bar;
-    let den = captial_m * epsilon_0 * k * t;
+    let den = mol_wt_water * epsilon_0 * k * t;
 
     return (num/den).get::<ratio>();
 
@@ -88,11 +92,11 @@ fn captial_b(rho: MassDensity) -> f64 {
 
     let na = avogadro_number_na();
     let alpha = water_mean_molecular_polarisability_alpha();
-    let captial_m = molar_mass_water_for_dielectric_const();
+    let mol_wt_water = molar_mass_water_for_dielectric_const();
     let epsilon_0 = permittivity_of_vacuum_eps_0();
 
     let num = na * alpha * rho;
-    let den = 3.0 * captial_m * epsilon_0;
+    let den = 3.0 * mol_wt_water * epsilon_0;
 
     return (num/den).get::<ratio>();
 }
