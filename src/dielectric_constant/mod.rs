@@ -59,24 +59,25 @@ fn captial_a(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
     // intermediate quantities
     let tau: f64 = (t_c/t).get::<ratio>();
     let delta: f64 = (rho/rho_c).get::<ratio>();
-    let t_c_by_228_k: f64 = t_c.get::<kelvin>()/228.0;
+    let t_c_by_228_k: f64 = t_c.get::<kelvin>()/(228.0);
 
     dbg!(&delta);
 
     // harris alder g-bar factor
     let mut g_bar: f64 = 1.0;
+    // wow, even just term 1 by itself gets u pretty close!
+    let term_2 = n12 * delta * (t_c_by_228_k * tau.recip() - 1.0).powf(-1.2);
+    g_bar += term_2;
     for coeffs in G_BAR_COEFFS_DIELECTRIC_CONST {
         let ii = coeffs[0];
         let ji = coeffs[1];
         let ni = coeffs[2];
 
         let term_1 = ni * delta.powf(ii) * tau.powf(ji);
-        // wow, even just term 1 by itself gets u pretty close!
-        let term_2 = n12 * delta * (t_c_by_228_k * tau.recip() - 1.0).powf(-1.2);
-        let term_2 = n12 * (t_c_by_228_k * tau.recip() - 1.0).powf(-1.2);
 
 
-        g_bar += term_1; //+ term_2;
+        g_bar += term_1; 
+
 
     }
 
