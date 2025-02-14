@@ -19,6 +19,10 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.1.1 
+
+Starting the h,s flash algorithms.
+
 v0.1.0 
 
 Added dielectric constant and surface tension functions.
