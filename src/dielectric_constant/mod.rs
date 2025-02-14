@@ -6,12 +6,18 @@ pub fn water_dielectric_const_rho_t(rho: MassDensity, t: ThermodynamicTemperatur
     let capital_a = captial_a(rho, t);
     let capital_b = captial_b(rho);
 
-    let den = 4.0 * (1.0 - capital_b);
-    let exponent = 9.0 + 2.0 * capital_a + 18.0 * capital_b
-        + capital_a.powi(2) + 10.0 * capital_a * capital_b 
+    let exponent = 9.0 
+        + 2.0 * capital_a 
+        + 18.0 * capital_b
+        + capital_a.powi(2) 
+        + 10.0 * capital_a * capital_b 
         + 9.0 * capital_b.powi(2);
+    let den = 4.0 * (1.0 - capital_b);
 
-    let num = 1.0 + capital_a + 5.0 * capital_b + exponent.sqrt();
+    let num = 1.0 
+        + capital_a 
+        + 5.0 * capital_b 
+        + exponent.sqrt();
     
     return num/den;
 }
@@ -43,6 +49,7 @@ fn captial_a(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
     let na = avogadro_number_na();
     let mu = molecular_dipole_moment_mu();
 
+    // harris alder g-bar factor
     let mut g_bar: f64 = 1.0;
     let t_c = t_crit_water();
     let rho_c = rho_crit_water();
@@ -67,9 +74,9 @@ fn captial_a(rho: MassDensity, t: ThermodynamicTemperature) -> f64 {
     let epsilon_0 = permittivity_of_vacuum_eps_0();
     let k = boltzmann_constant_k();
 
-    let den = captial_m * epsilon_0 * k * t;
 
     let num = na * mu * mu * rho * g_bar;
+    let den = captial_m * epsilon_0 * k * t;
 
     return (num/den).get::<ratio>();
 
