@@ -76,7 +76,7 @@ pub fn boltzmann_constant_k() -> HeatCapacity {
 // to make the inverse pressure type 
 // it is m s^2 / kg 
 use uom::si::{ISQ, SI, Quantity};
-use uom::typenum::{Z0, N1, N3, P4, P2};
+use uom::typenum::{Z0, N1, P4, P2};
 
 // quantity is defined
 // ## Generic Parameters
