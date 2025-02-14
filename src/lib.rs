@@ -66,6 +66,13 @@ pub mod thermal_conductivity;
 /// mostly here 
 pub mod interfaces;
 
+/// surface tension 
+/// important for boiling
+pub mod surface_tension;
+
+/// dielectric constant 
+pub mod dielectric_constant;
+
 /// allows for easy importing as with most rust 
 /// crates. 
 pub mod prelude;
