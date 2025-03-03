@@ -1,4 +1,7 @@
-const _H1_PRIME_S_BOUNDARY_EQN: [[f64; 3]; 27] = [
+use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+
+/// this is for eq 2.40 on page 80
+const H1_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 27] = [
     [0.0, 14.0, 0.332_171_191_705_237],
     [0.0, 36.0, 0.611_217_706_323_496e-3],
     [1.0, 3.0, -0.882_092_478_906_822e1],
@@ -27,5 +30,26 @@ const _H1_PRIME_S_BOUNDARY_EQN: [[f64; 3]; 27] = [
     [32.0, 6.0, 0.503_611_916_682_674e1],
     [32.0, 8.0, 0.655_444_787_064_505e2],
 ];
+
+pub fn h1_prime_s_boundary_enthalpy(
+    s: SpecificHeatCapacity) -> AvailableEnergy {
+
+    let s_ref = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(3.8);
+    let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(1700.0);
+    let sigma: f64 = (s/s_ref).get::<ratio>();
+
+    let mut eta: f64 = 0.0;
+
+    for coeffs in H1_PRIME_S_BOUNDARY_EQN_COEFFS {
+        let ni = coeffs[0];
+        let ii = coeffs[1];
+        let ji = coeffs[2];
+
+        eta += ni * (sigma - 1.09).powf(ii) * (sigma + 0.366e-4).powf(ji);
+    }
+
+    return h_ref * eta;
+
+}
 
 
