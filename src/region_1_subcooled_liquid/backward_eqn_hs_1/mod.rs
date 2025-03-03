@@ -1,4 +1,7 @@
-use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
+use uom::si::ratio::ratio;
+use uom::si::f64::*;
+use uom::si::available_energy::kilojoule_per_kilogram;
 
 /// this is for eq 2.40 on page 80
 const H1_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 27] = [
@@ -31,6 +34,8 @@ const H1_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 27] = [
     [32.0, 8.0, 0.655_444_787_064_505e2],
 ];
 
+/// this function represents the saturated liquid line
+/// for hs flashing between region 1 and region 4
 pub fn h1_prime_s_boundary_enthalpy(
     s: SpecificHeatCapacity) -> AvailableEnergy {
 
