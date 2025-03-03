@@ -46,11 +46,12 @@ pub fn h1_prime_s_boundary_enthalpy(
     let mut eta: f64 = 0.0;
 
     for coeffs in H1_PRIME_S_BOUNDARY_EQN_COEFFS {
-        let ni = coeffs[0];
-        let ii = coeffs[1];
-        let ji = coeffs[2];
+        let ii = coeffs[0];
+        let ji = coeffs[1];
+        let ni = coeffs[2];
 
         eta += ni * (sigma - 1.09).powf(ii) * (sigma + 0.366e-4).powf(ji);
+        dbg!(&(ni,eta));
     }
 
     return h_ref * eta;
