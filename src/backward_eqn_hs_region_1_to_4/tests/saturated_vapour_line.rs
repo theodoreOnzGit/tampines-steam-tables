@@ -1,7 +1,7 @@
 use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::f64::*;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
-use crate::backward_eqn_hs_region_1_to_4::saturated_liquid_line::h3a_prime_s_boundary_enthalpy;
+use crate::backward_eqn_hs_region_1_to_4::saturated_vapour_line::h2c3b_prime_s_boundary_enthalpy;
 use crate::backward_eqn_hs_region_1_to_4::saturated_vapour_line::h2ab_prime_s_boundary_enthalpy;
 
 #[test] 
@@ -51,27 +51,12 @@ pub fn hs_boundary_2a2b_prime_eq_3(){
 
 
 #[test] 
-pub fn hs_boundary_3a_prime_eq_1(){
-    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(1.685_025_565e3);
+pub fn hs_boundary_2c3b_prime_eq_1(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2.687_693_850e3);
 
-    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(3.8);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.5);
 
-    let h_test = h3a_prime_s_boundary_enthalpy(s);
-
-    approx::assert_relative_eq!(
-        h.get::<kilojoule_per_kilogram>(),
-        h_test.get::<kilojoule_per_kilogram>(),
-        max_relative=1e-8
-        );
-}
-
-#[test] 
-pub fn hs_boundary_3a_prime_eq_2(){
-    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(1.816_891_476e3);
-
-    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(4.0);
-
-    let h_test = h3a_prime_s_boundary_enthalpy(s);
+    let h_test = h2c3b_prime_s_boundary_enthalpy(s);
 
     approx::assert_relative_eq!(
         h.get::<kilojoule_per_kilogram>(),
@@ -81,12 +66,27 @@ pub fn hs_boundary_3a_prime_eq_2(){
 }
 
 #[test] 
-pub fn hs_boundary_3a_prime_eq_3(){
-    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(1.949_352_563e3);
+pub fn hs_boundary_2c3b_prime_eq_2(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2.451_623_609e3);
 
-    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(4.2);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.0);
 
-    let h_test = h3a_prime_s_boundary_enthalpy(s);
+    let h_test = h2c3b_prime_s_boundary_enthalpy(s);
+
+    approx::assert_relative_eq!(
+        h.get::<kilojoule_per_kilogram>(),
+        h_test.get::<kilojoule_per_kilogram>(),
+        max_relative=1e-8
+        );
+}
+
+#[test] 
+pub fn hs_boundary_2c3b_prime_eq_3(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2.144_360_448e3);
+
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(4.5);
+
+    let h_test = h2c3b_prime_s_boundary_enthalpy(s);
 
     approx::assert_relative_eq!(
         h.get::<kilojoule_per_kilogram>(),
