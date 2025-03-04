@@ -74,7 +74,6 @@ pub fn h1_prime_s_boundary_enthalpy(
         let ni = coeffs[2];
 
         eta += ni * (sigma - 1.09).powf(ii) * (sigma + 0.366e-4).powf(ji);
-        dbg!(&(ni,eta));
     }
 
     return h_ref * eta;
@@ -100,7 +99,6 @@ pub fn h3a_prime_s_boundary_enthalpy(
         let ni = coeffs[2];
 
         eta += ni * (sigma - 1.09).powf(ii) * (sigma + 0.366e-4).powf(ji);
-        dbg!(&(ni,eta));
     }
 
     return h_ref * eta;
