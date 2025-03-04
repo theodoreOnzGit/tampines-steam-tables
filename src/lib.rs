@@ -50,6 +50,10 @@ pub mod backward_eqn_ph_region_1_to_4;
 /// overall equation
 pub mod backward_eqn_ps_region_1_to_4;
 
+/// backward equations hs boundary equations
+/// overall equation
+pub mod backward_eqn_hs_region_1_to_4;
+
 /// dynamic viscosity calcs
 pub mod dynamic_viscosity;
 
