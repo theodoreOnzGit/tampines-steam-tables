@@ -2,7 +2,7 @@ use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::f64::*;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use crate::backward_eqn_hs_region_1_to_4::saturated_liquid_line::h3a_prime_s_boundary_enthalpy;
-use crate::region_1_subcooled_liquid::backward_eqn_hs_1::h1_prime_s_boundary_enthalpy;
+use crate::backward_eqn_hs_region_1_to_4::saturated_liquid_line::h1_prime_s_boundary_enthalpy;
 
 #[test] 
 pub fn hs_boundary_1prime_eq_1(){

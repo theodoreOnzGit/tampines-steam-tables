@@ -11,3 +11,5 @@ pub mod region_1_t_ph_flash;
 /// uses table 2.52 on page 58 in steam tables book 
 pub mod region_1_t_ps_flash;
 
+/// uses table 2.78 on page 88 in steam tables book 
+pub mod region_1_t_hs_flash;

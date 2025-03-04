@@ -1,61 +1,48 @@
+use uom::si::pressure::megapascal;
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::ratio::ratio;
 use uom::si::f64::*;
 use uom::si::available_energy::kilojoule_per_kilogram;
 
-/// this is for eq 2.40 on page 80
-const H1_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 27] = [
-    [0.0, 14.0, 0.332_171_191_705_237],
-    [0.0, 36.0, 0.611_217_706_323_496e-3],
-    [1.0, 3.0, -0.882_092_478_906_822e1],
-    [1.0, 16.0, -0.455_628_192_543_250],
-    [2.0, 0.0, -0.263_483_840_850_452e-4],
-    [2.0, 5.0, -0.223_949_661_148_062e2],
-    [3.0, 4.0, -0.428_398_660_164_013e1],
-    [3.0, 36.0, -0.616_679_338_856_916],
-    [4.0, 4.0, -0.146_823_031_104_040e2],
-    [4.0, 16.0, 0.284_523_138_727_299e3],
-    [4.0, 24.0, -0.113_398_503_195_444e3],
-    [5.0, 18.0, 0.115_671_380_760_859e4],
-    [5.0, 24.0, 0.395_551_267_359_325e3],
-    [7.0, 1.0, -0.154_891_257_229_285e1],
-    [8.0, 4.0, 0.194_486_637_751_291e2],
-    [12.0, 2.0, -0.357_915_139_457_043e1],
-    [12.0, 4.0, -0.335_369_414_148_819e1],
-    [14.0, 1.0, -0.664_426_796_332_460],
-    [14.0, 22.0, 0.323_321_885_383_934e5],
-    [16.0, 10.0, 0.331_766_744_667_084e4],
-    [20.0, 12.0, -0.223_501_257_931_087e5],
-    [20.0, 28.0, 0.573_953_875_852_936e7],
-    [22.0, 8.0, 0.173_226_193_407_919e3],
-    [24.0, 3.0, -0.363_968_822_121_321e-1],
-    [28.0, 0.0, 0.834_596_332_878_346e-6],
-    [32.0, 6.0, 0.503_611_916_682_674e1],
-    [32.0, 8.0, 0.655_444_787_064_505e2],
+const REGION_1_BACK_COEFFS_HS: [[f64; 3]; 19] = [
+    [0.0, 0.0, -0.691_997_014_660_582],
+    [0.0, 1.0, -0.183_612_548_787_560e2],
+    [0.0, 2.0, -0.928_332_409_297_335e1],
+    [0.0, 4.0, 0.659_639_569_909_906e2],
+    [0.0, 5.0, -0.162_060_388_912_024e2],
+    [0.0, 6.0, 0.450_620_017_338_667e3],
+    [0.0, 8.0, 0.854_680_678_224_170e3],
+    [0.0, 14.0, 0.607_523_214_001_162e4],
+    [1.0, 0.0, 0.326_487_682_621_856e2],
+    [1.0, 1.0, -0.269_408_844_582_931e2],
+    [1.0, 4.0, -0.319_947_848_334_300e3],
+    [1.0, 6.0, -0.928_354_307_043_320e3],
+    [2.0, 0.0, 0.303_634_537_455_249e2],
+    [2.0, 1.0, -0.650_540_422_444_146e2],
+    [2.0, 10.0, -0.430_991_316_516_130e4],
+    [3.0, 4.0, -0.747_512_324_096_068e3],
+    [4.0, 1.0, 0.730_000_345_529_245e3],
+    [4.0, 4.0, 0.114_284_032_269_021e4],
+    [5.0, 0.0, -0.436_407_041_874_559e3],
 ];
 
-/// this function represents the saturated liquid line
-/// for hs flashing between region 1 and region 4
-pub fn h1_prime_s_boundary_enthalpy(
-    s: SpecificHeatCapacity) -> AvailableEnergy {
+pub fn p_hs_1(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure {
+    let p_ref = Pressure::new::<megapascal>(100.0);
+    let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(3400.0);
+    let s_ref = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(7.6);
 
-    let s_ref = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(3.8);
-    let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(1700.0);
+    let eta: f64 = (h/h_ref).get::<ratio>();
     let sigma: f64 = (s/s_ref).get::<ratio>();
 
-    let mut eta: f64 = 0.0;
+    let mut pi: f64 = 0.0;
 
-    for coeffs in H1_PRIME_S_BOUNDARY_EQN_COEFFS {
-        let ii = coeffs[0];
-        let ji = coeffs[1];
-        let ni = coeffs[2];
 
-        eta += ni * (sigma - 1.09).powf(ii) * (sigma + 0.366e-4).powf(ji);
-        dbg!(&(ni,eta));
+    for coefficient in REGION_1_BACK_COEFFS_HS {
+        let ii = coefficient[0];
+        let ji = coefficient[1];
+        let ni = coefficient[2];
+        pi  += ni * (eta + 0.05).powf(ii) * (sigma + 0.05).powf(ji);
     }
 
-    return h_ref * eta;
-
+    return pi * p_ref;
 }
-
-
