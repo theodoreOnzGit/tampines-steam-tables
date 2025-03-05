@@ -55,3 +55,54 @@ pub fn p_hs_test_3(){
         );
         
 }
+
+
+#[test]
+pub fn p_hs_test_4(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2400.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(4.7);
+    let p = Pressure::new::<megapascal>(6.363_924_887e1);
+
+    let p_test = p_hs_3(h, s);
+
+    approx::assert_relative_eq!(
+        p.get::<megapascal>(),
+        p_test.get::<megapascal>(),
+        max_relative=1e-8
+        );
+        
+}
+
+
+#[test]
+pub fn p_hs_test_5(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2600.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.1);
+    let p = Pressure::new::<megapascal>(3.434_999_263e1);
+
+    let p_test = p_hs_3(h, s);
+
+    approx::assert_relative_eq!(
+        p.get::<megapascal>(),
+        p_test.get::<megapascal>(),
+        max_relative=1e-8
+        );
+        
+}
+
+
+#[test]
+pub fn p_hs_test_6(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2700.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.0);
+    let p = Pressure::new::<megapascal>(8.839_043_281e1);
+
+    let p_test = p_hs_3(h, s);
+
+    approx::assert_relative_eq!(
+        p.get::<megapascal>(),
+        p_test.get::<megapascal>(),
+        max_relative=1e-8
+        );
+        
+}
