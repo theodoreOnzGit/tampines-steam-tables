@@ -6,6 +6,7 @@ use uom::si::available_energy::kilojoule_per_kilogram;
 
 /// eqn for determining pressure boundary between subregion 2b and 2c
 /// using dimensionless enthalpy eta
+/// for (h,s) points on this boundary, it belongs to subregion a
 #[inline]
 pub fn h_2a2b(s: SpecificHeatCapacity) -> AvailableEnergy {
     let s_ref = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(

@@ -27,3 +27,9 @@ pub mod region_2_t_ph_flash;
 /// uses table 2.54, 2.55 and 2.56 on page 60-61 of 
 /// main publication (Kretzschmar's textbook)
 pub mod region_2_t_ps_flash;
+
+/// backward eqns for hs (enthalpy entropy) flash 
+///
+/// uses table 2.85 on page 94 of 
+/// main publication (Kretzschmar's textbook)
+pub mod region_2_p_hs_flash;
