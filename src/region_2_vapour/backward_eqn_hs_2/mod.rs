@@ -34,6 +34,7 @@ pub fn p_hs_2(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure {
 pub mod boundary_eqns;
 pub use boundary_eqns::*;
 
+#[inline]
 pub(crate) fn p_hs_2a(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure{
 
     let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(4200.0);
@@ -57,6 +58,7 @@ pub(crate) fn p_hs_2a(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure{
 
 }
 
+#[inline]
 pub(crate) fn p_hs_2b(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure{
 
     let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(4100.0);
@@ -80,6 +82,7 @@ pub(crate) fn p_hs_2b(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure{
 
 }
 
+#[inline]
 pub(crate) fn p_hs_2c(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure{
 
     let h_ref = AvailableEnergy::new::<kilojoule_per_kilogram>(3500.0);

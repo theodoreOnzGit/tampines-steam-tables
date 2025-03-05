@@ -78,6 +78,11 @@ pub use backward_eqn_pt_3::*;
 pub mod backward_eqn_ps_3;
 pub use backward_eqn_ps_3::*;
 
+/// region 3 hs equations for volume and temperature
+/// this enables pt flashing in this region 
+pub mod backward_eqn_hs_3;
+pub use backward_eqn_hs_3::*;
+
 /// tests 
 #[cfg(test)]
 mod tests;
