@@ -55,6 +55,10 @@ pub fn theta_dimensionless_temp_4(t: ThermodynamicTemperature) -> f64 {
     return temp_ratio + n9/(temp_ratio - n10);
 }
 
+/// backward equation T_s(h,s)
+pub mod backward_eqn_hs_4;
+pub use backward_eqn_hs_4::*;
+
 // tests 
 #[cfg(test)]
 mod tests;
