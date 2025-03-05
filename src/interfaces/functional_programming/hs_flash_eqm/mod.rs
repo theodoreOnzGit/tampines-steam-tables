@@ -11,4 +11,7 @@ pub fn hs_flash_region(h: AvailableEnergy, s: SpecificHeatCapacity) -> FwdEqnReg
     todo!();
 }
 
+/// note:
+/// (h,s) flashes along the isotherms 273.15K are not implemented 
+/// for simplicity to avoid iterations
 pub mod validity_range;
