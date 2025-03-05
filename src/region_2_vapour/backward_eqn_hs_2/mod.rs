@@ -5,9 +5,29 @@ use uom::si::f64::*;
 use uom::si::available_energy::kilojoule_per_kilogram;
 
 #[inline]
-pub fn p_hs_2(h: AvailableEnergy, s: SpecificHeatCapacity) -> ThermodynamicTemperature {
+pub fn p_hs_2(h: AvailableEnergy, s: SpecificHeatCapacity) -> Pressure {
 
-    todo!()
+    // assuming is region 2, 
+    // if s is less than s2bc, then it's region 2c 
+    // this is on page 91 of book
+    // the points on this line belong to region 2b
+    let s2b2c = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.85);
+
+    if s < s2b2c {
+        return p_hs_2c(h, s);
+    };
+
+    // next, we use the boundary for h, this is the isobar P = 4 MPa 
+    // if a point falls on this boundary line, then it belongs to 
+    // subregion 2a
+    let h2a2b = h_2a2b(s);
+
+    if h > h2a2b {
+        return p_hs_2b(h, s);
+    } else {
+        return p_hs_2a(h, s);
+    };
+
 }
 
 /// boundary equations for 2a and 2b
