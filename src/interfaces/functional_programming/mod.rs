@@ -21,3 +21,6 @@ pub mod pt_flash_metastable;
 
 /// allows for pressure entropy flash 
 pub mod ps_flash_eqm;
+
+/// allows for enthalpy entropy flash; 
+pub mod hs_flash_eqm;
