@@ -1,4 +1,5 @@
-use uom::si::f64::*;
+use uom::si::available_energy::kilojoule_per_kilogram;
+use uom::si::{f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
 use uom::si::thermodynamic_temperature::kelvin;
 use uom::si::temperature_interval::millikelvin;
 
@@ -31,8 +32,29 @@ pub fn hs_is_above_isotherm_t_273_15_kelvin(
 
 
 /// based on page 73 boundary, we use this at 
-/// t = 273.15 K to t = 1073.15 K
-pub fn hs_is_above_isobar_p_100_mpa(
+/// this only applies to region 1
+/// 
+pub fn hs_is_below_isobar_p_100_mpa_in_region1(
     h: AvailableEnergy, s: SpecificHeatCapacity) -> bool {
+
+    // from fig 2.14, I'm going to use the graph to help 
+    // h max is 3715.2 kj/kg
+
+    let h_max = AvailableEnergy::new::<kilojoule_per_kilogram>(1670.9);
+    let s_max = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(3.778);
+
+    if h > h_max || s > s_max {
+        // in this case we are outside region 1
+        return false;
+    };
     todo!();
+}
+
+
+/// critical entropy
+fn s_crit() -> SpecificHeatCapacity {
+    SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+        4.412_021_482_234_76
+    )
+
 }
