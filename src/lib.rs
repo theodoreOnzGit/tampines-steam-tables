@@ -81,3 +81,7 @@ pub mod dielectric_constant;
 /// crates. 
 pub mod prelude;
 
+
+/// reference openfoam algorithms which will be combined with steam 
+/// tables for solving simple two phase flow problems
+pub mod openfoam_algorithms;

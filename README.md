@@ -23,6 +23,11 @@ v0.1.1
 
 Starting the h,s flash algorithms.
 
+Also, copied some openfoam algorithms which will form the basis for which 
+the steam tables in tampines are used to solve two phase flow in transient 
+scenarios. Since OpenFOAM is licensed under 
+GNU GPLv3, tampines-steam-tables will also be licensed under GNU GPL v3.
+
 v0.1.0 
 
 Added dielectric constant and surface tension functions.
