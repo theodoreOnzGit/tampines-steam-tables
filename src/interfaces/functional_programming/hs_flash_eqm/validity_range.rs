@@ -52,7 +52,7 @@ pub fn hs_is_below_isobar_p_100_mpa_in_region1(
 
 
 /// critical entropy
-fn s_crit() -> SpecificHeatCapacity {
+pub(crate) fn s_crit() -> SpecificHeatCapacity {
     SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
         4.412_021_482_234_76
     )
