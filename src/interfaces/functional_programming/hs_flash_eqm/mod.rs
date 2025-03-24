@@ -56,7 +56,16 @@ pub enum BackwdEqnSubRegion {
 
 impl Into<FwdEqnRegion> for BackwdEqnSubRegion {
     fn into(self) -> FwdEqnRegion {
-        todo!()
+        match self {
+            BackwdEqnSubRegion::Region1 => FwdEqnRegion::Region1,
+            BackwdEqnSubRegion::Region2a => FwdEqnRegion::Region2,
+            BackwdEqnSubRegion::Region2b => FwdEqnRegion::Region2,
+            BackwdEqnSubRegion::Region2c => FwdEqnRegion::Region2,
+            BackwdEqnSubRegion::Region3a => FwdEqnRegion::Region3,
+            BackwdEqnSubRegion::Region3b => FwdEqnRegion::Region3,
+            BackwdEqnSubRegion::Region4 => FwdEqnRegion::Region4,
+            BackwdEqnSubRegion::Region5 => FwdEqnRegion::Region5,
+        }
     }
 }
 
