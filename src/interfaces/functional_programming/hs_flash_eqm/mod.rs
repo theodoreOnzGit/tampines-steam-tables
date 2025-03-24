@@ -3,7 +3,7 @@ use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapa
 use validity_range::s_crit;
 
 
-use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::h2c3b_prime_s_boundary_enthalpy}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::p_hs_2c};
+use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::h2c3b_prime_s_boundary_enthalpy}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::p_hs_2c, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -379,11 +379,19 @@ fn hs_region_near_crit_entropy_region_2c_3b_and_4(
 
     // now as in page 85 to 86, we first determine tb23(h,s)
     let temp_b23_hs = tb23_s_boundary_enthalpy(s, h);
+    // using this temperature, we use pb23 boundary 
+
+    let p_b23_boundary = p_boundary_2_3(temp_b23_hs);
+
     // next we determine the pressure p2c(h,s)
 
-    let p23_hs = p_hs_2c(h, s);
+    let p2c_hs = p_hs_2c(h, s);
 
-    todo!();
+    if p2c_hs <= p_b23_boundary {
+        return BackwdEqnSubRegion::Region2c;
+    } else {
+        return BackwdEqnSubRegion::Region3b;
+    };
 
 }
 fn hs_region_high_entropy_region_2c_and_4(
