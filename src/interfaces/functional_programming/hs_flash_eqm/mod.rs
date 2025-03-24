@@ -380,8 +380,8 @@ fn hs_region_near_crit_entropy_region_2c_3b_and_4(
     // now as in page 85 to 86, we first determine tb23(h,s)
     let temp_b23_hs = tb23_s_boundary_enthalpy(s, h);
     // using this temperature, we use pb23 boundary 
-
-    let p_b23_boundary = p_boundary_2_3(temp_b23_hs);
+    // also, we apply the correction factor on page 80
+    let p_b23_boundary = p_boundary_2_3(temp_b23_hs) * (1.0 + 4.5e-5);
 
     // next we determine the pressure p2c(h,s)
 
