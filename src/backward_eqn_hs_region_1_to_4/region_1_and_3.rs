@@ -17,7 +17,7 @@ const HB13_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 6] = [
 
 /// this function represents the saturated liquid line
 /// for hs flashing between region 1 and region 4
-pub fn hb13_prime_s_boundary_enthalpy(
+pub fn hb13_s_boundary_enthalpy(
     s: SpecificHeatCapacity) -> AvailableEnergy {
 
     let s_ref = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(3.8);

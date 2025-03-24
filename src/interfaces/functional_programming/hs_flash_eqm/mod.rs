@@ -3,7 +3,7 @@ use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapa
 use validity_range::s_crit;
 
 
-use crate::{backward_eqn_hs_region_1_to_4::saturated_liquid_line::h1_prime_s_boundary_enthalpy, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm};
+use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, saturated_liquid_line::h1_prime_s_boundary_enthalpy}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -228,8 +228,33 @@ fn hs_region_low_entropy_region_1_3a_and_4(
     };
 
     // now add corrected h 
-    let corrected_h = h - AvailableEnergy::new::<kilojoule_per_kilogram>(0.0045);
-    todo!();
+    // page 82 
+    // helps assign it to single phase region 1
+    // rather than two phase region 4
+    let corrected_h_for_two_phase_single_phase = 
+        h - AvailableEnergy::new::<kilojoule_per_kilogram>(0.0045);
+
+    let region_1_and_4_h_boundary: AvailableEnergy = h1_prime_s_boundary_enthalpy(s);
+
+    if corrected_h_for_two_phase_single_phase < region_1_and_4_h_boundary {
+        BackwdEqnSubRegion::Region4;
+    };
+
+    // corrected h for hb13 equation, to assign it to region 1 
+    // preferably
+    // on page 85
+    let corrected_h_for_hb13_boundary = 
+        h + AvailableEnergy::new::<kilojoule_per_kilogram>(0.018);
+
+    let hb13_boundary = hb13_s_boundary_enthalpy(s);
+
+    if corrected_h_for_hb13_boundary > hb13_boundary {
+        return BackwdEqnSubRegion::Region3a;
+    } else {
+        return BackwdEqnSubRegion::Region1;
+    };
+
+    
 
 }
 
