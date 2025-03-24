@@ -3,7 +3,7 @@ use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapa
 use validity_range::s_crit;
 
 
-use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::h2c3b_prime_s_boundary_enthalpy}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm};
+use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::h2c3b_prime_s_boundary_enthalpy}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::p_hs_2c};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -276,7 +276,7 @@ fn hs_region_near_crit_entropy_region_3a_and_4(
         h3a_prime_s_boundary_enthalpy(s)
         - AvailableEnergy::new::<kilojoule_per_kilogram>(0.0045);
 
-    if h < region_3a_and_4_h_boundary {
+    if h >= region_3a_and_4_h_boundary {
         return BackwdEqnSubRegion::Region3a;
     } else {
         return BackwdEqnSubRegion::Region4;
@@ -302,7 +302,7 @@ fn hs_region_crit_entropy_region_3a_and_4(
     let region_3a_and_4_h_boundary: AvailableEnergy = h3a_prime_s_boundary_enthalpy(s)
         - AvailableEnergy::new::<kilojoule_per_kilogram>(0.0045);
 
-    if h < region_3a_and_4_h_boundary {
+    if h >= region_3a_and_4_h_boundary {
         return BackwdEqnSubRegion::Region3a;
     } else {
         return BackwdEqnSubRegion::Region4;
@@ -331,7 +331,7 @@ fn hs_region_near_crit_entropy_region_3b_and_4(
         AvailableEnergy::new::<kilojoule_per_kilogram>(0.0073);
 
 
-    if h < h2c3b_boundary {
+    if h >= h2c3b_boundary {
         return BackwdEqnSubRegion::Region3b;
     } else {
         return BackwdEqnSubRegion::Region4;
@@ -340,6 +340,48 @@ fn hs_region_near_crit_entropy_region_3b_and_4(
 }
 fn hs_region_near_crit_entropy_region_2c_3b_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
+
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
+    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
+
+    if h > upper_bound_enthalpy {
+        panic!("enthalpy too high for hs flash");
+    };
+
+    if h < lower_bound_enthalpy {
+        panic!("enthalpy too low for hs flash");
+    };
+
+    // on page 84 for critical entropy all the way up to 
+    // bound of region 2c, we correct with 0.0073 kJ/(kg K)
+    let h2c3b_boundary = h2c3b_prime_s_boundary_enthalpy(s) - 
+        AvailableEnergy::new::<kilojoule_per_kilogram>(0.0073);
+
+    if h < h2c3b_boundary {
+        return BackwdEqnSubRegion::Region4;
+    }; 
+    // now a few more guard clauses to bound maximum and minimum h 
+    let hb23_min = AvailableEnergy::new::<kilojoule_per_kilogram>(
+        2.563_592_004e3
+    );
+    let hb23_max = AvailableEnergy::new::<kilojoule_per_kilogram>(
+        2.812_942_061e3
+    );
+    if h >= hb23_max {
+        return BackwdEqnSubRegion::Region2c;
+    };
+    if h <= hb23_min {
+        return BackwdEqnSubRegion::Region3b;
+    };
+
+
+    // now as in page 85 to 86, we first determine tb23(h,s)
+    let temp_b23_hs = tb23_s_boundary_enthalpy(s, h);
+    // next we determine the pressure p2c(h,s)
+
+    let p23_hs = p_hs_2c(h, s);
 
     todo!();
 

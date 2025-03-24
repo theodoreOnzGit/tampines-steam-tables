@@ -38,7 +38,7 @@ const TB23_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 25] = [
 
 /// this function represents the saturated liquid line
 /// for hs flashing between region 1 and region 4
-pub fn tb23_prime_s_boundary_enthalpy(
+pub fn tb23_s_boundary_enthalpy(
     s: SpecificHeatCapacity,
     h: AvailableEnergy) -> ThermodynamicTemperature {
 
