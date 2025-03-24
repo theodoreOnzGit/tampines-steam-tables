@@ -1,9 +1,65 @@
 
-use uom::si::{f64::*,  specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
 use validity_range::s_crit;
 
 
+use crate::{backward_eqn_hs_region_1_to_4::saturated_liquid_line::h1_prime_s_boundary_enthalpy, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm};
+
 use super::pt_flash_eqm::FwdEqnRegion;
+
+#[derive(Debug,PartialEq, Eq, PartialOrd, Ord)]
+/// an enum to help represent the appropriate 
+/// regions in the forward equations
+pub enum BackwdEqnSubRegion {
+    /// this is from T = 273.15 K to T=623.15K 
+    /// liquid
+    Region1,
+    /// this is vapour then line p23/t23 
+    /// all the way up to 1073.15 K (800 degC)
+    ///
+    /// 
+    /// higher entropy than 5.85 kJ/(kg K)
+    /// but even higher than 2b
+    /// includes the boundary line h2ab
+    Region2a,
+    /// this is vapour then line p23/t23 
+    /// all the way up to 1073.15 K (800 degC)
+    /// 
+    /// higher or equal to entropy than 5.85 kJ/(kg K)
+    /// includes boundary line 5.85 kJ/(kg K)
+    Region2b,
+    /// this is vapour then line p23/t23 
+    /// all the way up to 1073.15 K (800 degC)
+    ///
+    /// lower entropy than 5.85 kJ/(kg K)
+    Region2c,
+    /// this is supercritical region and 
+    /// single phase liquid  / vapour near 
+    /// supercritical region
+    ///
+    /// below or equal to critical entropy
+    Region3a,
+    /// this is supercritical region and 
+    /// single phase liquid  / vapour near 
+    /// supercritical region
+    /// above critical entropy
+    Region3b,
+    /// two phase vapour liq equilibrium 
+    /// region up to supercritical region
+    /// (saturation line, but not including the line itself)
+    Region4,
+    /// ultra high temperature steam  (more than 800 degC)
+    /// 1073.15 K to 2273.15 K 
+    /// pressure from triple pt pressure to 500 bar
+    Region5,
+}
+
+impl Into<FwdEqnRegion> for BackwdEqnSubRegion {
+    fn into(self) -> FwdEqnRegion {
+        todo!()
+    }
+}
+
 /// allows the user to check which region one is in based on a ph flash
 ///
 /// note that ph flash does not work in region 5
@@ -12,7 +68,7 @@ use super::pt_flash_eqm::FwdEqnRegion;
 /// fig 2.14
 ///
 /// once that is done, then we separate region by enthalpy.
-pub fn hs_flash_region(h: AvailableEnergy, s: SpecificHeatCapacity) -> FwdEqnRegion {
+pub fn hs_flash_region(h: AvailableEnergy, s: SpecificHeatCapacity) -> BackwdEqnSubRegion {
 
     // this is absolute minimum and max entropy
     // based on fig 2.14
@@ -46,6 +102,7 @@ pub fn hs_flash_region(h: AvailableEnergy, s: SpecificHeatCapacity) -> FwdEqnReg
         hs_region_near_crit_entropy_region_3a_and_4(h, s);
     };
 
+    // boundary line belongs to region 3a
     if s == s_crit {
         hs_region_crit_entropy_region_3a_and_4(h, s);
     };
@@ -105,63 +162,112 @@ pub fn hs_flash_region(h: AvailableEnergy, s: SpecificHeatCapacity) -> FwdEqnReg
 }
 
 fn hs_region_low_entropy_region_1_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    todo!();
+    let region_1_and_4_h_boundary: AvailableEnergy = h1_prime_s_boundary_enthalpy(s);
+    // on page 77 the entire boundary along single phase regions 
+    // 1 to 3 and
+    // two phase region 4 is considered to belong to both regions 
+    //
+    // for this calculation though, I'll just assign it to single phase 
+    // region by default for simplicity
+    //
+    // on page 82
+    // for points close to boundary, an error of 0.0034 kJ/kg of enthalpy 
+    // should be subtracted from the enthalpy to ensure that it is correctly 
+    // assigned to single phase region (region 1)
+
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
+    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
+
+    if h > upper_bound_enthalpy {
+        panic!("enthalpy too high for hs flash");
+    };
+
+    if h < lower_bound_enthalpy {
+        panic!("enthalpy too low for hs flash");
+    };
+
+    // now add corrected h 
+    let corrected_h = h - AvailableEnergy::new::<kilojoule_per_kilogram>(0.0034);
+
+    if corrected_h >= region_1_and_4_h_boundary {
+
+        return BackwdEqnSubRegion::Region1;
+    } else {
+        return BackwdEqnSubRegion::Region4;
+    };
 
 }
 
 fn hs_region_low_entropy_region_1_3a_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
+    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
+
+    if h > upper_bound_enthalpy {
+        panic!("enthalpy too high for hs flash");
+    };
+
+    if h < lower_bound_enthalpy {
+        panic!("enthalpy too low for hs flash");
+    };
+
+    // now add corrected h 
+    let corrected_h = h - AvailableEnergy::new::<kilojoule_per_kilogram>(0.0045);
     todo!();
 
 }
 
 fn hs_region_near_crit_entropy_region_3a_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
 }
 fn hs_region_crit_entropy_region_3a_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
 }
 fn hs_region_near_crit_entropy_region_3b_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
 }
 fn hs_region_near_crit_entropy_region_2c_3b_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
 }
 fn hs_region_high_entropy_region_2c_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
 }
 fn hs_region_high_entropy_region_2b_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
 }
 fn hs_region_high_entropy_region_2b_2a_and_4(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
 }
 fn hs_region_high_entropy_region_2a_only(
-    h: AvailableEnergy, s: SpecificHeatCapacity,) -> FwdEqnRegion {
+    h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
     todo!();
 
