@@ -17,11 +17,12 @@ pub(crate) fn is_outside_pressure_range(p: Pressure) -> bool {
     let upper_pressure_limit: Pressure = Pressure::new::<megapascal>(100.0);
 
     if p < lower_pressure_limit {
-        return true;
+        dbg!(&(p,lower_pressure_limit));
+        panic!("p,s point is lower than acceptable pressure range");
     };
 
     if p > upper_pressure_limit {
-        return true;
+        panic!("p,s point is higher than acceptable pressure range");
     };
 
     return false;
