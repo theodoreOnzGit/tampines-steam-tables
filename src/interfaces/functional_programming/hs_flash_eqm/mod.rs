@@ -3,9 +3,9 @@ use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapa
 use validity_range::s_crit;
 
 
-use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::{h2ab_double_prime_s_boundary_enthalpy, h2c3b_prime_s_boundary_enthalpy}}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::{h_2a2b, p_hs_2c}, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3, region_4_vap_liq_equilibrium::sat_pressure_4};
+use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::{h2ab_double_prime_s_boundary_enthalpy, h2c3b_prime_s_boundary_enthalpy}}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::{h_2a2b, p_hs_2a, p_hs_2b, p_hs_2c}, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3, region_4_vap_liq_equilibrium::sat_pressure_4};
 
-use super::pt_flash_eqm::{h_tp_eqm_single_phase, FwdEqnRegion};
+use super::{ph_flash_eqm::t_ph_eqm, pt_flash_eqm::{h_tp_eqm_single_phase, s_tp_eqm_single_phase, FwdEqnRegion}};
 
 #[derive(Debug,PartialEq, Eq, PartialOrd, Ord)]
 /// an enum to help represent the appropriate 
@@ -536,6 +536,9 @@ fn hs_region_high_entropy_region_2b_2a_and_4(
     if h < lower_bound_enthalpy {
         panic!("enthalpy too low for hs flash");
     };
+    // now still need to check if temperature is 
+    // too high
+    additional_temperature_check_for_1073_15_k_isotherm(h, s);
 
     let h2ab_double_prime_boundary = h2ab_double_prime_s_boundary_enthalpy(s);
 
@@ -564,10 +567,10 @@ fn hs_region_high_entropy_region_2a_only(
     // temperature isotherm
     let p_sat = sat_pressure_4(ThermodynamicTemperature::new::<kelvin>(273.15));
     let t_max = ThermodynamicTemperature::new::<kelvin>(1073.15);
-    let upper_bound_enthalpy = h_tp_eqm_single_phase(t_max, p_sat);
+    let conservative_upper_bound_enthalpy = h_tp_eqm_single_phase(t_max, p_sat);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
 
-    if h > upper_bound_enthalpy {
+    if h > conservative_upper_bound_enthalpy {
         panic!("enthalpy too high for hs flash");
     };
 
@@ -575,6 +578,11 @@ fn hs_region_high_entropy_region_2a_only(
         dbg!(&(h,lower_bound_enthalpy));
         panic!("enthalpy too low for hs flash");
     };
+
+    // now still need to check if temperature is 
+    // too high
+    additional_temperature_check_for_1073_15_k_isotherm(h, s);
+
 
     let h2ab_double_prime_boundary = h2ab_double_prime_s_boundary_enthalpy(s);
 
@@ -585,6 +593,54 @@ fn hs_region_high_entropy_region_2a_only(
     };
 
 
+
+}
+
+
+fn additional_temperature_check_for_1073_15_k_isotherm(
+    h: AvailableEnergy, s: SpecificHeatCapacity,){
+
+    let t_bound = ThermodynamicTemperature::new::<kelvin>(1073.15);
+    let low_bound_entropy_pressure = 
+        Pressure::new::<megapascal>(100.0 - 1.0e-3);
+    let mid_bound_entropy_pressure = 
+        Pressure::new::<megapascal>(4.0);
+    let high_bound_entropy_pressure = 
+        sat_pressure_4(ThermodynamicTemperature::new::<kelvin>(273.15));
+    let low_bound_entropy = 
+        s_tp_eqm_single_phase(t_bound, low_bound_entropy_pressure);
+    let mid_bound_entropy = 
+        s_tp_eqm_single_phase(t_bound, mid_bound_entropy_pressure);
+    let high_bound_entropy = 
+        s_tp_eqm_single_phase(t_bound, high_bound_entropy_pressure);
+
+    if s < low_bound_entropy {
+        panic!("entropy too low for 1073.15K isotherm additional check");
+    };
+    if s > high_bound_entropy {
+        panic!("entropy too high for 1073.15K isotherm additional check");
+    };
+
+    if s < mid_bound_entropy {
+        let p = p_hs_2b(h, s);
+        let t = t_ph_eqm(p, h);
+        
+        if t > t_bound {
+            dbg!(&(t,t_bound));
+            dbg!(&(h,s));
+            panic!("temperature too high for (h,s) point (2b regime)");
+        };
+    } else {
+        let p = p_hs_2a(h, s);
+        let t = t_ph_eqm(p, h);
+        
+        if t > t_bound {
+            dbg!(&(t,t_bound));
+            dbg!(&(h,s));
+            panic!("temperature too high for (h,s) point (2a regime)");
+        };
+
+    };
 
 }
 
