@@ -188,7 +188,7 @@ fn hs_region_low_entropy_region_1_and_4(
     // should be subtracted from the enthalpy to ensure that it is correctly 
     // assigned to single phase region (region 1)
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -214,7 +214,7 @@ fn hs_region_low_entropy_region_1_and_4(
 fn hs_region_low_entropy_region_1_3a_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -260,7 +260,7 @@ fn hs_region_low_entropy_region_1_3a_and_4(
 fn hs_region_near_crit_entropy_region_3a_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -287,7 +287,7 @@ fn hs_region_crit_entropy_region_3a_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -312,7 +312,7 @@ fn hs_region_crit_entropy_region_3a_and_4(
 fn hs_region_near_crit_entropy_region_3b_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -355,7 +355,7 @@ fn hs_region_near_crit_entropy_region_3b_and_4(
 fn hs_region_near_crit_entropy_region_2c_3b_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -432,7 +432,7 @@ fn hs_region_near_crit_entropy_region_2c_3b_and_4(
 fn hs_region_high_entropy_region_2c_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -471,7 +471,7 @@ fn hs_region_high_entropy_region_2c_and_4(
 fn hs_region_high_entropy_region_2b_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -496,7 +496,7 @@ fn hs_region_high_entropy_region_2b_and_4(
 fn hs_region_high_entropy_region_2b_2a_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -531,7 +531,7 @@ fn hs_region_high_entropy_region_2b_2a_and_4(
 fn hs_region_high_entropy_region_2a_only(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -560,3 +560,6 @@ fn hs_region_high_entropy_region_2a_only(
 /// (h,s) flashes along the isotherms 273.15K are not implemented 
 /// for simplicity to avoid iterations
 pub mod validity_range;
+
+#[cfg(test)]
+mod region_split_tests;

@@ -60,9 +60,9 @@ pub(crate) fn is_above_isotherm_t_1073_15(p: Pressure,s: SpecificHeatCapacity) -
 
     let upper_temp_bound = ThermodynamicTemperature::new::<kelvin>(1073.15);
 
-    let upper_bound_enthalpy = s_tp_eqm_single_phase(upper_temp_bound, p);
+    let upper_bound_entropy = s_tp_eqm_single_phase(upper_temp_bound, p);
 
-    if s > upper_bound_enthalpy {
+    if s > upper_bound_entropy {
         return true;
     };
 
