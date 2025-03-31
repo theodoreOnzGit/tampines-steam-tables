@@ -1,6 +1,7 @@
 use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
 
-use super::{hs_flash_region, BackwdEqnSubRegion};
+use crate::interfaces::functional_programming::hs_flash_eqm::{hs_flash_region, BackwdEqnSubRegion};
+
 
 #[test]
 fn region1_test_1(){
@@ -124,3 +125,4 @@ fn region4_test_7(){
     assert_eq!(correct_region, test_region);
     
 }
+

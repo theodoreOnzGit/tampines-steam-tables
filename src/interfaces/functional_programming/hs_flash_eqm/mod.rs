@@ -593,5 +593,3 @@ fn hs_region_high_entropy_region_2a_only(
 /// for simplicity to avoid iterations
 pub mod validity_range;
 
-#[cfg(test)]
-mod region_split_tests;

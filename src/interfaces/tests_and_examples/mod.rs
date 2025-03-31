@@ -3,6 +3,9 @@
 /// of ph flash regions
 pub mod ph_flash_regions;
 
+/// these are tests to check the functionality 
+/// of hs flash regions
+pub mod hs_flash_regions;
 
 /// aims to reproduce steam tables using ph flash
 pub mod ph_flash_steam_table;
