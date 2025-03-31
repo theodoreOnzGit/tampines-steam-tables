@@ -28,6 +28,10 @@ the steam tables in tampines are used to solve two phase flow in transient
 scenarios. Since OpenFOAM is licensed under 
 GNU GPLv3, tampines-steam-tables will also be licensed under GNU GPL v3.
 
+Note that for points near boundaries, correction factors have not been 
+applied for (p,h) and (p,s) flashes. (h,s) flashes have only been 
+partly implemented. 
+
 v0.1.0 
 
 Added dielectric constant and surface tension functions.

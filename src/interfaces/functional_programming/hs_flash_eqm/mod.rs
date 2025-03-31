@@ -3,7 +3,7 @@ use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapa
 use validity_range::s_crit;
 
 
-use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::h2c3b_prime_s_boundary_enthalpy}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::p_hs_2c, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3};
+use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::{h2ab_double_prime_s_boundary_enthalpy, h2c3b_prime_s_boundary_enthalpy}}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::{h_2a2b, p_hs_2c}, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3};
 
 use super::pt_flash_eqm::FwdEqnRegion;
 
@@ -145,22 +145,22 @@ pub fn hs_flash_region(h: AvailableEnergy, s: SpecificHeatCapacity) -> BackwdEqn
     };
 
     // based on fig 2.19
-    let s_where_2b_starts = 
+    let s_where_pure_2b_ends = 
         SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
             6.070
         );
 
-    if s < s_where_2b_starts {
+    if s < s_where_pure_2b_ends {
         hs_region_high_entropy_region_2b_and_4(h, s);
     };
 
     // based on fig 2.19
-    let s_where_2a_starts = 
+    let s_where_pure_2a_starts = 
         SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
             7.852
         );
 
-    if s <= s_where_2a_starts {
+    if s <= s_where_pure_2a_starts {
         hs_region_high_entropy_region_2b_2a_and_4(h, s);
     };
 
@@ -324,9 +324,23 @@ fn hs_region_near_crit_entropy_region_3b_and_4(
     if h < lower_bound_enthalpy {
         panic!("enthalpy too low for hs flash");
     };
+    // on page 84 for critical entropy all the way up to 
+    // bound of region 2c, we correct with 0.0073 kJ/(kg )
+    //
+    // but if from scrit to below s''(623.15)K, that is 
+    //
+    // 4.412 kJ/(kg K) to 5.211 kJ/(kg K) 
+    // then correct to 0.0073
+    //
+    // otherwise  from 5.211 kJ/(kg K) to 5.85 kJ/(kg K)
+    // correct to 0.0058
+    //
+    // for this region 3b and 4, we don't have to worry about discrepancy 
+    // in this correction factor yet, just apply 0.0073 kJ/(kg)
+    //
 
     // on page 84 for critical entropy all the way up to 
-    // bound of region 2c, we correct with 0.0073 kJ/(kg K)
+    // bound of region 2c, we correct with 0.0073 kJ/(kg )
     let h2c3b_boundary = h2c3b_prime_s_boundary_enthalpy(s) - 
         AvailableEnergy::new::<kilojoule_per_kilogram>(0.0073);
 
@@ -355,9 +369,30 @@ fn hs_region_near_crit_entropy_region_2c_3b_and_4(
     };
 
     // on page 84 for critical entropy all the way up to 
-    // bound of region 2c, we correct with 0.0073 kJ/(kg K)
-    let h2c3b_boundary = h2c3b_prime_s_boundary_enthalpy(s) - 
-        AvailableEnergy::new::<kilojoule_per_kilogram>(0.0073);
+    // bound of region 2c, we correct with 0.0073 kJ/(kg)
+    //
+    // but if from scrit to below s''(623.15)K, that is 
+    //
+    // 4.412 kJ/(kg K) to 5.211 kJ/(kg K) 
+    // then correct to 0.0073 kJ/kg
+    //
+    // otherwise  from 5.211 kJ/(kg K) to 5.85 kJ/(kg K)
+    // correct to 0.0058 kJ/kg
+    //
+
+    let correction_factor: AvailableEnergy;
+
+    let correction_factor_threshold_entropy = 
+        SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.211);
+    if s < correction_factor_threshold_entropy {
+        correction_factor = AvailableEnergy::new::<kilojoule_per_kilogram>(0.0073);
+    } else {
+        correction_factor = AvailableEnergy::new::<kilojoule_per_kilogram>(0.0058);
+    };
+
+    let h2c3b_boundary = 
+        h2c3b_prime_s_boundary_enthalpy(s) - 
+        correction_factor;
 
     if h < h2c3b_boundary {
         return BackwdEqnSubRegion::Region4;
@@ -397,25 +432,127 @@ fn hs_region_near_crit_entropy_region_2c_3b_and_4(
 fn hs_region_high_entropy_region_2c_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    todo!();
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
+    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
+
+    if h > upper_bound_enthalpy {
+        panic!("enthalpy too high for hs flash");
+    };
+
+    if h < lower_bound_enthalpy {
+        panic!("enthalpy too low for hs flash");
+    };
+
+    // on page 84 for critical entropy all the way up to 
+    // bound of region 2c, we correct with 0.0073 kJ/(kg K)
+    //
+    // but if from scrit to below s''(623.15)K, that is 
+    //
+    // 4.412 kJ/(kg K) to 5.211 kJ/(kg K) 
+    // then correct to 0.0073
+    //
+    // otherwise  from 5.211 kJ/(kg K) to 5.85 kJ/(kg K)
+    // correct to 0.0058
+    //
+    // here, we don't have to worry about this bound, just correct 
+    // using 0.0058 kJ/kg
+    let h2c3b_boundary = h2c3b_prime_s_boundary_enthalpy(s) - 
+        AvailableEnergy::new::<kilojoule_per_kilogram>(0.0058);
+
+    if h < h2c3b_boundary {
+        return BackwdEqnSubRegion::Region4;
+    } else {
+        return BackwdEqnSubRegion::Region2c;
+    };
 
 }
 fn hs_region_high_entropy_region_2b_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    todo!();
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
+    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
+
+    if h > upper_bound_enthalpy {
+        panic!("enthalpy too high for hs flash");
+    };
+
+    if h < lower_bound_enthalpy {
+        panic!("enthalpy too low for hs flash");
+    };
+
+    let h2ab_double_prime_boundary = h2ab_double_prime_s_boundary_enthalpy(s);
+
+    if h > h2ab_double_prime_boundary {
+        return BackwdEqnSubRegion::Region2b;
+    } else {
+        return BackwdEqnSubRegion::Region4;
+    };
 
 }
 fn hs_region_high_entropy_region_2b_2a_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    todo!();
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
+    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
+
+    if h > upper_bound_enthalpy {
+        panic!("enthalpy too high for hs flash");
+    };
+
+    if h < lower_bound_enthalpy {
+        panic!("enthalpy too low for hs flash");
+    };
+
+    let h2ab_double_prime_boundary = h2ab_double_prime_s_boundary_enthalpy(s);
+
+    if h <= h2ab_double_prime_boundary {
+        return BackwdEqnSubRegion::Region4;
+    }
+
+    let h2ab_boundary = h_2a2b(s);
+
+    // boundary 2ab belongs to subregion 2a 
+    // see page 91
+
+    if h <= h2ab_boundary {
+        return BackwdEqnSubRegion::Region2a;
+    } else {
+        return BackwdEqnSubRegion::Region2b;
+    };
+
 
 }
 fn hs_region_high_entropy_region_2a_only(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    todo!();
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0);
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677);
+    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
+
+    if h > upper_bound_enthalpy {
+        panic!("enthalpy too high for hs flash");
+    };
+
+    if h < lower_bound_enthalpy {
+        panic!("enthalpy too low for hs flash");
+    };
+
+    let h2ab_double_prime_boundary = h2ab_double_prime_s_boundary_enthalpy(s);
+
+    if h <= h2ab_double_prime_boundary {
+        return BackwdEqnSubRegion::Region4;
+    } else {
+        return BackwdEqnSubRegion::Region2a;
+    };
+
+
 
 }
 

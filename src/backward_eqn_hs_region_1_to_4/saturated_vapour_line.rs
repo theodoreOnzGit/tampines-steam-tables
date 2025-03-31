@@ -4,7 +4,7 @@ use uom::si::f64::*;
 use uom::si::available_energy::kilojoule_per_kilogram;
 
 /// this is for eq 2.40 on page 80
-const H2AB_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 30] = [
+const H2AB_DOUBLE_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 30] = [
     [1.0, 8.0, -0.524_581_170_928_788e3],
     [1.0, 24.0, -0.926_947_218_142_218e7],
     [2.0, 4.0, -0.237_385_107_491_666e3],
@@ -59,7 +59,7 @@ const H2C3B_PRIME_S_BOUNDARY_EQN_COEFFS: [[f64; 3]; 16] = [
 
 /// this function represents the saturated liquid line
 /// for hs flashing between region 2a and 2b
-pub fn h2ab_prime_s_boundary_enthalpy(
+pub fn h2ab_double_prime_s_boundary_enthalpy(
     s: SpecificHeatCapacity) -> AvailableEnergy {
 
     let s_ref_1 = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.21);
@@ -70,7 +70,7 @@ pub fn h2ab_prime_s_boundary_enthalpy(
 
     let mut eta: f64 = 0.0;
 
-    for coeffs in H2AB_PRIME_S_BOUNDARY_EQN_COEFFS {
+    for coeffs in H2AB_DOUBLE_PRIME_S_BOUNDARY_EQN_COEFFS {
         let ii = coeffs[0];
         let ji = coeffs[1];
         let ni = coeffs[2];
