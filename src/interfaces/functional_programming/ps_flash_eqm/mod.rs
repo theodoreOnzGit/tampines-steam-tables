@@ -343,6 +343,7 @@ pub fn u_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> AvailableEnergy {
 }
 /// returns the specific enthalpy given entropy and pressure
 pub fn h_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> AvailableEnergy {
+    dbg!(&(p,s));
     let t = t_ps_eqm(p, s);
     let region = ps_flash_region(p, s);
 

@@ -140,12 +140,15 @@ pub fn hs_flash_region(h: AvailableEnergy, s: SpecificHeatCapacity) -> BackwdEqn
         SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
             5.85
         );
+    
 
     if s <= s_2bc {
         return hs_region_high_entropy_region_2c_and_4(h, s);
     };
 
     // based on fig 2.19
+    //
+    // also, need to consider 1073.15 K isotherma when s > 6.040 kJ/(kg K)
     let s_where_pure_2b_ends = 
         SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
             6.070
@@ -498,7 +501,7 @@ fn hs_region_high_entropy_region_2b_and_4(
 fn hs_region_high_entropy_region_2b_2a_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-1);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
@@ -533,7 +536,7 @@ fn hs_region_high_entropy_region_2b_2a_and_4(
 fn hs_region_high_entropy_region_2a_only(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1e-4);
+    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1e-1);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
