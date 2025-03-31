@@ -1,11 +1,11 @@
 
-use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, specific_heat_capacity::kilojoule_per_kilogram_kelvin};
+use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
 use validity_range::s_crit;
 
 
-use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::{h2ab_double_prime_s_boundary_enthalpy, h2c3b_prime_s_boundary_enthalpy}}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::{h_2a2b, p_hs_2c}, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3};
+use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::{h2ab_double_prime_s_boundary_enthalpy, h2c3b_prime_s_boundary_enthalpy}}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::{h_2a2b, p_hs_2c}, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3, region_4_vap_liq_equilibrium::sat_pressure_4};
 
-use super::pt_flash_eqm::FwdEqnRegion;
+use super::pt_flash_eqm::{h_tp_eqm_single_phase, FwdEqnRegion};
 
 #[derive(Debug,PartialEq, Eq, PartialOrd, Ord)]
 /// an enum to help represent the appropriate 
@@ -476,17 +476,37 @@ fn hs_region_high_entropy_region_2c_and_4(
 fn hs_region_high_entropy_region_2b_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
-    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
-    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
-    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
 
-    if h > upper_bound_enthalpy {
-        panic!("enthalpy too high for hs flash");
-    };
+    let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+    let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
 
     if h < lower_bound_enthalpy {
         panic!("enthalpy too low for hs flash");
+    };
+
+    if s < SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(6.040) {
+        // upper bound enthalpy checking depends on pressure only 
+        // when s < 6.040 kJ/(kg K)
+        let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
+        let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+
+        if h > upper_bound_enthalpy {
+            panic!("enthalpy too high for hs flash");
+        };
+
+    } else {
+        // otherwise, the upper bound enthalpy is determined by the 
+        // temperature isotherm
+        let p_sat = sat_pressure_4(ThermodynamicTemperature::new::<kelvin>(273.15));
+        let t_max = ThermodynamicTemperature::new::<kelvin>(1073.15);
+        let upper_bound_enthalpy = h_tp_eqm_single_phase(t_max, p_sat);
+        if h > upper_bound_enthalpy {
+
+            dbg!(&(h,upper_bound_enthalpy));
+            panic!("enthalpy too high for hs flash");
+        };
+
+
     };
 
     let h2ab_double_prime_boundary = h2ab_double_prime_s_boundary_enthalpy(s);
@@ -501,9 +521,12 @@ fn hs_region_high_entropy_region_2b_and_4(
 fn hs_region_high_entropy_region_2b_2a_and_4(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-1);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
-    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    // the upper bound enthalpy is determined by the 
+    // temperature isotherm
+    let p_sat = sat_pressure_4(ThermodynamicTemperature::new::<kelvin>(273.15));
+    let t_max = ThermodynamicTemperature::new::<kelvin>(1073.15);
+    let upper_bound_enthalpy = h_tp_eqm_single_phase(t_max, p_sat);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
 
     if h > upper_bound_enthalpy {
@@ -536,9 +559,12 @@ fn hs_region_high_entropy_region_2b_2a_and_4(
 fn hs_region_high_entropy_region_2a_only(
     h: AvailableEnergy, s: SpecificHeatCapacity,) -> BackwdEqnSubRegion {
 
-    let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1e-1);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
-    let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
+    // the upper bound enthalpy is determined by the 
+    // temperature isotherm
+    let p_sat = sat_pressure_4(ThermodynamicTemperature::new::<kelvin>(273.15));
+    let t_max = ThermodynamicTemperature::new::<kelvin>(1073.15);
+    let upper_bound_enthalpy = h_tp_eqm_single_phase(t_max, p_sat);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
 
     if h > upper_bound_enthalpy {
@@ -546,6 +572,7 @@ fn hs_region_high_entropy_region_2a_only(
     };
 
     if h < lower_bound_enthalpy {
+        dbg!(&(h,lower_bound_enthalpy));
         panic!("enthalpy too low for hs flash");
     };
 

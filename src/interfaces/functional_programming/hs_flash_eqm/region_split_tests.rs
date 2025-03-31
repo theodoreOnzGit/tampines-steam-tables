@@ -115,7 +115,7 @@ fn region4_test_6(){
 // near pure 2a region
 #[test]
 fn region4_test_7(){
-    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2287.5);
     let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(8.0);
 
     let correct_region = BackwdEqnSubRegion::Region4;
