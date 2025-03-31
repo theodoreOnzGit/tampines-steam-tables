@@ -70,7 +70,7 @@ fn region4_test_3(){
 }
 
 
-// near critical entropy
+// near region 3b 2c boundary
 #[test]
 fn region4_test_4(){
     let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
@@ -84,7 +84,7 @@ fn region4_test_4(){
 }
 
 
-// near critical entropy
+// near 2c 2b boundary
 #[test]
 fn region4_test_5(){
     let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
@@ -98,9 +98,23 @@ fn region4_test_5(){
 }
 
 
-// near critical entropy
+// near 2b and 2a boundary
 #[test]
 fn region4_test_6(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(7.0);
+
+    let correct_region = BackwdEqnSubRegion::Region4;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near pure 2a region
+#[test]
+fn region4_test_7(){
     let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
     let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(8.0);
 
