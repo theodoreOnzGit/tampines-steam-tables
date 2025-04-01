@@ -32,6 +32,13 @@ Note that for points near boundaries, correction factors have not been
 applied for (p,h) and (p,s) flashes. (h,s) flashes have only been 
 partly implemented. 
 
+Near critical point for (h,s) flashing backward eqns, 
+the temperature, volume and all may be less 
+accurate for backward equations, temperatures may be off 
+by as much as 5 degrees c, and volumes may differ by 10%
+enthalpy of vapourisation may differ by up to 5% compared 
+to steam table data compared to steam table data.
+
 v0.1.0 
 
 Added dielectric constant and surface tension functions.
