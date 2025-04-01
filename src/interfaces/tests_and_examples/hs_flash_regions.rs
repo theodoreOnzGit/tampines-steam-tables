@@ -126,3 +126,189 @@ fn region4_test_7(){
     
 }
 
+// near critical point, 3a
+#[test]
+fn region3a_test_1(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2087.5);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(4.4);
+
+    let correct_region = BackwdEqnSubRegion::Region3a;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 3a and 1 boundary
+#[test]
+fn region3a_test_2(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(1700.9);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(3.778);
+
+    let correct_region = BackwdEqnSubRegion::Region3a;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near crit pt
+#[test]
+fn region3b_test_1(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2300.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(4.5);
+
+    let correct_region = BackwdEqnSubRegion::Region3b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+#[test]
+fn region3b_test_2(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2563.6);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.210);
+
+    let correct_region = BackwdEqnSubRegion::Region3b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+#[test]
+fn region3b_test_3(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2563.6);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.048);
+
+    let correct_region = BackwdEqnSubRegion::Region3b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+// grey box top left
+#[test]
+fn region3b_test_4(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2750.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.07);
+
+    let correct_region = BackwdEqnSubRegion::Region3b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+// grey box bottom left
+#[test]
+fn region3b_test_5(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2600.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.10);
+
+    let correct_region = BackwdEqnSubRegion::Region3b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+// grey box top right
+#[test]
+fn region2c_test_1(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2700.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.10);
+
+    let correct_region = BackwdEqnSubRegion::Region2c;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+// grey box top right
+#[test]
+fn region2c_test_2(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2700.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.20);
+
+    let correct_region = BackwdEqnSubRegion::Region2c;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+// grey box bottom right
+#[test]
+fn region2c_test_3(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2600.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.26);
+
+    let correct_region = BackwdEqnSubRegion::Region2c;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+// grey box top left bound
+#[test]
+fn region2c_test_4(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2812.9);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.261);
+
+    let correct_region = BackwdEqnSubRegion::Region2c;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 3b boundary 
+#[test]
+fn region2c_test_5(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(2812.9);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.3);
+
+    let correct_region = BackwdEqnSubRegion::Region2c;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near 2c 2b boundary 
+#[test]
+fn region2b_test_1(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(3000.0);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(5.86);
+
+    let correct_region = BackwdEqnSubRegion::Region2b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
