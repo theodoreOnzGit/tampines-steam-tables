@@ -256,7 +256,10 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
                 return (sat_temp, sat_pressure, specific_volume, quality.into());
             } else {
 
-                // if in regime above 623.15 K, we need another procedure...
+                // if in regime above 623.15 K, 
+                // or below the threshold entropy 
+                // we need another procedure...
+                // may include iteration...
                 // to determine temperature
                 // page 103 
                 let sat_pressure = sat_pressure_4(sat_temp);
