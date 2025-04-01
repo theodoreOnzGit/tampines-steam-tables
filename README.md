@@ -38,6 +38,8 @@ accurate for backward equations, temperatures may be off
 by as much as 5 degrees c, and volumes may differ by 10%
 enthalpy of vapourisation may differ by up to 5% compared 
 to steam table data compared to steam table data... so beware...
+Though in the first place, the sat temperature equations were 
+never meant for this critical region..
 
 v0.1.0 
 

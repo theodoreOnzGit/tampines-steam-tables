@@ -158,7 +158,7 @@ fn assert_hs_flash(t_deg_c: f64,
     approx::assert_relative_eq!(
         v_ref_m3_per_kg,
         v.get::<cubic_meter_per_kilogram>(),
-        max_relative=1e-2
+        max_relative=5e-3
         );
 
 
@@ -276,7 +276,7 @@ fn assert_hs_flash_near_crit(t_deg_c: f64,
     approx::assert_relative_eq!(
         v_ref_m3_per_kg,
         v.get::<cubic_meter_per_kilogram>(),
-        max_relative=1e-1
+        max_relative=9.5e-2
         );
 
 

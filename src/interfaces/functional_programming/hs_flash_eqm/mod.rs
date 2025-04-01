@@ -8,7 +8,16 @@ use uom::si::available_energy::kilojoule_per_kilogram;
 use validity_range::s_crit;
 
 
-use crate::{interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_1_subcooled_liquid::{p_hs_1, t_ph_1}, region_2_vapour::{h_2a2b, p_hs_2a, p_hs_2b, p_hs_2c, t_ph_2}, region_3_single_phase_plus_supercritical_steam::{p_boundary_2_3, p_hs_3a, p_hs_3b, t_ph_3a, t_ph_3b, v_ps_flash::{v_ps_3a, v_ps_3b}}, region_4_vap_liq_equilibrium::{sat_pressure_4, tsat_hs_4}};
+use crate::region_1_subcooled_liquid::{p_hs_1, t_ph_1};
+use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, tsat_hs_4};
+use crate::region_3_single_phase_plus_supercritical_steam::v_ps_flash::v_ps_3b;
+use crate::region_3_single_phase_plus_supercritical_steam::v_ps_flash::v_ps_3a;
+use crate::region_3_single_phase_plus_supercritical_steam::t_ph_3;
+use crate::region_3_single_phase_plus_supercritical_steam::p_hs_3b;
+use crate::region_3_single_phase_plus_supercritical_steam::p_hs_3a;
+use crate::region_3_single_phase_plus_supercritical_steam::p_boundary_2_3;
+use crate::region_2_vapour::{h_2a2b, p_hs_2a, p_hs_2b, p_hs_2c, t_ph_2};
+use crate::interfaces::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::interfaces::functional_programming::ph_flash_eqm::x_ph_flash;
 use crate::backward_eqn_hs_region_1_to_4::saturated_vapour_line::h2c3b_prime_s_boundary_enthalpy;
 use crate::backward_eqn_hs_region_1_to_4::saturated_vapour_line::h2ab_double_prime_s_boundary_enthalpy;
@@ -17,7 +26,7 @@ use crate::backward_eqn_hs_region_1_to_4::saturated_liquid_line::h1_prime_s_boun
 use crate::backward_eqn_hs_region_1_to_4::region_2_and_3::tb23_s_boundary_enthalpy;
 use crate::backward_eqn_hs_region_1_to_4::region_1_and_3::hb13_s_boundary_enthalpy;
 
-use super::ph_flash_eqm::{t_ph_eqm, v_ph_eqm};
+use super::ph_flash_eqm::t_ph_eqm;
 use super::pt_flash_eqm::FwdEqnRegion;
 use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
@@ -190,7 +199,7 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
             // page 97 onwards of Kretzchmar textbook
             let pressure =  p_hs_3a(h, s); 
             // page 100 onwards of Kretzchmar textbook
-            let temperature = t_ph_3a(pressure, h);
+            let temperature = t_ph_3(pressure, h);
             // then specific volume  page 99 of Kretzchmar textbook
             let specific_volume = v_ps_3a(pressure, s);
 
@@ -202,7 +211,7 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
             // page 97 onwards of Kretzchmar textbook
             let pressure =  p_hs_3b(h, s); 
             // page 100 onwards of Kretzchmar textbook
-            let temperature = t_ph_3b(pressure, h);
+            let temperature = t_ph_3(pressure, h);
             // then specific volume  page 99 of Kretzchmar textbook
             let specific_volume = v_ps_3b(pressure, s);
             // quality now 
@@ -211,24 +220,49 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
         },
         BackwdEqnSubRegion::Region4 => {
             // page 101
-            let sat_temp = tsat_hs_4(h, s);
+            // note, this only works for temperatures below 623.15 K
+            // not for temperatures near critical point.
+            let mut sat_temp = tsat_hs_4(h, s);
 
-            // page 103 
-            let sat_pressure = sat_pressure_4(sat_temp);
+            if sat_temp <= ThermodynamicTemperature::new::<kelvin>(623.15) {
 
-            // now, we are using the enthalpy, temperature and 
-            // pressure to find quality using 
-            // x= (h - h_liq)/(h_vap-h_liq)
-            // this is the same algorithm I used in the x_ph_flash 
-            // calculation
-            let quality = x_ph_flash(sat_pressure, h);
-            // quality is then used to calculate specific volume...
-            // however, it is double calculation here...
-            // for x_ph,
-            // I'm not overly concerned about computational cost now 
-            // but it is an inefficiency
-            let specific_volume = v_ph_eqm(sat_pressure, h);
-            return (sat_temp, sat_pressure, specific_volume, quality.into());
+                // page 103 
+                let sat_pressure = sat_pressure_4(sat_temp);
+
+                // now, we are using the enthalpy, temperature and 
+                // pressure to find quality using 
+                // x= (h - h_liq)/(h_vap-h_liq)
+                // this is the same algorithm I used in the x_ph_flash 
+                // calculation
+                let quality = x_ph_flash(sat_pressure, h);
+                // quality is then used to calculate specific volume...
+                // however, it is double calculation here...
+                // for x_ph,
+                // I'm not overly concerned about computational cost now 
+                // but it is an inefficiency
+                let specific_volume = v_ps_eqm(sat_pressure, s);
+                return (sat_temp, sat_pressure, specific_volume, quality.into());
+            } else {
+
+                // if in regime above 623.15 K, we need another procedure...
+                // to determine temperature
+                // page 103 
+                let sat_pressure = sat_pressure_4(sat_temp);
+
+                // now, we are using the enthalpy, temperature and 
+                // pressure to find quality using 
+                // x= (h - h_liq)/(h_vap-h_liq)
+                // this is the same algorithm I used in the x_ph_flash 
+                // calculation
+                let quality = x_ph_flash(sat_pressure, h);
+                // quality is then used to calculate specific volume...
+                // however, it is double calculation here...
+                // for x_ph,
+                // I'm not overly concerned about computational cost now 
+                // but it is an inefficiency
+                let specific_volume = v_ps_eqm(sat_pressure, s);
+                return (sat_temp, sat_pressure, specific_volume, quality.into());
+            };
         },
         BackwdEqnSubRegion::Region5 => {
             unimplemented!("Region 5 does not have (h,s) flashing");
