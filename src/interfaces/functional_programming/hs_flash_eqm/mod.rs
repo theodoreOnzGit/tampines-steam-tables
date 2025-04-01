@@ -1,5 +1,5 @@
 
-use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
+use uom::si::{available_energy::kilojoule_per_kilogram, f32::Pressure, f64::*, pressure::megapascal, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
 use validity_range::s_crit;
 
 
@@ -69,11 +69,50 @@ impl Into<FwdEqnRegion> for BackwdEqnSubRegion {
     }
 }
 
+/// returns temperature given
+/// enthalpy and entropy point
+///
+///
+pub fn t_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> ThermodynamicTemperature {
+    let (t,_p,_v,_x) = tpvx_hs_flash_eqm(h, s);
+
+    return t;
+}
+/// returns pressure given
+/// enthalpy and entropy point
+///
+///
+pub fn p_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> Pressure {
+    let (_t,p,_v,_x) = tpvx_hs_flash_eqm(h, s);
+
+    return p;
+}
+/// returns specific volume given
+/// enthalpy and entropy point
+///
+///
+pub fn v_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> SpecificVolume {
+    let (_t,_p,v,_x) = tpvx_hs_flash_eqm(h, s);
+
+    return v;
+}
+/// returns quality given
+/// enthalpy and entropy point
+///
+///
+pub fn x_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> Ratio {
+    let (_t,_p,_v,x) = tpvx_hs_flash_eqm(h, s);
+
+    return x;
+}
+
+
 /// returns temperature, pressure, specific volume and quality given 
 /// enthalpy and entropy point
 ///
 /// I'm doing this combined function to prevent double calculation
 ///
+#[inline]
 pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
     s: SpecificHeatCapacity,) -> 
 (ThermodynamicTemperature, Pressure, SpecificVolume, Ratio) {
