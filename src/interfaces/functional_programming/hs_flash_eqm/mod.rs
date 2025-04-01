@@ -27,7 +27,7 @@ use crate::backward_eqn_hs_region_1_to_4::region_2_and_3::tb23_s_boundary_enthal
 use crate::backward_eqn_hs_region_1_to_4::region_1_and_3::hb13_s_boundary_enthalpy;
 
 use super::ph_flash_eqm::t_ph_eqm;
-use super::pt_flash_eqm::FwdEqnRegion;
+use super::pt_flash_eqm::{s_tp_eqm_two_phase, FwdEqnRegion};
 use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
 use super::ps_flash_eqm::v_ps_eqm;
@@ -222,9 +222,21 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
             // page 101
             // note, this only works for temperatures below 623.15 K
             // not for temperatures near critical point.
+                
+            let max_sat_temp_for_backward = 
+                ThermodynamicTemperature::new::<kelvin>(623.15);
+            let sat_pressure_for_backward = 
+                sat_pressure_4(max_sat_temp_for_backward);
+
+            let steam_quality_bound = 1.0;
+            let min_entropy_for_backward_eqn = 
+                s_tp_eqm_two_phase(max_sat_temp_for_backward, 
+                    sat_pressure_for_backward, steam_quality_bound);
+
+
             let mut sat_temp = tsat_hs_4(h, s);
 
-            if sat_temp <= ThermodynamicTemperature::new::<kelvin>(623.15) {
+            if s >= min_entropy_for_backward_eqn {
 
                 // page 103 
                 let sat_pressure = sat_pressure_4(sat_temp);
