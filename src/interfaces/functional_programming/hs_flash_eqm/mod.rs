@@ -1,11 +1,11 @@
 
-use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
+use uom::si::{available_energy::kilojoule_per_kilogram, f64::*, pressure::megapascal, ratio::ratio, specific_heat_capacity::kilojoule_per_kilogram_kelvin, thermodynamic_temperature::kelvin};
 use validity_range::s_crit;
 
 
-use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::{h2ab_double_prime_s_boundary_enthalpy, h2c3b_prime_s_boundary_enthalpy}}, interfaces::functional_programming::ps_flash_eqm::h_ps_eqm, region_2_vapour::{h_2a2b, p_hs_2a, p_hs_2b, p_hs_2c}, region_3_single_phase_plus_supercritical_steam::p_boundary_2_3, region_4_vap_liq_equilibrium::sat_pressure_4};
+use crate::{backward_eqn_hs_region_1_to_4::{region_1_and_3::hb13_s_boundary_enthalpy, region_2_and_3::tb23_s_boundary_enthalpy, saturated_liquid_line::{h1_prime_s_boundary_enthalpy, h3a_prime_s_boundary_enthalpy}, saturated_vapour_line::{h2ab_double_prime_s_boundary_enthalpy, h2c3b_prime_s_boundary_enthalpy}}, interfaces::functional_programming::{ph_flash_eqm::x_ph_flash, ps_flash_eqm::h_ps_eqm}, region_1_subcooled_liquid::{h_tp_1, p_hs_1, t_ph_1, v_tp_1}, region_2_vapour::{h_2a2b, h_tp_2, p_hs_2a, p_hs_2b, p_hs_2c, t_ph_2, t_ph_2a, v_tp_2}, region_3_single_phase_plus_supercritical_steam::{p_boundary_2_3, p_hs_3a, p_hs_3b, t_ph_3a, t_ph_3b, v_ph_3a, v_ps_flash::{v_ps_3a, v_ps_3b}}, region_4_vap_liq_equilibrium::{sat_pressure_4, tsat_hs_4}};
 
-use super::{ph_flash_eqm::t_ph_eqm, pt_flash_eqm::{h_tp_eqm_single_phase, s_tp_eqm_single_phase, FwdEqnRegion}};
+use super::{ph_flash_eqm::{t_ph_eqm, v_ph_eqm}, ps_flash_eqm::v_ps_eqm, pt_flash_eqm::{h_tp_eqm_single_phase, s_tp_eqm_single_phase, FwdEqnRegion}};
 
 #[derive(Debug,PartialEq, Eq, PartialOrd, Ord)]
 /// an enum to help represent the appropriate 
@@ -67,6 +67,117 @@ impl Into<FwdEqnRegion> for BackwdEqnSubRegion {
             BackwdEqnSubRegion::Region5 => FwdEqnRegion::Region5,
         }
     }
+}
+
+/// returns temperature, pressure, specific volume and quality given 
+/// enthalpy and entropy point
+///
+/// I'm doing this combined function to prevent double calculation
+///
+pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
+    s: SpecificHeatCapacity,) -> 
+(ThermodynamicTemperature, Pressure, SpecificVolume, Ratio) {
+    let region = hs_flash_region(h, s);
+
+    match region {
+        BackwdEqnSubRegion::Region1 => {
+            // page 87 of Kretzchmar textbook
+            let pressure =  p_hs_1(h, s); 
+            let temperature = t_ph_1(pressure, h);
+            // in region 1, we are necessarily liquid,
+            // quality is zero
+            let quality = Ratio::new::<ratio>(0.0);
+
+            let specific_volume = v_ps_eqm(pressure, s);
+
+            return (temperature, pressure, specific_volume, quality);
+        },
+        BackwdEqnSubRegion::Region2a => {
+            // page 92 to 94 of Kretzchmar textbook
+            let pressure =  p_hs_2a(h, s); 
+            // 
+            let temperature = t_ph_2(pressure, h);
+            // in region 2, we are necessarily vapour/gas
+            // quality is 1
+            let quality = Ratio::new::<ratio>(1.0);
+            let specific_volume = v_ps_eqm(pressure, s);
+
+            return (temperature, pressure, specific_volume, quality);
+        },
+        BackwdEqnSubRegion::Region2b => {
+            // page 92 to 94 of Kretzchmar textbook
+            let pressure =  p_hs_2b(h, s); 
+            // 
+            let temperature = t_ph_2(pressure, h);
+            // in region 2, we are necessarily vapour/gas
+            // quality is 1
+            let quality = Ratio::new::<ratio>(1.0);
+            let specific_volume = v_ps_eqm(pressure, s);
+
+            return (temperature, pressure, specific_volume, quality);
+        },
+        BackwdEqnSubRegion::Region2c => {
+            // page 92 to 94 of Kretzchmar textbook
+            let pressure =  p_hs_2c(h, s); 
+            // 
+            let temperature = t_ph_2(pressure, h);
+            // in region 2, we are necessarily vapour/gas
+            // quality is 1
+            let quality = Ratio::new::<ratio>(1.0);
+            let specific_volume = v_ps_eqm(pressure, s);
+
+            return (temperature, pressure, specific_volume, quality);
+        },
+        BackwdEqnSubRegion::Region3a => {
+
+            // page 97 onwards of Kretzchmar textbook
+            let pressure =  p_hs_3a(h, s); 
+            // page 100 onwards of Kretzchmar textbook
+            let temperature = t_ph_3a(pressure, h);
+            // then specific volume  page 99 of Kretzchmar textbook
+            let specific_volume = v_ps_3a(pressure, s);
+
+            // quality now 
+            let quality = x_ph_flash(pressure, h);
+            return (temperature, pressure, specific_volume, quality.into());
+        },
+        BackwdEqnSubRegion::Region3b => {
+            // page 97 onwards of Kretzchmar textbook
+            let pressure =  p_hs_3b(h, s); 
+            // page 100 onwards of Kretzchmar textbook
+            let temperature = t_ph_3b(pressure, h);
+            // then specific volume  page 99 of Kretzchmar textbook
+            let specific_volume = v_ps_3b(pressure, s);
+            // quality now 
+            let quality = x_ph_flash(pressure, h);
+            return (temperature, pressure, specific_volume, quality.into());
+        },
+        BackwdEqnSubRegion::Region4 => {
+            // page 101
+            let sat_temp = tsat_hs_4(h, s);
+
+            // page 103 
+            let sat_pressure = sat_pressure_4(sat_temp);
+
+            // now, we are using the enthalpy, temperature and 
+            // pressure to find quality using 
+            // x= (h - h_liq)/(h_vap-h_liq)
+            // this is the same algorithm I used in the x_ph_flash 
+            // calculation
+            let quality = x_ph_flash(sat_pressure, h);
+            // quality is then used to calculate specific volume...
+            // however, it is double calculation here...
+            // for x_ph,
+            // I'm not overly concerned about computational cost now 
+            // but it is an inefficiency
+            let specific_volume = v_ph_eqm(sat_pressure, h);
+            return (sat_temp, sat_pressure, specific_volume, quality.into());
+        },
+        BackwdEqnSubRegion::Region5 => {
+            unimplemented!("Region 5 does not have (h,s) flashing");
+        },
+    }
+
 }
 
 /// allows the user to check which region one is in based on a ph flash
