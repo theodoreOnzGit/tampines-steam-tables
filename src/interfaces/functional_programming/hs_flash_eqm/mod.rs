@@ -26,7 +26,7 @@ use crate::backward_eqn_hs_region_1_to_4::saturated_liquid_line::h1_prime_s_boun
 use crate::backward_eqn_hs_region_1_to_4::region_2_and_3::tb23_s_boundary_enthalpy;
 use crate::backward_eqn_hs_region_1_to_4::region_1_and_3::hb13_s_boundary_enthalpy;
 
-use super::ph_flash_eqm::t_ph_eqm;
+use super::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, mu_ph_eqm, t_ph_eqm, w_ph_eqm};
 use super::pt_flash_eqm::{s_tp_eqm_two_phase, FwdEqnRegion};
 use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
@@ -131,7 +131,62 @@ pub fn x_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> Ratio {
     return x;
 }
 
+/// returns cp given 
+/// enthalpy and entropy point
+/// uses ph flash
+pub fn cp_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> SpecificHeatCapacity {
+    let (_t,p,_v,_x) = tpvx_hs_flash_eqm(h, s);
 
+    let cp = cp_ph_eqm(p, h);
+
+    return cp;
+
+}
+/// returns w (speed of sound) given 
+/// enthalpy and entropy point
+/// uses ph flash
+pub fn w_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> Velocity {
+    let (_t,p,_v,_x) = tpvx_hs_flash_eqm(h, s);
+
+    let w = w_ph_eqm(p, h);
+
+    return w;
+
+}
+
+/// returns kappa (isentropic exponent) given 
+/// enthalpy and entropy point
+/// uses ph flash
+pub fn kappa_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> Ratio {
+    let (_t,p,_v,_x) = tpvx_hs_flash_eqm(h, s);
+
+    let kappa = kappa_ph_eqm(p, h);
+
+    return kappa;
+
+}
+/// returns mu, or sometimes eta (dynamic viscosity) given 
+/// enthalpy and entropy point
+/// uses ph flash
+pub fn mu_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> DynamicViscosity {
+    let (_t,p,_v,_x) = tpvx_hs_flash_eqm(h, s);
+
+    let mu = mu_ph_eqm(p, h);
+
+    return mu;
+
+}
+/// returns lambda (thermal conductivity) given 
+/// enthalpy and entropy point
+/// uses ph flash
+pub fn lambda_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> ThermalConductivity {
+    let (_t,p,_v,_x) = tpvx_hs_flash_eqm(h, s);
+
+    let lambda = lambda_ph_eqm(p, h);
+
+    return lambda;
+
+}
 
 
 /// returns temperature, pressure, specific volume and quality given 
