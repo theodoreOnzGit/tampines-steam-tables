@@ -32,7 +32,7 @@ use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
 use super::ps_flash_eqm::v_ps_eqm;
 
-#[derive(Debug,PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug,PartialEq, Eq, PartialOrd, Ord,Clone)]
 /// an enum to help represent the appropriate 
 /// regions in the forward equations
 pub enum BackwdEqnSubRegion {
@@ -467,7 +467,6 @@ fn hs_region_low_entropy_region_1_and_4(
     let upper_bound_pressure = Pressure::new::<megapascal>(100.0 - 1.0e-4);
     let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
     let upper_bound_enthalpy = h_ps_eqm(upper_bound_pressure, s);
-    dbg!(&upper_bound_enthalpy);
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
 
     if h > upper_bound_enthalpy {

@@ -10,11 +10,10 @@ use uom::si::velocity::meter_per_second;
 
 use crate::interfaces::functional_programming::hs_flash_eqm::{cp_hs_eqm, kappa_hs_eqm, lambda_hs_eqm, mu_hs_eqm, tpvx_hs_flash_eqm, w_hs_eqm};
 use crate::interfaces::functional_programming::ph_flash_eqm::x_ph_flash;
-use crate::{dynamic_viscosity::mu_ph_eqm, interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, w_ph_eqm}};
 
 /// single phase table (see page 192)
 ///
-/// NOTE: ph flash UNABLE to do triple point liquid and vapour accurately.
+/// NOTE: hs flash UNABLE to do triple point liquid and vapour accurately.
 #[test]
 #[ignore = "hs flash cannot do triple point pressure yet"]
 pub fn single_phase_table_0_to_240_degc_except_triple_pt(){
