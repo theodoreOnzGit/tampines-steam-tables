@@ -37,7 +37,7 @@ the temperature, volume and all may be less
 accurate for backward equations, temperatures may be off 
 by as much as 5 degrees c, and volumes may differ by 10%
 enthalpy of vapourisation may differ by up to 5% compared 
-to steam table data compared to steam table data.
+to steam table data compared to steam table data... so beware...
 
 v0.1.0 
 
