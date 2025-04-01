@@ -312,3 +312,61 @@ fn region2b_test_1(){
     assert_eq!(correct_region, test_region);
     
 }
+
+
+// near isotherm 1073.15 K and isobar 100 MPa
+#[test]
+fn region2b_test_2(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(3715.2);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(6.040);
+
+    let correct_region = BackwdEqnSubRegion::Region2b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// near isotherm 1073.15 K and isobar 100 MPa
+#[test]
+fn region2b_test_3(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(3715.2);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(6.1);
+
+    let correct_region = BackwdEqnSubRegion::Region2b;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// just a random region in 2a
+#[test]
+fn region2a_test_1(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(3715.2);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(8.1);
+
+    let correct_region = BackwdEqnSubRegion::Region2a;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
+
+
+// just a at this entropy, 
+// the x=1 saturation line meets the p=ps line
+// but it's in 2a
+#[test]
+fn region2a_test_2(){
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(3715.2);
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(9.156);
+
+    let correct_region = BackwdEqnSubRegion::Region2a;
+    let test_region = hs_flash_region(h, s);
+
+    assert_eq!(correct_region, test_region);
+    
+}
