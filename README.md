@@ -44,7 +44,15 @@ never meant for this critical region..
 Thermal conductivity for (h,s) flash off by about 8%. 
 Also basic temperature equations also tend
 to fail to be accurate around the saturation line for bubble and dew  
-point... Sh
+point... 
+
+Also, pressure equations fail to be accurate at low pressures such as 
+0.1 bar, 1 bar. For triple point pressure, hs flash doesn't work.
+
+Moreover, not all of (h,s) flash works for region 4. The equations 
+only work over a certain entropy bound.
+
+Kappa should not be trusted for hs flash at low temps.
 
 v0.1.0 
 
