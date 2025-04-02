@@ -737,9 +737,11 @@ fn check_if_within_ps_validity_region(p: Pressure, s: SpecificHeatCapacity,){
     };
 
     if is_below_isotherm_t_273_15(p, s) {
+        dbg!(&(p,s));
         panic!("p,s point below 273.15K");
     };
     if is_above_isotherm_t_1073_15(p, s) {
+        dbg!(&(p,s));
         panic!("p,s point above 1073.15K");
     };
 }

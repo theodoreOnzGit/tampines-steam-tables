@@ -22,6 +22,7 @@ pub(crate) fn is_outside_pressure_range(p: Pressure) -> bool {
     };
 
     if p > upper_pressure_limit {
+        dbg!(&(p,upper_pressure_limit));
         panic!("p,s point is higher than acceptable pressure range");
     };
 
@@ -64,6 +65,7 @@ pub(crate) fn is_above_isotherm_t_1073_15(p: Pressure,s: SpecificHeatCapacity) -
     let upper_bound_entropy = s_tp_eqm_single_phase(upper_temp_bound, p);
 
     if s > upper_bound_entropy {
+        dbg!(&(s,upper_bound_entropy));
         return true;
     };
 

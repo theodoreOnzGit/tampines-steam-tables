@@ -194,14 +194,12 @@ fn assert_hs_flash(
     if p > Pressure::new::<megapascal>(2.5) {
         let pressure_error_tol = Pressure::new::<kilopascal>(15.0);
         let pressure_error_tol_bar = pressure_error_tol.get::<bar>();
-        dbg!(&(p,t_test));
         approx::assert_abs_diff_eq!(
             p_bar,
             p_test.get::<bar>(),
             epsilon=pressure_error_tol_bar
         ); 
     } else {
-        dbg!(&(p,t_test));
         approx::assert_relative_eq!(
             p_bar,
             p_test.get::<bar>(),
