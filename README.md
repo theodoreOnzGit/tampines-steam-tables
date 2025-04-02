@@ -44,7 +44,8 @@ never meant for this critical region..
 Thermal conductivity for (h,s) flash off by about 8%. 
 Also basic temperature equations also tend
 to fail to be accurate around the saturation line for bubble point,
-but not sure about dew point
+but not sure about dew point. Sometimes, dew point doesn't work 
+as in for 8 bar
 
 Also, pressure equations fail to be accurate at low pressures such as 
 0.1 bar, 1 bar. For triple point pressure, hs flash doesn't work.
@@ -56,6 +57,8 @@ Kappa should not be trusted for hs flash at low temps.
 Quality for hs test should not be trusted past supercritical pressure. 
 Though at that pressure, we don't really care about quality anymore.
 Kind of meaningless because liquid and vapour properties are indistinguishable.
+
+hs flash also fails near boundaries, eg 800C or 1073.15K isotherm.
 
 v0.1.0 
 
