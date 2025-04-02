@@ -26,7 +26,7 @@ use crate::backward_eqn_hs_region_1_to_4::saturated_liquid_line::h1_prime_s_boun
 use crate::backward_eqn_hs_region_1_to_4::region_2_and_3::tb23_s_boundary_enthalpy;
 use crate::backward_eqn_hs_region_1_to_4::region_1_and_3::hb13_s_boundary_enthalpy;
 
-use super::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, mu_ph_eqm, t_ph_eqm, w_ph_eqm};
+use super::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, mu_ph_eqm, s_ph_eqm, t_ph_eqm, w_ph_eqm};
 use super::pt_flash_eqm::{s_tp_eqm_two_phase, FwdEqnRegion};
 use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
@@ -200,11 +200,12 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
 (ThermodynamicTemperature, Pressure, SpecificVolume, Ratio) {
     let region = hs_flash_region(h, s);
 
-    dbg!(&region);
     match region {
         BackwdEqnSubRegion::Region1 => {
             // page 87 of Kretzchmar textbook
-            let pressure =  p_hs_1(h, s); 
+            let mut pressure =  p_hs_1(h, s); 
+            // correct this once 
+            pressure = p_hs_newton_raphson_single_correction_fixed_t_estimate(h, s, pressure);
             let temperature = t_ph_1(pressure, h);
             // in region 1, we are necessarily liquid,
             // quality is zero
@@ -339,6 +340,26 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
             unimplemented!("Region 5 does not have (h,s) flashing");
         },
     }
+
+}
+
+// for some pressures eg. 0.1 bar
+// the guessed pressure is inaccurate
+//
+// this does a single manual newton raphson correction in order to get 
+// it closer to the actual pressure
+#[inline]
+fn p_hs_newton_raphson_single_correction_fixed_t_estimate(h: AvailableEnergy,
+    s: SpecificHeatCapacity, p_guess: Pressure) -> Pressure {
+
+    // we are trying to converge to a correct pressure using (h,s)
+    //
+    // however, first p(h,s) fails for low pressure
+    //
+
+
+
+    return p_guess;
 
 }
 
