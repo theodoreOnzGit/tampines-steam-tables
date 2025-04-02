@@ -43,8 +43,8 @@ never meant for this critical region..
 
 Thermal conductivity for (h,s) flash off by about 8%. 
 Also basic temperature equations also tend
-to fail to be accurate around the saturation line for bubble and dew  
-point... 
+to fail to be accurate around the saturation line for bubble point,
+but not sure about dew point
 
 Also, pressure equations fail to be accurate at low pressures such as 
 0.1 bar, 1 bar. For triple point pressure, hs flash doesn't work.
