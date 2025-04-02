@@ -48,7 +48,12 @@ but not sure about dew point. Sometimes, dew point doesn't work
 as in for 8 bar
 
 Also, pressure equations fail to be accurate at low pressures such as 
-0.1 bar, 1 bar. For triple point pressure, hs flash doesn't work.
+0.1 bar, 1 bar up to 10 bar. At 0.1 bar, 1 bar, only expect the 
+pressure to be accurate to within 20% at least within region 1. 
+Accuracy up to 8% was observed for 2 bar pressure, 5% for 4 bar and 6 bar. 
+4% for 8 bar, 2% for 10 bar and 20 bar.
+
+For triple point pressure, hs flash doesn't work.
 
 Moreover, not all of (h,s) flash works for region 4. The equations 
 only work over a certain entropy bound.
