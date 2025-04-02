@@ -199,14 +199,8 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
     s: SpecificHeatCapacity,) -> 
 (ThermodynamicTemperature, Pressure, SpecificVolume, Ratio) {
     let region = hs_flash_region(h, s);
-    // temporary measure to see if it is region 4
-    //
-    // now for 650C 
-    if region == BackwdEqnSubRegion::Region4 {
-        dbg!(&(h,s));
-        dbg!(&region);
-    };
 
+    dbg!(&region);
     match region {
         BackwdEqnSubRegion::Region1 => {
             // page 87 of Kretzchmar textbook
