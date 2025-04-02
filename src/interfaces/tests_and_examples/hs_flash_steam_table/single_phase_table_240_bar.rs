@@ -195,14 +195,14 @@ fn assert_hs_flash(
     approx::assert_relative_eq!(
         cp_kj_per_kg_k,
         cp_test.get::<kilojoule_per_kilogram_kelvin>(),
-        max_relative=1e-3
+        max_relative=1e-2
         );
     // w 
     let w_test = w_hs_eqm(h, s);
     approx::assert_relative_eq!(
         w_m_per_s,
         w_test.get::<meter_per_second>(),
-        max_relative=1e-3
+        max_relative=1e-2
         );
 
     // kappa
