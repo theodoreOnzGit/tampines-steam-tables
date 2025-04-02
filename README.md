@@ -53,6 +53,9 @@ Moreover, not all of (h,s) flash works for region 4. The equations
 only work over a certain entropy bound.
 
 Kappa should not be trusted for hs flash at low temps.
+Quality for hs test should not be trusted past supercritical pressure. 
+Though at that pressure, we don't really care about quality anymore.
+Kind of meaningless because liquid and vapour properties are indistinguishable.
 
 v0.1.0 
 
