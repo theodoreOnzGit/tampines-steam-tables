@@ -41,6 +41,8 @@ to steam table data compared to steam table data... so beware...
 Though in the first place, the sat temperature equations were 
 never meant for this critical region..
 
+Thermal conductivity for (h,s) flash off by about 8%
+
 v0.1.0 
 
 Added dielectric constant and surface tension functions.
