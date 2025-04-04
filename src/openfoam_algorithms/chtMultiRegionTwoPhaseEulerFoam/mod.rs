@@ -1,4 +1,11 @@
 
+// note: openfoam uses the PIMPLE algorithm for two phase flow.
+//
+// which is a combination of SIMPLE and PISO algorithms
+//
+// So, I'll need to learn about those.
+
+
 /*
 /*---------------------------------------------------------------------------*\
   =========                 |
