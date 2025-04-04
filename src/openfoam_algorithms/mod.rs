@@ -30,3 +30,17 @@ mod driftFluxFoam;
 //
 // Some other useful tutorials here:
 // https://www.wolfdynamics.com/training/mphase/OF2021/mphase_2021_OF8_guided_tutorials.pdf
+//
+// it seems the most suitable model is two phase euler foam,
+//
+// where averaged equations are used to describe both phases.
+//
+// https://www.tfd.chalmers.se/~hani/kurser/OS_CFD_2008/PraveenPrabhuBaila/Report_twoPhaseEuler.pdf
+//
+//
+// for the two phase Euler Foam, the PhD thesis most helpful is:
+//
+// https://spiral.imperial.ac.uk/entities/publication/3f1ca3a6-f78e-48d5-a928-cf94b2292bd0
+//
+// Rusche, H. (2002). Computational fluid dynamics of dispersed two-phase 
+// flow at high phase fractions. Ph. D. thesis, University of London.
