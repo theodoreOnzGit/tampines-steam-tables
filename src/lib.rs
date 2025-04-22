@@ -50,6 +50,10 @@ pub mod backward_eqn_ph_region_1_to_4;
 /// overall equation
 pub mod backward_eqn_ps_region_1_to_4;
 
+/// backward equations hs boundary equations
+/// overall equation
+pub mod backward_eqn_hs_region_1_to_4;
+
 /// dynamic viscosity calcs
 pub mod dynamic_viscosity;
 
@@ -77,3 +81,7 @@ pub mod dielectric_constant;
 /// crates. 
 pub mod prelude;
 
+
+/// reference openfoam algorithms which will be combined with steam 
+/// tables for solving simple two phase flow problems
+pub mod openfoam_algorithms;

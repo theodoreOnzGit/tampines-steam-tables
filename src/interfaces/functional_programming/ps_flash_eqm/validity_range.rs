@@ -17,11 +17,13 @@ pub(crate) fn is_outside_pressure_range(p: Pressure) -> bool {
     let upper_pressure_limit: Pressure = Pressure::new::<megapascal>(100.0);
 
     if p < lower_pressure_limit {
-        return true;
+        dbg!(&(p,lower_pressure_limit));
+        panic!("p,s point is lower than acceptable pressure range");
     };
 
     if p > upper_pressure_limit {
-        return true;
+        dbg!(&(p,upper_pressure_limit));
+        panic!("p,s point is higher than acceptable pressure range");
     };
 
     return false;
@@ -60,9 +62,10 @@ pub(crate) fn is_above_isotherm_t_1073_15(p: Pressure,s: SpecificHeatCapacity) -
 
     let upper_temp_bound = ThermodynamicTemperature::new::<kelvin>(1073.15);
 
-    let upper_bound_enthalpy = s_tp_eqm_single_phase(upper_temp_bound, p);
+    let upper_bound_entropy = s_tp_eqm_single_phase(upper_temp_bound, p);
 
-    if s > upper_bound_enthalpy {
+    if s > upper_bound_entropy {
+        dbg!(&(s,upper_bound_entropy));
         return true;
     };
 

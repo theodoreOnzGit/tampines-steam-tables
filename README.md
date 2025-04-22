@@ -19,6 +19,52 @@ Hence, I am putting the rust-steam license here.
 
 # Changelog 
 
+v0.1.1 
+
+Starting the h,s flash algorithms.
+
+Also, copied some openfoam algorithms which will form the basis for which 
+the steam tables in tampines are used to solve two phase flow in transient 
+scenarios. Since OpenFOAM is licensed under 
+GNU GPLv3, tampines-steam-tables will also be licensed under GNU GPL v3.
+
+Note that for points near boundaries, correction factors have not been 
+applied for (p,h) and (p,s) flashes. (h,s) flashes have only been 
+partly implemented. 
+
+Near critical point for (h,s) flashing backward eqns, 
+the temperature, volume and all may be less 
+accurate for backward equations, temperatures may be off 
+by as much as 5 degrees c, and volumes may differ by 10%
+enthalpy of vapourisation may differ by up to 5% compared 
+to steam table data compared to steam table data... so beware...
+Though in the first place, the sat temperature equations were 
+never meant for this critical region..
+
+Thermal conductivity for (h,s) flash off by about 8%. 
+Also basic temperature equations also tend
+to fail to be accurate around the saturation line for bubble point,
+but not sure about dew point. Sometimes, dew point doesn't work 
+as in for 8 bar
+
+Also, pressure equations fail to be accurate at low pressures such as 
+0.1 bar, 1 bar up to 10 bar. At 0.1 bar, 1 bar, only expect the 
+pressure to be accurate to within 20% at least within region 1. 
+Accuracy up to 8% was observed for 2 bar pressure, 5% for 4 bar and 6 bar. 
+4% for 8 bar, 2% for 10 bar and 20 bar.
+
+For triple point pressure, hs flash doesn't work.
+
+Moreover, not all of (h,s) flash works for region 4. The equations 
+only work over a certain entropy bound.
+
+Kappa should not be trusted for hs flash at low temps.
+Quality for hs test should not be trusted past supercritical pressure. 
+Though at that pressure, we don't really care about quality anymore.
+Kind of meaningless because liquid and vapour properties are indistinguishable.
+
+hs flash also fails near boundaries, eg 800C or 1073.15K isotherm.
+
 v0.1.0 
 
 Added dielectric constant and surface tension functions.
