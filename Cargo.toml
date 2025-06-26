@@ -11,10 +11,44 @@ readme = "README.md"
 categories = ["science"]
 
 [dependencies]
+approx = "0.5.1"
+ndarray = "0.15.6"
+ndarray-linalg = "0.16.0"
+thiserror = "1.0.58"
 uom = "0.36.0"
 
+[target.'cfg(windows)'.dependencies]
+ndarray-linalg = { version = "0.16.0", features = ["intel-mkl-static"] }
+
+[target.'cfg(macos)'.dependencies]
+ndarray-linalg = { version = "0.16.0", features = ["intel-mkl-static"] }
+
+[target.'cfg(unix)'.dependencies]
+ndarray-linalg = { version = "0.16.0", features = ["openblas-system"] }
+
 [dev-dependencies]
-approx = "0.5.1"
 teh-o-prke = "0.0.1"
 
+chem-eng-real-time-process-control-simulator = "0.0.3"
+egui = "0.29.1"
+eframe = { version = "0.29.1", default-features = false, features = [
+    "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
+    "default_fonts", # Embed the default egui fonts.
+    "glow",          # Use the glow rendering backend. Alternative: "wgpu".
+    "persistence",   # Enable restoring app state when restarting the app.
+] }
+env_logger = "0.10.0"
+local-ip-address = "0.5.6"
+roots = "0.0.8"
+egui_plot = "0.29.0"
+egui_extras = { version = "0.29.0", features = ["all_loaders"] }
+serde = { version = "1", features = ["derive"] }
+tuas_boussinesq_solver = "0.0.9"
+
+
+
+
+[[example]]
+name = "fhr_sim_v1"
+path = "examples/fhr_sim_v1/main.rs"
 
