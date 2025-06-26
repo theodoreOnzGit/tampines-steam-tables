@@ -1228,3 +1228,6 @@ pub mod pri_loop_fluid_mechanics_calc_fns;
 
 /// code for fhr thermal hydraulics state 
 pub mod fhr_thermal_hydraulics_state;
+
+/// code responsible for rankine cycle
+pub mod secondary_loop;
