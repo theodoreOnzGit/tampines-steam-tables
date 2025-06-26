@@ -78,7 +78,7 @@ pub(crate) struct FHRThermalHydraulicsState {
 
     // for coupling to secondary loop 
     /// heat added to steam generator
-    pub heat_added_to_steam_generator: Energy,
+    pub heat_added_to_steam_generator_shell_side: Energy,
 
 }
 

@@ -10,8 +10,7 @@ use tuas_boussinesq_solver::pre_built_components::shell_and_tube_heat_exchanger:
 use tuas_boussinesq_solver::prelude::beta_testing::{FluidArray, HeatTransferEntity, HeatTransferInteractionType};
 use uom::si::energy::kilojoule;
 use uom::si::mass_rate::kilogram_per_second;
-use uom::si::power::megawatt;
-use uom::si::pressure::{kilopascal, megapascal};
+use uom::si::pressure::kilopascal;
 use uom::si::thermal_conductance::watt_per_kelvin;
 //use teh_o_prke::decay_heat::DecayHeat;
 //use teh_o_prke::feedback_mechanisms::fission_product_poisons::Xenon135Poisoning;
@@ -879,7 +878,7 @@ impl FHRSimulatorApp {
                 pipe_17_temp_profile_degc,
                 downcomer_2_temp_profile_degc,
                 downcomer_3_temp_profile_degc,
-                heat_added_to_steam_generator,
+                heat_added_to_steam_generator_shell_side: heat_added_to_steam_generator,
             };
 
             // if one wants to monitor flow through the loop
@@ -1021,7 +1020,7 @@ impl FHRSimulatorApp {
             pipe_17_temp_profile_degc: vec![],
             downcomer_2_temp_profile_degc: vec![],
             downcomer_3_temp_profile_degc: vec![],
-            heat_added_to_steam_generator: Energy::ZERO,
+            heat_added_to_steam_generator_shell_side: Energy::ZERO,
         };
         dbg!(&current_fhr_thermal_hydraulics_state);
         // calculation loop (indefinite)
