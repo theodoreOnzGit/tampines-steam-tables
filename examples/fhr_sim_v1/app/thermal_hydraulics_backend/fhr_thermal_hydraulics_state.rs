@@ -76,5 +76,9 @@ pub(crate) struct FHRThermalHydraulicsState {
     /// shows the temperature profile of pipe_13
     pub downcomer_3_temp_profile_degc: Vec<f64>,
 
+    // for coupling to secondary loop 
+    /// heat added to steam generator
+    pub heat_added_to_steam_generator: Energy,
+
 }
 

@@ -314,6 +314,7 @@ impl FHRSimulatorApp {
                     intrmd_loop_steam_gen_br_heat_transfer_interaction)
                     .unwrap();
                 }
+            let heat_added_to_steam_generator: Energy;
             {
 
                 // for steam generator, I want to manually remove heat from it 
@@ -343,6 +344,11 @@ impl FHRSimulatorApp {
 
                 // Q_added_to_destination = -UA*(T_destination - T_steam)
                 steam_gen_heat_change = -temperature_diff*steam_generator_overall_ua;
+                // heat added to steam generator is 
+                heat_added_to_steam_generator = 
+                    steam_gen_heat_change * timestep;
+
+
 
                 sg_fluid_array_clone
                     .lateral_link_new_power_vector(
@@ -873,6 +879,7 @@ impl FHRSimulatorApp {
                 pipe_17_temp_profile_degc,
                 downcomer_2_temp_profile_degc,
                 downcomer_3_temp_profile_degc,
+                heat_added_to_steam_generator,
             };
 
             // if one wants to monitor flow through the loop
@@ -1014,6 +1021,7 @@ impl FHRSimulatorApp {
             pipe_17_temp_profile_degc: vec![],
             downcomer_2_temp_profile_degc: vec![],
             downcomer_3_temp_profile_degc: vec![],
+            heat_added_to_steam_generator: Energy::ZERO,
         };
         dbg!(&current_fhr_thermal_hydraulics_state);
         // calculation loop (indefinite)
