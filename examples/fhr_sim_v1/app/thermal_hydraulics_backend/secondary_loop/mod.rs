@@ -116,7 +116,7 @@ impl FHRSimulatorApp {
 
         // this is fixed... can modify in future to make this user changeable
         let turbine_outlet_pressure = 
-            Pressure::new::<bar>(0.5);
+            Pressure::new::<bar>(0.2);
         let turbine_outlet_entropy = turbine_inlet_entropy;
         
 
