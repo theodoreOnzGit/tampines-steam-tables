@@ -10,7 +10,7 @@ use tuas_boussinesq_solver::pre_built_components::shell_and_tube_heat_exchanger:
 use tuas_boussinesq_solver::prelude::beta_testing::{FluidArray, HeatTransferEntity, HeatTransferInteractionType};
 use uom::si::energy::kilojoule;
 use uom::si::mass_rate::kilogram_per_second;
-use uom::si::pressure::kilopascal;
+use uom::si::pressure::{bar, kilopascal};
 use uom::si::thermal_conductance::watt_per_kelvin;
 //use teh_o_prke::decay_heat::DecayHeat;
 //use teh_o_prke::feedback_mechanisms::fission_product_poisons::Xenon135Poisoning;
@@ -36,6 +36,7 @@ use components::*;
 use pri_loop_fluid_mechanics_calc_fns::four_branch_pri_and_intermediate_loop_fluid_mechanics_only;
 use tuas_boussinesq_solver::pre_built_components::insulated_pipes_and_fluid_components::InsulatedFluidComponent;
 use tuas_boussinesq_solver::pre_built_components::non_insulated_fluid_components::NonInsulatedFluidComponent;
+use crate::app::thermal_hydraulics_backend::secondary_loop::SecondaryLoopState;
 use crate::{FHRSimulatorApp, FHRState};
 
 
@@ -985,14 +986,7 @@ impl FHRSimulatorApp {
                 &fhr_pipe_13,
             );
 
-        // steam generator settings 
-        let steam_generator_tube_side_temperature = 
-            ThermodynamicTemperature::new::<degree_celsius>(30.0);
 
-        // I made this based on UA for 35 MWth heat load, and 
-        // 30 degrees steam temperature, 300 degrees salt temperature
-        let steam_generator_overall_ua: ThermalConductance 
-            = ThermalConductance::new::<watt_per_kelvin>(1.2e5);
 
         let mut current_fhr_thermal_hydraulics_state = FHRThermalHydraulicsState {
             downcomer_branch_1_flow,
@@ -1023,6 +1017,13 @@ impl FHRSimulatorApp {
             heat_added_to_steam_generator_shell_side: Energy::ZERO,
         };
         dbg!(&current_fhr_thermal_hydraulics_state);
+
+        let mut current_fhr_steam_gen_state: SecondaryLoopState
+        = SecondaryLoopState {
+            steam_gen_tube_outlet_temperature: ThermodynamicTemperature::new::<degree_celsius>(35.0),
+            turbine_power: Power::ZERO,
+            condenser_duty: Power::ZERO,
+        };
         // calculation loop (indefinite)
         //
         // to be done once every timestep
@@ -1058,7 +1059,17 @@ impl FHRSimulatorApp {
                 Pressure::new::<kilopascal>(
                     -fhr_state_clone.lock().unwrap().fhr_intermediate_loop_pump_pressure_kilopascals
                 );
+            // steam generator settings 
+            // I made this based on UA for 35 MWth heat load, and 
+            // 30 degrees steam temperature, 300 degrees salt temperature
+            let steam_generator_overall_ua: ThermalConductance 
+                = ThermalConductance::new::<watt_per_kelvin>(1.2e5);
+            let steam_generator_tube_side_temperature = 
+                ThermodynamicTemperature::new::<degree_celsius>(
+                    fhr_state_clone.lock().unwrap().steam_generator_tube_outlet_temperature_degc
+                );
 
+            // now calculate the fhr primary and intermediate loops
             current_fhr_thermal_hydraulics_state = 
                 Self::four_branch_pri_and_intermediate_loop_single_time_step(
                     pri_loop_pump_pressure, 
@@ -1079,6 +1090,30 @@ impl FHRSimulatorApp {
                     steam_generator_overall_ua);
 
             dbg!(&current_fhr_thermal_hydraulics_state);
+
+
+            // now calculate the secondary loop 
+            let mut user_specified_secondary_loop_mass_flowrate = 
+                MassRate::new::<kilogram_per_second>(
+                    fhr_state_clone.lock().unwrap() 
+                    .user_specified_secondary_loop_mass_flowrate_kg_per_s
+                );
+            let user_specified_pump_outlet_pressure = 
+                Pressure::new::<bar>(
+                    fhr_state_clone.lock().unwrap() 
+                    .user_specified_secondary_loop_pump_outlet_pressure_bar
+                );
+
+            current_fhr_steam_gen_state = 
+                Self::secondary_loop_single_timestep(
+                    &mut current_fhr_thermal_hydraulics_state, 
+                    thermal_hydraulics_timestep, 
+                    &mut user_specified_secondary_loop_mass_flowrate, 
+                    user_specified_pump_outlet_pressure
+                );
+            
+            dbg!(&current_fhr_steam_gen_state);
+
 
             current_simulation_time += thermal_hydraulics_timestep;
 
@@ -1177,6 +1212,18 @@ impl FHRSimulatorApp {
                     (current_fhr_thermal_hydraulics_state 
                     .intermediate_heat_exchanger_branch_flow
                     .get::<kilogram_per_second>()*1000.0)/1000.0;
+
+                // secondary loop state
+                fhr_state_lock
+                    .user_specified_secondary_loop_mass_flowrate_kg_per_s = 
+                    (user_specified_secondary_loop_mass_flowrate
+                    .get::<kilogram_per_second>()*1000.0)/1000.0;
+
+                fhr_state_lock 
+                    .steam_generator_tube_outlet_temperature_degc = 
+                    (current_fhr_steam_gen_state 
+                     .steam_gen_tube_outlet_temperature
+                     .get::<degree_celsius>()*1000.0)/1000.0;
 
             }
 
