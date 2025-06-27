@@ -47,7 +47,7 @@ impl FHRSimulatorApp {
                 ui.add(pri_loop_pump_slider);
                 let intermediate_loop_pump_slider = egui::Slider::new(
                     &mut fhr_state_ptr.fhr_intermediate_loop_pump_pressure_kilopascals, 
-                    0.0..=200.0)
+                    0.0..=160.0)
                     .logarithmic(false)
                     .text("Intermediate Loop Pump Pressure (kPa)")
                     .drag_value_speed(0.1);
