@@ -49,19 +49,19 @@ impl FHRSimulatorApp {
         // assume pump is isentropic... for simplicity
         //
         //
-        // it pumps it up to minimum of 10 bar 
+        // it pumps it up to minimum of 1 bar 
 
         let pump_outlet_temperature: ThermodynamicTemperature;
 
-        let ten_bar = Pressure::new::<bar>(10.0);
+        let one_bar = Pressure::new::<bar>(1.0);
         let sg_inlet_pressure: Pressure;
 
-        if user_specified_pump_outlet_pressure < ten_bar {
+        if user_specified_pump_outlet_pressure < one_bar {
             pump_outlet_temperature = 
                 ps_flash_eqm::t_ps_eqm(
-                    ten_bar, condenser_outlet_entropy
+                    one_bar, condenser_outlet_entropy
                 );
-            sg_inlet_pressure = ten_bar;
+            sg_inlet_pressure = one_bar;
         } else {
             pump_outlet_temperature = 
                 ps_flash_eqm::t_ps_eqm(
@@ -116,14 +116,16 @@ impl FHRSimulatorApp {
 
         let steam_gen_tube_outlet_temperature = 
             ph_flash_eqm::t_ph_eqm(
-                sg_outlet_pressure, steam_generator_tube_outlet_enthalpy
+                sg_outlet_pressure, 
+                steam_generator_tube_outlet_enthalpy
             );
 
         // then with this enthalpy and pressure, have an isentropic 
         // enthalpy drop in the turbine 
         // to specified pressure (0.2 bar) 
 
-        let turbine_inlet_enthalpy = steam_generator_tube_outlet_enthalpy;
+        let turbine_inlet_enthalpy = 
+            steam_generator_tube_outlet_enthalpy;
         let turbine_inlet_pressure = sg_outlet_pressure;
 
         let pressure_after_steam_generator_tube = 
@@ -135,7 +137,8 @@ impl FHRSimulatorApp {
                 enthalpy_after_steam_generator_tube);
 
         let turbine_inlet_entropy = ph_flash_eqm::s_ph_eqm(
-            turbine_inlet_pressure, steam_generator_tube_outlet_enthalpy
+            pressure_after_steam_generator_tube, 
+            steam_generator_tube_outlet_enthalpy
         );
 
         // this is fixed... can modify in future to make this user changeable
