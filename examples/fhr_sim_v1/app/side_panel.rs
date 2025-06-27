@@ -113,6 +113,37 @@ impl FHRSimulatorApp {
                 ui.label("Xe135 feedback ($ dollars)");
                 ui.label(((1.0e3*xe135_feedback_dollars).round() / 1.0e3).to_string());
 
+
+                // danger zone 
+
+                ui.separator();
+                ui.heading("Critical Parameters");
+                // ihx sthe, "dangerous" temperatures are here 
+                let ihx_shell_6_temperature_vector_degc = 
+                    fhr_state_clone.ihx_shell_6_temperature_vector_degc;
+                let ihx_tube_6_temperature_vector_degc = 
+                    fhr_state_clone.ihx_tube_6_temperature_vector_degc;
+
+                let flibe_min_temp_degc = 
+                    ihx_shell_6_temperature_vector_degc
+                    .into_iter()
+                    .max_by(|a,b| a.total_cmp(b))
+                    .unwrap();
+
+                let hitec_max_temp_degc = 
+                    ihx_tube_6_temperature_vector_degc
+                    .into_iter()
+                    .max_by(|a,b| a.total_cmp(b))
+                    .unwrap();
+
+                ui.label("FLiBe min temp (heat exchanger) KEEP ABOVE 470 degrees C or else freeze ");
+                ui.label(flibe_min_temp_degc.to_string());
+                ui.label("HITEC max temp (heat exchanger) KEEP BELOW 520 degrees C or else decompose ");
+                ui.label(hitec_max_temp_degc.to_string());
+                    
+                
+                
+
                 // then temperature scale 
 
                 ui.separator();

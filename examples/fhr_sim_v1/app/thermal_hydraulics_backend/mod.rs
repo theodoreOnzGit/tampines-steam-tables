@@ -1245,7 +1245,7 @@ impl FHRSimulatorApp {
                     current_fhr_thermal_hydraulics_state
                     .pipe_11_temp_profile_degc;
                 // intermediate loop state
-                fhr_state_lock.ihx_tube_side_6_temperature_vector_degc = 
+                fhr_state_lock.ihx_tube_6_temperature_vector_degc = 
                     current_fhr_thermal_hydraulics_state
                     .ihx_tube_side_temp_profile_degc;
                 fhr_state_lock.pipe_12_temperature_vector_degc = 

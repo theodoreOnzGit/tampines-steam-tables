@@ -199,6 +199,17 @@ impl FHRSimulatorApp {
             fhr_state_clone.right_downcomer_lower_temp_degc
         );
 
+        let pipe_4_temperature_vector_degc = 
+            fhr_state_clone.pipe_4_temperature_vector_degc;
+        let pipe_5_temperature_vector_degc = 
+            fhr_state_clone.pipe_5_temperature_vector_degc;
+
+        // ihx sthe, "dangerous" temperatures are here 
+        let ihx_shell_6_temperature_vector_degc = 
+            fhr_state_clone.ihx_shell_6_temperature_vector_degc;
+        let ihx_tube_6_temperature_vector_degc = 
+            fhr_state_clone.ihx_tube_6_temperature_vector_degc;
+
 
         let mut fhr_widget = FHRReactorWidget::new(
             fhr_size,
