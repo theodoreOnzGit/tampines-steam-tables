@@ -118,6 +118,8 @@ impl FHRSimulatorApp {
 
                 ui.separator();
                 ui.heading("Critical Parameters");
+                ui.label("If you exceed these bounds, you may crash the simulation");
+                ui.separator();
                 // ihx sthe, "dangerous" temperatures are here 
                 let ihx_shell_6_temperature_vector_degc = 
                     fhr_state_clone.ihx_shell_6_temperature_vector_degc;
@@ -144,6 +146,7 @@ impl FHRSimulatorApp {
                 
                 
 
+                ui.separator();
                 // then temperature scale 
 
                 ui.separator();
