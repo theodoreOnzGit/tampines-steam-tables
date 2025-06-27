@@ -1023,6 +1023,10 @@ impl FHRSimulatorApp {
             steam_gen_tube_outlet_temperature: ThermodynamicTemperature::new::<degree_celsius>(35.0),
             turbine_power: Power::ZERO,
             condenser_duty: Power::ZERO,
+            steam_quality_after_condenser: 0.0,
+            steam_quality_after_pump: 0.0,
+            steam_quality_after_steam_generator_tube_side: 1.0,
+            steam_quality_after_turbine: 0.2,
         };
         dbg!(&current_fhr_steam_gen_state);
         // calculation loop (indefinite)
@@ -1274,6 +1278,22 @@ impl FHRSimulatorApp {
                     (current_fhr_steam_gen_state 
                      .steam_gen_tube_outlet_temperature
                      .get::<degree_celsius>()*1000.0)/1000.0;
+                fhr_state_lock 
+                    .steam_quality_after_condenser = 
+                    (current_fhr_steam_gen_state 
+                     .steam_quality_after_condenser*1000.0)/1000.0;
+                fhr_state_lock 
+                    .steam_quality_after_pump = 
+                    (current_fhr_steam_gen_state 
+                     .steam_quality_after_pump*1000.0)/1000.0;
+                fhr_state_lock 
+                    .steam_quality_after_steam_generator_tube_side = 
+                    (current_fhr_steam_gen_state 
+                     .steam_quality_after_steam_generator_tube_side*1000.0)/1000.0;
+                fhr_state_lock 
+                    .steam_quality_after_turbine = 
+                    (current_fhr_steam_gen_state 
+                     .steam_quality_after_turbine*1000.0)/1000.0;
 
             }
 

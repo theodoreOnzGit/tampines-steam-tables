@@ -1,5 +1,7 @@
 use crate::{FHRSimulatorApp};
 use crate::app::thermal_hydraulics_backend::fhr_thermal_hydraulics_state::FHRThermalHydraulicsState;
+use tampines_steam_tables::interfaces::functional_programming::ph_flash_eqm::x_ph_flash;
+use tampines_steam_tables::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use tampines_steam_tables::interfaces::functional_programming::{ph_flash_eqm, ps_flash_eqm, pt_flash_eqm};
 use uom::si::f64::*;
 use uom::si::mass_rate::kilogram_per_second;
@@ -32,12 +34,16 @@ impl FHRSimulatorApp {
         let condenser_outlet_temperature = 
             ThermodynamicTemperature::new::<degree_celsius>(35.0);
 
+
         // then calculate the entropy... 
         // 
         let condenser_outlet_entropy: SpecificHeatCapacity
             = pt_flash_eqm::s_tp_eqm_single_phase(
                 condenser_outlet_temperature, 
                 condenser_outlet_pressure);
+        let steam_quality_after_condenser = 
+            x_ps_flash(condenser_outlet_pressure, 
+                condenser_outlet_entropy);
 
         // then condenser goes into pump... with new pressure
         // assume pump is isentropic... for simplicity
@@ -65,6 +71,9 @@ impl FHRSimulatorApp {
             sg_inlet_pressure = user_specified_pump_outlet_pressure;
 
         }
+
+
+
         // now the pump outlet temperature will form the 
         // inlet of the steam generator 
 
@@ -73,6 +82,12 @@ impl FHRSimulatorApp {
                 pump_outlet_temperature, sg_inlet_pressure
             );
 
+        let pressure_after_pump = 
+            sg_inlet_pressure;
+        let enthalpy_after_pump = steam_generator_tube_inlet_enthalpy;
+
+        let steam_quality_after_pump = 
+            x_ph_flash(pressure_after_pump, enthalpy_after_pump);
 
 
         // for energy balance:
@@ -110,6 +125,15 @@ impl FHRSimulatorApp {
 
         let turbine_inlet_enthalpy = steam_generator_tube_outlet_enthalpy;
         let turbine_inlet_pressure = sg_outlet_pressure;
+
+        let pressure_after_steam_generator_tube = 
+            turbine_inlet_pressure;
+        let enthalpy_after_steam_generator_tube = 
+            turbine_inlet_enthalpy;
+        let steam_quality_after_steam_generator_tube_side = 
+            x_ph_flash(pressure_after_steam_generator_tube, 
+                enthalpy_after_steam_generator_tube);
+
         let turbine_inlet_entropy = ph_flash_eqm::s_ph_eqm(
             turbine_inlet_pressure, steam_generator_tube_outlet_enthalpy
         );
@@ -125,6 +149,11 @@ impl FHRSimulatorApp {
                 turbine_outlet_pressure, 
                 turbine_outlet_entropy
             );
+
+        let steam_quality_after_turbine = 
+            x_ph_flash(turbine_outlet_pressure, 
+                turbine_outlet_enthalpy);
+
 
         let work_done_by_turbine_per_unit_mass = 
             turbine_inlet_enthalpy - turbine_outlet_enthalpy;
@@ -149,6 +178,10 @@ impl FHRSimulatorApp {
                 steam_gen_tube_outlet_temperature,
                 turbine_power,
                 condenser_duty,
+                steam_quality_after_condenser,
+                steam_quality_after_pump,
+                steam_quality_after_steam_generator_tube_side,
+                steam_quality_after_turbine,
             };
 
 
@@ -167,4 +200,14 @@ pub struct SecondaryLoopState {
     pub turbine_power: Power,
     /// condenser cooling duty at steady state
     pub condenser_duty: Power,
+
+    /// steam quality (void fraction) after condenser 
+    pub steam_quality_after_condenser: f64,
+    /// steam quality (void fraction) after pump
+    pub steam_quality_after_pump: f64,
+    /// steam quality (void fraction) after steam generator tube 
+    /// side
+    pub steam_quality_after_steam_generator_tube_side: f64,
+    /// steam quality (void fraction) after steam turbine
+    pub steam_quality_after_turbine: f64,
 }
