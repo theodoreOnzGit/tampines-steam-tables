@@ -155,6 +155,10 @@ pub struct FHRState {
     pub steam_quality_after_pump: f64,
     pub steam_quality_after_steam_generator_tube_side: f64,
     pub steam_quality_after_turbine: f64,
+
+    // performance metrics for steam cycle 
+    pub turbine_power_megawatts: f64,
+    pub condenser_duty_megawatts: f64,
 }
 
 impl Default for FHRState {
@@ -218,6 +222,8 @@ impl Default for FHRState {
             steam_quality_after_pump: 0.0,
             steam_quality_after_steam_generator_tube_side: 0.0,
             steam_quality_after_turbine: 0.0,
+            turbine_power_megawatts: 0.0,
+            condenser_duty_megawatts: 0.0,
         }
     }
 }

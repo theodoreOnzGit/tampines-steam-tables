@@ -10,6 +10,7 @@ use tuas_boussinesq_solver::pre_built_components::shell_and_tube_heat_exchanger:
 use tuas_boussinesq_solver::prelude::beta_testing::{FluidArray, HeatTransferEntity, HeatTransferInteractionType};
 use uom::si::energy::kilojoule;
 use uom::si::mass_rate::kilogram_per_second;
+use uom::si::power::megawatt;
 use uom::si::pressure::{bar, kilopascal};
 use uom::si::thermal_conductance::watt_per_kelvin;
 //use teh_o_prke::decay_heat::DecayHeat;
@@ -1294,6 +1295,16 @@ impl FHRSimulatorApp {
                     .steam_quality_after_turbine = 
                     (current_fhr_steam_gen_state 
                      .steam_quality_after_turbine*1000.0)/1000.0;
+                fhr_state_lock 
+                    .turbine_power_megawatts = 
+                    (current_fhr_steam_gen_state 
+                     .turbine_power
+                     .get::<megawatt>()*1000.0)/1000.0;
+                fhr_state_lock 
+                    .condenser_duty_megawatts = 
+                    (current_fhr_steam_gen_state 
+                     .condenser_duty
+                     .get::<megawatt>()*1000.0)/1000.0;
 
             }
 

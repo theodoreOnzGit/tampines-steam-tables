@@ -15,6 +15,7 @@ impl FHRSimulatorApp {
             .drag_to_scroll(true)
             .show(ui, |ui| {
 
+                ui.separator();
                 ui.heading("Fluoride Salt Cooled High Temperature Reactor (FHR) Controls");
                 let mut fhr_state_ptr = self.fhr_state.lock().unwrap();
 
@@ -52,7 +53,27 @@ impl FHRSimulatorApp {
                     .drag_value_speed(0.001);
 
                 ui.add(intermediate_loop_pump_slider);
+                ui.separator();
+                ui.heading("Steam Power Cycle Controls");
+                let secondary_loop_pump_pressure_slider = egui::Slider::new(
+                    &mut fhr_state_ptr.user_specified_secondary_loop_pump_outlet_pressure_bar, 
+                    1.2..=200.0)
+                    .logarithmic(false)
+                    .text("Secondary Loop Pump Pressure (bar)")
+                    .drag_value_speed(0.001);
 
+                ui.add(secondary_loop_pump_pressure_slider);
+
+                let secondary_loop_mass_flowrate_slider = egui::Slider::new(
+                    &mut fhr_state_ptr.user_specified_secondary_loop_mass_flowrate_kg_per_s, 
+                    10.0..=150.0)
+                    .logarithmic(false)
+                    .text("Secondary Loop Mass Flowrate (kg/s)")
+                    .drag_value_speed(0.001);
+
+                ui.add(secondary_loop_mass_flowrate_slider);
+
+                ui.separator();
 
                 // cloning the entire fhr state for diagnostics
                 let fhr_state_clone: FHRState = fhr_state_ptr.deref().clone();
@@ -261,6 +282,51 @@ impl FHRSimulatorApp {
                 );
                 ui.add(temp_350_degc);
 
+
+                // flowrate diagnostics
+                ui.separator();
+                ui.heading("Mass Flowrates in Primary and Intermediate Loop");
+                ui.separator();
+
+
+                let ihx_br_flowrate_kg_per_s = -fhr_state_clone.ihx_branch_flowrate_kg_per_s;
+
+                ui.label("Intermediate Heat Exchanger Branch Flowrate downwards through IHX (kg/s)");
+                ui.label(((1000.0*ihx_br_flowrate_kg_per_s).round() / 1000.0).to_string());
+
+                let reactor_branch_flowrate_kg_per_s = fhr_state_clone.reactor_branch_flowrate_kg_per_s;
+
+                ui.label("Reactor Branch Flowrate (upwards) (kg/s)");
+                ui.label(((1000.0*reactor_branch_flowrate_kg_per_s).round() / 1000.0).to_string());
+
+                let downcomer1_branch_flowrate_kg_per_s = fhr_state_clone.downcomer1_branch_flowrate_kg_per_s;
+
+                ui.label("Left Downcomer Branch Flowrate (upwards) (kg/s)");
+                ui.label(((1000.0*downcomer1_branch_flowrate_kg_per_s).round() / 1000.0).to_string());
+
+
+                let downcomer2_branch_flowrate_kg_per_s = fhr_state_clone.downcomer2_branch_flowrate_kg_per_s;
+
+                ui.label("Right Downcomer Branch Flowrate (upwards) (kg/s)");
+                ui.label(((1000.0*downcomer2_branch_flowrate_kg_per_s).round() / 1000.0).to_string());
+
+                let intermediate_loop_clockwise_flowrate_kg_per_s = fhr_state_clone.intermediate_loop_clockwise_flow_kg_per_s;
+
+                ui.label("Intermediate Loop Flowrate (clockwise) (kg/s)");
+                ui.label(((1000.0*intermediate_loop_clockwise_flowrate_kg_per_s).round() / 1000.0).to_string());
+
+                // steam cycle diagnostics
+                ui.separator();
+                ui.heading("Steam Cycle and Turbine Diagnostics");
+                ui.separator();
+
+
+                let ihx_br_flowrate_kg_per_s = -fhr_state_clone.ihx_branch_flowrate_kg_per_s;
+
+                ui.label("Intermediate Heat Exchanger Branch Flowrate downwards through IHX (kg/s)");
+                ui.label(((1000.0*ihx_br_flowrate_kg_per_s).round() / 1000.0).to_string());
+
+
                 // time diagnostics 
                 ui.separator();
                 ui.heading("Timestep Diagnostics");
@@ -311,38 +377,6 @@ impl FHRSimulatorApp {
 
 
                 ui.separator();
-
-                // flowrate diagnostics
-                ui.separator();
-                ui.heading("Mass Flowrate Diagnostics");
-                ui.separator();
-
-
-                let ihx_br_flowrate_kg_per_s = -fhr_state_clone.ihx_branch_flowrate_kg_per_s;
-
-                ui.label("Intermediate Heat Exchanger Branch Flowrate downwards through IHX (kg/s)");
-                ui.label(((1000.0*ihx_br_flowrate_kg_per_s).round() / 1000.0).to_string());
-
-                let reactor_branch_flowrate_kg_per_s = fhr_state_clone.reactor_branch_flowrate_kg_per_s;
-
-                ui.label("Reactor Branch Flowrate (upwards) (kg/s)");
-                ui.label(((1000.0*reactor_branch_flowrate_kg_per_s).round() / 1000.0).to_string());
-
-                let downcomer1_branch_flowrate_kg_per_s = fhr_state_clone.downcomer1_branch_flowrate_kg_per_s;
-
-                ui.label("Left Downcomer Branch Flowrate (upwards) (kg/s)");
-                ui.label(((1000.0*downcomer1_branch_flowrate_kg_per_s).round() / 1000.0).to_string());
-
-
-                let downcomer2_branch_flowrate_kg_per_s = fhr_state_clone.downcomer2_branch_flowrate_kg_per_s;
-
-                ui.label("Right Downcomer Branch Flowrate (upwards) (kg/s)");
-                ui.label(((1000.0*downcomer2_branch_flowrate_kg_per_s).round() / 1000.0).to_string());
-
-                let intermediate_loop_clockwise_flowrate_kg_per_s = fhr_state_clone.intermediate_loop_clockwise_flow_kg_per_s;
-
-                ui.label("Intermediate Loop Flowrate (clockwise) (kg/s)");
-                ui.label(((1000.0*intermediate_loop_clockwise_flowrate_kg_per_s).round() / 1000.0).to_string());
                 // then acknowledgements/citing
 
             });
