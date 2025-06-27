@@ -42,7 +42,7 @@ impl FHRSimulatorApp {
                     0.0..=200.0)
                     .logarithmic(false)
                     .text("Primary Loop Pump Pressure (kPa)")
-                    .drag_value_speed(0.001);
+                    .drag_value_speed(0.1);
 
                 ui.add(pri_loop_pump_slider);
                 let intermediate_loop_pump_slider = egui::Slider::new(
@@ -50,7 +50,7 @@ impl FHRSimulatorApp {
                     0.0..=200.0)
                     .logarithmic(false)
                     .text("Intermediate Loop Pump Pressure (kPa)")
-                    .drag_value_speed(0.001);
+                    .drag_value_speed(0.1);
 
                 ui.add(intermediate_loop_pump_slider);
                 ui.separator();
@@ -60,7 +60,7 @@ impl FHRSimulatorApp {
                     1.2..=200.0)
                     .logarithmic(false)
                     .text("Secondary Loop Pump Pressure (bar)")
-                    .drag_value_speed(0.001);
+                    .drag_value_speed(0.1);
 
                 ui.add(secondary_loop_pump_pressure_slider);
 
@@ -69,7 +69,7 @@ impl FHRSimulatorApp {
                     10.0..=150.0)
                     .logarithmic(false)
                     .text("Secondary Loop Mass Flowrate (kg/s)")
-                    .drag_value_speed(0.001);
+                    .drag_value_speed(0.1);
 
                 ui.add(secondary_loop_mass_flowrate_slider);
 
@@ -321,10 +321,15 @@ impl FHRSimulatorApp {
                 ui.separator();
 
 
-                let ihx_br_flowrate_kg_per_s = -fhr_state_clone.ihx_branch_flowrate_kg_per_s;
+                let turbine_power_megawatts = fhr_state_clone.turbine_power_megawatts;
 
-                ui.label("Intermediate Heat Exchanger Branch Flowrate downwards through IHX (kg/s)");
-                ui.label(((1000.0*ihx_br_flowrate_kg_per_s).round() / 1000.0).to_string());
+                ui.label("Turbine Power (MWe)");
+                ui.label(((1000.0*turbine_power_megawatts).round() / 1000.0).to_string());
+
+                let condenser_duty_megawatts = fhr_state_clone.condenser_duty_megawatts;
+
+                ui.label("Waste Heat Rejected at Condenser (MWth)");
+                ui.label(((1000.0*condenser_duty_megawatts).round() / 1000.0).to_string());
 
 
                 // time diagnostics 
