@@ -1214,6 +1214,55 @@ impl FHRSimulatorApp {
                     .intermediate_heat_exchanger_branch_flow
                     .get::<kilogram_per_second>()*1000.0)/1000.0;
 
+                // pri loop state 
+                fhr_state_lock.pipe_4_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_4_temp_profile_degc;
+                fhr_state_lock.pipe_5_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_5_temp_profile_degc;
+                fhr_state_lock.ihx_shell_6_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .ihx_shell_side_temp_profile_degc;
+                fhr_state_lock.pipe_7_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_7_temp_profile_degc;
+                fhr_state_lock.pipe_8_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_8_temp_profile_degc;
+                fhr_state_lock.pri_pump_9_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pump_9_temp_profile_degc;
+                fhr_state_lock.pipe_10_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_10_temp_profile_degc;
+                fhr_state_lock.pipe_11_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_11_temp_profile_degc;
+                // intermediate loop state
+                fhr_state_lock.ihx_tube_side_6_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .ihx_tube_side_temp_profile_degc;
+                fhr_state_lock.pipe_12_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_12_temp_profile_degc;
+                fhr_state_lock.pipe_13_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_13_temp_profile_degc;
+                // sg = steam generator
+                fhr_state_lock.sg_shell_14_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .sg_shell_side_temp_profile_degc;
+                fhr_state_lock.pipe_15_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_15_temp_profile_degc;
+                fhr_state_lock.intrmd_pump_16_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pump_16_temp_profile_degc;
+                fhr_state_lock.pipe_17_temperature_vector_degc = 
+                    current_fhr_thermal_hydraulics_state
+                    .pipe_17_temp_profile_degc;
+
                 // secondary loop state
                 fhr_state_lock
                     .user_specified_secondary_loop_mass_flowrate_kg_per_s = 

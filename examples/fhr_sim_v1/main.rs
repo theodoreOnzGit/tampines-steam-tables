@@ -125,7 +125,7 @@ pub struct FHRState {
     // temperatures for primary loop diagnostics
     pub pipe_4_temperature_vector_degc: Vec<f64>,
     pub pipe_5_temperature_vector_degc: Vec<f64>,
-    pub sthe_shell_6_temperature_vector_degc: Vec<f64>,
+    pub ihx_shell_6_temperature_vector_degc: Vec<f64>,
     pub pipe_7_temperature_vector_degc: Vec<f64>,
     pub pipe_8_temperature_vector_degc: Vec<f64>,
     pub pri_pump_9_temperature_vector_degc: Vec<f64>,
@@ -133,10 +133,14 @@ pub struct FHRState {
     pub pipe_11_temperature_vector_degc: Vec<f64>,
 
     // temperatures for secondary loop
-    pub sthe_tube_6_temperature_vector_degc: Vec<f64>,
+    pub ihx_tube_side_6_temperature_vector_degc: Vec<f64>,
     pub pipe_12_temperature_vector_degc: Vec<f64>,
     pub pipe_13_temperature_vector_degc: Vec<f64>,
-    pub pump_14_temperature_vector_degc: Vec<f64>,
+    /// steam generator (sg) shell side labelled 14,
+    /// this is the temperature of 
+    /// HITEC that fills the shell side of 
+    /// the steam generator
+    pub sg_shell_14_temperature_vector_degc: Vec<f64>,
     pub pipe_15_temperature_vector_degc: Vec<f64>,
     pub intrmd_pump_16_temperature_vector_degc: Vec<f64>,
     pub pipe_17_temperature_vector_degc: Vec<f64>,
@@ -197,16 +201,16 @@ impl Default for FHRState {
             steam_generator_tube_outlet_temperature_degc: 300.0,
             pipe_4_temperature_vector_degc: vec![],
             pipe_5_temperature_vector_degc: vec![],
-            sthe_shell_6_temperature_vector_degc: vec![],
+            ihx_shell_6_temperature_vector_degc: vec![],
             pipe_7_temperature_vector_degc: vec![],
             pipe_8_temperature_vector_degc: vec![],
             pri_pump_9_temperature_vector_degc: vec![],
             pipe_10_temperature_vector_degc: vec![],
             pipe_11_temperature_vector_degc: vec![],
-            sthe_tube_6_temperature_vector_degc: vec![],
+            ihx_tube_side_6_temperature_vector_degc: vec![],
             pipe_12_temperature_vector_degc: vec![],
             pipe_13_temperature_vector_degc: vec![],
-            pump_14_temperature_vector_degc: vec![],
+            sg_shell_14_temperature_vector_degc: vec![],
             pipe_15_temperature_vector_degc: vec![],
             intrmd_pump_16_temperature_vector_degc: vec![],
             pipe_17_temperature_vector_degc: vec![],
