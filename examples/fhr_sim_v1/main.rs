@@ -141,11 +141,16 @@ pub struct FHRState {
     pub intrmd_pump_16_temperature_vector_degc: Vec<f64>,
     pub pipe_17_temperature_vector_degc: Vec<f64>,
 
-
     // settings for steam generator loop
     pub user_specified_secondary_loop_mass_flowrate_kg_per_s: f64,
     pub user_specified_secondary_loop_pump_outlet_pressure_bar: f64,
     pub steam_generator_tube_outlet_temperature_degc: f64,
+
+    // void fractions for secondary loop 
+    pub steam_quality_after_condenser: f64,
+    pub steam_quality_after_pump: f64,
+    pub steam_quality_after_steam_generator_tube_side: f64,
+    pub steam_quality_after_turbine: f64,
 }
 
 impl Default for FHRState {
@@ -205,6 +210,10 @@ impl Default for FHRState {
             pipe_15_temperature_vector_degc: vec![],
             intrmd_pump_16_temperature_vector_degc: vec![],
             pipe_17_temperature_vector_degc: vec![],
+            steam_quality_after_condenser: 0.0,
+            steam_quality_after_pump: 0.0,
+            steam_quality_after_steam_generator_tube_side: 0.0,
+            steam_quality_after_turbine: 0.0,
         }
     }
 }
