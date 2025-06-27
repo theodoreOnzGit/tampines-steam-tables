@@ -17,6 +17,17 @@ International steam tables. Springer Berlin Heidelberg.
 Significant portions of code will be copied from the rust-steam package.
 Hence, I am putting the rust-steam license here.
 
+# FHR Educational Simulator 
+
+tampines-steam-tables was used to construct the secondary loop of the  
+a Fluoride Salt Cooled High Temperature Reactor (FHR) educational 
+simulator. The secondary loop just runs at steady state (no transient 
+calculations for simplicity.
+```bash
+cargo run --release --example fhr_vim_v1
+```
+
+
 # Changelog 
 
 v0.1.1 

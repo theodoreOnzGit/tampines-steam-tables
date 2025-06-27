@@ -57,7 +57,7 @@ pub struct FHRSimulatorApp {
 
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
-#[derive(Clone,Copy, Debug)]
+#[derive(Clone,Debug)]
 pub struct FHRState {
     /// left control rod insertion fraction
     pub left_cr_insertion_frac: f32,
@@ -113,12 +113,34 @@ pub struct FHRState {
     pub thermal_hydraulics_timestep_microseconds: f64,
 
 
+    // mass flowrate 
     // diagnostics for thermal hydraulics loop 
     pub reactor_branch_flowrate_kg_per_s: f64,
     pub downcomer1_branch_flowrate_kg_per_s: f64,
     pub downcomer2_branch_flowrate_kg_per_s: f64,
     pub ihx_branch_flowrate_kg_per_s: f64,
     pub intermediate_loop_clockwise_flow_kg_per_s: f64,
+
+
+    // temperatures for primary loop diagnostics
+    pub pipe_4_temperature_vector_degc: Vec<f64>,
+    pub pipe_5_temperature_vector_degc: Vec<f64>,
+    pub sthe_shell_6_temperature_vector_degc: Vec<f64>,
+    pub pipe_7_temperature_vector_degc: Vec<f64>,
+    pub pipe_8_temperature_vector_degc: Vec<f64>,
+    pub pri_pump_9_temperature_vector_degc: Vec<f64>,
+    pub pipe_10_temperature_vector_degc: Vec<f64>,
+    pub pipe_11_temperature_vector_degc: Vec<f64>,
+
+    // temperatures for secondary loop
+    pub sthe_tube_6_temperature_vector_degc: Vec<f64>,
+    pub pipe_12_temperature_vector_degc: Vec<f64>,
+    pub pipe_13_temperature_vector_degc: Vec<f64>,
+    pub pump_14_temperature_vector_degc: Vec<f64>,
+    pub pipe_15_temperature_vector_degc: Vec<f64>,
+    pub intrmd_pump_16_temperature_vector_degc: Vec<f64>,
+    pub pipe_17_temperature_vector_degc: Vec<f64>,
+
 
     // settings for steam generator loop
     pub user_specified_secondary_loop_mass_flowrate_kg_per_s: f64,
@@ -168,6 +190,21 @@ impl Default for FHRState {
             user_specified_secondary_loop_mass_flowrate_kg_per_s: 50.0,
             user_specified_secondary_loop_pump_outlet_pressure_bar: 100.0,
             steam_generator_tube_outlet_temperature_degc: 300.0,
+            pipe_4_temperature_vector_degc: vec![],
+            pipe_5_temperature_vector_degc: vec![],
+            sthe_shell_6_temperature_vector_degc: vec![],
+            pipe_7_temperature_vector_degc: vec![],
+            pipe_8_temperature_vector_degc: vec![],
+            pri_pump_9_temperature_vector_degc: vec![],
+            pipe_10_temperature_vector_degc: vec![],
+            pipe_11_temperature_vector_degc: vec![],
+            sthe_tube_6_temperature_vector_degc: vec![],
+            pipe_12_temperature_vector_degc: vec![],
+            pipe_13_temperature_vector_degc: vec![],
+            pump_14_temperature_vector_degc: vec![],
+            pipe_15_temperature_vector_degc: vec![],
+            intrmd_pump_16_temperature_vector_degc: vec![],
+            pipe_17_temperature_vector_degc: vec![],
         }
     }
 }
