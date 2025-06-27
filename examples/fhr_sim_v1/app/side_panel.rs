@@ -331,6 +331,20 @@ impl FHRSimulatorApp {
                 ui.label("Waste Heat Rejected at Condenser (MWth)");
                 ui.label(((1000.0*condenser_duty_megawatts).round() / 1000.0).to_string());
 
+                let steam_quality_after_steam_generator_tube_side 
+                    = fhr_state_clone
+                    .steam_quality_after_steam_generator_tube_side;
+
+                ui.label("Steam Quality at Turbine Inlet");
+                ui.label(((1000.0*steam_quality_after_steam_generator_tube_side).round() / 1000.0).to_string());
+
+                let steam_quality_after_turbine 
+                    = fhr_state_clone
+                    .steam_quality_after_turbine;
+
+                ui.label("Steam Quality at Turbine Outlet");
+                ui.label(((1000.0*steam_quality_after_turbine).round() / 1000.0).to_string());
+
 
                 // time diagnostics 
                 ui.separator();
