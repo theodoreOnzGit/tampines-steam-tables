@@ -639,7 +639,7 @@ impl FHRSimulatorApp {
         // this is tube to make it curl back from heat exchanger
         let ihx_tube_6_coordinate_chg_percentage = 
             vec2(30.0, 0.0);
-        let pipe_17_start_point = create_pipe_widget_intrmd_loop(
+        let pipe_12_start_point = create_pipe_widget_intrmd_loop(
             &ihx_tube_6_temperature_vector_degc,
             ihx_tube_6b_start_point,
             ihx_tube_6_coordinate_chg_percentage,
@@ -660,29 +660,9 @@ impl FHRSimulatorApp {
             reactor_height,
         );
 
-        // pipe 17
-        let pipe_17_coordinate_chg_percentage = 
-            vec2(150.0, 0.0);
-        let _pipe_17_end_point = create_pipe_widget_intrmd_loop(
-            &pipe_17_temperature_vector_degc,
-            pipe_17_start_point,
-            pipe_17_coordinate_chg_percentage,
-            ui,
-            reactor_width,
-            reactor_height,
-        );
-
-        // pipe 12 
-        let pipe_12_end_point = ihx_tube_6a_start_point;
-
+        // pipe 12
         let pipe_12_coordinate_chg_percentage = 
-            vec2(0.0, -130.0);
-        let pipe_12_start_point = pipe_12_end_point 
-            - vec2(
-                reactor_width * pipe_12_coordinate_chg_percentage.x/100.0, 
-                reactor_height * pipe_12_coordinate_chg_percentage.y/100.0,
-            );
-
+            vec2(150.0, 0.0);
         let _pipe_12_end_point = create_pipe_widget_intrmd_loop(
             &pipe_12_temperature_vector_degc,
             pipe_12_start_point,
@@ -692,10 +672,30 @@ impl FHRSimulatorApp {
             reactor_height,
         );
 
+        // pipe 17
+        let pipe_17_end_point = ihx_tube_6a_start_point;
+
+        let pipe_17_coordinate_chg_percentage = 
+            vec2(0.0, -130.0);
+        let pipe_17_start_point = pipe_17_end_point 
+            - vec2(
+                reactor_width * pipe_17_coordinate_chg_percentage.x/100.0, 
+                reactor_height * pipe_17_coordinate_chg_percentage.y/100.0,
+            );
+
+        let _pipe_17_end_point = create_pipe_widget_intrmd_loop(
+            &pipe_17_temperature_vector_degc,
+            pipe_17_start_point,
+            pipe_17_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
+        );
+
         // steam generator branch
         //
         // pump 16
-        let pump_16_start_point = pipe_12_start_point;
+        let pump_16_start_point = pipe_17_start_point;
 
         let pump_16_coordinate_chg_percentage = 
             vec2(75.0, 0.0);
