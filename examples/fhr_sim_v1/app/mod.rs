@@ -840,17 +840,38 @@ impl FHRSimulatorApp {
 
                 return end_point;
             }
+        // sg tube 14
         let sg_tube_14_start_point = 
             sg_shell_14_start_point +
             vec2(reactor_width * 0.1, 0.0);
+
         let sg_tube_14_coordinate_chg_percentage = 
             sg_shell_14_coordinate_chg_percentage;
-
         let sg_tube_14_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
             sg_tube_14_start_point, 
             sg_tube_14_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
+
+        let sg_tube_14a_start_point = sg_tube_14_start_point;
+        let sg_tube_14a_coordinate_chg_percentage = 
+            vec2(30.0,0.0);
+        let sg_tube_14a_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_pump, 
+            sg_tube_14a_start_point, 
+            sg_tube_14a_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let sg_tube_14b_start_point = sg_tube_14_end_point;
+        let sg_tube_14b_coordinate_chg_percentage = 
+            vec2(30.0,0.0);
+        let sg_tube_14b_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
+            sg_tube_14b_start_point, 
+            sg_tube_14b_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+
 
     }
 
