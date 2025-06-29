@@ -30,6 +30,12 @@ cargo run --release --example fhr_vim_v1
 
 # Changelog 
 
+v0.1.2
+
+Added the FHR educational simulator with a STEADY STATE steam turbine cycle 
+as an example of how to use the flash algorithms within this code.
+
+
 v0.1.1 
 
 Starting the h,s flash algorithms.
