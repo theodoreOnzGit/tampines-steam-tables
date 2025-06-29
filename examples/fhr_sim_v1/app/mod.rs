@@ -1,11 +1,11 @@
 use std::time::Duration;
 
 use egui::{vec2, Pos2, Rect, Vec2};
-use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipeColourBlueRed};
+use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipeColourBlueRedTempSensitive};
 use uom::si::f64::*;
 use uom::si::thermodynamic_temperature::degree_celsius;
 
-use crate::app::local_widgets_and_buttons::pipes::SinglePipeColourBlackRed;
+use crate::app::local_widgets_and_buttons::pipes::{SinglePipeColourBlackRedTempSensitive, SinglePipeColourBlueWhiteQualitySensitive};
 use crate::{FHRSimulatorApp, FHRState};
 use crate::Panel;
 
@@ -312,7 +312,7 @@ impl FHRSimulatorApp {
                 pipe_11_coordinate_chg_as_percentage_of_reactor.y/100.0 * reactor_height,
             );
 
-        let pipe_11_widget = SinglePipeColourBlueRed::new(
+        let pipe_11_widget = SinglePipeColourBlueRedTempSensitive::new(
             pipe_11_coordinate_chg, 
             min_temp, 
             max_temp, 
@@ -418,7 +418,7 @@ impl FHRSimulatorApp {
                 let min_temp = ThermodynamicTemperature::new::<degree_celsius>(450.0);
                 let max_temp = ThermodynamicTemperature::new::<degree_celsius>(750.0);
 
-                let pipe_widget = SinglePipeColourBlueRed::new(
+                let pipe_widget = SinglePipeColourBlueRedTempSensitive::new(
                     pipe_coordinate_chg, 
                     min_temp, 
                     max_temp, 
@@ -609,7 +609,7 @@ impl FHRSimulatorApp {
                 let intrmd_loop_min_temp = ThermodynamicTemperature::new::<degree_celsius>(170.0);
                 let intrmd_loop_max_temp = ThermodynamicTemperature::new::<degree_celsius>(520.0);
 
-                let pipe_widget = SinglePipeColourBlackRed::new(
+                let pipe_widget = SinglePipeColourBlackRedTempSensitive::new(
                     pipe_coordinate_chg, 
                     intrmd_loop_min_temp, 
                     intrmd_loop_max_temp, 
@@ -729,12 +729,128 @@ impl FHRSimulatorApp {
         // pipe 13 
         let pipe_13_coordinate_chg_percentage = 
             vec2(0.0, -130.0);
-        let pipe_13_start_point = create_pipe_widget_intrmd_loop(
+        let _pipe_13_start_point = create_pipe_widget_intrmd_loop(
             &pipe_13_temperature_vector_degc, 
             pipe_13_start_point, 
             pipe_13_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
 
+        // secondary loop
+        //
+        // steam turbine 
+        // steam generator tube side
+
+        fn create_pipe_widget_secondary_loop (
+            steam_quality: f64,
+            start_point: Vec2, 
+            pipe_position_change_as_percentage_of_reactor: Vec2,
+            ui: &mut egui::Ui,
+            reactor_width: f32,
+            reactor_height: f32) -> Vec2 {
+
+
+                // the start point of the pipe 11 
+                // is: x coordinate (boundy by left and right of reactor rectangle)
+                // y coordinate: reactor_rectangle bottom minus some fixed height 
+                // based on scale
+
+                let end_point = 
+                    vec2(
+                        start_point.x + pipe_position_change_as_percentage_of_reactor.x/100.0 * reactor_width,
+                        start_point.y + pipe_position_change_as_percentage_of_reactor.y/100.0 * reactor_height,
+                    );
+
+
+                // now in the case that end point is 
+                // higher in x and y position than the start point:
+                let mut pipe_rect = 
+                    egui::Rect {
+                        min: Pos2 { x: 0.0, y: 0.0 } + start_point,
+                        max: Pos2 { x: 0.0, y: 0.0 } + end_point,
+                    };
+                // this may not always be the case, and the min 
+                // must be the top left corner, the end point must 
+                // be the bottom right corner
+                // 
+                // so end point is bottom right if 
+                // its x and y coordinate are more than the start 
+                // point 
+                let end_point_is_bottom_right: bool = 
+                    end_point.x > start_point.x && 
+                    end_point.y > start_point.y;
+
+                if end_point_is_bottom_right {
+
+                    // do nothing in this case, no need to modify the 
+                    // pipe rectangle
+                } else {
+                    // we need to find the bottom right first 
+
+                    let mut top_left_x_coord: f32 = start_point.x;
+                    let mut bottom_right_x_coord: f32 = end_point.x;
+                    // 
+                    // if the start point happens to be at the bottom right 
+                    // so to speak,
+                    if end_point.x < start_point.x {
+                        top_left_x_coord = end_point.x;
+                        bottom_right_x_coord = start_point.x;
+                    };
+
+                    let mut top_left_y_coord: f32 = start_point.y;
+                    let mut bottom_right_y_coord: f32 = end_point.y;
+                    // 
+                    // if the start point happens to be at the bottom right 
+                    // so to speak,
+                    if end_point.y < start_point.y {
+                        top_left_y_coord = end_point.y;
+                        bottom_right_y_coord = start_point.y;
+                    };
+
+                    let top_left = 
+                        vec2(
+                            top_left_x_coord,
+                            top_left_y_coord,
+                        );
+                    let bottom_right = 
+                        vec2(
+                            bottom_right_x_coord,
+                            bottom_right_y_coord,
+                        );
+
+                    pipe_rect = 
+                        egui::Rect {
+                            min: Pos2 { x: 0.0, y: 0.0 } + top_left,
+                            max: Pos2 { x: 0.0, y: 0.0 } + bottom_right,
+                        };
+
+
+                }
+
+                let pipe_coordinate_chg = 
+                    vec2(
+                        pipe_position_change_as_percentage_of_reactor.x/100.0 * reactor_width,
+                        pipe_position_change_as_percentage_of_reactor.y/100.0 * reactor_height,
+                    );
+
+                let pipe_widget = SinglePipeColourBlueWhiteQualitySensitive::new(
+                    pipe_coordinate_chg, 
+                    steam_quality
+                );
+                ui.put(pipe_rect, pipe_widget);
+
+                return end_point;
+            }
+        let sg_tube_14_start_point = 
+            sg_shell_14_start_point +
+            vec2(reactor_width * 0.1, 0.0);
+        let sg_tube_14_coordinate_chg_percentage = 
+            sg_shell_14_coordinate_chg_percentage;
+
+        let sg_tube_14_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
+            sg_tube_14_start_point, 
+            sg_tube_14_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
 
     }
 
