@@ -66,7 +66,7 @@ impl FHRSimulatorApp {
 
                 let secondary_loop_mass_flowrate_slider = egui::Slider::new(
                     &mut fhr_state_ptr.user_specified_secondary_loop_mass_flowrate_kg_per_s, 
-                    10.0..=150.0)
+                    10.0..=80.0)
                     .logarithmic(false)
                     .text("Secondary Loop Mass Flowrate (kg/s)")
                     .drag_value_speed(0.1);
@@ -77,7 +77,7 @@ impl FHRSimulatorApp {
                     0.0e5..=7.0e5)
                     .logarithmic(false)
                     .text("Steam Generator overall UA (Watt per Kelvin)")
-                    .drag_value_speed(10.0);
+                    .drag_value_speed(100.0);
 
                 ui.add(secondary_loop_mass_flowrate_slider);
 
