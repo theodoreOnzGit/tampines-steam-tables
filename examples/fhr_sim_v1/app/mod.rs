@@ -454,7 +454,6 @@ impl FHRSimulatorApp {
             reactor_width,
             reactor_height,
         );
-        ui.separator();
         // pipe 8
         let pipe_8_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
@@ -903,6 +902,153 @@ impl FHRSimulatorApp {
             turbine_tube_18c_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
 
+        // turbine outline 
+
+        // tubine axle
+        //let turbine_tube_18d_start_point = 
+        //    turbine_tube_18c_end_point;
+        //let turbine_tube_18d_coordinate_chg_percentage = 
+        //    vec2(30.0,0.0);
+        //let turbine_tube_18d_end_point = create_pipe_widget_secondary_loop(
+        //    fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
+        //    turbine_tube_18d_start_point, 
+        //    turbine_tube_18d_coordinate_chg_percentage, 
+        //    ui, reactor_width, reactor_height);
+        //let turbine_tube_18e_start_point = 
+        //    turbine_tube_18c_end_point;
+        //let turbine_tube_18e_coordinate_chg_percentage = 
+        //    vec2(-30.0,0.0);
+        //let turbine_tube_18e_end_point = create_pipe_widget_secondary_loop(
+        //    fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
+        //    turbine_tube_18e_start_point, 
+        //    turbine_tube_18e_coordinate_chg_percentage, 
+        //    ui, reactor_width, reactor_height);
+
+        // turbine bow (right)
+        let turbine_tube_18f_start_point = 
+            turbine_tube_18c_end_point;
+        let turbine_tube_18f_coordinate_chg_percentage = 
+            vec2(45.0,15.0);
+        let turbine_tube_18f_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            turbine_tube_18f_start_point, 
+            turbine_tube_18f_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let turbine_tube_18g_start_point = 
+            turbine_tube_18c_end_point;
+        let turbine_tube_18g_coordinate_chg_percentage = 
+            vec2(45.0,-15.0);
+        let turbine_tube_18g_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            turbine_tube_18g_start_point, 
+            turbine_tube_18g_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let turbine_tube_18h_start_point = 
+            turbine_tube_18g_end_point;
+        let turbine_tube_18h_coordinate_chg_percentage = 
+            vec2(0.0,40.0);
+        let turbine_tube_18h_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            turbine_tube_18h_start_point, 
+            turbine_tube_18h_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        // turbine bow (left)
+        let turbine_tube_18i_start_point = 
+            turbine_tube_18c_end_point;
+        let turbine_tube_18i_coordinate_chg_percentage = 
+            vec2(-45.0,15.0);
+        let turbine_tube_18i_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            turbine_tube_18i_start_point, 
+            turbine_tube_18i_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let turbine_tube_18j_start_point = 
+            turbine_tube_18c_end_point;
+        let turbine_tube_18j_coordinate_chg_percentage = 
+            vec2(-45.0,-15.0);
+        let turbine_tube_18j_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            turbine_tube_18j_start_point, 
+            turbine_tube_18j_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let turbine_tube_18k_start_point = 
+            turbine_tube_18j_end_point;
+        let turbine_tube_18k_coordinate_chg_percentage = 
+            vec2(0.0,40.0);
+        let turbine_tube_18k_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            turbine_tube_18k_start_point, 
+            turbine_tube_18k_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let turbine_tube_18l_start_point = 
+            turbine_tube_18k_end_point;
+        let turbine_tube_18l_coordinate_chg_percentage = 
+            vec2(90.0,0.0);
+        let turbine_tube_18l_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            turbine_tube_18l_start_point, 
+            turbine_tube_18l_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        // condenser
+        let condenser_tube_19a_start_point = 
+            turbine_tube_18l_end_point;
+        let condenser_tube_19a_coordinate_chg_percentage = 
+            vec2(0.0,75.0);
+        let condenser_tube_19a_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_turbine, 
+            condenser_tube_19a_start_point, 
+            condenser_tube_19a_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let condenser_tube_19b_start_point = 
+            condenser_tube_19a_end_point;
+        let condenser_tube_19b_coordinate_chg_percentage = 
+            vec2(-50.0,0.0);
+        let condenser_tube_19b_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_condenser, 
+            condenser_tube_19b_start_point, 
+            condenser_tube_19b_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let condenser_tube_19c_start_point = 
+            condenser_tube_19b_end_point;
+        let condenser_tube_19c_coordinate_chg_percentage = 
+            vec2(-50.0,0.0);
+        let condenser_tube_19c_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_condenser, 
+            condenser_tube_19c_start_point, 
+            condenser_tube_19c_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+        ui.separator();
+
+        // pump
+        let pump_20a_start_point = 
+            condenser_tube_19c_end_point;
+        let pump_20a_coordinate_chg_percentage = 
+            vec2(-50.0,0.0);
+        let pump_20a_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_condenser, 
+            pump_20a_start_point, 
+            pump_20a_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let pump_20b_start_point = 
+            pump_20a_end_point;
+        let pump_20b_coordinate_chg_percentage = 
+            vec2(-100.0,0.0);
+        let pump_20b_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_condenser, 
+            pump_20b_start_point, 
+            pump_20b_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+        ui.separator();
 
     }
 
