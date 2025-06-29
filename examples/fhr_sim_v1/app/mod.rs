@@ -415,16 +415,64 @@ impl FHRSimulatorApp {
         // now let's create pipe_10 
         let pipe_10_coordinate_chg = 
             vec2(200.0, 0.0);
-
         let pump_9_start_point = create_pipe_widget(
             pipe_10_temperature_vector_degc,
             pipe_10_start,
             pipe_10_coordinate_chg,
         );
 
-
+        // pump 9 
+        let pump_9_coordinate_chg = 
+            vec2(200.0, 0.0);
+        let pipe_8_start_point = create_pipe_widget(
+            pump_9_temperature_vector_degc,
+            pump_9_start_point,
+            pump_9_coordinate_chg,
+        );
+        // pipe 8
+        let pipe_8_coordinate_chg = 
+            vec2(0.0, -200.0);
+        let pipe_7_start_point = create_pipe_widget(
+            pipe_8_temperature_vector_degc,
+            pipe_8_start_point,
+            pipe_8_coordinate_chg,
+        );
+        // pipe 7
+        let pipe_7_coordinate_chg = 
+            vec2(0.0, -310.0);
+        let ihx_shell_6_start_point = create_pipe_widget(
+            pipe_7_temperature_vector_degc,
+            pipe_7_start_point,
+            pipe_7_coordinate_chg,
+        );
+        // ihx shell
+        let ihx_shell_6_coordinate_chg = 
+            vec2(0.0, -100.0);
+        let pipe_5_start_point = create_pipe_widget(
+            ihx_shell_6_temperature_vector_degc,
+            ihx_shell_6_start_point,
+            ihx_shell_6_coordinate_chg,
+        );
+        // pipe_5
+        let pipe_5_coordinate_chg = 
+            vec2(-200.0, -0.0);
+        let pipe_4_start_point = create_pipe_widget(
+            pipe_5_temperature_vector_degc,
+            pipe_5_start_point,
+            pipe_5_coordinate_chg,
+        );
+        // pipe_4
+        let pipe_4_coordinate_chg = 
+            vec2(-0.0, 100.0);
+        let _pipe_3_start_point = create_pipe_widget(
+            pipe_4_temperature_vector_degc,
+            pipe_4_start_point,
+            pipe_4_coordinate_chg,
+        );
 
         ui.separator();
+
+
 
     }
 
