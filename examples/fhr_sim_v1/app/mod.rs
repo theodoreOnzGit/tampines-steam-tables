@@ -269,13 +269,17 @@ impl FHRSimulatorApp {
 
             return pipe_temp;
         }
+        // these are reactor lengthscales to pay attention to 
+        // 
+        let reactor_height: f32 = reactor_rectangle.height() * 0.56;
+        let reactor_width: f32 = reactor_rectangle.width();
 
         let pipe_11_temp: ThermodynamicTemperature = 
             average_temp(pipe_11_temperature_vector_degc);
         // this represents the pipe coordinate change from the start 
         // point
-        let pipe_coordinate_chg = 
-            vec2(0.0, 150.0);
+        let pipe_11_coordinate_chg_as_percentage_of_reactor = 
+            vec2(0.0, 30.0);
 
         // the start point of the pipe 11 
         // is: x coordinate (boundy by left and right of reactor rectangle)
@@ -289,8 +293,8 @@ impl FHRSimulatorApp {
 
         let pipe_10_start = 
             vec2(
-                pipe_11_start.x + pipe_coordinate_chg.x,
-                pipe_11_start.y + pipe_coordinate_chg.y,
+                pipe_11_start.x + pipe_11_coordinate_chg_as_percentage_of_reactor.x/100.0 * reactor_width,
+                pipe_11_start.y + pipe_11_coordinate_chg_as_percentage_of_reactor.y/100.0 * reactor_height,
             );
 
 
@@ -301,19 +305,25 @@ impl FHRSimulatorApp {
             };
 
 
+        let pipe_11_coordinate_chg = 
+            vec2(
+                pipe_11_coordinate_chg_as_percentage_of_reactor.x/100.0 * reactor_width,
+                pipe_11_coordinate_chg_as_percentage_of_reactor.y/100.0 * reactor_height,
+            );
 
         let pipe_11_widget = SinglePipe::new(
-            pipe_coordinate_chg, 
+            pipe_11_coordinate_chg, 
             min_temp, 
             max_temp, 
             pipe_11_temp
         );
         ui.put(pipe_11_rect, pipe_11_widget);
 
+
         let mut create_pipe_widget = |
             pipe_temp_vec_degc: Vec<f64>,
             start_point: Vec2, 
-            pipe_position_change: Vec2| -> Vec2 {
+            pipe_position_change_as_percentage_of_reactor: Vec2| -> Vec2 {
 
 
                 // the start point of the pipe 11 
@@ -321,12 +331,12 @@ impl FHRSimulatorApp {
                 // y coordinate: reactor_rectangle bottom minus some fixed height 
                 // based on scale
 
-                let pipe_11_temp = 
+                let pipe_temp = 
                     average_temp(pipe_temp_vec_degc);
                 let end_point = 
                     vec2(
-                        start_point.x + pipe_position_change.x,
-                        start_point.y + pipe_position_change.y,
+                        start_point.x + pipe_position_change_as_percentage_of_reactor.x/100.0 * reactor_width,
+                        start_point.y + pipe_position_change_as_percentage_of_reactor.y/100.0 * reactor_height,
                     );
 
 
@@ -395,15 +405,18 @@ impl FHRSimulatorApp {
 
                 }
 
-
-
+                let pipe_coordinate_chg = 
+                    vec2(
+                        pipe_position_change_as_percentage_of_reactor.x/100.0 * reactor_width,
+                        pipe_position_change_as_percentage_of_reactor.y/100.0 * reactor_height,
+                    );
 
 
                 let pipe_widget = SinglePipe::new(
-                    pipe_position_change, 
+                    pipe_coordinate_chg, 
                     min_temp, 
                     max_temp, 
-                    pipe_11_temp
+                    pipe_temp
                 );
                 ui.put(pipe_rect, pipe_widget);
 
@@ -413,61 +426,61 @@ impl FHRSimulatorApp {
 
 
         // now let's create pipe_10 
-        let pipe_10_coordinate_chg = 
-            vec2(200.0, 0.0);
+        let pipe_10_coordinate_chg_percentage = 
+            vec2(100.0, 0.0);
         let pump_9_start_point = create_pipe_widget(
             pipe_10_temperature_vector_degc,
             pipe_10_start,
-            pipe_10_coordinate_chg,
+            pipe_10_coordinate_chg_percentage,
         );
 
         // pump 9 
-        let pump_9_coordinate_chg = 
-            vec2(200.0, 0.0);
+        let pump_9_coordinate_chg_percentage = 
+            vec2(100.0, 0.0);
         let pipe_8_start_point = create_pipe_widget(
             pump_9_temperature_vector_degc,
             pump_9_start_point,
-            pump_9_coordinate_chg,
+            pump_9_coordinate_chg_percentage,
         );
         // pipe 8
-        let pipe_8_coordinate_chg = 
-            vec2(0.0, -200.0);
+        let pipe_8_coordinate_chg_percentage = 
+            vec2(0.0, -30.0);
         let pipe_7_start_point = create_pipe_widget(
             pipe_8_temperature_vector_degc,
             pipe_8_start_point,
-            pipe_8_coordinate_chg,
+            pipe_8_coordinate_chg_percentage,
         );
         // pipe 7
-        let pipe_7_coordinate_chg = 
-            vec2(0.0, -310.0);
+        let pipe_7_coordinate_chg_percentage = 
+            vec2(0.0, -100.0);
         let ihx_shell_6_start_point = create_pipe_widget(
             pipe_7_temperature_vector_degc,
             pipe_7_start_point,
-            pipe_7_coordinate_chg,
+            pipe_7_coordinate_chg_percentage,
         );
         // ihx shell
-        let ihx_shell_6_coordinate_chg = 
-            vec2(0.0, -100.0);
+        let ihx_shell_6_coordinate_chg_percentage = 
+            vec2(0.0, -30.0);
         let pipe_5_start_point = create_pipe_widget(
             ihx_shell_6_temperature_vector_degc,
             ihx_shell_6_start_point,
-            ihx_shell_6_coordinate_chg,
+            ihx_shell_6_coordinate_chg_percentage,
         );
         // pipe_5
-        let pipe_5_coordinate_chg = 
+        let pipe_5_coordinate_chg_percentage = 
             vec2(-200.0, -0.0);
         let pipe_4_start_point = create_pipe_widget(
             pipe_5_temperature_vector_degc,
             pipe_5_start_point,
-            pipe_5_coordinate_chg,
+            pipe_5_coordinate_chg_percentage,
         );
         // pipe_4
-        let pipe_4_coordinate_chg = 
-            vec2(-0.0, 100.0);
+        let pipe_4_coordinate_chg_percentage = 
+            vec2(-0.0, 60.0);
         let _pipe_3_start_point = create_pipe_widget(
             pipe_4_temperature_vector_degc,
             pipe_4_start_point,
-            pipe_4_coordinate_chg,
+            pipe_4_coordinate_chg_percentage,
         );
 
         ui.separator();
