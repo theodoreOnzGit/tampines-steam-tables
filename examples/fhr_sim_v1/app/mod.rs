@@ -320,10 +320,13 @@ impl FHRSimulatorApp {
         ui.put(pipe_11_rect, pipe_11_widget);
 
 
-        let mut create_pipe_widget = |
+        fn create_pipe_widget (
             pipe_temp_vec_degc: Vec<f64>,
             start_point: Vec2, 
-            pipe_position_change_as_percentage_of_reactor: Vec2| -> Vec2 {
+            pipe_position_change_as_percentage_of_reactor: Vec2,
+            ui: &mut egui::Ui,
+            reactor_width: f32,
+            reactor_height: f32) -> Vec2 {
 
 
                 // the start point of the pipe 11 
@@ -411,6 +414,8 @@ impl FHRSimulatorApp {
                         pipe_position_change_as_percentage_of_reactor.y/100.0 * reactor_height,
                     );
 
+                let min_temp = ThermodynamicTemperature::new::<degree_celsius>(450.0);
+                let max_temp = ThermodynamicTemperature::new::<degree_celsius>(750.0);
 
                 let pipe_widget = SinglePipe::new(
                     pipe_coordinate_chg, 
@@ -432,6 +437,9 @@ impl FHRSimulatorApp {
             pipe_10_temperature_vector_degc,
             pipe_10_start,
             pipe_10_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
         );
 
         // pump 9 
@@ -441,6 +449,9 @@ impl FHRSimulatorApp {
             pump_9_temperature_vector_degc,
             pump_9_start_point,
             pump_9_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
         );
         // pipe 8
         let pipe_8_coordinate_chg_percentage = 
@@ -449,6 +460,9 @@ impl FHRSimulatorApp {
             pipe_8_temperature_vector_degc,
             pipe_8_start_point,
             pipe_8_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
         );
         // pipe 7
         let pipe_7_coordinate_chg_percentage = 
@@ -457,6 +471,9 @@ impl FHRSimulatorApp {
             pipe_7_temperature_vector_degc,
             pipe_7_start_point,
             pipe_7_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
         );
         // ihx shell
         let ihx_shell_6_coordinate_chg_percentage = 
@@ -465,6 +482,9 @@ impl FHRSimulatorApp {
             ihx_shell_6_temperature_vector_degc,
             ihx_shell_6_start_point,
             ihx_shell_6_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
         );
         // pipe_5
         let pipe_5_coordinate_chg_percentage = 
@@ -473,6 +493,9 @@ impl FHRSimulatorApp {
             pipe_5_temperature_vector_degc,
             pipe_5_start_point,
             pipe_5_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
         );
         // pipe_4
         let pipe_4_coordinate_chg_percentage = 
@@ -481,6 +504,9 @@ impl FHRSimulatorApp {
             pipe_4_temperature_vector_degc,
             pipe_4_start_point,
             pipe_4_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
         );
 
         ui.separator();
