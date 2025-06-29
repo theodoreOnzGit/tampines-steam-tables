@@ -148,6 +148,7 @@ pub struct FHRState {
     // settings for steam generator loop
     pub user_specified_secondary_loop_mass_flowrate_kg_per_s: f64,
     pub user_specified_secondary_loop_pump_outlet_pressure_bar: f64,
+    pub user_specified_secondary_loop_ua_watt_per_kelvin:f64,
     pub steam_generator_tube_outlet_temperature_degc: f64,
 
     // void fractions for secondary loop 
@@ -200,8 +201,9 @@ impl Default for FHRState {
             downcomer2_branch_flowrate_kg_per_s: 0.0,
             ihx_branch_flowrate_kg_per_s: 0.0,
             intermediate_loop_clockwise_flow_kg_per_s: 0.0,
-            user_specified_secondary_loop_mass_flowrate_kg_per_s: 20.0,
+            user_specified_secondary_loop_mass_flowrate_kg_per_s: 50.0,
             user_specified_secondary_loop_pump_outlet_pressure_bar: 1.2,
+            user_specified_secondary_loop_ua_watt_per_kelvin: 1.5e5,
             steam_generator_tube_outlet_temperature_degc: 300.0,
             pipe_4_temperature_vector_degc: vec![500.0],
             pipe_5_temperature_vector_degc: vec![500.0],

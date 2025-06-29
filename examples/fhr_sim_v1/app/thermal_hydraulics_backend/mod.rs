@@ -1069,7 +1069,9 @@ impl FHRSimulatorApp {
             // I made this based on UA for 35 MWth heat load, and 
             // 30 degrees steam temperature, 300 degrees salt temperature
             let steam_generator_overall_ua: ThermalConductance 
-                = ThermalConductance::new::<watt_per_kelvin>(1.5e5);
+                = ThermalConductance::new::<watt_per_kelvin>(
+                    fhr_state_clone.lock().unwrap().user_specified_secondary_loop_ua_watt_per_kelvin
+                    );
             let steam_generator_tube_side_temperature = 
                 ThermodynamicTemperature::new::<degree_celsius>(
                     fhr_state_clone.lock().unwrap().steam_generator_tube_outlet_temperature_degc
