@@ -453,6 +453,7 @@ impl FHRSimulatorApp {
             reactor_width,
             reactor_height,
         );
+        ui.separator();
         // pipe 8
         let pipe_8_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
@@ -509,7 +510,6 @@ impl FHRSimulatorApp {
             reactor_height,
         );
 
-        ui.separator();
 
 
 
