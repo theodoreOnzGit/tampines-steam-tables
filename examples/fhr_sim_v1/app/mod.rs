@@ -287,7 +287,7 @@ impl FHRSimulatorApp {
                 reactor_rectangle.bottom() - reactor_rectangle.height() * 0.28,
             );
 
-        let pipe_2_start = 
+        let pipe_10_start = 
             vec2(
                 pipe_11_start.x + pipe_coordinate_chg.x,
                 pipe_11_start.y + pipe_coordinate_chg.y,
@@ -297,7 +297,7 @@ impl FHRSimulatorApp {
         let pipe_11_rect = 
             egui::Rect {
                 min: Pos2 { x: 0.0, y: 0.0 } + pipe_11_start,
-                max: Pos2 { x: 0.0, y: 0.0 } + pipe_2_start,
+                max: Pos2 { x: 0.0, y: 0.0 } + pipe_10_start,
             };
 
 
@@ -308,8 +308,9 @@ impl FHRSimulatorApp {
             max_temp, 
             pipe_11_temp
         );
+        ui.put(pipe_11_rect, pipe_11_widget);
 
-        let create_pipe_widget = |
+        let mut create_pipe_widget = |
             pipe_temp_vec_degc: Vec<f64>,
             start_point: Vec2, 
             pipe_position_change: Vec2| -> Vec2 {
@@ -410,7 +411,18 @@ impl FHRSimulatorApp {
             };
 
 
-        ui.put(pipe_11_rect, pipe_11_widget);
+
+        // now let's create pipe_10 
+        let pipe_10_coordinate_chg = 
+            vec2(200.0, 0.0);
+
+        let pump_9_start_point = create_pipe_widget(
+            pipe_10_temperature_vector_degc,
+            pipe_10_start,
+            pipe_10_coordinate_chg,
+        );
+
+
 
         ui.separator();
 
