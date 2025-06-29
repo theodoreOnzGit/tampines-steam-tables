@@ -94,7 +94,7 @@ impl FHRSimulatorApp {
 
 
 
-pub fn new_temp_sensitive_button(
+pub fn new_temp_sensitive_button_blue_red(
     min_temp_degc: f32, 
     max_temp_degc: f32,
     button_temp_degc: f32,
@@ -105,6 +105,24 @@ pub fn new_temp_sensitive_button(
         (button_temp_degc - min_temp_degc)/(max_temp_degc- min_temp_degc);
 
     let colour_temp = hot_to_cold_colour_mark_1(hotness);
+    let temp_sensitive_button = egui::Button::new(name)
+        .fill(colour_temp);
+
+    temp_sensitive_button
+
+}
+
+pub fn new_temp_sensitive_button_black_red(
+    min_temp_degc: f32, 
+    max_temp_degc: f32,
+    button_temp_degc: f32,
+    name: &str,
+) -> egui::Button {
+
+    let hotness: f32 = 
+        (button_temp_degc - min_temp_degc)/(max_temp_degc- min_temp_degc);
+
+    let colour_temp = hot_to_cold_colour_mark_2(hotness);
     let temp_sensitive_button = egui::Button::new(name)
         .fill(colour_temp);
 
@@ -131,6 +149,28 @@ pub fn hot_to_cold_colour_mark_1(hotness: f32) -> Color32 {
     let red: f32 = 255.0 * hotness_clone;
     let green: f32 = 135.0 * (1.0 - hotness_clone);
     let blue: f32 = 255.0 * (1.0 - hotness_clone);
+
+    return Color32::from_rgb(
+        red as u8, 
+        green as u8, 
+        blue as u8);
+}
+
+/// from colour picker 
+/// from black(cold) to red (hot)
+pub fn hot_to_cold_colour_mark_2(hotness: f32) -> Color32 {
+    let mut hotness_clone = hotness.clone();
+
+    // ensures hotness is between 0 and 1
+    if hotness_clone < 0.0 {
+        hotness_clone = 0.0;
+    } else if hotness_clone > 1.0 {
+        hotness_clone = 1.0
+    }
+
+    let red: f32 = 255.0 * hotness_clone;
+    let green: f32 = 0.0;
+    let blue: f32 = 0.0;
 
     return Color32::from_rgb(
         red as u8, 

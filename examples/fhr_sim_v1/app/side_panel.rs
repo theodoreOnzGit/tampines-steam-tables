@@ -2,9 +2,9 @@ use std::ops::Deref;
 
 use egui::Ui;
 
-use crate::{FHRSimulatorApp, FHRState};
+use crate::{app::local_widgets_and_buttons::new_temp_sensitive_button_black_red, FHRSimulatorApp, FHRState};
 
-use super::local_widgets_and_buttons::new_temp_sensitive_button;
+use super::local_widgets_and_buttons::new_temp_sensitive_button_blue_red;
 
 impl FHRSimulatorApp {
 
@@ -166,7 +166,7 @@ impl FHRSimulatorApp {
 
                 ui.separator();
                 ui.heading("Temperature Scale");
-                ui.heading("Colour to Temperature Legend");
+                ui.heading("Colour to Temperature Legend (Pri loop)");
 
                 // now I need colour legend
                 let min_temp_degc = 450.0;
@@ -175,7 +175,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = max_temp_degc;
                 let max_temp_string: String = 
                     button_temp_degc.to_string()+" degC or more";
-                let max_temp = new_temp_sensitive_button(
+                let max_temp = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -243,7 +243,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 700.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_700_degc = new_temp_sensitive_button(
+                let temp_700_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -255,7 +255,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 650.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_650_degc = new_temp_sensitive_button(
+                let temp_650_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -266,7 +266,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 600.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_600_degc = new_temp_sensitive_button(
+                let temp_600_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -277,7 +277,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 550.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_550_degc = new_temp_sensitive_button(
+                let temp_550_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -288,7 +288,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 500.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_500_degc = new_temp_sensitive_button(
+                let temp_500_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -299,7 +299,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 450.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_450_degc = new_temp_sensitive_button(
+                let temp_450_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -311,7 +311,7 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 400.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_400_degc = new_temp_sensitive_button(
+                let temp_400_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
@@ -323,13 +323,69 @@ impl FHRSimulatorApp {
                 let button_temp_degc = 350.0;
                 let button_temp_string: String = 
                     button_temp_degc.to_string()+" degrees celsius";
-                let temp_350_degc = new_temp_sensitive_button(
+                let temp_350_degc = new_temp_sensitive_button_blue_red(
                     min_temp_degc, 
                     max_temp_degc, 
                     button_temp_degc, 
                     &button_temp_string
                 );
                 ui.add(temp_350_degc);
+
+                fn temp_colour_scale_black_red(
+                    max_temp_degc: f32,
+                    min_temp_degc: f32,
+                    ui: &mut Ui){
+
+                    let interval_degc: f32 = 50.0;
+
+                    let mut current_interval_temp_degc = max_temp_degc;
+
+                    let button_temp_degc = max_temp_degc;
+                    let max_temp_string: String = 
+                        button_temp_degc.to_string()+" degC or more";
+                    let max_temp_button = new_temp_sensitive_button_blue_red(
+                        min_temp_degc, 
+                        max_temp_degc, 
+                        button_temp_degc, 
+                        &max_temp_string
+                    );
+                    ui.add(max_temp_button);
+
+                    while current_interval_temp_degc > min_temp_degc {
+
+                        let button_temp_degc = current_interval_temp_degc;
+                        let button_temp_string: String = 
+                            button_temp_degc.to_string()+" degrees celsius";
+                        let current_interval_temp_button = new_temp_sensitive_button_black_red(
+                            min_temp_degc, 
+                            max_temp_degc, 
+                            button_temp_degc, 
+                            &button_temp_string
+                        );
+                        ui.add(current_interval_temp_button);
+                        current_interval_temp_degc -= interval_degc;
+                    }
+                    let button_temp_degc = min_temp_degc;
+                    let min_temp_string: String = 
+                        button_temp_degc.to_string()+" degC or less";
+                    let min_temp_button = new_temp_sensitive_button_blue_red(
+                        min_temp_degc, 
+                        min_temp_degc, 
+                        button_temp_degc, 
+                        &min_temp_string
+                    );
+                    ui.add(min_temp_button);
+
+                }
+
+                ui.separator();
+                ui.heading("Temperature Scale");
+                let intrmd_loop_min_temp_degc = 170.0;
+                let intrmd_loop_max_temp_degc = 520.0;
+                ui.heading("Colour to Temperature Legend (Intermediate loop)");
+                temp_colour_scale_black_red(
+                    intrmd_loop_max_temp_degc, 
+                    intrmd_loop_min_temp_degc, ui);
 
 
                 // flowrate diagnostics

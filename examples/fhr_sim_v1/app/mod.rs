@@ -1,10 +1,11 @@
 use std::time::Duration;
 
 use egui::{vec2, Pos2, Rect, Vec2};
-use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipe};
+use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipeColourBlueRed};
 use uom::si::f64::*;
 use uom::si::thermodynamic_temperature::degree_celsius;
 
+use crate::app::local_widgets_and_buttons::pipes::SinglePipeColourBlackRed;
 use crate::{FHRSimulatorApp, FHRState};
 use crate::Panel;
 
@@ -311,7 +312,7 @@ impl FHRSimulatorApp {
                 pipe_11_coordinate_chg_as_percentage_of_reactor.y/100.0 * reactor_height,
             );
 
-        let pipe_11_widget = SinglePipe::new(
+        let pipe_11_widget = SinglePipeColourBlueRed::new(
             pipe_11_coordinate_chg, 
             min_temp, 
             max_temp, 
@@ -320,7 +321,7 @@ impl FHRSimulatorApp {
         ui.put(pipe_11_rect, pipe_11_widget);
 
 
-        fn create_pipe_widget (
+        fn create_pipe_widget_pri_loop (
             pipe_temp_vec_degc: &Vec<f64>,
             start_point: Vec2, 
             pipe_position_change_as_percentage_of_reactor: Vec2,
@@ -417,7 +418,7 @@ impl FHRSimulatorApp {
                 let min_temp = ThermodynamicTemperature::new::<degree_celsius>(450.0);
                 let max_temp = ThermodynamicTemperature::new::<degree_celsius>(750.0);
 
-                let pipe_widget = SinglePipe::new(
+                let pipe_widget = SinglePipeColourBlueRed::new(
                     pipe_coordinate_chg, 
                     min_temp, 
                     max_temp, 
@@ -433,7 +434,7 @@ impl FHRSimulatorApp {
         // now let's create pipe_10 
         let pipe_10_coordinate_chg_percentage = 
             vec2(100.0, 0.0);
-        let pump_9_start_point = create_pipe_widget(
+        let pump_9_start_point = create_pipe_widget_pri_loop(
             &pipe_10_temperature_vector_degc,
             pipe_10_start,
             pipe_10_coordinate_chg_percentage,
@@ -445,7 +446,7 @@ impl FHRSimulatorApp {
         // pump 9 
         let pump_9_coordinate_chg_percentage = 
             vec2(100.0, 0.0);
-        let pipe_8_start_point = create_pipe_widget(
+        let pipe_8_start_point = create_pipe_widget_pri_loop(
             &pump_9_temperature_vector_degc,
             pump_9_start_point,
             pump_9_coordinate_chg_percentage,
@@ -457,7 +458,7 @@ impl FHRSimulatorApp {
         // pipe 8
         let pipe_8_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
-        let pipe_7_start_point = create_pipe_widget(
+        let pipe_7_start_point = create_pipe_widget_pri_loop(
             &pipe_8_temperature_vector_degc,
             pipe_8_start_point,
             pipe_8_coordinate_chg_percentage,
@@ -468,7 +469,7 @@ impl FHRSimulatorApp {
         // pipe 7
         let pipe_7_coordinate_chg_percentage = 
             vec2(0.0, -100.0);
-        let ihx_shell_6_start_point = create_pipe_widget(
+        let ihx_shell_6_start_point = create_pipe_widget_pri_loop(
             &pipe_7_temperature_vector_degc,
             pipe_7_start_point,
             pipe_7_coordinate_chg_percentage,
@@ -479,7 +480,7 @@ impl FHRSimulatorApp {
         // ihx shell
         let ihx_shell_6_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
-        let pipe_5_start_point = create_pipe_widget(
+        let pipe_5_start_point = create_pipe_widget_pri_loop(
             &ihx_shell_6_temperature_vector_degc,
             ihx_shell_6_start_point,
             ihx_shell_6_coordinate_chg_percentage,
@@ -490,7 +491,7 @@ impl FHRSimulatorApp {
         // pipe_5
         let pipe_5_coordinate_chg_percentage = 
             vec2(-200.0, -0.0);
-        let pipe_4_start_point = create_pipe_widget(
+        let pipe_4_start_point = create_pipe_widget_pri_loop(
             &pipe_5_temperature_vector_degc,
             pipe_5_start_point,
             pipe_5_coordinate_chg_percentage,
@@ -501,7 +502,7 @@ impl FHRSimulatorApp {
         // pipe_4
         let pipe_4_coordinate_chg_percentage = 
             vec2(-0.0, 60.0);
-        let _pipe_3_start_point = create_pipe_widget(
+        let _pipe_3_start_point = create_pipe_widget_pri_loop(
             &pipe_4_temperature_vector_degc,
             pipe_4_start_point,
             pipe_4_coordinate_chg_percentage,
@@ -511,6 +512,113 @@ impl FHRSimulatorApp {
         );
 
         // intermediate loop
+        fn create_pipe_widget_intrmd_loop (
+            pipe_temp_vec_degc: &Vec<f64>,
+            start_point: Vec2, 
+            pipe_position_change_as_percentage_of_reactor: Vec2,
+            ui: &mut egui::Ui,
+            reactor_width: f32,
+            reactor_height: f32) -> Vec2 {
+
+
+                // the start point of the pipe 11 
+                // is: x coordinate (boundy by left and right of reactor rectangle)
+                // y coordinate: reactor_rectangle bottom minus some fixed height 
+                // based on scale
+
+                let pipe_temp = 
+                    average_temp(pipe_temp_vec_degc);
+                let end_point = 
+                    vec2(
+                        start_point.x + pipe_position_change_as_percentage_of_reactor.x/100.0 * reactor_width,
+                        start_point.y + pipe_position_change_as_percentage_of_reactor.y/100.0 * reactor_height,
+                    );
+
+
+                // now in the case that end point is 
+                // higher in x and y position than the start point:
+                let mut pipe_rect = 
+                    egui::Rect {
+                        min: Pos2 { x: 0.0, y: 0.0 } + start_point,
+                        max: Pos2 { x: 0.0, y: 0.0 } + end_point,
+                    };
+                // this may not always be the case, and the min 
+                // must be the top left corner, the end point must 
+                // be the bottom right corner
+                // 
+                // so end point is bottom right if 
+                // its x and y coordinate are more than the start 
+                // point 
+                let end_point_is_bottom_right: bool = 
+                    end_point.x > start_point.x && 
+                    end_point.y > start_point.y;
+
+                if end_point_is_bottom_right {
+
+                    // do nothing in this case, no need to modify the 
+                    // pipe rectangle
+                } else {
+                    // we need to find the bottom right first 
+
+                    let mut top_left_x_coord: f32 = start_point.x;
+                    let mut bottom_right_x_coord: f32 = end_point.x;
+                    // 
+                    // if the start point happens to be at the bottom right 
+                    // so to speak,
+                    if end_point.x < start_point.x {
+                        top_left_x_coord = end_point.x;
+                        bottom_right_x_coord = start_point.x;
+                    };
+
+                    let mut top_left_y_coord: f32 = start_point.y;
+                    let mut bottom_right_y_coord: f32 = end_point.y;
+                    // 
+                    // if the start point happens to be at the bottom right 
+                    // so to speak,
+                    if end_point.y < start_point.y {
+                        top_left_y_coord = end_point.y;
+                        bottom_right_y_coord = start_point.y;
+                    };
+
+                    let top_left = 
+                        vec2(
+                            top_left_x_coord,
+                            top_left_y_coord,
+                        );
+                    let bottom_right = 
+                        vec2(
+                            bottom_right_x_coord,
+                            bottom_right_y_coord,
+                        );
+
+                    pipe_rect = 
+                        egui::Rect {
+                            min: Pos2 { x: 0.0, y: 0.0 } + top_left,
+                            max: Pos2 { x: 0.0, y: 0.0 } + bottom_right,
+                        };
+
+
+                }
+
+                let pipe_coordinate_chg = 
+                    vec2(
+                        pipe_position_change_as_percentage_of_reactor.x/100.0 * reactor_width,
+                        pipe_position_change_as_percentage_of_reactor.y/100.0 * reactor_height,
+                    );
+
+                let intrmd_loop_min_temp = ThermodynamicTemperature::new::<degree_celsius>(170.0);
+                let intrmd_loop_max_temp = ThermodynamicTemperature::new::<degree_celsius>(520.0);
+
+                let pipe_widget = SinglePipeColourBlackRed::new(
+                    pipe_coordinate_chg, 
+                    intrmd_loop_min_temp, 
+                    intrmd_loop_max_temp, 
+                    pipe_temp
+                );
+                ui.put(pipe_rect, pipe_widget);
+
+                return end_point;
+            }
 
         let ihx_tube_6_start_point = 
             ihx_shell_6_start_point +
@@ -518,7 +626,7 @@ impl FHRSimulatorApp {
 
         let ihx_tube_6_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
-        let ihx_tube_6b_start_point = create_pipe_widget(
+        let ihx_tube_6b_start_point = create_pipe_widget_intrmd_loop(
             &ihx_tube_6_temperature_vector_degc,
             ihx_tube_6_start_point,
             ihx_tube_6_coordinate_chg_percentage,
@@ -531,7 +639,7 @@ impl FHRSimulatorApp {
         // this is tube to make it curl back from heat exchanger
         let ihx_tube_6_coordinate_chg_percentage = 
             vec2(30.0, 0.0);
-        let pipe_17_start_point = create_pipe_widget(
+        let pipe_17_start_point = create_pipe_widget_intrmd_loop(
             &ihx_tube_6_temperature_vector_degc,
             ihx_tube_6b_start_point,
             ihx_tube_6_coordinate_chg_percentage,
@@ -543,7 +651,7 @@ impl FHRSimulatorApp {
         let ihx_tube_6a_end_point = 
             ihx_tube_6_start_point;
 
-        let ihx_tube_6a_start_point = create_pipe_widget(
+        let ihx_tube_6a_start_point = create_pipe_widget_intrmd_loop(
             &ihx_tube_6_temperature_vector_degc,
             ihx_tube_6a_end_point,
             ihx_tube_6_coordinate_chg_percentage,
@@ -555,7 +663,7 @@ impl FHRSimulatorApp {
         // pipe 17
         let pipe_17_coordinate_chg_percentage = 
             vec2(150.0, 0.0);
-        let _pipe_17_end_point = create_pipe_widget(
+        let _pipe_17_end_point = create_pipe_widget_intrmd_loop(
             &pipe_17_temperature_vector_degc,
             pipe_17_start_point,
             pipe_17_coordinate_chg_percentage,
@@ -575,7 +683,7 @@ impl FHRSimulatorApp {
                 reactor_height * pipe_12_coordinate_chg_percentage.y/100.0,
             );
 
-        let _pipe_12_end_point = create_pipe_widget(
+        let _pipe_12_end_point = create_pipe_widget_intrmd_loop(
             &pipe_12_temperature_vector_degc,
             pipe_12_start_point,
             pipe_12_coordinate_chg_percentage,
@@ -591,7 +699,7 @@ impl FHRSimulatorApp {
 
         let pump_16_coordinate_chg_percentage = 
             vec2(75.0, 0.0);
-        let pipe_15_start_point = create_pipe_widget(
+        let pipe_15_start_point = create_pipe_widget_intrmd_loop(
             &intrmd_pump_16_temperature_vector_degc,
             pump_16_start_point,
             pump_16_coordinate_chg_percentage,
@@ -603,7 +711,7 @@ impl FHRSimulatorApp {
         // pipe 15
         let pipe_15_coordinate_chg_percentage = 
             vec2(75.0, 0.0);
-        let sg_shell_14_start_point = create_pipe_widget(
+        let sg_shell_14_start_point = create_pipe_widget_intrmd_loop(
             &pipe_15_temperature_vector_degc, 
             pipe_15_start_point, 
             pipe_15_coordinate_chg_percentage, 
@@ -612,7 +720,7 @@ impl FHRSimulatorApp {
         // steam generator (sg) shell side 14
         let sg_shell_14_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
-        let pipe_13_start_point = create_pipe_widget(
+        let pipe_13_start_point = create_pipe_widget_intrmd_loop(
             &sg_shell_14_temperature_vector_degc, 
             sg_shell_14_start_point, 
             sg_shell_14_coordinate_chg_percentage, 
@@ -621,7 +729,7 @@ impl FHRSimulatorApp {
         // pipe 13 
         let pipe_13_coordinate_chg_percentage = 
             vec2(0.0, -130.0);
-        let pipe_13_start_point = create_pipe_widget(
+        let pipe_13_start_point = create_pipe_widget_intrmd_loop(
             &pipe_13_temperature_vector_degc, 
             pipe_13_start_point, 
             pipe_13_coordinate_chg_percentage, 
