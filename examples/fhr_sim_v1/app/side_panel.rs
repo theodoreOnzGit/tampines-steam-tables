@@ -175,7 +175,7 @@ impl FHRSimulatorApp {
                     &max_temp_string
                 );
 
-                //ui.add(max_temp);
+                ui.add(max_temp);
                 //// 950.0
                 //let button_temp_degc = 950.0;
                 //let button_temp_string: String = 
