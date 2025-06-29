@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use egui::{vec2, Pos2, Rect};
+use egui::{vec2, Pos2, Rect, Vec2};
 use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipe};
 use uom::si::f64::*;
 use uom::si::thermodynamic_temperature::degree_celsius;
@@ -258,12 +258,29 @@ impl FHRSimulatorApp {
         fhr_widget.set_right_cr_frac(right_control_rod_insertion_frac);
 
         ui.put(reactor_rectangle, fhr_widget);
+        
+        fn average_temp(temp_vec_degc: Vec<f64>) -> ThermodynamicTemperature {
 
-        let temp = right_downcomer_lower_temp;
+            let pipe_temp_sum: f64 = temp_vec_degc.iter().sum();
+            let pipe_temp: ThermodynamicTemperature = 
+                ThermodynamicTemperature::new::<degree_celsius>(
+                    pipe_temp_sum/temp_vec_degc.len() as f64
+                );
 
+            return pipe_temp;
+        }
+
+        let pipe_11_temp: ThermodynamicTemperature = 
+            average_temp(pipe_11_temperature_vector_degc);
+        // this represents the pipe coordinate change from the start 
+        // point
         let pipe_coordinate_chg = 
-            vec2(0.0, 100.0);
+            vec2(0.0, 150.0);
 
+        // the start point of the pipe 11 
+        // is: x coordinate (boundy by left and right of reactor rectangle)
+        // y coordinate: reactor_rectangle bottom minus some fixed height 
+        // based on scale
         let pipe_11_start = 
             vec2(
                 0.5 * reactor_rectangle.left() + 0.5 * reactor_rectangle.right(),
@@ -289,8 +306,110 @@ impl FHRSimulatorApp {
             pipe_coordinate_chg, 
             min_temp, 
             max_temp, 
-            temp
+            pipe_11_temp
         );
+
+        let create_pipe_widget = |
+            pipe_temp_vec_degc: Vec<f64>,
+            start_point: Vec2, 
+            pipe_position_change: Vec2| -> Vec2 {
+
+
+                // the start point of the pipe 11 
+                // is: x coordinate (boundy by left and right of reactor rectangle)
+                // y coordinate: reactor_rectangle bottom minus some fixed height 
+                // based on scale
+
+                let pipe_11_temp = 
+                    average_temp(pipe_temp_vec_degc);
+                let end_point = 
+                    vec2(
+                        start_point.x + pipe_position_change.x,
+                        start_point.y + pipe_position_change.y,
+                    );
+
+
+                // now in the case that end point is 
+                // higher in x and y position than the start point:
+                let mut pipe_rect = 
+                    egui::Rect {
+                        min: Pos2 { x: 0.0, y: 0.0 } + start_point,
+                        max: Pos2 { x: 0.0, y: 0.0 } + end_point,
+                    };
+                // this may not always be the case, and the min 
+                // must be the top left corner, the end point must 
+                // be the bottom right corner
+                // 
+                // so end point is bottom right if 
+                // its x and y coordinate are more than the start 
+                // point 
+                let end_point_is_bottom_right: bool = 
+                    end_point.x > start_point.x && 
+                    end_point.y > start_point.y;
+
+                if end_point_is_bottom_right {
+
+                    // do nothing in this case, no need to modify the 
+                    // pipe rectangle
+                } else {
+                    // we need to find the bottom right first 
+
+                    let mut top_left_x_coord: f32 = start_point.x;
+                    let mut bottom_right_x_coord: f32 = end_point.x;
+                    // 
+                    // if the start point happens to be at the bottom right 
+                    // so to speak,
+                    if end_point.x < start_point.x {
+                        top_left_x_coord = end_point.x;
+                        bottom_right_x_coord = start_point.x;
+                    };
+
+                    let mut top_left_y_coord: f32 = start_point.y;
+                    let mut bottom_right_y_coord: f32 = end_point.y;
+                    // 
+                    // if the start point happens to be at the bottom right 
+                    // so to speak,
+                    if end_point.y < start_point.y {
+                        top_left_y_coord = end_point.y;
+                        bottom_right_y_coord = start_point.y;
+                    };
+
+                    let top_left = 
+                        vec2(
+                            top_left_x_coord,
+                            top_left_y_coord,
+                        );
+                    let bottom_right = 
+                        vec2(
+                            bottom_right_x_coord,
+                            bottom_right_y_coord,
+                        );
+
+                    pipe_rect = 
+                        egui::Rect {
+                            min: Pos2 { x: 0.0, y: 0.0 } + top_left,
+                            max: Pos2 { x: 0.0, y: 0.0 } + bottom_right,
+                        };
+
+
+                }
+
+
+
+
+
+                let pipe_widget = SinglePipe::new(
+                    pipe_position_change, 
+                    min_temp, 
+                    max_temp, 
+                    pipe_11_temp
+                );
+                ui.put(pipe_rect, pipe_widget);
+
+                return end_point;
+            };
+
+
         ui.put(pipe_11_rect, pipe_11_widget);
 
         ui.separator();
