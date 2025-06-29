@@ -13,9 +13,9 @@ pub fn steam_quality_colour_mark_1(steam_quality: f32) -> Color32 {
         steam_quality_clone = 1.0
     }
 
-    let blue: f32 = 255.0 * steam_quality_clone;
-    let green: f32 = 255.0 * (1.0 - steam_quality_clone);
-    let red: f32 = 255.0 * (1.0 - steam_quality_clone);
+    let red: f32 = 255.0 * steam_quality_clone;
+    let green: f32 = 255.0 * steam_quality_clone;
+    let blue: f32 = 255.0;
 
     return Color32::from_rgb(
         red as u8, 
