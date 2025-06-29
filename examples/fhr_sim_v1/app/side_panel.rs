@@ -163,7 +163,7 @@ impl FHRSimulatorApp {
 
                 // now I need colour legend
                 let min_temp_degc = 450.0;
-                let max_temp_degc = 1000.0;
+                let max_temp_degc = 750.0;
                 // max temp
                 let button_temp_degc = max_temp_degc;
                 let max_temp_string: String = 

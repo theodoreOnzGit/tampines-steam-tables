@@ -161,7 +161,7 @@ impl FHRSimulatorApp {
             vec2(reactor_rectangle.width(), reactor_rectangle.height());
 
         let min_temp = ThermodynamicTemperature::new::<degree_celsius>(450.0);
-        let max_temp = ThermodynamicTemperature::new::<degree_celsius>(1000.0);
+        let max_temp = ThermodynamicTemperature::new::<degree_celsius>(750.0);
         let pebble_core_temp = ThermodynamicTemperature::new::<degree_celsius>(
             fhr_state_clone.pebble_core_temp_degc
         );
