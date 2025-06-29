@@ -871,6 +871,37 @@ impl FHRSimulatorApp {
             sg_tube_14b_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
 
+        // then turbine tubing 
+
+
+        let turbine_tube_18a_start_point = sg_tube_14b_end_point;
+        let turbine_tube_18a_coordinate_chg_percentage = 
+            vec2(0.0,-100.0);
+        let turbine_tube_18a_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
+            turbine_tube_18a_start_point, 
+            turbine_tube_18a_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let turbine_tube_18b_start_point = 
+            turbine_tube_18a_end_point;
+        let turbine_tube_18b_coordinate_chg_percentage = 
+            vec2(200.0,0.0);
+        let turbine_tube_18b_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
+            turbine_tube_18b_start_point, 
+            turbine_tube_18b_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        let turbine_tube_18c_start_point = 
+            turbine_tube_18b_end_point;
+        let turbine_tube_18c_coordinate_chg_percentage = 
+            vec2(0.0,30.0);
+        let turbine_tube_18c_end_point = create_pipe_widget_secondary_loop(
+            fhr_state_clone.steam_quality_after_steam_generator_tube_side, 
+            turbine_tube_18c_start_point, 
+            turbine_tube_18c_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
 
 
     }
