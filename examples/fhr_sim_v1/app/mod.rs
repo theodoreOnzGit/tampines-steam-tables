@@ -259,7 +259,7 @@ impl FHRSimulatorApp {
 
         ui.put(reactor_rectangle, fhr_widget);
         
-        fn average_temp(temp_vec_degc: Vec<f64>) -> ThermodynamicTemperature {
+        fn average_temp(temp_vec_degc: &Vec<f64>) -> ThermodynamicTemperature {
 
             let pipe_temp_sum: f64 = temp_vec_degc.iter().sum();
             let pipe_temp: ThermodynamicTemperature = 
@@ -275,7 +275,7 @@ impl FHRSimulatorApp {
         let reactor_width: f32 = reactor_rectangle.width();
 
         let pipe_11_temp: ThermodynamicTemperature = 
-            average_temp(pipe_11_temperature_vector_degc);
+            average_temp(&pipe_11_temperature_vector_degc);
         // this represents the pipe coordinate change from the start 
         // point
         let pipe_11_coordinate_chg_as_percentage_of_reactor = 
@@ -321,7 +321,7 @@ impl FHRSimulatorApp {
 
 
         fn create_pipe_widget (
-            pipe_temp_vec_degc: Vec<f64>,
+            pipe_temp_vec_degc: &Vec<f64>,
             start_point: Vec2, 
             pipe_position_change_as_percentage_of_reactor: Vec2,
             ui: &mut egui::Ui,
@@ -426,7 +426,7 @@ impl FHRSimulatorApp {
                 ui.put(pipe_rect, pipe_widget);
 
                 return end_point;
-            };
+            }
 
 
 
@@ -434,7 +434,7 @@ impl FHRSimulatorApp {
         let pipe_10_coordinate_chg_percentage = 
             vec2(100.0, 0.0);
         let pump_9_start_point = create_pipe_widget(
-            pipe_10_temperature_vector_degc,
+            &pipe_10_temperature_vector_degc,
             pipe_10_start,
             pipe_10_coordinate_chg_percentage,
             ui,
@@ -446,7 +446,7 @@ impl FHRSimulatorApp {
         let pump_9_coordinate_chg_percentage = 
             vec2(100.0, 0.0);
         let pipe_8_start_point = create_pipe_widget(
-            pump_9_temperature_vector_degc,
+            &pump_9_temperature_vector_degc,
             pump_9_start_point,
             pump_9_coordinate_chg_percentage,
             ui,
@@ -458,7 +458,7 @@ impl FHRSimulatorApp {
         let pipe_8_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
         let pipe_7_start_point = create_pipe_widget(
-            pipe_8_temperature_vector_degc,
+            &pipe_8_temperature_vector_degc,
             pipe_8_start_point,
             pipe_8_coordinate_chg_percentage,
             ui,
@@ -469,7 +469,7 @@ impl FHRSimulatorApp {
         let pipe_7_coordinate_chg_percentage = 
             vec2(0.0, -100.0);
         let ihx_shell_6_start_point = create_pipe_widget(
-            pipe_7_temperature_vector_degc,
+            &pipe_7_temperature_vector_degc,
             pipe_7_start_point,
             pipe_7_coordinate_chg_percentage,
             ui,
@@ -480,7 +480,7 @@ impl FHRSimulatorApp {
         let ihx_shell_6_coordinate_chg_percentage = 
             vec2(0.0, -30.0);
         let pipe_5_start_point = create_pipe_widget(
-            ihx_shell_6_temperature_vector_degc,
+            &ihx_shell_6_temperature_vector_degc,
             ihx_shell_6_start_point,
             ihx_shell_6_coordinate_chg_percentage,
             ui,
@@ -491,7 +491,7 @@ impl FHRSimulatorApp {
         let pipe_5_coordinate_chg_percentage = 
             vec2(-200.0, -0.0);
         let pipe_4_start_point = create_pipe_widget(
-            pipe_5_temperature_vector_degc,
+            &pipe_5_temperature_vector_degc,
             pipe_5_start_point,
             pipe_5_coordinate_chg_percentage,
             ui,
@@ -502,7 +502,7 @@ impl FHRSimulatorApp {
         let pipe_4_coordinate_chg_percentage = 
             vec2(-0.0, 60.0);
         let _pipe_3_start_point = create_pipe_widget(
-            pipe_4_temperature_vector_degc,
+            &pipe_4_temperature_vector_degc,
             pipe_4_start_point,
             pipe_4_coordinate_chg_percentage,
             ui,
@@ -510,7 +510,122 @@ impl FHRSimulatorApp {
             reactor_height,
         );
 
+        // intermediate loop
 
+        let ihx_tube_6_start_point = 
+            ihx_shell_6_start_point +
+            vec2(reactor_width * 0.1, 0.0);
+
+        let ihx_tube_6_coordinate_chg_percentage = 
+            vec2(0.0, -30.0);
+        let ihx_tube_6b_start_point = create_pipe_widget(
+            &ihx_tube_6_temperature_vector_degc,
+            ihx_tube_6_start_point,
+            ihx_tube_6_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
+        );
+
+
+        // this is tube to make it curl back from heat exchanger
+        let ihx_tube_6_coordinate_chg_percentage = 
+            vec2(30.0, 0.0);
+        let pipe_17_start_point = create_pipe_widget(
+            &ihx_tube_6_temperature_vector_degc,
+            ihx_tube_6b_start_point,
+            ihx_tube_6_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
+        );
+
+        let ihx_tube_6a_end_point = 
+            ihx_tube_6_start_point;
+
+        let ihx_tube_6a_start_point = create_pipe_widget(
+            &ihx_tube_6_temperature_vector_degc,
+            ihx_tube_6a_end_point,
+            ihx_tube_6_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
+        );
+
+        // pipe 17
+        let pipe_17_coordinate_chg_percentage = 
+            vec2(150.0, 0.0);
+        let _pipe_17_end_point = create_pipe_widget(
+            &pipe_17_temperature_vector_degc,
+            pipe_17_start_point,
+            pipe_17_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
+        );
+
+        // pipe 12 
+        let pipe_12_end_point = ihx_tube_6a_start_point;
+
+        let pipe_12_coordinate_chg_percentage = 
+            vec2(0.0, -130.0);
+        let pipe_12_start_point = pipe_12_end_point 
+            - vec2(
+                reactor_width * pipe_12_coordinate_chg_percentage.x/100.0, 
+                reactor_height * pipe_12_coordinate_chg_percentage.y/100.0,
+            );
+
+        let _pipe_12_end_point = create_pipe_widget(
+            &pipe_12_temperature_vector_degc,
+            pipe_12_start_point,
+            pipe_12_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
+        );
+
+        // steam generator branch
+        //
+        // pump 16
+        let pump_16_start_point = pipe_12_start_point;
+
+        let pump_16_coordinate_chg_percentage = 
+            vec2(75.0, 0.0);
+        let pipe_15_start_point = create_pipe_widget(
+            &intrmd_pump_16_temperature_vector_degc,
+            pump_16_start_point,
+            pump_16_coordinate_chg_percentage,
+            ui,
+            reactor_width,
+            reactor_height,
+        );
+
+        // pipe 15
+        let pipe_15_coordinate_chg_percentage = 
+            vec2(75.0, 0.0);
+        let sg_shell_14_start_point = create_pipe_widget(
+            &pipe_15_temperature_vector_degc, 
+            pipe_15_start_point, 
+            pipe_15_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        // steam generator (sg) shell side 14
+        let sg_shell_14_coordinate_chg_percentage = 
+            vec2(0.0, -30.0);
+        let pipe_13_start_point = create_pipe_widget(
+            &sg_shell_14_temperature_vector_degc, 
+            sg_shell_14_start_point, 
+            sg_shell_14_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
+
+        // pipe 13 
+        let pipe_13_coordinate_chg_percentage = 
+            vec2(0.0, -130.0);
+        let pipe_13_start_point = create_pipe_widget(
+            &pipe_13_temperature_vector_degc, 
+            pipe_13_start_point, 
+            pipe_13_coordinate_chg_percentage, 
+            ui, reactor_width, reactor_height);
 
 
     }
