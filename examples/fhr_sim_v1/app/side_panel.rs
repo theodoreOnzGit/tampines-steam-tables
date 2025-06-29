@@ -151,6 +151,13 @@ impl FHRSimulatorApp {
                 ui.label("HITEC max temp (heat exchanger) KEEP BELOW 520 degrees C or else decompose ");
                 ui.label(hitec_max_temp_degc.to_string());
                     
+                let hitec_min_temp_degc = 
+                    fhr_state_clone.sg_shell_14_temperature_vector_degc
+                    .into_iter()
+                    .min_by(|a,b| a.total_cmp(b))
+                    .unwrap();
+                ui.label("HITEC min temp (steam generator) KEEP ABOVE 170 degrees C or else freeze ");
+                ui.label(hitec_min_temp_degc.to_string());
                 
                 
 
