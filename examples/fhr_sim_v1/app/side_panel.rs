@@ -175,62 +175,62 @@ impl FHRSimulatorApp {
                     &max_temp_string
                 );
 
-                ui.add(max_temp);
-                // 950.0
-                let button_temp_degc = 950.0;
-                let button_temp_string: String = 
-                    button_temp_degc.to_string()+" degrees celsius";
-                let temp_950_degc = new_temp_sensitive_button(
-                    min_temp_degc, 
-                    max_temp_degc, 
-                    button_temp_degc, 
-                    &button_temp_string
-                );
-                ui.add(temp_950_degc);
-                // 900.0
-                let button_temp_degc = 900.0;
-                let button_temp_string: String = 
-                    button_temp_degc.to_string()+" degrees celsius";
-                let temp_900_degc = new_temp_sensitive_button(
-                    min_temp_degc, 
-                    max_temp_degc, 
-                    button_temp_degc, 
-                    &button_temp_string
-                );
-                ui.add(temp_900_degc);
-                // 850.0
-                let button_temp_degc = 850.0;
-                let button_temp_string: String = 
-                    button_temp_degc.to_string()+" degrees celsius";
-                let temp_850_degc = new_temp_sensitive_button(
-                    min_temp_degc, 
-                    max_temp_degc, 
-                    button_temp_degc, 
-                    &button_temp_string
-                );
-                ui.add(temp_850_degc);
-                // 800.0
-                let button_temp_degc = 800.0;
-                let button_temp_string: String = 
-                    button_temp_degc.to_string()+" degrees celsius";
-                let temp_800_degc = new_temp_sensitive_button(
-                    min_temp_degc, 
-                    max_temp_degc, 
-                    button_temp_degc, 
-                    &button_temp_string
-                );
-                ui.add(temp_800_degc);
-                // 750.0
-                let button_temp_degc = 750.0;
-                let button_temp_string: String = 
-                    button_temp_degc.to_string()+" degrees celsius";
-                let temp_750_degc = new_temp_sensitive_button(
-                    min_temp_degc, 
-                    max_temp_degc, 
-                    button_temp_degc, 
-                    &button_temp_string
-                );
-                ui.add(temp_750_degc);
+                //ui.add(max_temp);
+                //// 950.0
+                //let button_temp_degc = 950.0;
+                //let button_temp_string: String = 
+                //    button_temp_degc.to_string()+" degrees celsius";
+                //let temp_950_degc = new_temp_sensitive_button(
+                //    min_temp_degc, 
+                //    max_temp_degc, 
+                //    button_temp_degc, 
+                //    &button_temp_string
+                //);
+                //ui.add(temp_950_degc);
+                //// 900.0
+                //let button_temp_degc = 900.0;
+                //let button_temp_string: String = 
+                //    button_temp_degc.to_string()+" degrees celsius";
+                //let temp_900_degc = new_temp_sensitive_button(
+                //    min_temp_degc, 
+                //    max_temp_degc, 
+                //    button_temp_degc, 
+                //    &button_temp_string
+                //);
+                //ui.add(temp_900_degc);
+                //// 850.0
+                //let button_temp_degc = 850.0;
+                //let button_temp_string: String = 
+                //    button_temp_degc.to_string()+" degrees celsius";
+                //let temp_850_degc = new_temp_sensitive_button(
+                //    min_temp_degc, 
+                //    max_temp_degc, 
+                //    button_temp_degc, 
+                //    &button_temp_string
+                //);
+                //ui.add(temp_850_degc);
+                //// 800.0
+                //let button_temp_degc = 800.0;
+                //let button_temp_string: String = 
+                //    button_temp_degc.to_string()+" degrees celsius";
+                //let temp_800_degc = new_temp_sensitive_button(
+                //    min_temp_degc, 
+                //    max_temp_degc, 
+                //    button_temp_degc, 
+                //    &button_temp_string
+                //);
+                //ui.add(temp_800_degc);
+                //// 750.0
+                //let button_temp_degc = 750.0;
+                //let button_temp_string: String = 
+                //    button_temp_degc.to_string()+" degrees celsius";
+                //let temp_750_degc = new_temp_sensitive_button(
+                //    min_temp_degc, 
+                //    max_temp_degc, 
+                //    button_temp_degc, 
+                //    &button_temp_string
+                //);
+                //ui.add(temp_750_degc);
 
                 // 700.0
                 let button_temp_degc = 700.0;
