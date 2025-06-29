@@ -140,3 +140,9 @@ pub mod simulator_trait;
 /// hot to cold colours 
 pub mod hot_to_cold_colour_functions;
 pub use hot_to_cold_colour_functions::*;
+
+/// steam quality colours  (blue for 0, white for 1)
+pub mod steam_quality_colour_functions;
+
+/// turbine art 
+pub mod turbine_widget;
