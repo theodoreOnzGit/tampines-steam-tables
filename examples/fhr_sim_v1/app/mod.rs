@@ -199,6 +199,7 @@ impl FHRSimulatorApp {
             fhr_state_clone.right_downcomer_lower_temp_degc
         );
 
+        // pri loop
         let pipe_4_temperature_vector_degc = 
             fhr_state_clone.pipe_4_temperature_vector_degc;
         let pipe_5_temperature_vector_degc = 
@@ -209,6 +210,31 @@ impl FHRSimulatorApp {
             fhr_state_clone.ihx_shell_6_temperature_vector_degc;
         let ihx_tube_6_temperature_vector_degc = 
             fhr_state_clone.ihx_tube_6_temperature_vector_degc;
+
+        let pipe_7_temperature_vector_degc = 
+            fhr_state_clone.pipe_7_temperature_vector_degc;
+        let pipe_8_temperature_vector_degc = 
+            fhr_state_clone.pipe_8_temperature_vector_degc;
+        let pump_9_temperature_vector_degc = 
+            fhr_state_clone.pri_pump_9_temperature_vector_degc;
+        let pipe_10_temperature_vector_degc = 
+            fhr_state_clone.pipe_10_temperature_vector_degc;
+        let pipe_11_temperature_vector_degc = 
+            fhr_state_clone.pipe_11_temperature_vector_degc;
+
+        // intermediate loop
+        let pipe_12_temperature_vector_degc = 
+            fhr_state_clone.pipe_12_temperature_vector_degc;
+        let pipe_13_temperature_vector_degc = 
+            fhr_state_clone.pipe_13_temperature_vector_degc;
+        let sg_shell_14_temperature_vector_degc = 
+            fhr_state_clone.sg_shell_14_temperature_vector_degc;
+        let pipe_15_temperature_vector_degc = 
+            fhr_state_clone.pipe_15_temperature_vector_degc;
+        let intrmd_pump_16_temperature_vector_degc = 
+            fhr_state_clone.intrmd_pump_16_temperature_vector_degc;
+        let pipe_17_temperature_vector_degc = 
+            fhr_state_clone.pipe_17_temperature_vector_degc;
 
 
         let mut fhr_widget = FHRReactorWidget::new(
