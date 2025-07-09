@@ -1,23 +1,23 @@
-use std::{sync::{Arc, Mutex}, thread};
 
-use uom::si::{f64::*, power::kilowatt};
-
-use crate::app::{graph_data::PagePlotData, panel_enum::Panel};
-
-
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 /// this represents the first iteration 
 /// of the fhr simulator
 ///
 /// basically one can do a FHR loop 
 /// with a permenantly steady state steam cycle
 /// the latter uses the tampines-steam-tables
-#[cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 fn main(){
 
     fhr_simulator_v1().unwrap();
 
 
 }
+use std::{sync::{Arc, Mutex}, thread};
+
+use uom::si::{f64::*, power::kilowatt};
+
+use crate::app::{graph_data::PagePlotData, panel_enum::Panel};
+
 pub fn fhr_simulator_v1() -> eframe::Result<()> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
 
