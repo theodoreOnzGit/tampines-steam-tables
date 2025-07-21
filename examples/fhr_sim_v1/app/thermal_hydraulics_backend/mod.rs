@@ -1097,8 +1097,12 @@ impl FHRSimulatorApp {
 
             let degree_of_superheat: TemperatureInterval = 
                 TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(
+                    (
                     sat_temperature_in_sg_tube_degc - 
-                    sg_shell_14_avg_temp);
+                    sg_shell_14_avg_temp
+                    )*
+                    0.1
+                );
 
             let mut critical_heat_flux_ua_modifier: f64 
                 = pool_boiling_improvised_correlation_as_fraction_of_maximum(
@@ -1126,7 +1130,7 @@ impl FHRSimulatorApp {
             let steam_generator_overall_ua: ThermalConductance 
                 = ThermalConductance::new::<watt_per_kelvin>(
                     fhr_state_clone.lock().unwrap().user_specified_max_secondary_loop_ua_watt_per_kelvin
-                    * critical_heat_flux_ua_modifier
+                    //* critical_heat_flux_ua_modifier
                     );
             let steam_generator_tube_side_temperature = 
                 ThermodynamicTemperature::new::<degree_celsius>(
