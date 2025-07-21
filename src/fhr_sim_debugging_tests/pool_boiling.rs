@@ -1,4 +1,4 @@
-use uom::si::f64::*;
+use uom::si::{f64::*, temperature_interval::kelvin};
 
 // for this dummy DNB type model
 //
@@ -78,9 +78,30 @@ fn pool_boiling_improvised_correlation_as_fraction_of_maximum(
 
     return fraction_of_maximum;
 }
-
-
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
 #[test] 
-fn pool_boiling_assert_tests(){
+fn pool_boiling_assert_test_1(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(1.0);
+    let expected_fraction_of_max_htc = 
+        0.023629084;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
 
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
 }
