@@ -1109,8 +1109,21 @@ impl FHRSimulatorApp {
                 critical_heat_flux_ua_modifier = 0.025;
             };
 
+            // now if quality is too low or high, just adjust to 
+            // 0.025 also 
 
-            let mut steam_generator_overall_ua: ThermalConductance 
+            let sg_tube_steam_quality = current_fhr_steam_gen_state
+                .steam_quality_after_steam_generator_tube_side;
+
+            if sg_tube_steam_quality > 0.99 {
+                critical_heat_flux_ua_modifier = 0.025;
+            };
+
+            if sg_tube_steam_quality < 0.01 {
+                critical_heat_flux_ua_modifier = 0.025;
+            };
+
+            let steam_generator_overall_ua: ThermalConductance 
                 = ThermalConductance::new::<watt_per_kelvin>(
                     fhr_state_clone.lock().unwrap().user_specified_max_secondary_loop_ua_watt_per_kelvin
                     * critical_heat_flux_ua_modifier

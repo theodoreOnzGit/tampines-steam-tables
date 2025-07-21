@@ -3,6 +3,7 @@ use crate::app::thermal_hydraulics_backend::fhr_thermal_hydraulics_state::FHRThe
 use tampines_steam_tables::interfaces::functional_programming::ph_flash_eqm::x_ph_flash;
 use tampines_steam_tables::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use tampines_steam_tables::interfaces::functional_programming::{ph_flash_eqm, ps_flash_eqm, pt_flash_eqm};
+use tampines_steam_tables::region_4_vap_liq_equilibrium::sat_temp_4;
 use uom::si::f64::*;
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::pressure::bar;
@@ -113,9 +114,9 @@ impl FHRSimulatorApp {
         }
 
         let sg_outlet_pressure = sg_inlet_pressure;
-        // todo: steam generator tube temp degc do the actual sat temp
+        // this is to get saturation temperature in steam generator tubes
         let sat_temperature_in_sg_tube_degc 
-            = 120.0;
+            = sat_temp_4(sg_outlet_pressure).get::<degree_celsius>();
 
         let steam_gen_tube_outlet_temperature = 
             ph_flash_eqm::t_ph_eqm(
