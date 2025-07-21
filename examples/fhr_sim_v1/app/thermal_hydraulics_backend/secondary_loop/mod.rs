@@ -16,7 +16,7 @@ impl FHRSimulatorApp {
     ///
     /// note that in this simplified steam generator calculation,
     /// everything instantly goes to steady state
-    pub(crate) fn secondary_loop_single_timestep(
+    pub(crate) fn secondary_loop_single_timestep_steady_state_simplified(
         fhr_th_state: &mut FHRThermalHydraulicsState,
         timestep: Time,
         user_specified_secondary_loop_mass_flowrate: &mut MassRate,

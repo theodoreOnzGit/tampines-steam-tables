@@ -1113,7 +1113,7 @@ impl FHRSimulatorApp {
                 );
 
             current_fhr_steam_gen_state = 
-                Self::secondary_loop_single_timestep(
+                Self::secondary_loop_single_timestep_steady_state_simplified(
                     &mut current_fhr_thermal_hydraulics_state, 
                     thermal_hydraulics_timestep, 
                     &mut user_specified_secondary_loop_mass_flowrate, 
