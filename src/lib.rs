@@ -85,3 +85,6 @@ pub mod prelude;
 /// reference openfoam algorithms which will be combined with steam 
 /// tables for solving simple two phase flow problems
 pub mod openfoam_algorithms;
+
+// pool boiling code for use within the fhr sim v1
+mod fhr_sim_debugging_tests;

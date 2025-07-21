@@ -55,7 +55,7 @@ use uom::si::f64::*;
 // 30 degrees kelvin of superheat
 //
 //
-pub fn pool_boiling_improvised_correlation_as_fraction_of_maximum(
+fn pool_boiling_improvised_correlation_as_fraction_of_maximum(
     delta_t: TemperatureInterval) -> f64 {
 
     let degree_of_superheat_kelvin: f64 = 
@@ -79,3 +79,8 @@ pub fn pool_boiling_improvised_correlation_as_fraction_of_maximum(
     return fraction_of_maximum;
 }
 
+
+#[test] 
+fn pool_boiling_assert_tests(){
+
+}
