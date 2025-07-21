@@ -214,3 +214,10 @@ pub struct SecondaryLoopState {
     /// steam quality (void fraction) after steam turbine
     pub steam_quality_after_turbine: f64,
 }
+
+/// some code for departure from nucleate boiling.
+/// https://www.nuclear-power.com/nuclear-engineering/heat-transfer/boiling-and-condensation/boiling-crisis-critical-heat-flux/
+///
+/// This is to prevent excessively high temperatures at the heat exchanger
+/// thus causing simulation crash
+pub mod pool_boiling;
