@@ -1,3 +1,4 @@
+#[allow(non_snake_case)]
 mod simplefoam;
 
 // apparently for two phase flow, 
