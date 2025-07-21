@@ -220,4 +220,13 @@ pub struct SecondaryLoopState {
 ///
 /// This is to prevent excessively high temperatures at the heat exchanger
 /// thus causing simulation crash
+///
+/// I use pool boiling curves here because Departure from Nucleate 
+/// Boiling or DNB should occur earlier than 
+/// for flow boiling. So perhaps this is a conservative estimate.
+///
+///
+/// Now, even for pool boiling, lots of correlations exist for said DNB 
+///
+/// I'm doing only a very simplified version.
 pub mod pool_boiling;
