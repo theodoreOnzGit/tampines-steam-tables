@@ -347,6 +347,11 @@ impl FHRSimulatorApp {
                     );
 
                 // Q_added_to_destination = -UA*(T_destination - T_steam)
+                //
+                // nevertheless, I should probably do it slowly over many 
+                // slow timesteps or nodes. This heat exchanger should 
+                // be properly programmed
+                // otherwise there will be numerical instability
                 
                 steam_gen_heat_change = -temperature_diff*steam_generator_overall_ua;
                 // heat added to steam generator is 
@@ -1097,11 +1102,8 @@ impl FHRSimulatorApp {
 
             let degree_of_superheat: TemperatureInterval = 
                 TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(
-                    (
                     sat_temperature_in_sg_tube_degc - 
                     sg_shell_14_avg_temp
-                    )*
-                    0.1
                 );
 
             let mut critical_heat_flux_ua_modifier: f64 
@@ -1149,7 +1151,7 @@ impl FHRSimulatorApp {
                 = ThermalConductance::new::<watt_per_kelvin>(
                     fhr_state_clone.lock().unwrap().user_specified_max_secondary_loop_ua_watt_per_kelvin
                     * critical_heat_flux_ua_modifier
-                    );
+                );
             let steam_generator_tube_side_temperature = 
                 ThermodynamicTemperature::new::<degree_celsius>(
                     fhr_state_clone.lock().unwrap().steam_generator_tube_outlet_temperature_degc
