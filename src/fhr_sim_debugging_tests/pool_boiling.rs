@@ -105,3 +105,206 @@ fn pool_boiling_assert_test_1(){
         max_relative=1e-7
     );
 }
+
+
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
+#[test] 
+fn pool_boiling_assert_test_2(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(5.0);
+    let expected_fraction_of_max_htc = 
+        0.032133374;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
+
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
+}
+
+
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
+#[test] 
+fn pool_boiling_assert_test_3(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(12.0);
+    let expected_fraction_of_max_htc = 
+        0.124350868;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
+
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
+}
+
+
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
+#[test] 
+fn pool_boiling_assert_test_4(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(30.0);
+    let expected_fraction_of_max_htc = 
+        1.000846847;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
+
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
+}
+
+
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
+#[test] 
+fn pool_boiling_assert_test_5(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(100.0);
+    let expected_fraction_of_max_htc = 
+        0.023584906;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
+
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
+}
+
+
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
+#[test] 
+fn pool_boiling_assert_test_6(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(320.0);
+    let expected_fraction_of_max_htc = 
+        0.000536758;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
+
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
+}
+
+
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
+#[test] 
+fn pool_boiling_assert_test_7(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(1000.0);
+    let expected_fraction_of_max_htc = 
+        0.006734827;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
+
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
+}
+
+
+/// this pool boiling function should give roughly these results:
+/// degree of superheat(K),fraction of max heat transfer coeff
+/// 1,0.023629084
+/// 5,0.032133374
+/// 12,0.124350868
+/// 30,1.000846847
+/// 100,0.023584906
+/// 320,0.000536758
+/// 1000,0.006734827
+/// 2000,0.017310593
+#[test] 
+fn pool_boiling_assert_test_8(){
+    let degree_of_superheat_kelvin = 
+        TemperatureInterval::new::<kelvin>(2000.0);
+    let expected_fraction_of_max_htc = 
+        0.017310593;
+    let actual_fraction_of_max_htc = 
+        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+            degree_of_superheat_kelvin
+        );
+
+    approx::assert_relative_eq!(
+        expected_fraction_of_max_htc,
+        actual_fraction_of_max_htc,
+        max_relative=1e-7
+    );
+}
