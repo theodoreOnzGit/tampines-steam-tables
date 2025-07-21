@@ -1115,6 +1115,8 @@ impl FHRSimulatorApp {
 
             // now if quality is too low or high, just adjust to 
             // 0.025 also 
+            //
+            
 
             let sg_tube_steam_quality = current_fhr_steam_gen_state
                 .steam_quality_after_steam_generator_tube_side;
@@ -1127,10 +1129,26 @@ impl FHRSimulatorApp {
                 critical_heat_flux_ua_modifier = 0.025;
             };
 
+            // probably want to have some way to program this overall 
+            // ua so that simulation is more stable...
+            //
+            // either something to do with control volumes or something 
+            // else. 
+            // That we don't get heat added to steam to be too much.
+            // Probably a multi-node heat exchanger where small amounts 
+            // of heat are added to each node.
+            //
+            // so that we don't get any kind of numerical instability
+            //
+            // will prbably need to do a fresh derivation.
+            //
+            // Also need more calculations to determine a suitable 
+            // surface temperature, rather than just the salt 
+            // temperature itself, which is likely too hot.
             let steam_generator_overall_ua: ThermalConductance 
                 = ThermalConductance::new::<watt_per_kelvin>(
                     fhr_state_clone.lock().unwrap().user_specified_max_secondary_loop_ua_watt_per_kelvin
-                    //* critical_heat_flux_ua_modifier
+                    * critical_heat_flux_ua_modifier
                     );
             let steam_generator_tube_side_temperature = 
                 ThermodynamicTemperature::new::<degree_celsius>(
