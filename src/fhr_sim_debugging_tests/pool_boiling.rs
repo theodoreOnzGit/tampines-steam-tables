@@ -55,7 +55,7 @@ use uom::si::{f64::*, temperature_interval::kelvin};
 // 30 degrees kelvin of superheat
 //
 //
-fn pool_boiling_improvised_correlation_as_fraction_of_maximum(
+pub(crate) fn pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
     delta_t: TemperatureInterval) -> f64 {
 
     let degree_of_superheat_kelvin: f64 = 
@@ -95,7 +95,7 @@ fn pool_boiling_assert_test_1(){
     let expected_fraction_of_max_htc = 
         0.023629084;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 
@@ -124,7 +124,7 @@ fn pool_boiling_assert_test_2(){
     let expected_fraction_of_max_htc = 
         0.032133374;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 
@@ -153,7 +153,7 @@ fn pool_boiling_assert_test_3(){
     let expected_fraction_of_max_htc = 
         0.124350868;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 
@@ -182,7 +182,7 @@ fn pool_boiling_assert_test_4(){
     let expected_fraction_of_max_htc = 
         1.000846847;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 
@@ -211,7 +211,7 @@ fn pool_boiling_assert_test_5(){
     let expected_fraction_of_max_htc = 
         0.023584906;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 
@@ -240,7 +240,7 @@ fn pool_boiling_assert_test_6(){
     let expected_fraction_of_max_htc = 
         0.000536758;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 
@@ -269,7 +269,7 @@ fn pool_boiling_assert_test_7(){
     let expected_fraction_of_max_htc = 
         0.006734827;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 
@@ -298,7 +298,7 @@ fn pool_boiling_assert_test_8(){
     let expected_fraction_of_max_htc = 
         0.017310593;
     let actual_fraction_of_max_htc = 
-        pool_boiling_improvised_correlation_as_fraction_of_maximum(
+        pool_boiling_improvised_correlation_as_fraction_of_maximum_lib(
             degree_of_superheat_kelvin
         );
 

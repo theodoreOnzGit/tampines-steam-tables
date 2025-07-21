@@ -35,6 +35,8 @@ use uom::si::f64::*;
 // When plotting log10(degree of superheat) vs 
 // log10 (heat transfer coeff)
 //
+// heat transfer coeff = heat flux/(degree of superheat)
+//
 // I make a variable x
 //
 // x_mod = log10(degree of superheat) - 2 

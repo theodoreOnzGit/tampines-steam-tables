@@ -113,6 +113,9 @@ impl FHRSimulatorApp {
         }
 
         let sg_outlet_pressure = sg_inlet_pressure;
+        // todo: steam generator tube temp degc do the actual sat temp
+        let sat_temperature_in_sg_tube_degc 
+            = 120.0;
 
         let steam_gen_tube_outlet_temperature = 
             ph_flash_eqm::t_ph_eqm(
@@ -185,6 +188,7 @@ impl FHRSimulatorApp {
                 steam_quality_after_pump,
                 steam_quality_after_steam_generator_tube_side,
                 steam_quality_after_turbine,
+                sat_temperature_in_sg_tube_degc,
             };
 
 
@@ -213,6 +217,9 @@ pub struct SecondaryLoopState {
     pub steam_quality_after_steam_generator_tube_side: f64,
     /// steam quality (void fraction) after steam turbine
     pub steam_quality_after_turbine: f64,
+
+    /// sat temperature in sg tube 
+    pub sat_temperature_in_sg_tube_degc: f64,
 }
 
 /// some code for departure from nucleate boiling.
