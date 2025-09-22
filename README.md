@@ -27,6 +27,27 @@ calculations for simplicity.
 cargo run --release --example fhr_vim_v1
 ```
 
+Note that for windows PCs, sometimes there will be problems where 
+windows defender blocks the fhr_vim_v1 from being run. In those cases,
+it's better to use windows subsystem for linux (WSL). One needs to note 
+to use:
+
+```bash
+sudo apt install libopenblas-dev
+```
+
+Before running:
+```bash
+cargo run --release --example fhr_vim_v1
+```
+
+I used rustup to install rust. So if versions of Rust are outdated 
+(error messages may tell you so), then use:
+
+```bash
+rustup update stable
+```
+
 
 # Changelog 
 
