@@ -52,3 +52,7 @@ tuas_boussinesq_solver = "0.0.9"
 name = "fhr_sim_v1"
 path = "examples/fhr_sim_v1/main.rs"
 
+[[example]]
+name = "depressurisation"
+path = "examples/depressurisation/main.rs"
+
