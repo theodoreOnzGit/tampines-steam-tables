@@ -1,23 +1,71 @@
-use std::{sync::{Arc, Mutex}, thread};
 
-use uom::si::{f64::*, power::kilowatt};
-
-use crate::app::{graph_data::PagePlotData, panel_enum::Panel};
-
-
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 /// this represents the first iteration 
 /// of the fhr simulator
 ///
 /// basically one can do a FHR loop 
 /// with a permenantly steady state steam cycle
 /// the latter uses the tampines-steam-tables
-#[cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 fn main(){
 
     fhr_simulator_v1().unwrap();
 
 
 }
+use std::{sync::{Arc, Mutex}, thread};
+
+use uom::si::{f64::*, power::kilowatt};
+
+use crate::app::{graph_data::PagePlotData, panel_enum::Panel};
+
+/// this is how the fhr simulator runs 
+///
+/// there are a number of things to improve though, some that make this 
+/// simulator a little annoying to use 
+///
+/// 1. Salt freezes and temperature overrides. Sometimes the salt temperature 
+/// goes too low for the loop. In that case, the salt freezes. 
+/// But programmatically, the loop thermal hydraulics cycle crashes. 
+/// I'd rather just have the flow stop and give the user an option to 
+/// that any said salt loop. Thus resetting all the temperatures in 
+/// the loop.
+///
+/// 2. Salt overheating in the HITEC loop. 
+/// This is where the salt in HITEC loop gets too hot, thus making the 
+/// HITEC thermally decompose in real life. Programmatically, the thermal 
+/// hydraulics loop stops working because the temperature is out of range.
+/// I'd rather give the user an option to restart the loop completely.
+///
+/// 3. For natural circulation, the loop flowrates sometimes don't add 
+/// up to 0.0 kg/s. 
+///
+/// 4. For natural circulation, one should be able to block the downcomer 
+/// valve in the primary loop. Thus having natural circulation 
+///
+/// 5. I'd rather have flowrates a little bit higher in the loop, getting to 
+/// levels nearer the KP-FHR.
+///
+/// 6. The steam cycle is steady state yes. But this often causes numerical 
+/// instabilities where the steam temperature is sometimes too high. 
+/// This is especially when the UA value exceeds some number. It would be 
+/// good to have some realism added where UA is not toggled by the user,
+/// but is controlled via some departure from nucleate boiling model. In  
+/// this manner, the steam shouldn't overheat unnaturally. 
+///
+/// In the simplest assumption, pool boiling can be assumed
+/// https://www.nuclear-power.com/nuclear-engineering/heat-transfer/boiling-and-condensation/boiling-crisis-critical-heat-flux/
+///
+/// 7. Aesthetics. These are horrible for now and will need to change.
+/// Long list to try and improve for later.
+///
+/// 8. Data presentation. 
+///
+/// 9. Validation and Verification. For PRKE, this is still not done,
+/// will need to ensure that PRKE solver is reasonably accurate.
+///
+/// 
+///
+///
 pub fn fhr_simulator_v1() -> eframe::Result<()> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
 

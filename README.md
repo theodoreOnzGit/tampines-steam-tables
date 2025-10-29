@@ -27,9 +27,40 @@ calculations for simplicity.
 cargo run --release --example fhr_vim_v1
 ```
 
+<<<<<<< HEAD
+Note that for windows PCs, sometimes there will be problems where 
+windows defender blocks the fhr_vim_v1 from being run. In those cases,
+it's better to use windows subsystem for linux (WSL). One needs to note 
+to use:
+
+```bash
+sudo apt install libopenblas-dev
+```
+
+Before running:
+```bash
+cargo run --release --example fhr_vim_v1
+```
+
+I used rustup to install rust. So if versions of Rust are outdated 
+(error messages may tell you so), then use:
+
+```bash
+rustup update stable
+```
+
 
 # Changelog 
 
+v0.1.3 
+
+Added a depressurisation example
+
+=======
+
+# Changelog 
+
+>>>>>>> main
 v0.1.2
 
 Added the FHR educational simulator with a STEADY STATE steam turbine cycle 

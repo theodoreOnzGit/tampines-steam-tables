@@ -3,6 +3,7 @@ use crate::app::thermal_hydraulics_backend::fhr_thermal_hydraulics_state::FHRThe
 use tampines_steam_tables::interfaces::functional_programming::ph_flash_eqm::x_ph_flash;
 use tampines_steam_tables::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use tampines_steam_tables::interfaces::functional_programming::{ph_flash_eqm, ps_flash_eqm, pt_flash_eqm};
+use tampines_steam_tables::region_4_vap_liq_equilibrium::sat_temp_4;
 use uom::si::f64::*;
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::pressure::bar;
@@ -16,7 +17,7 @@ impl FHRSimulatorApp {
     ///
     /// note that in this simplified steam generator calculation,
     /// everything instantly goes to steady state
-    pub(crate) fn secondary_loop_single_timestep(
+    pub(crate) fn secondary_loop_single_timestep_steady_state_simplified(
         fhr_th_state: &mut FHRThermalHydraulicsState,
         timestep: Time,
         user_specified_secondary_loop_mass_flowrate: &mut MassRate,
@@ -113,6 +114,9 @@ impl FHRSimulatorApp {
         }
 
         let sg_outlet_pressure = sg_inlet_pressure;
+        // this is to get saturation temperature in steam generator tubes
+        let sat_temperature_in_sg_tube_degc 
+            = sat_temp_4(sg_outlet_pressure).get::<degree_celsius>();
 
         let steam_gen_tube_outlet_temperature = 
             ph_flash_eqm::t_ph_eqm(
@@ -185,6 +189,7 @@ impl FHRSimulatorApp {
                 steam_quality_after_pump,
                 steam_quality_after_steam_generator_tube_side,
                 steam_quality_after_turbine,
+                sat_temperature_in_sg_tube_degc,
             };
 
 
@@ -213,4 +218,23 @@ pub struct SecondaryLoopState {
     pub steam_quality_after_steam_generator_tube_side: f64,
     /// steam quality (void fraction) after steam turbine
     pub steam_quality_after_turbine: f64,
+
+    /// sat temperature in sg tube 
+    pub sat_temperature_in_sg_tube_degc: f64,
 }
+
+/// some code for departure from nucleate boiling.
+/// https://www.nuclear-power.com/nuclear-engineering/heat-transfer/boiling-and-condensation/boiling-crisis-critical-heat-flux/
+///
+/// This is to prevent excessively high temperatures at the heat exchanger
+/// thus causing simulation crash
+///
+/// I use pool boiling curves here because Departure from Nucleate 
+/// Boiling or DNB should occur earlier than 
+/// for flow boiling. So perhaps this is a conservative estimate.
+///
+///
+/// Now, even for pool boiling, lots of correlations exist for said DNB 
+///
+/// I'm doing only a very simplified version.
+pub mod pool_boiling;

@@ -11,9 +11,12 @@ use uom::si::angle::degree;
 use uom::si::area::{square_centimeter, square_inch};
 use uom::si::f64::*;
 use uom::si::heat_transfer::watt_per_square_meter_kelvin;
-use uom::si::length::{centimeter, inch, meter, millimeter};
+use uom::si::length::{centimeter, inch, meter, micron, millimeter};
+use uom::si::mass_density::gram_per_cubic_centimeter;
 use uom::si::ratio::ratio;
-use uom::si::thermodynamic_temperature::degree_celsius;
+use uom::si::specific_heat_capacity::calorie_per_gram_kelvin;
+use uom::si::thermal_conductivity::watt_per_meter_kelvin;
+use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
 use uom::si::pressure::atmosphere;
 
 
@@ -67,8 +70,101 @@ pub fn new_reactor_vessel_pipe_1(initial_temperature: ThermodynamicTemperature) 
     let pipe_thickness = Length::new::<centimeter>(5.0);
     let shell_od = shell_id + 2.0 * pipe_thickness;
     let insulation_thickness = Length::new::<meter>(0.0508);
-    let pipe_shell_material = SolidMaterial::SteelSS304L;
-    let insulation_material = SolidMaterial::SteelSS304L;
+
+
+    // now we don't have graphite as a material in v0.0.11 
+    //
+    // but we can construct the material
+    // first we need to specify the correlations used 
+    // for thermophysical properties 
+
+    // let see the cp 
+
+    // https://webbook.nist.gov/cgi/cbook.cgi?ID=C7782425&Mask=2
+    // T = 200 to 3500 K. Least squares fit of 'best' data gives: 
+    // Cp = 0.538657 + 9.11129x10-6T - 90.2725T-1 - 43449.3T-2 
+    // + 1.59309x107T3 - 1.43688x109T-4 cal/g*K (250 to 3000 K).; DH
+    //
+    // This applies from T = 200K to 3500K 
+    // let's program that in 
+
+    fn cp_graphite(t: ThermodynamicTemperature) -> SpecificHeatCapacity {
+        // convert t to kelvin 
+        let t_kelvin: f64 = t.get::<kelvin>();
+
+        // the best I can get from this equation 
+        // let's just assume it is correct
+        let cp_cal_g_kelvin = 0.538657 
+            + 9.11129e-6 * t_kelvin 
+            - 90.2725 * t_kelvin.powf(-1.0)
+            - 43449.3 * t_kelvin.powf(-2.0)
+            + 1.59309e7 * t_kelvin.powf(-3.0)
+            - 1.43688e9 * t_kelvin.powf(-4.0);
+
+        return SpecificHeatCapacity::new::<calorie_per_gram_kelvin>(
+            cp_cal_g_kelvin
+        );
+    }
+
+    // next let's do thermal conductivity 
+    // you can program in anything you like 
+    //
+    // note that while this is temperature independent,
+    // however, the function you program must have a temperature input 
+    // and thermal conductivity output
+    fn thermal_cond_grpahite(_t: ThermodynamicTemperature) -> ThermalConductivity {
+        // I'm going to use the value 36.3
+        // for amorphus carbon
+        // https://www.nature.com/articles/s41467-023-42195-5
+        return ThermalConductivity::new::<watt_per_meter_kelvin>(
+            36.3
+        );
+    }
+
+    //
+    // next let's do density
+    // you can program in anything you like 
+    //
+    // note that while this is temperature independent,
+    // however, the function you program must have a temperature input 
+    // and density output, just as before
+    fn density_graphite(_t: ThermodynamicTemperature) -> MassDensity {
+        // i'm just going to use 2.20 g/cm3
+        //
+        // https://en.wikipedia.org/wiki/Graphite
+
+        return MassDensity::new::<gram_per_cubic_centimeter>(
+            2.20
+        );
+
+    }
+
+    // we also need to specify surface roughness and 
+    // the temperature bounds 
+    // 
+    //
+    // I'm giving rough values here 
+    // https://www.mdpi.com/2227-9717/9/10/1858
+
+
+    let surface_roughness_graphite = Length::new::<micron>(1.95);
+
+    // next temperature bounds 
+    let graphite_low_temp_bound = ThermodynamicTemperature::new::<kelvin>(200.0);
+    let graphite_high_temp_bound = ThermodynamicTemperature::new::<kelvin>(3500.0);
+
+    // now this is how you define a custom material:
+    let graphite = 
+        SolidMaterial::CustomSolid(
+            (graphite_low_temp_bound,graphite_high_temp_bound), 
+            cp_graphite, 
+            thermal_cond_grpahite, 
+            density_graphite, 
+            surface_roughness_graphite
+        );
+
+    let pipe_shell_material = graphite;
+    let insulation_material = graphite;
     let pipe_fluid = LiquidMaterial::FLiBe;
     // insulate the pipe totally from environment
     let htc_to_ambient = HeatTransfer::new::<watt_per_square_meter_kelvin>(0.0);

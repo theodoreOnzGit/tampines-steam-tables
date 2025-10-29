@@ -37,6 +37,7 @@ use components::*;
 use pri_loop_fluid_mechanics_calc_fns::four_branch_pri_and_intermediate_loop_fluid_mechanics_only;
 use tuas_boussinesq_solver::pre_built_components::insulated_pipes_and_fluid_components::InsulatedFluidComponent;
 use tuas_boussinesq_solver::pre_built_components::non_insulated_fluid_components::NonInsulatedFluidComponent;
+use crate::app::thermal_hydraulics_backend::secondary_loop::pool_boiling::pool_boiling_improvised_correlation_as_fraction_of_maximum;
 use crate::app::thermal_hydraulics_backend::secondary_loop::SecondaryLoopState;
 use crate::{FHRSimulatorApp, FHRState};
 
@@ -344,6 +345,12 @@ impl FHRSimulatorApp {
                     );
 
                 // Q_added_to_destination = -UA*(T_destination - T_steam)
+                //
+                // nevertheless, I should probably do it slowly over many 
+                // slow timesteps or nodes. This heat exchanger should 
+                // be properly programmed
+                // otherwise there will be numerical instability
+                
                 steam_gen_heat_change = -temperature_diff*steam_generator_overall_ua;
                 // heat added to steam generator is 
                 heat_added_to_steam_generator = 
@@ -1028,6 +1035,7 @@ impl FHRSimulatorApp {
             steam_quality_after_pump: 0.0,
             steam_quality_after_steam_generator_tube_side: 1.0,
             steam_quality_after_turbine: 0.2,
+            sat_temperature_in_sg_tube_degc: 120.0,
         };
         dbg!(&current_fhr_steam_gen_state);
         // calculation loop (indefinite)
@@ -1066,12 +1074,93 @@ impl FHRSimulatorApp {
                     -fhr_state_clone.lock().unwrap().fhr_intermediate_loop_pump_pressure_kilopascals
                 );
             // steam generator settings 
-            // I made this based on UA for 35 MWth heat load, and 
-            // 30 degrees steam temperature, 300 degrees salt temperature
-            let steam_generator_overall_ua: ThermalConductance 
+            //
+
+            // now for the overall heat transfer coeff, this 
+            // is based on some degree of chf,
+            // i based it on pool boiling, which may be the most conservative 
+            // in predicting chf as there is no local flow.
+            // first we get the steam generator shell side fluid temp 
+
+            let num_of_nodes_in_sg_shell: f64 = 
+                fhr_state_clone.lock().unwrap() 
+                .sg_shell_14_temperature_vector_degc
+                .len() as f64;
+            let sg_shell_14_sum_temp_degc: f64 = 
+                fhr_state_clone.lock().unwrap() 
+                .sg_shell_14_temperature_vector_degc
+                .iter().sum();
+
+            let sg_shell_14_avg_temp: f64 = 
+                sg_shell_14_sum_temp_degc/num_of_nodes_in_sg_shell;
+            // now we need a degree of superheat
+
+            let sat_temperature_in_sg_tube_degc: f64 = 
+                current_fhr_steam_gen_state.sat_temperature_in_sg_tube_degc;
+
+            let degree_of_superheat: TemperatureInterval = 
+                TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(
+                    sat_temperature_in_sg_tube_degc - 
+                    sg_shell_14_avg_temp
+                );
+
+            let mut critical_heat_flux_ua_modifier: f64 
+                = pool_boiling_improvised_correlation_as_fraction_of_maximum(
+                    degree_of_superheat);
+            // this only works if degree of superheat is more than 1 K 
+
+            if degree_of_superheat.get::<uom::si::temperature_interval::kelvin>() <= 1.0 {
+                critical_heat_flux_ua_modifier = 0.025;
+            };
+
+            // now if quality is too low or high, just adjust to 
+            // 0.025 also 
+            //
+            
+
+            let sg_tube_steam_quality = current_fhr_steam_gen_state
+                .steam_quality_after_steam_generator_tube_side;
+
+            if sg_tube_steam_quality > 0.99 {
+                critical_heat_flux_ua_modifier = 0.025;
+            };
+
+            if sg_tube_steam_quality < 0.01 {
+                critical_heat_flux_ua_modifier = 0.025;
+            };
+
+            // probably want to have some way to program this overall 
+            // ua so that simulation is more stable...
+            //
+            // either something to do with control volumes or something 
+            // else. 
+            // That we don't get heat added to steam to be too much.
+            // Probably a multi-node heat exchanger where small amounts 
+            // of heat are added to each node.
+            //
+            // so that we don't get any kind of numerical instability
+            //
+            // will prbably need to do a fresh derivation.
+            //
+            // Also need more calculations to determine a suitable 
+            // surface temperature, rather than just the salt 
+            // temperature itself, which is likely too hot.
+            let chf_on = false; 
+            let mut steam_generator_overall_ua: ThermalConductance 
                 = ThermalConductance::new::<watt_per_kelvin>(
                     fhr_state_clone.lock().unwrap().user_specified_secondary_loop_ua_watt_per_kelvin
+                    * critical_heat_flux_ua_modifier
+                );
+            if !chf_on {
+
+                steam_generator_overall_ua
+                    = ThermalConductance::new::<watt_per_kelvin>(
+                        fhr_state_clone.lock().unwrap().user_specified_secondary_loop_ua_watt_per_kelvin
                     );
+
+            }
+
+
             let steam_generator_tube_side_temperature = 
                 ThermodynamicTemperature::new::<degree_celsius>(
                     fhr_state_clone.lock().unwrap().steam_generator_tube_outlet_temperature_degc
@@ -1113,7 +1202,7 @@ impl FHRSimulatorApp {
                 );
 
             current_fhr_steam_gen_state = 
-                Self::secondary_loop_single_timestep(
+                Self::secondary_loop_single_timestep_steady_state_simplified(
                     &mut current_fhr_thermal_hydraulics_state, 
                     thermal_hydraulics_timestep, 
                     &mut user_specified_secondary_loop_mass_flowrate, 
