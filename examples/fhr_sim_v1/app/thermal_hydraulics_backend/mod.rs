@@ -1147,11 +1147,22 @@ impl FHRSimulatorApp {
             // Also need more calculations to determine a suitable 
             // surface temperature, rather than just the salt 
             // temperature itself, which is likely too hot.
-            let steam_generator_overall_ua: ThermalConductance 
+            let chf_on = false; 
+            let mut steam_generator_overall_ua: ThermalConductance 
                 = ThermalConductance::new::<watt_per_kelvin>(
-                    fhr_state_clone.lock().unwrap().user_specified_max_secondary_loop_ua_watt_per_kelvin
+                    fhr_state_clone.lock().unwrap().user_specified_secondary_loop_ua_watt_per_kelvin
                     * critical_heat_flux_ua_modifier
                 );
+            if !chf_on {
+
+                steam_generator_overall_ua
+                    = ThermalConductance::new::<watt_per_kelvin>(
+                        fhr_state_clone.lock().unwrap().user_specified_secondary_loop_ua_watt_per_kelvin
+                    );
+
+            }
+
+
             let steam_generator_tube_side_temperature = 
                 ThermodynamicTemperature::new::<degree_celsius>(
                     fhr_state_clone.lock().unwrap().steam_generator_tube_outlet_temperature_degc

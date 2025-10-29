@@ -51,6 +51,10 @@ rustup update stable
 
 # Changelog 
 
+v0.1.3 
+
+Added a depressurisation example
+
 v0.1.2
 
 Added the FHR educational simulator with a STEADY STATE steam turbine cycle 

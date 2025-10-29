@@ -73,8 +73,8 @@ impl FHRSimulatorApp {
 
                 ui.add(secondary_loop_mass_flowrate_slider);
                 let secondary_loop_mass_flowrate_slider = egui::Slider::new(
-                    &mut fhr_state_ptr.user_specified_max_secondary_loop_ua_watt_per_kelvin, 
-                    1.0e7..=4.0e7)
+                    &mut fhr_state_ptr.user_specified_secondary_loop_ua_watt_per_kelvin, 
+                    1.5e5..=7.0e5)
                     .logarithmic(false)
                     .text("Steam Generator max overall UA (Watt per Kelvin)")
                     .drag_value_speed(100.0);
