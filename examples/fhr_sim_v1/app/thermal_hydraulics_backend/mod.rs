@@ -316,8 +316,6 @@ impl FHRSimulatorApp {
                     intrmd_loop_steam_gen_br_heat_transfer_interaction)
                     .unwrap();
                 }
-
-
             let heat_added_to_steam_generator: Energy;
             {
 

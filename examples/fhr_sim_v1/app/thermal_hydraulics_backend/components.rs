@@ -194,8 +194,6 @@ pub fn new_reactor_vessel_pipe_1(initial_temperature: ThermodynamicTemperature) 
 
     insulated_component
 }
-
-
 /// creates a new pipe 2 for the fhr simulator, this goes from bottom 
 /// to parallel to pebble bed
 ///
