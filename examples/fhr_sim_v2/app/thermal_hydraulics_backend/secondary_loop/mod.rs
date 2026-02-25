@@ -238,3 +238,6 @@ pub struct SecondaryLoopState {
 ///
 /// I'm doing only a very simplified version.
 pub mod pool_boiling;
+
+#[cfg(test)]
+pub mod vibe_code_mass_balance;
