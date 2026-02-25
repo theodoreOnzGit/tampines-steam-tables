@@ -56,3 +56,6 @@ path = "examples/fhr_sim_v1/main.rs"
 name = "depressurisation"
 path = "examples/depressurisation/main.rs"
 
+[[example]]
+name = "fhr_sim_v2"
+path = "examples/fhr_sim_v2/main.rs"
