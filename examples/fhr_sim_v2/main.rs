@@ -8,7 +8,7 @@
 /// the latter uses the tampines-steam-tables
 fn main(){
 
-    fhr_simulator_v1().unwrap();
+    fhr_simulator_v2().unwrap();
 
 
 }
@@ -66,7 +66,7 @@ use crate::app::{graph_data::PagePlotData, panel_enum::Panel};
 /// 
 ///
 ///
-pub fn fhr_simulator_v1() -> eframe::Result<()> {
+pub fn fhr_simulator_v2() -> eframe::Result<()> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
 
     let native_options = eframe::NativeOptions {
