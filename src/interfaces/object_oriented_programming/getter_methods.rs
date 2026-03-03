@@ -1,4 +1,6 @@
 use uom::si::f64::*;
+
+use crate::dynamic_viscosity::mu_ph_eqm;
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
     pub fn get_pressure(&self) -> Pressure {
@@ -33,4 +35,15 @@ impl super::TampinesSteamTableCV {
     pub fn get_mass(&self) -> Mass {
         return self.volume/self.specific_volume;
     }
+
+
+    /// returns viscosity (important for Reynold's number)
+    pub fn get_viscosity(&self) -> DynamicViscosity {
+
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+
+        return mu_ph_eqm(p, h);
+    }
 }
+

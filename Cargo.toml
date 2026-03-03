@@ -59,3 +59,7 @@ path = "examples/depressurisation/main.rs"
 [[example]]
 name = "fhr_sim_v2"
 path = "examples/fhr_sim_v2/main.rs"
+
+[[example]]
+name = "rankine_cycle"
+path = "examples/transient_rankine_cycle/main.rs"
