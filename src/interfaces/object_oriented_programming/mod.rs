@@ -22,6 +22,8 @@ impl TampinesSteamTableCV {
 
     /// creates a new control volume assuming quality is 1 
     /// at the steam table
+    ///
+    /// this quality is only used at the saturation line of course
     pub fn new_from_tp_quality_1(
         temperature: ThermodynamicTemperature,
         pressure: Pressure,
@@ -49,6 +51,40 @@ impl TampinesSteamTableCV {
             volume,
         };
     }
+    /// creates a new control volume assuming quality is 0
+    /// at the steam table
+    ///
+    /// this quality is only used at the saturation line of course
+    pub fn new_from_tp_quality_0(
+        temperature: ThermodynamicTemperature,
+        pressure: Pressure,
+        volume: Volume,) -> Self {
+
+        let x = 0.0_f64;
+        let specific_volume = pt_flash_eqm::v_tp_eqm_two_phase(
+            temperature, pressure, x
+        );
+
+        let specific_enthalpy = pt_flash_eqm::h_tp_eqm_two_phase(
+            temperature, pressure, x
+        );
+
+        let specific_entropy = pt_flash_eqm::s_tp_eqm_two_phase(
+            temperature, pressure, x
+        );
+
+        return Self {
+            pressure,
+            temperature,
+            specific_volume,
+            specific_enthalpy,
+            specific_entropy,
+            volume,
+        };
+    }
+
+
+
 }
 
 
