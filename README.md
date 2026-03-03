@@ -56,6 +56,9 @@ v0.1.6
 
 more to be added towards the fhr\_sim\_v2
 
+Added setter methods from AI vibe coding to help with steam turbine 
+modelling for TampinesSteamTableCV.
+
 v0.1.5 
 
 minor update: added a get\_mass() method for the TampinesSteamTableCV
