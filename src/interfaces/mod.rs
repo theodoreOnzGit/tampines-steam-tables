@@ -8,6 +8,8 @@ pub mod functional_programming;
 /// for OOP users who want to make a struct (class)
 /// and then use that for extracting data, 
 /// this is where the stuff is stored
+///
+/// this is basically a simple control volume
 pub mod object_oriented_programming;
 
 /// these tests show you how to use the interfaces 

@@ -23,4 +23,5 @@ pub mod pt_flash_metastable;
 pub mod ps_flash_eqm;
 
 /// allows for enthalpy entropy flash; 
+/// Note: this only works for part of the steam table
 pub mod hs_flash_eqm;

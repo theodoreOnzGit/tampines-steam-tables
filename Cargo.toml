@@ -1,6 +1,6 @@
 [package]
 name = "tampines-steam-tables"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 
 license = "GPL-3.0"
@@ -56,3 +56,6 @@ path = "examples/fhr_sim_v1/main.rs"
 name = "depressurisation"
 path = "examples/depressurisation/main.rs"
 
+[[example]]
+name = "fhr_sim_v2"
+path = "examples/fhr_sim_v2/main.rs"
