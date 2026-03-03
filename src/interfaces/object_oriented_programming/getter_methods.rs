@@ -29,4 +29,8 @@ impl super::TampinesSteamTableCV {
     pub fn get_volume(&self) -> Volume {
         self.volume
     }
+    /// returns the mass within the control volume 
+    pub fn get_mass(&self) -> Mass {
+        return self.volume/self.specific_volume;
+    }
 }
