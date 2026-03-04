@@ -413,7 +413,32 @@ to arrive at the correct answer.
 
 So far, we've only bothered with the momentum equation and ignored 
 mass balance (or continuity in this case). Thus, there is 
-no guarantee that the 
+no guarantee that the mass balance is fulfilled.
+
+The mass balance is:
+
+$$\nabla \cdot \textbf{u}_p = 0$$
+
+We then apply Gauss's divergence theorem to obtain:
+
+$$\nabla \cdot \textbf{u}_p = \sum_f \textbf{S} \cdot \textbf{u}_f = 0$$
+
+Now again, how do we deal with the face fluxes again?
+We need to interpolate.
+
+Suppose again that we can use some weighting factor (linear 
+interpolation scheme), that on a face between a point and its neighbouring 
+cell:
+
+$$ u_f = w u_p + (1-w) u_n $$
+
+
+\begin{equation*}
+	\textbf{u}_p^{t + \Delta t} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+	+ \frac{\nabla \cdot \tau /\rho}{a_p}
+	+ g/a_p
+\end{equation*}
 
 
 \printbibliography
