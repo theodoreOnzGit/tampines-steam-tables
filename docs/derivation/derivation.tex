@@ -440,6 +440,43 @@ $$ u_f = w u_p + (1-w) u_n $$
 	+ g/a_p
 \end{equation*}
 
+since
+
+\begin{equation*}
+	\textbf{u}_p^{t + \Delta t} = 0
+\end{equation*}
+
+Then:
+
+
+$$\nabla \cdot 
+\left( 
+	\frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+	+ \frac{\nabla \cdot \tau /\rho}{a_p}
+	+ g/a_p
+\right)
+=  0$$
+
+Moving the pressure term to the right:
+
+$$\nabla \cdot 
+\left( 
+	\frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	+ \frac{\nabla \cdot \tau /\rho}{a_p}
+	+ g/a_p
+\right)
+=  \nabla \cdot \frac{P/\rho}{a_p}
+$$
+
+
+
+
+
+
+
+
+
 
 \printbibliography
 
