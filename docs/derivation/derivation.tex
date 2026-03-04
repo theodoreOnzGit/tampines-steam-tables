@@ -171,7 +171,7 @@ positioning,fit,backgrounds}
 In this part, we consider a four control volume system representing a 
 simple Rankine cycle. This will form the theoretical basis to 
 
-\section{Mass, Energy and Momentum Balance}
+\chapter{Mass, Energy and Momentum Balance}
 
 In OpenFOAM, the PIMPLE algorithm is often used to solve for incompressible 
 fluid flow \citep{devolder2015review}, this is one of the many standard 
@@ -191,6 +191,11 @@ Let's consider mass balance and momentum balance:
 	+ \rho g
 \end{equation}
 
+\begin{equation}
+	V_j \frac{\partial \rho_i h_i}{\partial t} + \sum_j \dot{m}_j h_j
+	= Q_i - W_i 
+	+ \sum_j \mathbf{\tau}_j \cdot \mathbf{u}_j
+\end{equation}
 
 
 
