@@ -228,6 +228,7 @@ Then multiply by the cross sectional area.
 
 \section{Approach to Solving nonlinear Equations}
 
+
 Jasak in his PhD thesis outlines the methodology for solving this set of 
 equation \citep{jasak1996error} on page 143-149. These were the foundations 
 for what would eventually become OpenFOAM \cite{jasak2007openfoam} licensed 
@@ -246,6 +247,7 @@ these equations, and iterating to convergence. The latter was chosen
 	= a_p \mathbf{u}_p + \sum_N a_N \textbf{u}_n
 \end{equation}
 
+\subsection{Finite Volume Discretisaion, Face and Centroid Properties}
 Section 3.3.1 within Jasak's thesis explains these terms.
 
 First, we need to understand that Gauss's theorem is used in Finite 
@@ -268,8 +270,38 @@ at the cell centroids $p$ and $n$ based on some kind of interpolation
 scheme. This can be linear interpolation, or some upwind differencing scheme.
 This is described in page 81 of Jasak's thesis \citep{jasak1996error}.
 
+With linear interpolation at the face, the solution can become unbounded.
+With upwind differencing, the solution is bounded, but diffusive. Much 
+of the discussion revolves around how to estimate properties at the 
+faces. This is why a whole host of differencing schemes comes up. Eg. 
+at page 110 of Jasak's thesis \citep{jasak1996error}.
 
+\subsection{Linearisation and Predictor values}
 
+Given a very nonlinear system of equations. It was desirable to 
+consider solving a linearised version of the momentum equations.
+We want to solve for the velocity $\mathbf{u}^{t + \Delta t}$ at the 
+next timestep. But we only know $\mathbf{u}^{t }$.
+
+We know that the face fluxes should be based on values in the cell 
+centroids for both the cell $p$ and that of the neighbouring cell $n$,
+hence we use:
+
+$$a_p \mathbf{u}_p + \sum_N a_N \textbf{u}_n$$
+
+However, we have $\mathbf{u u}$ terms. To solve this problem and linearise 
+this, we can use $\mathbf{u}^t \mathbf{u}^{t + \Delta t}$. Basically, 
+$\mathbf{u}^t$ is known. This is the velocity at the previous timestep,
+and is therefore a constant. This will then help form the respective 
+$a_p$ and $a_n$ constants so that the equations are linear.
+
+Of course, the estimates for $\mathbf{u}^{t + \Delta t}$ are not going to 
+be accurate. They are initial guess or \textbf{predicted} values.
+
+We need to do some further correction to these predicted values in order 
+to arrive at the correct answer.
+
+\subsection{Corrector steps}
 
 
 \printbibliography
