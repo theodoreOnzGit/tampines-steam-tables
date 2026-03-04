@@ -295,6 +295,114 @@ $\mathbf{u}^t$ is known. This is the velocity at the previous timestep,
 and is therefore a constant. This will then help form the respective 
 $a_p$ and $a_n$ constants so that the equations are linear.
 
+Let's go back to our equations:
+\begin{equation}
+	\frac{\partial (\rho \textbf{u})}{\partial t} 
+	+ \nabla \cdot (\rho \textbf{u} \textbf{u})
+	= - \nabla P
+	+ \nabla \cdot \tau 
+	+ \rho g
+\end{equation}
+
+In the incompressible assumption,
+
+\begin{equation}
+	\frac{\partial (\textbf{u})}{\partial t} 
+	+ \nabla \cdot (\textbf{u} \textbf{u})
+	= - \nabla P/\rho
+	+ \nabla \cdot \tau /\rho
+	+ g
+\end{equation}
+
+We can do time discretisation:
+
+\begin{equation}
+	\frac{\textbf{u}^{t+ \Delta t} - \textbf{u}^t}{\Delta t} 
+	+ \nabla \cdot (\textbf{u} \textbf{u})
+	= - \nabla P/\rho
+	+ \nabla \cdot \tau /\rho
+	+ g
+\end{equation}
+
+Now, remember, based on divergence theorem we need fluxes or properties 
+at the faces:
+
+\begin{equation}
+	\frac{\textbf{u}^{t+ \Delta t} - \textbf{u}^t}{\Delta t} 
+	+ \sum_f \mathbf{S} \cdot \mathbf{u}_f \mathbf{u}_f
+	= - \nabla P/\rho
+	+ \nabla \cdot \tau /\rho
+	+ g
+\end{equation}
+
+And since we cannot find properties at the faces, we have to estimate 
+them using properties at the centroids.
+
+Just to be clear, let's label the velocities at their proper locations,
+and then linearise the equation using some semi implicit time 
+discretisation:
+
+\begin{equation}
+	\frac{\textbf{u}^{t+ \Delta t}_p - \textbf{u}^t_p}{\Delta t} 
+	+ \sum_f \mathbf{S} \cdot \mathbf{u}_f^t \mathbf{u}_f^{t + \Delta t} 
+	= - \nabla P/\rho
+	+ \nabla \cdot \tau /\rho
+	+ g
+\end{equation}
+
+The fluxes at the faces can be further estimated using some interpolation 
+scheme. The easiest to understand is a linear scheme. Herein, we use some 
+weighting factor to estimate the flux at the face between the cell 
+and the other cell.
+
+$$ \textbf{u}_f^t = w \textbf{u}_p^t + (1-w) \textbf{u}_{n}^t  $$
+
+Substituting this back:
+
+\begin{equation}
+	\frac{\textbf{u}^{t+ \Delta t}_p - \textbf{u}^t_p}{\Delta t} 
+	+ \sum_f \mathbf{S}\cdot (w \textbf{u}_p^t + (1-w) \textbf{u}_{n}^t) 
+	(w \textbf{u}_p^{t + \Delta t} + (1-w) \textbf{u}_{n}^{t + \Delta t})
+	= - \nabla P/\rho
+	+ \nabla \cdot \tau /\rho
+	+ g
+\end{equation}
+
+To make life easier for us, we can choose not to even bother with 
+explicitly solving for the velocities of the neigbours
+
+\begin{equation}
+	\frac{\textbf{u}^{t+ \Delta t}_p - \textbf{u}^t_p}{\Delta t} 
+	+ \sum_f \mathbf{S}\cdot ( w \textbf{u}_p^t + (1-w) \textbf{u}_{n}^t) 
+	(w \textbf{u}_p^{t + \Delta t} + (1-w) \textbf{u}_{n}^{t })
+	= 
+	- \nabla P/\rho
+	+ \nabla \cdot \tau /\rho
+	+ g
+\end{equation}
+
+Messy as the equation is, we now have a linear equation in velocities 
+for each centroid at the next timestep $u^{t + \Delta t}_p$ 
+and $u^{t + \Delta t}_n$.
+
+We can then simplify this equation as such:
+
+
+\begin{equation}
+	a_p \textbf{u}_p^{t + \Delta t} = \textbf{H}(\textbf{u}^t)
+	- \nabla P/\rho
+	+ \nabla \cdot \tau /\rho
+	+ g
+\end{equation}
+
+\begin{equation}
+	\textbf{u}_p^{t + \Delta t} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+	+ \frac{\nabla \cdot \tau /\rho}{a_p}
+	+ g/a_p
+\end{equation}
+
+
 Of course, the estimates for $\mathbf{u}^{t + \Delta t}$ are not going to 
 be accurate. They are initial guess or \textbf{predicted} values.
 
@@ -302,6 +410,10 @@ We need to do some further correction to these predicted values in order
 to arrive at the correct answer.
 
 \subsection{Corrector steps}
+
+So far, we've only bothered with the momentum equation and ignored 
+mass balance (or continuity in this case). Thus, there is 
+no guarantee that the 
 
 
 \printbibliography
