@@ -486,10 +486,39 @@ $$\nabla \cdot
 \right)_f
 $$
 
+We also need to discretise the pressure side
 
+$$
+\nabla \cdot \frac{P/\rho}{a_p}
+= 
+\sum_f \textbf{S}_f \cdot
+\left( 
+	\frac{P/\rho}{a_p}
+\right)_f
+$$
 
+With this discretisation, we obtain
 
+$$
+\sum_f \textbf{S}_f \cdot
+\left( 
+	\frac{\textbf{H}(\textbf{u}^t)}{a_p}
+\right)_f
+= 
+\sum_f \textbf{S}_f \cdot
+\left( 
+	\frac{P/\rho}{a_p}
+\right)_f
+$$
 
+With the interpolation:
+$$ u_f = w u_p + (1-w) u_n $$
+
+the matrices can be set up.
+This is equation 3.143 in Jasak's thesis \citep{jasak1996error}.
+
+So basically, the continuity equation is combined with the momentum 
+equation to give a combined corrector equation.
 
 
 
