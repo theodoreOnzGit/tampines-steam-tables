@@ -1,0 +1,195 @@
+%% thesis.tex 2014/04/11
+%
+% Based on sample files of unknown authorship.
+%
+% The Current Maintainer of this work is Paul Vojta.
+
+\documentclass[masters]{ucbthesis}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{amsfonts}
+\usepackage[normalem]{ulem}
+\usepackage{soul}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{extarrows}
+\usepackage{graphicx}
+
+\usepackage[utf8]{inputenc}
+\usepackage[backend=biber,
+natbib=true,
+style=authoryear,
+sorting=none,
+isbn=true,
+doi=true,
+url=true,
+]{biblatex}
+
+\makeatletter
+% special thanks to this guy
+\newrobustcmd*{\parentexttrack}[1]{%
+  \begingroup
+  \blx@blxinit
+  \blx@setsfcodes
+  \blx@bibopenparen#1\blx@bibcloseparen
+  \endgroup}
+
+\AtEveryCite{%
+  \let\parentext=\parentexttrack%
+  \let\bibopenparen=\bibopenbracket%
+  \let\bibcloseparen=\bibclosebracket}
+
+\makeatother
+\addbibresource{library.bib}
+
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage{wasysym}
+\usepackage{enumitem}
+\usepackage{adjustbox}
+\usepackage{ragged2e}
+\usepackage[svgnames,table]{xcolor}
+\usepackage{tikz}
+% csv files and plots
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{csvsimple-l3}
+\usepackage{longtable}
+\usepackage{changepage}
+\usepackage{setspace}
+\usepackage{hhline}
+\usepackage{multicol}
+\usepackage{tabto}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usetikzlibrary{shapes.symbols,shapes.geometric,shadows,arrows.meta,
+positioning,fit,backgrounds}
+\tikzset{>={Latex[width=1.5mm,length=2mm]}}
+\usepackage{tikz}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+
+\urlstyle{same}
+
+\renewcommand{\_}{\kern-1.5pt\textunderscore\kern-1.5pt}
+
+%https://tex.stackexchange.com/questions/116534/lstlisting-line-wrapping
+% I copied code from here to format things properly
+% Credit to: Henri Menke who answered on StackExchange
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
+%%  Import package so that we can split the tex files into subfolders
+% for easier compile and real-time edit
+
+\usepackage{import}
+
+%%%%%%%%%%%%%% for transfer function controllers %%%%%%%%%%%%%%
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+%%%% set citation style to square brackets
+
+
+\begin{document}
+
+% Declarations for Front Matter
+
+\title{Eulerian Knowledge Prexy and Lyman Zig on Wiggly}
+\author{Tom Lifesaver}
+\degreesemester{Spring}
+\degreeyear{1995}
+\degree{Doctor of Philosophy}
+\chair{Professor Richard Francis Sony}
+\othermembers{Professor Roger Spam \\
+  Associate Professor Michael Chex}
+% For a co-chair who is subordinate to the \chair listed above
+% \cochair{Professor Benedict Francis Pope}
+% For two co-chairs of equal standing (do not use \chair with this one)
+% \cochairs{Professor Richard Francis Sony}{Professor Benedict Francis Pope}
+\numberofmembers{3}
+% Previous degrees are no longer to be listed on the title page.
+% \prevdegrees{B.A. (University of Northern South Dakota at Hoople) 1978 \\
+%   M.S. (Ed's School of Quantum Mechanics and Muffler Repair) 1989}
+\field{Mathematics}
+% Designated Emphasis -- this is optional, and rare
+% \emphasis{Colloidal Telemetry}
+% This is optional, and rare
+% \jointinstitution{University of Western Maryland}
+% This is optional (default is Berkeley)
+% \campus{Berkeley}
+
+% For a masters thesis, replace the above \documentclass line with
+% \documentclass[masters]{ucbthesis}
+% This affects the title and approval pages, which by default calls this
+% document a "dissertation", not a "thesis".
+
+\maketitle
+% Delete (or comment out) the \approvalpage line for the final version.
+\approvalpage
+\copyrightpage
+
+\include{abstract}
+
+\begin{frontmatter}
+
+\begin{dedication}
+\null\vfil
+\begin{center}
+To Ossie Bernosky\\\vspace{12pt}
+And exposition? Of go. No upstairs do fingering. Or obstructive, or purposeful.
+In the glitter. For so talented. Which is confines cocoa accomplished.
+Masterpiece as devoted. My primal the narcotic. For cine? To by recollection
+bleeding. That calf are infant. In clause. Be a popularly. A as midnight
+transcript alike. Washable an acre. To canned, silence in foreign.
+\end{center}
+\vfil\null
+\end{dedication}
+
+% You can delete the \clearpage lines if you don't want these to start on
+% separate pages.
+
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+
+\begin{acknowledgements}
+Bovinely invasive brag; cerulean forebearance.
+Washable an acre. To canned, silence in foreign.
+Be a popularly. A as midnight transcript alike.
+To by recollection bleeding. That calf are infant. In clause.
+Buckaroo loquaciousness?  Aristotelian!
+Masterpiece as devoted. My primal the narcotic. For cine?
+In the glitter. For so talented. Which is confines cocoa accomplished.
+Or obstructive, or purposeful.
+And exposition? Of go. No upstairs do fingering.
+
+\end{acknowledgements}
+
+\end{frontmatter}
+
+\pagestyle{headings}
+
+% (Optional) \part{First Part}
+
+\include{chap1}
+\include{chap2}
+
+\printbibliography
+
+% \appendix
+% \chapter{More Monticello Candidates}
+
+\end{document}
+
+
