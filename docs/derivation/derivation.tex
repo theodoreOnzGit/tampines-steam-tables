@@ -176,6 +176,10 @@ simple Rankine cycle. This will form the theoretical basis to
 In OpenFOAM, the PIMPLE algorithm is often used to solve for incompressible 
 fluid flow \citep{devolder2015review}, this is one of the many standard 
 solvers for solving flow in OpenFOAM \citep{penttinen2011pimplefoam}.
+Jasak has published this in his PhD thesis, available online,
+\citep{jasak1996error} on page 143-149.
+
+\section{Raw forms of mass, momentum and energy balance}
 
 Let's consider mass balance and momentum balance:
 \begin{equation}
@@ -191,11 +195,80 @@ Let's consider mass balance and momentum balance:
 	+ \rho g
 \end{equation}
 
+$\nabla \cdot \tau$ represents shear, $\rho g$ represents the gravity 
+body force, $- \nabla P$ represents the pressure gradient.
+
 \begin{equation}
 	V_j \frac{\partial \rho_i h_i}{\partial t} + \sum_j \dot{m}_j h_j
 	= Q_i - W_i 
 	+ \sum_j \mathbf{\tau}_j \cdot \mathbf{u}_j
 \end{equation}
+
+Where $+ \sum_j \mathbf{\tau}_j \cdot \mathbf{u}_j $ is basically the 
+friction loss terms where energy is transformed from kinetic energy 
+to sensible heat. Q and W represent the thermodynamic work
+
+\section{converting forms to mass flowrate}
+
+It is often more convenient to convert the momentum equations to be 
+in terms of mass flowrates. This is for 1D case.
+
+To do so, we transform this by consider this 3D equation.
+\begin{equation}
+	\frac{\partial (\rho \textbf{u})}{\partial t} 
+	+ \nabla \cdot (\rho \textbf{u} \textbf{u})
+	= - \nabla P
+	+ \nabla \cdot \tau 
+	+ \rho g
+\end{equation}
+
+We need to consider just the x component, for a simple 1D case.
+
+Then multiply by the cross sectional area.
+
+\section{Approach to Solving nonlinear Equations}
+
+Jasak in his PhD thesis outlines the methodology for solving this set of 
+equation \citep{jasak1996error} on page 143-149. These were the foundations 
+for what would eventually become OpenFOAM \cite{jasak2007openfoam} licensed 
+under GPLv3.
+
+The momentum equation is quadratic in u, which makes the equation solution 
+nonlinear. Solving this nonlinear equation would either need a nonlinear 
+solver such as Newton Raphson method, or solving a linearised form of 
+these equations, and iterating to convergence. The latter was chosen 
+\citep{jasak1996error}.
+
+\begin{equation}
+	\nabla \bullet (\mathbf{u u}) 
+	= \sum_f \mathbf{S} \cdot \mathbf{u}_f\mathbf{u}_f
+	= \sum_f F \mathbf{u}_f
+	= a_p \mathbf{u}_p + \sum_N a_N \textbf{u}_n
+\end{equation}
+
+Section 3.3.1 within Jasak's thesis explains these terms.
+
+First, we need to understand that Gauss's theorem is used in Finite 
+Volume analysis, which is the bedrock of OpenFOAM solvers. 
+$\sum_f \mathbf{S} \cdot \mathbf{u}_f\mathbf{u}_f$ represent the surface 
+vector $\mathbf{S}$ and this will have a dot product with the velocity 
+at the faces of the control volume $\mathbf{u}_f$.
+
+Note that the subscript f represents values at the faces.
+
+$\sum_f \mathbf{S} \cdot \mathbf{u}_f\mathbf{u}_f$
+can be written in shorthand $\sum_f F \mathbf{u}_f$.
+
+Now, we may not have the values of the velocities or fluxes at the 
+faces. So we have to estimate it based on the properties at the 
+centroid of the cell denoted $p$, and those of the neighbours denoted $n$.
+
+Thus, the surface values denoted $f$ are estimated based on the values 
+at the cell centroids $p$ and $n$ based on some kind of interpolation 
+scheme. This can be linear interpolation, or some upwind differencing scheme.
+This is described in page 81 of Jasak's thesis \citep{jasak1996error}.
+
+
 
 
 
