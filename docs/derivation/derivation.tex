@@ -764,6 +764,19 @@ writes this in page 149 of his thesis \citep{jasak1996error}.
 
 \section{PIMPLE Algorithm}
 
+For the PIMPLE algorithm, this is a merger between PISO and SIMPLE 
+algorithms \citep{greenshields2022notes}.
+
+Basically, every SIMPLE iteration now has the option to perform a set 
+number of PISO iterations as well. That is perform the corrector steps 
+multiple times per SIMPLE iteration. The PISO loops are known as inner loops,
+whereas the outer loops are known as SIMPLE loops.
+
+It is then up to the user to know how many loops are required.
+
+With this understanding, it is good to try and apply this thought process 
+to our four control volume situation.
+
 
 
 
