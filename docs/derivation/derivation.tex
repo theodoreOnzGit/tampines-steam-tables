@@ -1351,6 +1351,50 @@ Based on the OpenFOAM EEqn.H in rhoPimpleFoam:
 It appears we have to calculate a pressure gradient first.
 Not sure where we get that from though!
 
+Now, for the \textbf{first} iteration, dpdt is zero, because there is 
+no prior pressure from which to calculate it.
+
+In subsequent steps though, p will be updated. And one can have a dpdt as 
+
+\begin{equation*}
+	\frac{\partial p}{\partial t} = \frac{p^{t} - p^{t - \Delta t}}{\Delta t}
+\end{equation*}
+
+\textbf{Equation of State:}
+
+
+Now, with this, we will then be able to solve for enthalpy at the next 
+timestep.
+
+Now, we have predicted a new density $\rho$, a new set of mass flowrates 
+$\dot{m}$ and a new enthalpy $h$. With density and enthalpy, in theory, 
+one should be able to obtain a new pressure field.
+
+$$p = p(\rho,h)$$
+
+For a ideal gas equation of state, this is quite easy if the heat capacity 
+equation is straightforward, as pressure is explicitly 
+in terms of specific volume $1/\rho$ and temperature. 
+
+However, for cubic equation of state, then we need to find temperature 
+iteratively from $h$. 
+
+And for steam tables, we need to iteratively find the temperature which 
+gives us the correct density $\rho$ using the $p,h$ equations.
+
+Hence, for steam tables, we need to vary $p$ such that:
+
+$$ \rho(p,h) - \rho_{set} = 0 $$
+
+By doing so, we will obtain our pressure and (p,h) point
+
+
+\subsection{Step 4}
+
+Now, we enter the PISO part, this is the pressure corrector step.
+Essentially, it is the momentum equation substituted into the pressure 
+equation.
+
 \printbibliography
 
 % \appendix
