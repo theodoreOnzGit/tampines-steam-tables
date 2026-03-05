@@ -14,6 +14,7 @@
 \usepackage{amssymb}
 \usepackage{extarrows}
 \usepackage{graphicx}
+\usepackage{hyperref}
 
 \usepackage[utf8]{inputenc}
 \usepackage[backend=biber,
@@ -603,27 +604,156 @@ creation of a new velocity field which will satisfy continuity equation.
 
 \subsection{repeated iterations}
 This forms the basis for iterating through both mass and momentum balances.
-This is one round of PISO prediction correction. 
+This is one round of PISO prediction-correction. 
 
 We may iterate this several times until the residual is small between 
-consecutive iterations.
+consecutive iterations. 
+
+Now, it must be noted that during PISO, we do NOT repeat step 1 
+to recalculate as mentioned in page 148 Jasak's thesis \cite{jasak1996error}:
+
+\begin{equation*}
+	\frac{\textbf{H}(\textbf{u}^{predictor})}{a_p}
+\end{equation*}
+
+The H term is kept constant through the whole correction sequence and 
+changed in only the next momentum predictor \citep{jasak1996error}.
+
+
+
+
 
 \section{SIMPLE Algorithm}
 
 The SIMPLE algorithm is similar, except that it is solving for steady state 
-solutions. 
+solutions, and uses large time step. 
 
-There is no need to fully resolve pressure-velocity coupling. Which means 
+The key difference is rather than skip Step 1 within loops, we repeat 
+step 1 for momentum predictor. This is the key difference between 
+PISO and SIMPLE. It is that we run the momentum predictor step every 
+time in SIMPLE. In this regard, it is more important to re-calculate 
+H in every iteration so that non-linearities are accounted for.
+
+Hence, between iterations, there is no need to fully 
+resolve pressure-velocity coupling. Which means 
 between iterations, one does not need to actively ensure that they are 
 solved simultaneously. 
 
+
+\subsection{Step 1}
+
+Same as PISO,
+this is the momentum predictor step, we can predict a velocity field 
+using the previous steps
+\begin{equation}
+	\textbf{u}_p^{predictor} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+	+ \frac{\nabla \cdot \tau /\rho}{a_p}
+	+ g/a_p
+\end{equation}
+
+However, before going to step 2, we 
+
+\subsection{Step 2}
+
+Also same as PISO, we do the pressure equation step
+
+With this, we can formulate a new $\frac{\textbf{H}(\textbf{u}^t)}{a_p}$:
+
+\begin{equation}
+	\frac{\textbf{H}(\textbf{u}^{predictor})}{a_p}
+\end{equation}
+
+With this, we can substitute into the mass balance (pressure equation):
+$$
+\sum_f \textbf{S}_f \cdot
+\left( 
+	\frac{P/\rho}{a_p}
+\right)_f
+=
+\sum_f \textbf{S}_f \cdot
+\left( 
+	\frac{\textbf{H}(\textbf{u}^{predictor})}{a_p}
+\right)_f
+$$
+
+This allows for a new pressure field. Note that the gravity terms are missing 
+because hydrostatic pressure is ignored.
+
+$$
+\sum_f \textbf{S}_f \cdot
+\left( 
+	\frac{P/\rho}{a_p}
+\right)_f
+$$
+
+It is conceivable that this results in some small matrix where 
+pressure fields are simultaneously solved.
+
+This is the pressure solution within Jasak's thesis page 
+147 \citep{jasak1996error}.
+
+\subsection{Step 3}
+
+We now have a new pressure field based on mass balance:
+
+$$
+\sum_f \textbf{S}_f \cdot
+\left( 
+	\frac{P/\rho}{a_p}
+\right)_f
+$$
+
+And a new predicted H field based on the initial predictor step:
+
+$$
+\frac{\textbf{H}(\textbf{u}^{predictor})}{a_p}
+$$
+
+Now, the predictor H field is not guaranteed to allow continuity with 
+the old velocity, but since it was used to generate a new pressure 
+field using the continuity equation, it should be able to guarantee 
+creation of a new velocity field which will satisfy continuity equation.
+
+
+\begin{equation}
+	\textbf{u}_p^{corrected} = \frac{\textbf{H}(\textbf{u}^{predictor})}{a_p}
+	- \left(\frac{\nabla P/\rho}{a_p}\right)_\text{corrected pressure field}
+\end{equation}
+
+\subsection{repeated iterations}
+This forms the basis for iterating through both mass and momentum balances.
+This is one round of PISO prediction-correction. 
+
+We may iterate this several times until the residual is small between 
+consecutive iterations. 
+
+Now, it must be noted that during PISO, we do NOT repeat step 1 
+to recalculate as mentioned in page 148 Jasak's thesis \cite{jasak1996error}:
+
+\begin{equation*}
+	\frac{\textbf{H}(\textbf{u}^{predictor})}{a_p}
+\end{equation*}
+
+In SIMPLE, we do change H during subsequent iterations in the 
+momentum predictor step \citep{jasak1996error}.
+
+\href{https://www.youtube.com/watch?v=ahdW5TKacok}{
+	Dr Aiden's YouTube 
+	videos were helpful!
+}
+
+\subsection{Relaxation Factors}
+
 However, between each iteration, timesteps may be large. Hence, the 
 solution may experience some form of instability.
-
 Therefore, there is the introduction of relaxation factors which updates 
 the velocity slowly.
 
+Jasak mentions the use of velocity under-relaxation factors $\alpha_u$.
 
+He outlined the following steps on page 148-149 of his thesis 
+\citep{jasak1996error}:
 
 \section{PIMPLE Algorithm}
 
