@@ -723,24 +723,24 @@ creation of a new velocity field which will satisfy continuity equation.
 
 \subsection{repeated iterations}
 This forms the basis for iterating through both mass and momentum balances.
-This is one round of PISO prediction-correction. 
+This is one round of SIMPLE prediction-correction. 
 
 We may iterate this several times until the residual is small between 
 consecutive iterations. 
 
-Now, it must be noted that during PISO, we do NOT repeat step 1 
+Now, it must be noted that previously during PISO, we do NOT repeat step 1 
 to recalculate as mentioned in page 148 Jasak's thesis \cite{jasak1996error}:
 
 \begin{equation*}
 	\frac{\textbf{H}(\textbf{u}^{predictor})}{a_p}
 \end{equation*}
 
-In SIMPLE, we do change H during subsequent iterations in the 
+Now, in SIMPLE, we do change H during subsequent iterations in the 
 momentum predictor step \citep{jasak1996error}.
 
 \href{https://www.youtube.com/watch?v=ahdW5TKacok}{
-	Dr Aiden's YouTube 
-	videos were helpful!
+	Dr Aiden's YouTube videos were helpful in understanding this regard 
+	too.
 }
 
 \subsection{Relaxation Factors}
@@ -748,14 +748,23 @@ momentum predictor step \citep{jasak1996error}.
 However, between each iteration, timesteps may be large. Hence, the 
 solution may experience some form of instability.
 Therefore, there is the introduction of relaxation factors which updates 
-the velocity slowly.
+the velocity slowly between successive momentum predictor steps.
 
 Jasak mentions the use of velocity under-relaxation factors $\alpha_u$.
+as well as pressure under-relaxation factors $\alpha_p$.
 
 He outlined the following steps on page 148-149 of his thesis 
-\citep{jasak1996error}:
+\citep{jasak1996error}. For pressure:
+
+$$p^{new} = p^{old} + \alpha_p (p^{predictor} - p^{old})$$
+
+For momentum, a similar thing applies. Though for momentum $\alpha_u$
+is usually around 0.8 and for pressure $\alpha_p$ is around 0.2. Jasak 
+writes this in page 149 of his thesis \citep{jasak1996error}.
 
 \section{PIMPLE Algorithm}
+
+
 
 
 \printbibliography
