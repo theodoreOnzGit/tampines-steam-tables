@@ -1386,7 +1386,7 @@ Hence, for steam tables, we need to vary $p$ such that:
 
 $$ \rho(p,h) - \rho_{set} = 0 $$
 
-By doing so, we will obtain our pressure and (p,h) point
+By doing so, we will obtain our pressure and (p,h) point.
 
 
 \subsection{Step 4}
@@ -1394,6 +1394,201 @@ By doing so, we will obtain our pressure and (p,h) point
 Now, we enter the PISO part, this is the pressure corrector step.
 Essentially, it is the momentum equation substituted into the pressure 
 equation.
+
+In the pEqn.H, we see pimpleFoam accounts for transonic equations, but 
+we shall ignore that. We get:
+
+\begin{lstlisting}
+if (!pimple.SIMPLErho())
+{
+    rho = thermo.rho();
+}
+
+// Thermodynamic density needs to be updated by psi*d(p) after the
+// pressure solution
+const volScalarField psip0(psi*p);
+
+volScalarField rAU(1.0/UEqn.A());
+surfaceScalarField rhorAUf("rhorAUf", fvc::interpolate(rho*rAU));
+volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
+
+if (pimple.nCorrPISO() <= 1)
+{
+    tUEqn.clear();
+}
+
+surfaceScalarField phiHbyA
+(
+    "phiHbyA",
+    fvc::interpolate(rho)*fvc::flux(HbyA)
+  + MRF.zeroFilter(rhorAUf*fvc::ddtCorr(rho, U, phi, rhoUf))
+);
+
+fvc::makeRelative(phiHbyA, rho, U);
+MRF.makeRelative(fvc::interpolate(rho), phiHbyA);
+
+// Update the pressure BCs to ensure flux consistency
+constrainPressure(p, rho, U, phiHbyA, rhorAUf, MRF);
+
+// NOTE: I'm skipping the transonic part
+
+{
+    fvScalarMatrix pDDtEqn
+    (
+        fvc::ddt(rho) + psi*correction(fvm::ddt(p))
+      + fvc::div(phiHbyA)
+     ==
+        fvOptions(psi, p, rho.name())
+    );
+
+    while (pimple.correctNonOrthogonal())
+    {
+        fvScalarMatrix pEqn(pDDtEqn - fvm::laplacian(rhorAUf, p));
+
+        pEqn.solve(p.select(pimple.finalInnerIter()));
+
+        if (pimple.finalNonOrthogonalIter())
+        {
+            phi = phiHbyA + pEqn.flux();
+        }
+    }
+}
+
+
+// Explicitly relax pressure for momentum corrector
+p.relax();
+
+U = HbyA - rAU*fvc::grad(p);
+U.correctBoundaryConditions();
+fvOptions.correct(U);
+K = 0.5*magSqr(U);
+
+if (pressureControl.limit(p))
+{
+    p.correctBoundaryConditions();
+}
+
+thermo.correctRho(psi*p - psip0, rhoMin, rhoMax) ;
+
+#include "rhoEqn.H"
+#include "compressibleContinuityErrs.H"
+
+rho = thermo.rho();
+
+// Correct rhoUf if the mesh is moving
+fvc::correctRhoUf(rhoUf, rho, U, phi);
+
+if (thermo.dpdt())
+{
+    dpdt = fvc::ddt(p);
+
+    if (mesh.moving())
+    {
+        dpdt -= fvc::div(fvc::meshPhi(rho, U), p);
+    }
+}
+
+
+\end{lstlisting}
+
+We recall that the corrector step was done by substituting the expressions 
+in for momentum balance into the mass conservation equations.
+
+
+So we have:
+\begin{equation*} 
+	V \frac{\rho^{t + \Delta t} - \rho^t}{\Delta t} 
+	+ \sum_j \dot{m}_{j, face} = 0
+\end{equation*}
+
+\begin{equation*} 
+	\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+
+In terms of V, we integrate across $\Delta x$:
+\begin{equation*} 
+	\Delta x \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \Delta z
+	+ A_{XS} \Delta P = 0
+\end{equation*}
+
+If we were to linearise things, we can substitute the expression for 
+$\dot{m}$ into the mass balance equation. Note now that we are solving 
+for a new pressure distribution.
+
+Note that after the pressure equation is solved, 
+the mass conservation equation is solved again, 
+and then the density is updated using the equation of state.
+
+This is repeated many times during the inner PISO loop.
+
+It is also here that dpdt is updated the end of each pEqn.H step.
+
+
+First let's rearrange to things in terms of H and a. And we will do this 
+calculation in terms of mass flowrate rather than $u$ for convenience.
+
+Recall that the momentum equation can be written as:
+\begin{equation*}
+	\textbf{u}_p^{predictor} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+	+ \frac{\nabla \cdot \tau /\rho}{a_p}
+	+ g/a_p
+\end{equation*}
+
+Now, all the viscous and other terms (other than pressure, can be subsumed 
+in H).
+\begin{equation*}
+	\textbf{u}_p^{predictor} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+\end{equation*}
+
+$$ a_p = \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} |\dot{m}| \Delta x $$
+
+Though for our adaptation, there is no $\frac{\partial m}{\partial t}$ term.
+We need to make simplifications as there are no more time dependent terms.
+
+We note that H is the non pressure term (we ignore time derivative 
+in this case as per Modelica simplifications):
+
+$$ H = \rho g A_{XS} \Delta z $$
+
+So the H/A term is:
+
+$$ H/A = 
+\frac{\rho g A_{XS} \Delta z}{\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} |\dot{m}| \Delta x}
+$$
+
+%\begin{verbatim}
+%From AI:
+%pEqn.H Execution Flow:
+%━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+%
+%1. Update ρ from thermo (ρ = ψp)
+%2. Store ψp₀ for later density correction
+%3. Compute rAU = 1/aₚ from momentum equation
+%4. Construct H/A (velocity predictor without pressure)
+%5. Compute predicted flux φ_HbyA = ρ(H/A)·S
+%6. Apply boundary constraints
+%
+%7. SOLVE PRESSURE EQUATION:
+%   ┌─ Assemble: ∂ρ/∂t + ψ∂p/∂t + ∇·φ_HbyA - ∇·(ρ/aₚ ∇p) = 0
+%   │
+%   └─ Non-orthogonal loop:
+%       ├─ Solve for p (implicit Laplacian)
+%       └─ Update φ = φ_HbyA - (ρ/aₚ)(∇p)
+%
+%8. Relax pressure: p = αₚp_new + (1-αₚ)p_old
+%9. Correct velocity: U = H/A - (1/aₚ)∇p
+%10. Apply pressure limits
+%11. Correct density: ρ += ψ(p_new - p_old)
+%12. Check continuity errors
+%13. Final ρ = thermo.rho() update
+%14. **Calculate dpdt = (p_new - p_old)/Δt** ← For next EEqn.
+%\end{verbatim}
 
 \printbibliography
 
