@@ -1275,6 +1275,8 @@ are quite explicit.
 
 \subsection{Step 3: Energy Equation}
 
+With the predicted mass flowrates, and densities, we can then
+consider the energy equation.
 
 \begin{equation*} 
 	\rho A_{XS} \frac{\partial h_{enthalpy}}{\partial t} 
@@ -1284,18 +1286,73 @@ are quite explicit.
 \end{equation*}
 
 
+\begin{equation*} 
+	\rho A_{XS} \frac{\partial h_{enthalpy}}{\partial t} 
+	+ A_{XS} \frac{\partial P}{\partial t} = 
+	- \dot{m} \frac{\partial h_{enthalpy}}{\partial x}
+	+ q_{wall} \frac{A_{wall}}{L}
+\end{equation*}
 
 
+Let us integrate across dx:
 
+\begin{equation*} 
+	\rho V \frac{\partial h_{enthalpy}}{\partial t} 
+	+ V \frac{\partial P}{\partial t} = 
+	- \sum_j \dot{m}_j h_j
+	+ q_{wall} A_{wall}
+\end{equation*}
 
+Now, this is tricky because we have two time derivatives. 
+One based on pressure, one based on enthalpy. What do we do with this?
 
+Based on the OpenFOAM EEqn.H in rhoPimpleFoam:
 
+\begin{lstlisting}
+{
+    volScalarField& he = thermo.he();
+
+    fvScalarMatrix EEqn
+    (
+        fvm::ddt(rho, he) + fvm::div(phi, he)
+      + fvc::ddt(rho, K) + fvc::div(phi, K)
+      + (
+            he.name() == "e"
+          ? fvc::div
+            (
+                fvc::absolute(phi/fvc::interpolate(rho), U),
+                p,
+                "div(phiv,p)"
+            )
+          : -dpdt
+        )
+      - fvm::laplacian(turbulence->alphaEff(), he)
+     ==
+        fvOptions(rho, he)
+    );
+
+    if (MRF.active())
+    {
+        EEqn += fvc::div(MRF.phi(), p);
+    }
+
+    EEqn.relax();
+
+    fvOptions.constrain(EEqn);
+
+    EEqn.solve();
+
+    fvOptions.correct(he);
+
+    thermo.correct();
+}
+\end{lstlisting}
+
+It appears we have to calculate a pressure gradient first.
+Not sure where we get that from though!
 
 \printbibliography
 
 % \appendix
 % \chapter{More Monticello Candidates}
-
 \end{document}
-
-
