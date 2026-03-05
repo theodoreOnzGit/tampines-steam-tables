@@ -1255,13 +1255,33 @@ and $\dot{m}$.
 	+ A_{XS} \Delta P_{x,face}^t = 0
 \end{equation*}
 
+Now, solving for this is kind of cumbersome due to the presence of 
+the modulus sign, it may be better to do:
+
+\begin{equation*} 
+	\Delta x \frac{f_{fanning}^t P_w}{2 \rho^{predicted} A_{XS}^2} 
+	\dot{m}^{predicted} |\dot{m}^{t}|
+	+\rho^{predicted} g A_{XS} \Delta z
+	+ A_{XS} \Delta P_{x,face}^t = 0
+\end{equation*}
+
+
 Of course, if area and such were changing, we could use this from the last 
 timestep. Nevertheless, this is a control volume, and we should not 
-expect area to change
+expect area to change. 
+
+This makes it relatively easy to obtain $\dot{m}^{predicted}$ as the steps 
+are quite explicit.
+
+\subsection{Step 3: Energy Equation}
 
 
-
-
+\begin{equation*} 
+	\rho A_{XS} \frac{\partial h_{enthalpy}}{\partial t} 
+	+ A_{XS} \frac{\partial P}{\partial t} = 
+	- \rho A_{XS} u \frac{\partial h_{enthalpy}}{\partial x}
+	+ q_{wall} \frac{A_{wall}}{L}
+\end{equation*}
 
 
 
