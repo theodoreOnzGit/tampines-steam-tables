@@ -15,7 +15,7 @@
 \usepackage{extarrows}
 \usepackage{graphicx}
 \usepackage{hyperref}
-
+\usepackage{framed}
 \usepackage[utf8]{inputenc}
 \usepackage[backend=biber,
 natbib=true,
@@ -805,7 +805,11 @@ body force, $- \nabla P$ represents the pressure gradient.
 	+ \sum_j \mathbf{\tau}_j \cdot \mathbf{u}_j
 \end{equation}
 
-The mass balance equation for a 1D geometry is \citep{Casella2003}:
+For a 1D case, we can consider Equations from Modelica. This was 
+the excerpt from my dissertation \citep{ong2024digital}:
+\begin{framed}
+	
+The mass balance equation for a 1D geometry is \citep{Casella2003}.
 
 \begin{equation} \label{eqn:modelica-mass-balance-1D}
 	A_{XS} \frac{\partial \rho}{\partial t} + \frac{\partial \dot{m}}{\partial x} = 0
@@ -854,6 +858,29 @@ with heat transfer coefficient, also commonly denoted $h$.
 $\frac{A_{wall}}{L}$ is the heated surface area of the wall $A_{wall}$ 
 per unit length, where $L$ is the length of the 1D geometry. For tubes,
 $\frac{A_{wall}}{L} = P_w$ \citep{Casella2003}.
+\end{framed}
+
+If we consider the 1D balances:
+
+\begin{equation*} 
+	A_{XS} \frac{\partial \rho}{\partial t} + \frac{\partial \dot{m}}{\partial x} = 0
+\end{equation*}
+
+\begin{equation*} 
+	\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+\begin{equation*} 
+	\rho A_{XS} \frac{\partial h_{enthalpy}}{\partial t} 
+	+ A_{XS} \frac{\partial P}{\partial t} = 
+	- \rho A_{XS} u \frac{\partial h_{enthalpy}}{\partial x}
+	+ q_{wall} \frac{A_{wall}}{L}
+\end{equation*}
+
+
+
 
 
 \printbibliography
