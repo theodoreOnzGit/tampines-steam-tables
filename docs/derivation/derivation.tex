@@ -184,7 +184,7 @@ Jasak has published this in his PhD thesis, available online,
 
 Let's consider mass balance and momentum balance:
 \begin{equation}
-	\frac{\partial \dot{m}}{\partial t} = \sum_i m_i
+	\frac{\partial m}{\partial t} = \sum_i m_i
 \end{equation}
 
 
@@ -777,7 +777,83 @@ It is then up to the user to know how many loops are required.
 With this understanding, it is good to try and apply this thought process 
 to our four control volume situation.
 
+\section{Application to Rankine Cycle}
 
+
+Consider four control volumes. We consider the following PDEs:
+
+
+\begin{equation}
+	\frac{\partial m}{\partial t} = \sum_i m_i
+\end{equation}
+
+
+\begin{equation}
+	\frac{\partial (\rho \textbf{u})}{\partial t} 
+	+ \nabla \cdot (\rho \textbf{u} \textbf{u})
+	= - \nabla P
+	+ \nabla \cdot \tau 
+	+ \rho g
+\end{equation}
+
+$\nabla \cdot \tau$ represents shear, $\rho g$ represents the gravity 
+body force, $- \nabla P$ represents the pressure gradient.
+
+\begin{equation}
+	V_j \frac{\partial \rho_i h_i}{\partial t} + \sum_j \dot{m}_j h_j
+	= Q_i - W_i 
+	+ \sum_j \mathbf{\tau}_j \cdot \mathbf{u}_j
+\end{equation}
+
+The mass balance equation for a 1D geometry is \citep{Casella2003}:
+
+\begin{equation} \label{eqn:modelica-mass-balance-1D}
+	A_{XS} \frac{\partial \rho}{\partial t} + \frac{\partial \dot{m}}{\partial x} = 0
+\end{equation}
+
+Where $A_{XS}$ is the cross sectional area, $\rho$ is the density of 
+the differential volume $dV$, $\dot{m}$ is the mass flow rate, and 
+$x$ is the length coordinate in the direction of flow.
+
+The momentum balance is \citep{Casella2003}:
+
+\begin{equation} \label{eqn:modelica-momentum-balance-1D}
+	\frac{\partial \dot{m}}{\partial t} 
+	+ \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation}
+
+In Equation~\ref{eqn:modelica-momentum-balance-1D}, in addition to the 
+terms already defined for Equation~\ref{eqn:modelica-mass-balance-1D},
+we have Fanning friction factor $f_{fanning}$, wetted perimeter $P_w$, 
+acceleration due to gravity $g$, height for calculating hydrostatic pressure 
+$z$ and pressure $P$. The absolute mass flow rate $\dot{m}$ is used to 
+account for flow reversal in the momentum equation. Additionally 
+the derivative $\frac{\partial \dot{m}}{\partial t}$ is often set to zero 
+to avoid fast pressure oscillations \citep{Casella2003}. The timescale of 
+these oscillations is quite often connected to the speed of sound in that 
+medium. 
+
+The energy balance is \citep{Casella2003}:
+
+\begin{equation} \label{eqn:modelica-energy-balance-1D}
+	\rho A_{XS} \frac{\partial h_{enthalpy}}{\partial t} 
+	+ A_{XS} \frac{\partial P}{\partial t} = 
+	- \rho A_{XS} u \frac{\partial h_{enthalpy}}{\partial x}
+	+ q_{wall} \frac{A_{wall}}{L}
+\end{equation}
+
+In Equation~\ref{eqn:modelica-energy-balance-1D}, in addition to the previously 
+defined terms for Equation~\ref{eqn:modelica-mass-balance-1D} and 
+\ref{eqn:modelica-momentum-balance-1D}, I define $h_{enthalpy}$
+for specific enthalpy per unit mass for the control volume, average 
+fluid velocity $u$ and $q_{wall}$, the heat flux received or lost through 
+lateral surfaces. $h_{enthalpy}$ is denoted as such to prevent confusion 
+with heat transfer coefficient, also commonly denoted $h$. 
+$\frac{A_{wall}}{L}$ is the heated surface area of the wall $A_{wall}$ 
+per unit length, where $L$ is the length of the 1D geometry. For tubes,
+$\frac{A_{wall}}{L} = P_w$ \citep{Casella2003}.
 
 
 \printbibliography
