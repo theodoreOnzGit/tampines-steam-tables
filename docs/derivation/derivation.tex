@@ -74,6 +74,23 @@ positioning,fit,backgrounds}
 \usepackage[T1]{fontenc}
 \usepackage{listings}
 
+\usepackage{listings}
+\lstset{
+    language=C++, % Set the programming language
+    backgroundcolor=\color{black!5}, % Light grey background
+    basicstyle=\footnotesize\ttfamily, % Font style and size
+    keywordstyle=\color{blue}, % Keyword color
+    commentstyle=\color{green!60!black}, % Comment color
+    stringstyle=\color{red}, % String color
+    showstringspaces=false,
+    numbers=left, % Line numbers on the left
+    numberstyle=\tiny\color{gray}, % Line number style
+    frame=single, % Add a frame around the code
+    breaklines=true, % Automatic line breaking
+    captionpos=b, % Caption position at the bottom
+}
+
+
 \urlstyle{same}
 
 \renewcommand{\_}{\kern-1.5pt\textunderscore\kern-1.5pt}
@@ -780,6 +797,7 @@ to our four control volume situation.
 \section{Application to Rankine Cycle}
 
 
+\subsection{Mass, Energy and Momentum Balance Equations}
 Consider four control volumes. We consider the following PDEs:
 
 
@@ -878,6 +896,376 @@ If we consider the 1D balances:
 	- \rho A_{XS} u \frac{\partial h_{enthalpy}}{\partial x}
 	+ q_{wall} \frac{A_{wall}}{L}
 \end{equation*}
+
+Of course, for the equation of state, we can use a real gas equation 
+or steam table. That is done in tampines-steam-tables.
+
+\subsection{rhoPimpleFoam}
+
+For the algorithm considered, we are going to translate from
+rhoPimpleFoam to what we want:
+
+\begin{lstlisting}[caption=rhoPimpleFoam.C, label={lst:rhoPimpleFoam}]
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2019 OpenCFD Ltd.
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Application
+    rhoPimpleFoam
+
+Group
+    grpCompressibleSolvers
+
+Description
+    Transient solver for turbulent flow of compressible fluids for HVAC and
+    similar applications, with optional mesh motion and mesh topology changes.
+
+    Uses the flexible PIMPLE (PISO-SIMPLE) solution for time-resolved and
+    pseudo-transient simulations.
+
+Note
+   The motion frequency of this solver can be influenced by the presence
+   of "updateControl" and "updateInterval" in the dynamicMeshDict.
+
+\*---------------------------------------------------------------------------*/
+
+#include "fvCFD.H"
+#include "dynamicFvMesh.H"
+#include "fluidThermo.H"
+#include "turbulentFluidThermoModel.H"
+#include "bound.H"
+#include "pimpleControl.H"
+#include "pressureControl.H"
+#include "CorrectPhi.H"
+#include "fvOptions.H"
+#include "localEulerDdtScheme.H"
+#include "fvcSmooth.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+int main(int argc, char *argv[])
+{
+    argList::addNote
+    (
+        "Transient solver for compressible turbulent flow.\n"
+        "With optional mesh motion and mesh topology changes."
+    );
+
+    #include "postProcess.H"
+
+    #include "addCheckCaseOptions.H"
+    #include "setRootCaseLists.H"
+    #include "createTime.H"
+    #include "createDynamicFvMesh.H"
+    #include "createDyMControls.H"
+    #include "initContinuityErrs.H"
+    #include "createFields.H"
+    #include "createFieldRefs.H"
+    #include "createRhoUfIfPresent.H"
+
+    turbulence->validate();
+
+    if (!LTS)
+    {
+        #include "compressibleCourantNo.H"
+        #include "setInitialDeltaT.H"
+    }
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+    Info<< "\nStarting time loop\n" << endl;
+
+    while (runTime.run())
+    {
+        #include "readDyMControls.H"
+
+        // Store divrhoU from the previous mesh so that it can be mapped
+        // and used in correctPhi to ensure the corrected phi has the
+        // same divergence
+        autoPtr<volScalarField> divrhoU;
+        if (correctPhi)
+        {
+            divrhoU.reset
+            (
+                new volScalarField
+                (
+                    "divrhoU",
+                    fvc::div(fvc::absolute(phi, rho, U))
+                )
+            );
+        }
+
+        if (LTS)
+        {
+            #include "setRDeltaT.H"
+        }
+        else
+        {
+            #include "compressibleCourantNo.H"
+            #include "setDeltaT.H"
+        }
+
+        ++runTime;
+
+        Info<< "Time = " << runTime.timeName() << nl << endl;
+
+        // --- Pressure-velocity PIMPLE corrector loop
+        while (pimple.loop())
+        {
+            if (pimple.firstIter() || moveMeshOuterCorrectors)
+            {
+                // Store momentum to set rhoUf for introduced faces.
+                autoPtr<volVectorField> rhoU;
+                if (rhoUf.valid())
+                {
+                    rhoU.reset(new volVectorField("rhoU", rho*U));
+                }
+
+                // Do any mesh changes
+                mesh.controlledUpdate();
+
+                if (mesh.changing())
+                {
+                    MRF.update();
+
+                    if (correctPhi)
+                    {
+                        // Calculate absolute flux
+                        // from the mapped surface velocity
+                        phi = mesh.Sf() & rhoUf();
+
+                        #include "correctPhi.H"
+
+                        // Make the fluxes relative to the mesh-motion
+                        fvc::makeRelative(phi, rho, U);
+                    }
+
+                    if (checkMeshCourantNo)
+                    {
+                        #include "meshCourantNo.H"
+                    }
+                }
+            }
+
+            if (pimple.firstIter() && !pimple.SIMPLErho())
+            {
+                #include "rhoEqn.H"
+            }
+
+            #include "UEqn.H"
+            #include "EEqn.H"
+
+            // --- Pressure corrector loop
+            while (pimple.correct())
+            {
+                if (pimple.consistent())
+                {
+                    #include "pcEqn.H"
+                }
+                else
+                {
+                    #include "pEqn.H"
+                }
+            }
+
+            if (pimple.turbCorr())
+            {
+                turbulence->correct();
+            }
+        }
+
+        rho = thermo.rho();
+
+        runTime.write();
+
+        runTime.printExecutionTime(Info);
+    }
+
+    Info<< "End\n" << endl;
+
+    return 0;
+}
+
+
+// ************************************************************************* //
+
+\end{lstlisting}
+\subsection{Discretisation}
+
+Considering the 1D control volume, and a 1D version of the divergence 
+theorem, we can write:
+
+\begin{equation*} 
+	\Delta x A_{XS} \frac{\partial \rho}{\partial t} 
+	+ \Delta x \frac{\partial \dot{m}}{\partial x} = 0
+\end{equation*}
+
+\begin{equation*} 
+	V \frac{\partial \rho}{\partial t} 
+	+ \sum_j \dot{m}_{j, face} = 0
+\end{equation*}
+
+As with before, we must estimate $\dot{m}_{j,face}$ using the centroid 
+values. We can use upwinding interpolation, which would make the most sense.
+
+That means, using p to denote the value at the centroid of the cell,
+and n to denote value at centroid of neighbouring cell.
+
+At the face that is going to some adjacent cell,
+
+If $\dot{m}_p \cdot \hat{S} > 0$:
+
+$$\dot{m}_{j,face} = \dot{m}_p$$
+
+else 
+
+
+$$\dot{m}_{j,face} = \dot{m}_n$$
+
+$\hat{S}$ is the unit area surface normal vector that points away from the 
+centroid of the cell.
+
+\subsection{Step 1: Density Equation}
+For temporal time stepping:
+
+\begin{equation*} 
+	V \frac{\rho^{t + \Delta t} - \rho^t}{\Delta t} 
+	+ \sum_j \dot{m}_{j, face} = 0
+\end{equation*}
+
+We have an explicit equation that allows us to determine a guess 
+in density for the next iteration if we were to do it explicitly.
+
+This is the first step in the rhoPimpleFoam algorithm. (see line 169)
+
+If there are any flows in or out of here, we can incorporate it as 
+well into this equation.
+
+Of course, $\rho^{t + \Delta t}$ is not exactly the correct term, 
+as we haven't completely solved and iterated the new density fields.
+$\rho^{predicted}$ should be the correct term. So what we have now 
+is an intermediate value:
+
+\begin{equation*} 
+	V \frac{\rho^{predicted} - \rho^t}{\Delta t} 
+	+ \sum_j \dot{m}_{j, face} = 0
+\end{equation*}
+
+\subsection{Step 2: Momentum Predictor Step}
+
+For the momentum predictor, we start with:
+\begin{equation*} 
+	\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+Now, we know that the densities have been predicted based on mass balance,
+we can do a momentum predictor step. Note that we ignore the 
+$\frac{\partial \dot{m}}{\partial t}$ term just like modelica. This makes it 
+easier for us. The only thing for us to discrete here is the pressure 
+equation. We will use divergence theorem again by integrating each term 
+by volume.
+
+However, the 1D form has already been integrated across the areas,
+so we only need do is over dx:
+
+\begin{equation*} 
+	\Delta x \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+\rho g A_{XS} \int dx  \frac{\partial z}{\partial x} 
+	+ A_{XS} \int dx  \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+\begin{equation*} 
+	\Delta x \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+\rho g A_{XS} \Delta z
+	+ A_{XS} \Delta P_{x,face} = 0
+\end{equation*}
+
+For this, we can do some pressure interpolation using some weighting 
+factor $\alpha$:
+
+$$\Delta P_{x,face} = \alpha P_p + (1-\alpha) P_n $$
+
+OpenFOAM tends to correlate $\alpha$ based on the distance from the cell 
+centroid to the boundary. In the 1D case, $\alpha$ is simply based on 
+the ratios of the lengths of each 1D cell.
+
+For this, we can see 
+
+
+$$ 1 - \alpha = \frac{\text{cell P length}}{
+	\text{cell P length} + \text{cell N length}
+} $$
+
+Hence, 
+
+
+$$ \alpha = \frac{\text{cell N length}}{
+	\text{cell P length} + \text{cell N length}
+} $$
+
+Now, the density would be based on the previous density predictor step, 
+but the pressures and other properties would be based on the previous 
+timestep.
+
+
+\begin{equation*} 
+	\Delta x \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} 
+	\dot{m}^{predicted} |\dot{m}^{predicted}|
+	+\rho g A_{XS} \Delta z
+	+ A_{XS} \Delta P_{x,face} = 0
+\end{equation*}
+
+As for whether we should take the positive or negative answer of 
+$|\dot{m}^{predicted}|$, that should depend on the sign of the total 
+pressure change.
+
+Now, it is evident that this is a nonlinear equation. So we want to 
+linearise this equation just like for PIMPLE. We shall use the mass 
+flowrates from the previous timesteps for the fanning friction factor 
+and $\dot{m}$.
+
+\begin{equation*} 
+	\Delta x \frac{f_{fanning}^t P_w}{2 \rho^{predicted} A_{XS}^2} 
+	\dot{m}^{t} |\dot{m}^{predicted}|
+	+\rho^{predicted} g A_{XS} \Delta z
+	+ A_{XS} \Delta P_{x,face}^t = 0
+\end{equation*}
+
+Of course, if area and such were changing, we could use this from the last 
+timestep. Nevertheless, this is a control volume, and we should not 
+expect area to change
+
+
+
+
+
+
+
+
 
 
 
