@@ -1507,6 +1507,60 @@ So we have:
 	+ A_{XS} \frac{\partial P}{\partial x} = 0
 \end{equation*}
 
+Now, we just had intermediate guesses from 
+\begin{itemize}
+	\item density equation $\rho$
+	\item the momentum predictor, predicting $\dot{m}$
+	\item energy equation, predicting $h$
+\end{itemize}
+
+The next few steps use the pressure-velocity coupling steps from the 
+SIMPLE and PISO algorithms, but there is a need to update it for density.
+
+Recall for \textbf{incompressible} 
+that the momentum equation can be written as:
+\begin{equation*}
+	\textbf{u}_p^{predictor} = 
+	\frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+	+ \frac{\nabla \cdot \tau /\rho}{a_p}
+	+ g/a_p
+\end{equation*}
+
+The pressure equation is done by substituing this equation into 
+the continutity equation:
+
+\begin{equation*}
+	\nabla \cdot \mathbf{u} = 0
+\end{equation*}
+\begin{equation*}
+	\nabla \cdot \left(
+		\frac{\textbf{H}(\textbf{u}^t)}{a_p}
+		- \frac{\nabla P/\rho}{a_p}
+		+ \frac{\nabla \cdot \tau /\rho}{a_p}
+		+ g/a_p
+	\right) = 0
+\end{equation*}
+
+By doing so, we can have guesses for the pressure in terms of momentum,
+or velocity guesses:
+
+\begin{equation*}
+	\nabla \cdot \frac{\nabla P/\rho}{a_p} 
+	=
+	\nabla \cdot \left(
+		\frac{\textbf{H}(\textbf{u}^t)}{a_p}
+		+ \frac{\nabla \cdot \tau /\rho}{a_p}
+		+ g/a_p
+	\right) 
+\end{equation*}
+
+This was the original equation mentioned in Jasak's thesis 
+\citep{jasak1996error}.
+
+That is well and good, but now we have another layer of complication.
+We move from a pressure based solver to a density based solver.
+Bone outlines this thought process well \citep{bone2020comparative}:
 
 In terms of V, we integrate across $\Delta x$:
 \begin{equation*} 
@@ -1531,13 +1585,6 @@ It is also here that dpdt is updated the end of each pEqn.H step.
 First let's rearrange to things in terms of H and a. And we will do this 
 calculation in terms of mass flowrate rather than $u$ for convenience.
 
-Recall that the momentum equation can be written as:
-\begin{equation*}
-	\textbf{u}_p^{predictor} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
-	- \frac{\nabla P/\rho}{a_p}
-	+ \frac{\nabla \cdot \tau /\rho}{a_p}
-	+ g/a_p
-\end{equation*}
 
 Now, all the viscous and other terms (other than pressure, can be subsumed 
 in H).
