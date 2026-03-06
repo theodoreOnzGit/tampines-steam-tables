@@ -1683,11 +1683,37 @@ enthalpy, one due to pressure.
 
 From this regard, the equations now make physical sense. And it is more 
 evident why there are $\rho$ present in the OpenFOAM rhoPimpleFoam 
-equations.
+equations. Thus, the pressure equation combines the mass balance,
+equation of state, and momentum balance, in order to predict the pressure 
+field at the next timestep.
 
 Note that after the pressure equation is solved, 
-the mass conservation equation is solved again, 
+the mass conservation equation in the density equation is solved again, 
 and then the density is updated using the equation of state.
+
+Now, iterating over these equations many times makes guessing 
+$\rho^{\text{after EEqn.H}}$ much more accurate and consistent with 
+the pressure changes to be done. 
+
+\begin{equation*}
+	\frac{\partial \rho}{\partial t} = \psi 
+	\frac{p^\text{n+1} - p^\text{n}}{\Delta t} 
+	+ \frac{\rho^{\text{after EEqn.H} - \rho^\text{n}}}{\Delta t}
+\end{equation*}
+
+With this, we get better estimates for pressure at the next timestep.
+
+We can then calculate our momentum corrector equation again using this 
+new pressure. This will yield a new set of mass flowrates.
+
+With these mass flowrates, we can then check the change in densities again.
+The OpenFOAM rhoPimpleFoam code includes checking for continuity errors at 
+that state.
+
+After all the continuity error checking, then $\rho$ gets reset to the 
+thermodynamic $\rho$ calculated earlier.
+
+
 
 This is repeated many times during the inner PISO loop.
 
