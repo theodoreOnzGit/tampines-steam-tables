@@ -1560,7 +1560,28 @@ This was the original equation mentioned in Jasak's thesis
 
 That is well and good, but now we have another layer of complication.
 We move from a pressure based solver to a density based solver.
-Bone outlines this thought process well \citep{bone2020comparative}:
+Bone outlines this thought process well \citep{bone2020comparative}.
+Bone then cites Kurganov et al. for coming up with the 
+central schemes (rhoCentralFoam) \citep{kurganov2000new}.
+
+Bone mentiones rhoSimpleFoam on page 6-7 \citep{bone2020comparative}, 
+this is essential for understanding rhoPimpleFoam. Now, in page 3 of 
+the thesis, Bone mentions about steady state compressible equations.
+
+In that regard, continutity equation is similar to SIMPLE algorithms
+for incompressible flow, except that $\rho$ is added in. Time derivative 
+terms are not accounted for.
+
+For page 7 onwards, Bone writes about the PISO algorithm for compressible 
+flow \citep{bone2020comparative}. This is more relevant to our case.
+However, Bone does not elaborate on how density is solved for in 
+rhoPimpleFoam. This is also not covered in the rhoCentralFoam part of the 
+thesis. However, the solution procedure is standard, density, momentum,
+energy, then EOS \citep{bone2020comparative}. 
+
+Clues from sonicFoam can also be obtained from Canteros 
+\citep{canteros2024review} as sonicFoam uses the PIMPLE algorithm like 
+rhoPimpleFoam.
 
 In terms of V, we integrate across $\Delta x$:
 \begin{equation*} 
