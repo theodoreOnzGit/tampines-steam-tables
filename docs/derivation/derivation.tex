@@ -1388,6 +1388,11 @@ $$ \rho(p,h) - \rho_{set} = 0 $$
 
 By doing so, we will obtain our pressure and (p,h) point.
 
+Now, this step is not done in the EEqn.H step, the algorithm calls 
+for finding the temperature first from the thermodynamic states of 
+$\rho$ and $h$ so that we will get a $\rho,T$ point. This is ideal for 
+putting into a cubic equation of state to find p.
+
 
 \subsection{Step 4}
 
@@ -1583,16 +1588,30 @@ Clues from sonicFoam can also be obtained from Canteros
 \citep{canteros2024review} as sonicFoam uses the PIMPLE algorithm like 
 rhoPimpleFoam.
 
-In terms of V, we integrate across $\Delta x$:
-\begin{equation*} 
-	\Delta x \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
-	+ \rho g A_{XS} \Delta z
-	+ A_{XS} \Delta P = 0
-\end{equation*}
 
-If we were to linearise things, we can substitute the expression for 
-$\dot{m}$ into the mass balance equation. Note now that we are solving 
-for a new pressure distribution.
+Now, anyway, the first thing that is done is to use the Equation of 
+state to find a pressure.
+
+So now, we have these values which are guessed from before:
+
+\begin{itemize}
+	\item From density eqn: $\rho^{predicted}$
+	\item From momentum predictor: $\dot{m}^{predicted}$
+	\item From energy equation: $h^{predicted}$
+	\item From Equation of State: $\rho,T$ from $\rho, h$
+\end{itemize}
+
+Now we have:
+
+\begin{itemize}
+	\item $p$ from $\rho, T$ (or $\rho,h$, should not be an issue either)
+\end{itemize}
+
+
+So far, there is minimal coupling between momentum and mass balance 
+equation. Hence, we are using these two equations to form the pressure 
+equation from before:
+
 
 Note that after the pressure equation is solved, 
 the mass conservation equation is solved again, 
@@ -1629,6 +1648,8 @@ So the H/A term is:
 $$ H/A = 
 \frac{\rho g A_{XS} \Delta z}{\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} |\dot{m}| \Delta x}
 $$
+
+
 
 %\begin{verbatim}
 %From AI:
