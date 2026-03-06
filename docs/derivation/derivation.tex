@@ -1612,6 +1612,78 @@ So far, there is minimal coupling between momentum and mass balance
 equation. Hence, we are using these two equations to form the pressure 
 equation from before:
 
+\begin{equation*} 
+	V \frac{\rho}{\Delta t} 
+	+ \sum_j \dot{m}_{j, face} = 0
+\end{equation*}
+
+The face fluxes will be dealt with using the momentum predictor as before.
+It is the pressure time derivative term that is slightly more tricky. 
+Now, to deal with this, the equation of state can be brought in. If we 
+deal with some generic equation of state with a compressibility 
+factor $z$:
+
+\begin{equation*}
+	\rho = \rho(p,T) = \frac{p}{z RT}
+\end{equation*}
+
+The term $\frac{1}{zRT}$ is known as $\psi$ in pEqn.H:
+
+\begin{equation*}
+	\rho = \psi p
+\end{equation*}
+
+Suppose now that we can form:
+
+
+\begin{equation*}
+	d \rho = \psi dp + p d\psi
+\end{equation*}
+
+The time derivative becomes
+
+\begin{equation*}
+	\frac{\partial \rho}{\partial t} = \psi \frac{\partial p}{\partial t} 
+	+ p \frac{\partial \psi}{\partial t}
+\end{equation*}
+
+Now, as far as we are concerned, we've already dealt with the energy, and 
+the thermodynamic changes do not need to change and such.
+
+Now, in the first parts of the predictor step, we have already accounted 
+for changes in density due to energy (temperature) increase at constant 
+pressure. This is the second term. The $p$ there will be the pressure 
+at the previous timestep.
+
+Now, due to temperature increase, we already accounted for the change 
+by changing density due to temperature
+
+\begin{equation*}
+	\frac{\partial \rho}{\partial t} = \psi \frac{\partial p}{\partial t} 
+	+ p \frac{\psi^{\text{after EEqn.H} - \psi^\text{previous timestep}}}{\Delta t}
+\end{equation*}
+
+Now, if we were to convert this back to expressions of density:
+
+\begin{equation*}
+	\frac{\partial \rho}{\partial t} = \psi \frac{\partial p}{\partial t} 
+	+  \frac{\rho^{\text{after EEqn.H} - \rho^\text{previous timestep}}}{\Delta t}
+\end{equation*}
+
+It would be evident now, based on the thermodynamic derivatives why 
+there are two components of the density change, one due to increased 
+enthalpy, one due to pressure.
+
+
+\begin{equation*}
+	\frac{\partial \rho}{\partial t} = \psi 
+	\frac{p^\text{next timestep} - p^\text{previous timestep}}{\Delta t} 
+	+ \frac{\rho^{\text{after EEqn.H} - \rho^\text{previous timestep}}}{\Delta t}
+\end{equation*}
+
+From this regard, the equations now make physical sense. And it is more 
+evident why there are $\rho$ present in the OpenFOAM rhoPimpleFoam 
+equations.
 
 Note that after the pressure equation is solved, 
 the mass conservation equation is solved again, 
@@ -1682,5 +1754,4 @@ $$
 \printbibliography
 
 % \appendix
-% \chapter{More Monticello Candidates}
 \end{document}
