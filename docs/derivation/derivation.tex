@@ -1394,7 +1394,7 @@ $\rho$ and $h$ so that we will get a $\rho,T$ point. This is ideal for
 putting into a cubic equation of state to find p.
 
 
-\subsection{Step 4}
+\subsection{Step 4: pEqn}
 
 Now, we enter the PISO part, this is the pressure corrector step.
 Essentially, it is the momentum equation substituted into the pressure 
@@ -1702,6 +1702,8 @@ the pressure changes to be done.
 \end{equation*}
 
 With this, we get better estimates for pressure at the next timestep.
+
+\subsection{Translation for rhoPimpleFoam to 1D case}
 
 We can then calculate our momentum corrector equation again using this 
 new pressure. This will yield a new set of mass flowrates.
