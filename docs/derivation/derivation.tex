@@ -2070,36 +2070,113 @@ this.
 
 To simplify this, we will do the following:
 
-\begin{equation*} 
-	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+\begin{align*}
+	& \frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
 	+ \frac{\dot{m}^{n+1}}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n}}{\Delta x} 
-	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} \dot{m}^{n+1} |\dot{m}^n|
+	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} \dot{m}^{n+1} |\dot{m}^n|  \\ 
+	&
 	=
 	- \rho g A_{XS} \frac{\partial z}{\partial x}
-	- A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
-\end{equation*}
+	- A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} \\
+\end{align*}
 
-In doing so, all mass flowrates can be guessed explicitly.
 
-We note that the momentum predictor equation is:
+In doing so, all mass flowrates can be guessed explicitly. Of course, 
+we can do Gauss-Siedel iterations to update the guesses of the mass flowrates.
+We can do so until the mass flowrates reached some sort of equilibrium.
+Otherwise, we can just let the iterations continue till some 
+convergence is reached.
+
+Now, for our momentum predictor we start by going back to the momentum 
+predictor in OpenFOAM. We note that the momentum predictor equation is:
 \begin{equation*}
 	\textbf{u}_p^{predictor} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
 	- \frac{\nabla P/\rho}{a_p}
 \end{equation*}
 
+So, we need to arrange things like that of the momentum predictor.
+This means we move the explicit constants to the right hand side:
 
-We note that H is the non pressure term (we ignore time derivative 
-in this case as per Modelica simplifications):
+\begin{align*}
+	& \frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+ \frac{\dot{m}^{n+1}}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n}}{\Delta x} 
+	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} \dot{m}^{n+1} |\dot{m}^n|  \\ 
+	&
+	=
+	- \rho g A_{XS} \frac{\partial z}{\partial x}
+	- A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} \\
+\end{align*}
 
-$$ H = \rho g A_{XS} \Delta z $$
 
-So the H/A term is:
+\begin{align*}
+	& 
+	\frac{\dot{m}^{n+1} }{\Delta t}
+	+ \frac{\dot{m}^{n+1}}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n}}{\Delta x} 
+	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} \dot{m}^{n+1} |\dot{m}^n|  \\ 
+	&
+	=
+	\frac{ \dot{m}^n}{\Delta t}
+	- \rho g A_{XS} \frac{\partial z}{\partial x}
+	- A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
+	\\
+\end{align*}
 
-$$ H/A = 
-\frac{\rho g A_{XS} \Delta z}{\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} |\dot{m}| \Delta x}
-$$
+\begin{align*}
+	& 
+	\dot{m}^{n+1}
+	\left(
+		\frac{1 }{\Delta t}
+		+ \frac{1}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n}}{\Delta x} 
+		+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} |\dot{m}^n|  
+	\right)
+	\\ 
+	&
+	=
+	\frac{ \dot{m}^n}{\Delta t}
+	- \rho g A_{XS} \frac{\partial z}{\partial x}
+	- A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
+	\\
+\end{align*}
 
 
+It is clear from this that H is:
+
+\begin{equation*}
+	H = \frac{ \dot{m}^n}{\Delta t}
+	- \rho g A_{XS} \frac{\partial z}{\partial x}
+\end{equation*}
+
+And the equivalent of $\nabla P/\rho$ is:
+
+
+\begin{equation*}
+	A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
+\end{equation*}
+
+Then, $a_P$ is:
+
+\begin{equation*}
+	a_P = \frac{1 }{\Delta t}
+	+ \frac{1}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n}}{\Delta x} 
+	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} |\dot{m}^n|  
+\end{equation*}
+
+Now, as with Modelica, we should have the option to change the time 
+derivative to zero as well as the momentum advection term using some if 
+else statement. In this case, $a_P$ is simplified to:
+
+\begin{equation*}
+	a_P = \frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} |\dot{m}^n|  
+\end{equation*}
+
+And $H$ is simplified to:
+\begin{equation*}
+	H = - \rho g A_{XS} \frac{\partial z}{\partial x}
+\end{equation*}
+
+With this, it should be sufficient to obtain a momentum predictor equation,
+which takes in all the parameters, then spits out the mass flowrates 
+at the next iteration.
 
 %\begin{verbatim}
 %From AI:
