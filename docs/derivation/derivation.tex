@@ -1977,7 +1977,8 @@ Basically, the CV+1 demarcates the properties in the neigbouring cell in
 the positive $x$ direction, whereas CV-1 demarcates properties in the 
 neigbouring cell in the negative $x$ direction.
 
-This provides a linear way to estimate the mass flowrates at the faces.
+This provides a linear way to estimate the mass flowrates at the faces, 
+and is essentially the same as the central difference approximation.
 
 Upwinding means that the mass flowrate depends on the flow direction.
 
@@ -1990,17 +1991,77 @@ flowrate at cell centroid.
 If flow is positive in the x direction:
 \begin{equation*}
 	\frac{\partial \dot{m}}{\partial x}  
-	= \frac{0.5\dot{m}_{CV} - 0.5\dot{m}_{CV-1}}{\Delta x}  
+	= \frac{\dot{m}_{CV} - \dot{m}_{CV-1}}{\Delta x}  
 \end{equation*}
 
 But if flow is in the negative x direction:
 \begin{equation*}
 	\frac{\partial \dot{m}}{\partial x}  
-	= \frac{0.5\dot{m}_{CV+1} - 0.5\dot{m}_{CV}}{\Delta x}  
+	= \frac{\dot{m}_{CV+1} - \dot{m}_{CV}}{\Delta x}  
 \end{equation*}
 
 Upwind schemes have to depend on this if else statement in the positive 
-and negative x direction.
+and negative x direction. This is essentially the forward and backward 
+difference approximation. It is first order in nature.
+
+From a programming point of view, the upwind scheme is more slightly more 
+difficult to program as compared to the linear approximation.
+
+So we can add this in:
+
+\begin{equation*} 
+	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+ \frac{\dot{m}}{A_{XS} \rho} \frac{\sum_j \dot{m}_j}{\Delta x} 
+	+\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+Where $\sum_j \dot{m}_j$ is sum of mass flowrates out of the cell.
+In terms of time or iteration discretisation, we can linearise it
+
+\begin{equation*} 
+	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+ \frac{\dot{m}^n}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n+1}}{\Delta x} 
+	+\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+For the friction term, we note that the fanning friction factor depends 
+on $\dot{m}$. This will be based on $\dot{m}$ at the previous iteration.
+
+
+\begin{equation*} 
+	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+ \frac{\dot{m}^n}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n+1}}{\Delta x} 
+	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} \dot{m}^{n+1} |\dot{m}^n|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+The rest of the terms are in the previous iteration. Pressure should also 
+use a Gauss linear approximation.
+
+
+\begin{equation*} 
+	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+ \frac{\dot{m}^n}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n+1}}{\Delta x} 
+	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} \dot{m}^{n+1} |\dot{m}^n|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} = 0
+\end{equation*}
+
+
+Hence, our momentum predictor equation becomes:
+\begin{equation*} 
+	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+ \frac{\dot{m}^n}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n+1}}{\Delta x} 
+	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} \dot{m}^{n+1} |\dot{m}^n|
+	=
+	- \rho g A_{XS} \frac{\partial z}{\partial x}
+	- A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
+\end{equation*}
 
 We note that H is the non pressure term (we ignore time derivative 
 in this case as per Modelica simplifications):
