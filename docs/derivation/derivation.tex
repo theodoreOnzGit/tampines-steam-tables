@@ -710,7 +710,8 @@ pressure fields are simultaneously solved.
 This is the pressure solution within Jasak's thesis page 
 147 \citep{jasak1996error}.
 
-\subsection{Step 3}
+\subsection{Step 3: Momentum Corrector}
+
 
 We now have a new pressure field based on mass balance:
 
@@ -1175,6 +1176,37 @@ is an intermediate value:
 
 \subsection{Step 2: Momentum Predictor Step}
 
+The momentum predictor step in OpenFOAM is as follows:
+\begin{lstlisting}
+	
+// Solve the Momentum equation
+
+MRF.correctBoundaryVelocity(U);
+
+tmp<fvVectorMatrix> tUEqn
+(
+	fvm::ddt(rho, U) + fvm::div(phi, U)
+	+ MRF.DDt(rho, U)
+	+ turbulence->divDevRhoReff(U)
+	==
+	fvOptions(rho, U)
+);
+fvVectorMatrix& UEqn = tUEqn.ref();
+
+UEqn.relax();
+
+fvOptions.constrain(UEqn);
+
+if (pimple.momentumPredictor())
+{
+	solve(UEqn == -fvc::grad(p));
+
+	fvOptions.correct(U);
+	K = 0.5*magSqr(U);
+}
+
+
+\end{lstlisting}
 For the momentum predictor, we start with:
 \begin{equation*} 
 	\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
@@ -1703,37 +1735,89 @@ the pressure changes to be done.
 
 With this, we get better estimates for pressure at the next timestep.
 
+\subsection{relaxation factors}
+
+Note that there are explicit relaxation factors applied for pressure 
+in the pEqn.H.
+
+
+
 \subsection{Translation for rhoPimpleFoam to 1D case}
 
-We can then calculate our momentum corrector equation again using this 
-new pressure. This will yield a new set of mass flowrates.
+With the background of rhoPimpleFoam.C in mind, let us now consider how 
+we can properly discretise our equations obtained from Modelica.
 
-With these mass flowrates, we can then check the change in densities again.
-The OpenFOAM rhoPimpleFoam code includes checking for continuity errors at 
-that state.
+Let's start with pEqn.H, convert that to a rust equivalent for 1D 
+flows, and work our way out.
+\subsubsection{pEqn equivalent}
 
-After all the continuity error checking, then $\rho$ gets reset to the 
-thermodynamic $\rho$ calculated earlier.
+We know that the momentum predictor equation in 3D is as follows:
 
-
-
-This is repeated many times during the inner PISO loop.
-
-It is also here that dpdt is updated the end of each pEqn.H step.
-
-
-First let's rearrange to things in terms of H and a. And we will do this 
-calculation in terms of mass flowrate rather than $u$ for convenience.
-
-
-Now, all the viscous and other terms (other than pressure, can be subsumed 
-in H).
 \begin{equation*}
 	\textbf{u}_p^{predictor} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
 	- \frac{\nabla P/\rho}{a_p}
 \end{equation*}
 
-$$ a_p = \frac{f_{fanning} P_w}{2 \rho A_{XS}^2} |\dot{m}| \Delta x $$
+Let's develop a momentum predictor equation. From modelica in 
+equation \ref{eqn:modelica-momentum-balance-1D} \citep{Casella2003} 
+we have:
+
+\begin{equation*} 
+	\frac{\partial \dot{m}}{\partial t}
+	+\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+For this, I'd rather have momentum predictor equations in terms 
+of mass balance. Let's start with the time dependent terms:
+
+\begin{equation*} 
+	\frac{\dot{m}^{t + \Delta t} - \dot{m}^t}{\Delta t}
+	+\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+Of course, in the pEqn, we don't actually predict the next timestep 
+mass flow rate straight away. We actually predict the properties at the 
+next iteration. This we denote as $n$, and $n+1$.
+
+
+\begin{equation*} 
+	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+Now, we can move on to the next terms. We notice the momentum advection 
+terms are visibly missing compared to rhoPimpleFoam.C. This is indeed a 
+simplification. Will momentum advection terms be significant? 
+As I googled, AI reported that this is significant in high speed flows. (No 
+citation here, may add later). I would like to add it back to keep things 
+consistent with rhoPimpleFoam.C.
+
+How are we doing it? Let's start with the substantial derivative:
+
+\begin{equation*}
+	\rho \frac{D \mathbf{u}}{D t} 
+	= 
+	\rho \frac{\partial \mathbf{u}}{\partial t}
+	+ 
+	\rho (\mathbf{u} \cdot \nabla) \mathbf{u}
+\end{equation*}
+
+Let's change this to 1D:
+
+\begin{equation*}
+	\rho \frac{D {u}}{D t} 
+	= 
+	\rho \frac{\partial {u}}{\partial t}
+	+ 
+	\rho ({u} \cdot \nabla) {u}
+\end{equation*}
+
 
 Though for our adaptation, there is no $\frac{\partial m}{\partial t}$ term.
 We need to make simplifications as there are no more time dependent terms.
