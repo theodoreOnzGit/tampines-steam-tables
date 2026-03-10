@@ -2178,6 +2178,58 @@ With this, it should be sufficient to obtain a momentum predictor equation,
 which takes in all the parameters, then spits out the mass flowrates 
 at the next iteration.
 
+
+Now, in the case of continuity, we need to 
+know $\nabla \cdot \mathbf{u} = 0$.
+
+However, this is definitely not the case in here. We can start from 
+a 3D density equation, in order to arrive at the pressure coupling equation 
+pEqn.H.
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial t} + \sum_j \dot{m}_j = 0
+\end{equation*}
+
+Using the same convention, $\sum_j \dot{m}_j$ is the mass flowrate out 
+of the differential control volume. Since volume is constant:
+
+\begin{equation*}
+	V \frac{\partial \rho}{\partial t} + \sum_j \dot{m}_j = 0
+\end{equation*}
+
+\begin{equation*}
+	A_{XS} \Delta x  \frac{\partial \rho}{\partial t} + \sum_j \dot{m}_j = 0
+\end{equation*}
+\begin{equation*}
+	A_{XS} \frac{\partial \rho}{\partial t} + \frac{1}{\Delta x} \sum_j \dot{m}_j = 0
+\end{equation*}
+
+Or if we don't discretise it:
+
+\begin{equation*}
+	A_{XS} \frac{\partial \rho}{\partial t} + \frac{\partial \dot{m}_j}{\partial x} = 0
+\end{equation*}
+This is exactly the Modelica equations.
+
+Now, we need an expression for $\frac{\partial \dot{m}_j}{\partial x}$. The 
+only way this is possible is from the momentum advection term. Otherwise, 
+it is very hard to have pressure velocity coupling. Note that the point 
+of the pEqn.H is to predict pressures.
+
+
+\begin{equation*} 
+	\frac{\partial \dot{m}}{\partial t}
+	+ \frac{\dot{m}}{A_{XS} \rho} \frac{\partial \dot{m}}{\partial x} 
+	+\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+It may be easier to substitute the mass balance equation in here to get 
+a pressure predictor equation.
+
+
+
 %\begin{verbatim}
 %From AI:
 %pEqn.H Execution Flow:
