@@ -1811,16 +1811,152 @@ How are we doing it? Let's start with the substantial derivative:
 Let's change this to 1D:
 
 \begin{equation*}
-	\rho \frac{D {u}}{D t} 
+	\rho \frac{D u}{D t} 
 	= 
-	\rho \frac{\partial {u}}{\partial t}
+	\rho \frac{\partial u}{\partial t}
 	+ 
-	\rho ({u} \cdot \nabla) {u}
+	\rho u \frac{\partial}{\partial x} u
+\end{equation*}
+
+Multiply cross sectional area to both sides:
+\begin{equation*}
+	\rho A_{XS} \frac{D u}{D t} 
+	= 
+	\rho A_{XS} \frac{\partial u}{\partial t}
+	+ 
+	\rho A_{XS} u \frac{\partial}{\partial x} u
+\end{equation*}
+
+\begin{equation*}
+	 \frac{D \dot{m}}{D t} 
+	= 
+	\frac{\partial \dot{m}}{\partial t}
+	+ 
+	u \frac{\partial \dot{m}}{\partial x} 
 \end{equation*}
 
 
-Though for our adaptation, there is no $\frac{\partial m}{\partial t}$ term.
-We need to make simplifications as there are no more time dependent terms.
+\begin{equation*}
+	 \frac{D \dot{m}}{D t} 
+	= 
+	\frac{\partial \dot{m}}{\partial t}
+	+ 
+	\frac{\dot{m}}{A_{XS} \rho} \frac{\partial \dot{m}}{\partial x} 
+\end{equation*}
+
+
+Hence, adding this back:
+
+
+\begin{equation*} 
+	\frac{\dot{m}^{n+1} - \dot{m}^n}{\Delta t}
+	+ \frac{\dot{m}}{A_{XS} \rho} \frac{\partial \dot{m}}{\partial x} 
+	+\frac{f_{fanning} P_w}{2 \rho A_{XS}^2} \dot{m} |\dot{m}|
+	+ \rho g A_{XS} \frac{\partial z}{\partial x}
+	+ A_{XS} \frac{\partial P}{\partial x} = 0
+\end{equation*}
+
+Now, for the advection term, it is evident that some discretisation 
+is required because we need to find the mass flowrates at the faces 
+using the divergence theorem. 
+
+
+\begin{equation*}
+	\iiint \nabla \cdot \mathbf{u} dV = \iint \mathbf{u} \cdot d \vec{S}
+\end{equation*}
+
+Of course, if we were to include density:
+
+\begin{equation*}
+	\rho \iiint \nabla \cdot \mathbf{u} dV = \rho \iint \mathbf{u} \cdot d \vec{S}
+\end{equation*}
+
+Now, in a 1D case:
+
+\begin{equation*}
+	\rho A_{XS} \int \frac{\partial}{\partial x} u dx = \rho \iint u \cdot d \vec{S}
+\end{equation*}
+
+If we were to replace with sums:
+
+
+\begin{equation*}
+	\rho A_{XS} \int \frac{\partial}{\partial x} u dx 
+	= \rho \sum_j u_j \cdot \vec{S}_j
+\end{equation*}
+
+
+\begin{equation*}
+	\int \frac{\partial \dot{m}}{\partial x}  dx 
+	= \rho \sum_j u_j \cdot \vec{S}_j
+\end{equation*}
+
+If we were to derive an expression back for 
+$\frac{\partial \dot{m}}{\partial x}$:
+
+\begin{equation*}
+	\int \frac{\partial \dot{m}}{\partial x}  dx 
+	= \rho \sum_j u_j \cdot \vec{S}_j
+\end{equation*}
+
+Differentiating both sides with respect to $x$ and noting a consistent 
+cross sectional area across the control volume:
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{\partial }{\partial x} \rho \sum_j u_j \cdot \vec{S}_j
+\end{equation*}
+
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{1}{A_{XS}} \frac{\partial }{\partial x} \sum_j \dot{m}_j \cdot \vec{S}_j
+\end{equation*}
+
+Note that the dot product implies a sign convention. For divergence, 
+it measures the rate at which a flux diverges (spreads out). In this case,
+it means outflow of flux (or mass) from a system. Hence $\vec{S}$ necessarily 
+points outwards from the centroid of the cell.
+
+Now, for mass flowrates at the faces, $\dot{m}$, we need some sort 
+of interpolation scheme to have it in terms of the mass flowrates at 
+the centroids. For velocity related interpolation schemes, upwind is used 
+for stability but suffers from diffusivity issues 
+\citep{alves2003convergent}.
+
+Let's consider this:
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{1}{A_{XS} \Delta x}  \sum_j \dot{m}_j \cdot \vec{S}_j
+\end{equation*}
+
+Let's do upwind interpolation and assume $A_{XS}$
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{1}{A_{XS} \Delta x}  \sum_j \dot{m}_j \cdot \vec{S}_j
+\end{equation*}
+
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{1}{A_{XS} \Delta x}  \sum_j \dot{m}_j \cdot \vec{S}_j
+\end{equation*}
+
+Note: $m_j$ is flow OUT of the control volume:
+
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{\sum_j \dot{m}_{j,out}}{\Delta x}  
+\end{equation*}
+In the end, we simplify to this.
+
+
+
+
+
 
 We note that H is the non pressure term (we ignore time derivative 
 in this case as per Modelica simplifications):
