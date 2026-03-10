@@ -2063,6 +2063,14 @@ Hence, our momentum predictor equation becomes:
 	- A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
 \end{equation*}
 
+We note that the momentum predictor equation is:
+\begin{equation*}
+	\textbf{u}_p^{predictor} = \frac{\textbf{H}(\textbf{u}^t)}{a_p}
+	- \frac{\nabla P/\rho}{a_p}
+\end{equation*}
+
+Of course, doing so, we will 
+
 We note that H is the non pressure term (we ignore time derivative 
 in this case as per Modelica simplifications):
 
