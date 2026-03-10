@@ -1953,10 +1953,54 @@ Note: $m_j$ is flow OUT of the control volume:
 \end{equation*}
 In the end, we simplify to this.
 
+If we take mass flowrate as positive in x direction:
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{\dot{m}_{x+0.5 \Delta x} - \dot{m}_{x-0.5 \Delta x}}{\Delta x}  
+\end{equation*}
+
+If we use linear interpolation:
 
 
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{0.5*(\dot{m}_{CV+1}+\dot{m}_{CV}) - 0.5(\dot{m}_{CV}+\dot{m}_{CV-1})}{\Delta x}  
+\end{equation*}
+
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{0.5\dot{m}_{CV+1} - 0.5\dot{m}_{CV-1}}{\Delta x}  
+\end{equation*}
+
+Basically, the CV+1 demarcates the properties in the neigbouring cell in 
+the positive $x$ direction, whereas CV-1 demarcates properties in the 
+neigbouring cell in the negative $x$ direction.
+
+This provides a linear way to estimate the mass flowrates at the faces.
+
+Upwinding means that the mass flowrate depends on the flow direction.
 
 
+Meaning to say, if there is influx into the cell, the mass flowrate at 
+the face is the mass flowrate at the neighbouring cell centroid. If 
+there is flow out of the cell, the mass flowrate at the face is the mass 
+flowrate at cell centroid.
+
+If flow is positive in the x direction:
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{0.5\dot{m}_{CV} - 0.5\dot{m}_{CV-1}}{\Delta x}  
+\end{equation*}
+
+But if flow is in the negative x direction:
+\begin{equation*}
+	\frac{\partial \dot{m}}{\partial x}  
+	= \frac{0.5\dot{m}_{CV+1} - 0.5\dot{m}_{CV}}{\Delta x}  
+\end{equation*}
+
+Upwind schemes have to depend on this if else statement in the positive 
+and negative x direction.
 
 We note that H is the non pressure term (we ignore time derivative 
 in this case as per Modelica simplifications):
