@@ -2317,7 +2317,10 @@ Recall, that we discretise this to equation
 	+ \frac{\rho^{\text{after EEqn.H}} - \rho^\text{n}}{\Delta t}
 \end{equation*}
 
-From a coding standpoint, we can start having UEqn.H or its equivalent:
+From a coding standpoint, we can start having UEqn.H or its equivalent.
+
+Now, in rust, to keep the nomenclature as similar as possible to OpenFOAM,
+we can set UEqn as a struct.
 
 %\begin{verbatim}
 %From AI:

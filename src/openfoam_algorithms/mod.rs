@@ -50,5 +50,8 @@ mod driftFluxFoam;
 // 
 // rhoPimpleFoam
 // pimple algorithm for compressible flow
+// rust code for rhoPimpleFoam 
+// is also here
 #[allow(non_snake_case)]
-mod rhoPimpleFoam;
+pub mod rhoPimpleFoam;
+
