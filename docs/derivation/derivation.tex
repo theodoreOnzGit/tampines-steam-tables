@@ -2314,8 +2314,10 @@ Recall, that we discretise this to equation
 \begin{equation*} 
 	\frac{\partial \rho}{\partial t} = \psi 
 	\frac{p^\text{n+1} - p^\text{n}}{\Delta t} 
-	+ \frac{\rho^{\text{after EEqn.H} - \rho^\text{n}}}{\Delta t}
+	+ \frac{\rho^{\text{after EEqn.H}} - \rho^\text{n}}{\Delta t}
 \end{equation*}
+
+From a coding standpoint, we can start having UEqn.H or its equivalent:
 
 %\begin{verbatim}
 %From AI:
