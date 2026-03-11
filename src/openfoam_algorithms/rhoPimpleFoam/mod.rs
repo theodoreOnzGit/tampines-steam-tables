@@ -203,7 +203,8 @@
 //
 //// ************************************************************************* //
 
-mod UEqn;
+pub mod UEqn;
+pub use UEqn::*;
 mod EEqn;
 mod pcEqn;
 mod pEqn;

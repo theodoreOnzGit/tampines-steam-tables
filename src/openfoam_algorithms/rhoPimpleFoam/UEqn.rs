@@ -30,20 +30,23 @@ use uom::si::f64::*;
 /// note: this wasn't vibe coded
 #[derive(Debug, Clone, PartialEq)]
 pub struct UEqn {
-    // note that for H, we need 
-    // H = m^n/delta_t - rho g A_{XS} dz/dx
-    // we note that dz is the elevation vector 
-    // dz = sin theta dx
+    /// note that for H, we need 
+    /// H = m^n/delta_t - rho g A_{XS} dz/dx
+    /// we note that dz is the elevation vector 
+    /// dz = sin theta dx
     delta_t: Time,
     mass_flowrate_vector_last_iter: Vec<MassRate>,
     density_vector_last_iter: Vec<MassDensity>,
     g: Acceleration,
     cross_sectional_area_vec_last_iter: Vec<Area>,
-    // again, dz = sin theta dx
-    // so dz/dx = sin theta
+    /// again, dz = sin theta dx
+    /// so dz/dx = sin theta
     theta_vec: Vec<Angle>,
-    // this is length of each component
+    /// this is length of each component
     dx: Vec<Length>,
-    // pressure vector 
+    /// pressure vector 
     pressure_vector_last_iter: Vec<Pressure>,
+    /// this is the hydraulic diameter of each component 
+    /// used to compute darcy friction factor
+    d_h: Vec<Length>,
 }
