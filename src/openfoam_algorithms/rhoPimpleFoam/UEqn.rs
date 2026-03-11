@@ -44,4 +44,6 @@ pub struct UEqn {
     theta_vec: Vec<Angle>,
     // this is length of each component
     dx: Vec<Length>,
+    // pressure vector 
+    pressure_vector_last_iter: Vec<Pressure>,
 }
