@@ -2161,6 +2161,14 @@ Then, $a_P$ is:
 	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} |\dot{m}^n|  
 \end{equation*}
 
+Now, the momentum predictor is:
+
+\begin{equation} \label{eqn:momentum-predictor-1d-mass-flowrate}
+	\dot{m}_p^{n+1} = \frac{H(\dot{m}^n)}{a_p} + 
+	\frac{1}{a_p}
+	A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
+\end{equation}
+
 Now, as with Modelica, we should have the option to change the time 
 derivative to zero as well as the momentum advection term using some if 
 else statement. In this case, $a_P$ is simplified to:
@@ -2207,7 +2215,7 @@ of the differential control volume. Since volume is constant:
 Or if we don't discretise it:
 
 \begin{equation*}
-	A_{XS} \frac{\partial \rho}{\partial t} + \frac{\partial \dot{m}_j}{\partial x} = 0
+	A_{XS} \frac{\partial \rho}{\partial t} + \frac{\partial \dot{m}}{\partial x} = 0
 \end{equation*}
 This is exactly the Modelica equations.
 
@@ -2225,9 +2233,69 @@ of the pEqn.H is to predict pressures.
 	+ A_{XS} \frac{\partial P}{\partial x} = 0
 \end{equation*}
 
-It may be easier to substitute the mass balance equation in here to get 
-a pressure predictor equation.
+Now, this isn't going to cut it. The better way, just like in the 
+rhoPimpleFoam equations, is to just substitute 
+the momentum predictor equation straight in in 
+equation \ref{eqn:momentum-predictor-1d-mass-flowrate}:
 
+\begin{equation*} 
+	\dot{m}_p^{n+1} = 
+	\frac{H(\dot{m}^n)}{a_p} + 
+	\frac{1}{a_p}
+	A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
+\end{equation*}
+
+Now, it is noteworthy here that we are trying to predict the pressure 
+at the next iteration. So we need to change the notation slightly.
+
+\begin{equation*} 
+	\dot{m}_p^{n+1} = 
+	\frac{H(\dot{m}^n)}{a_p} + 
+	\frac{1}{a_p}
+	A_{XS} \frac{0.5 P^{n+1}_{CV+1}-0.5P^{n+1}_{CV-1}}{\Delta x} 
+\end{equation*}
+
+We can even go as far to say that the mass flowrate we use for H is 
+based on the momentum predictor:
+\begin{equation*} 
+	\dot{m}_p^{n+1} = 
+	\frac{H(\dot{m}^{predictor})}{a_p} + 
+	\frac{1}{a_p}
+	A_{XS} \frac{0.5 P^{n+1}_{CV+1}-0.5P^{n+1}_{CV-1}}{\Delta x} 
+\end{equation*}
+
+Let's substitute this in the mass balance:
+\begin{equation*}
+	A_{XS} \frac{\partial \rho}{\partial t} 
+	+ \frac{\partial \dot{m}}{\partial x} = 0
+\end{equation*}
+
+We specifically note that the mass flowrate $\dot{m}$ must be 
+at the next iteration.
+\begin{equation*}
+	A_{XS} \frac{\partial \rho}{\partial t} 
+	+ \frac{\partial \dot{m}^{n+1}}{\partial x} = 0
+\end{equation*}
+
+To yield:
+\begin{equation*}
+	A_{XS} \frac{\partial \rho}{\partial t} 
+	+ \frac{ 
+		\partial 
+		\left(
+			\frac{H(\dot{m}^{predictor})}{a_p} + 
+			\frac{1}{a_p}
+			A_{XS} \frac{0.5 P^{n+1}_{CV+1}-0.5P^{n+1}_{CV-1}}{\Delta x} 
+		\right)
+	}{\partial x} = 0
+\end{equation*}
+
+We note that these properties must be evaluated at the faces. 
+Now, the H terms at the faces 
+can be evaluated using the upwind schemes, as well as 
+the $a_P$ terms. This will help in interpolating the terms at the faces.
+For pressure, we can use a Gauss linear scheme which is second order 
+accurate.
 
 
 %\begin{verbatim}
