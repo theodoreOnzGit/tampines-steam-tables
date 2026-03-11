@@ -1672,12 +1672,12 @@ Suppose now that we can form:
 	d \rho = \psi dp + p d\psi
 \end{equation*}
 
-The time derivative becomes
+The time derivative becomes equation \ref{eqn:time-derivative-of-density}:
 
-\begin{equation*}
+\begin{equation} \label{eqn:time-derivative-of-density}
 	\frac{\partial \rho}{\partial t} = \psi \frac{\partial p}{\partial t} 
 	+ p \frac{\partial \psi}{\partial t}
-\end{equation*}
+\end{equation}
 
 Now, as far as we are concerned, we've already dealt with the energy, and 
 the thermodynamic changes do not need to change and such.
@@ -1692,14 +1692,14 @@ by changing density due to temperature
 
 \begin{equation*}
 	\frac{\partial \rho}{\partial t} = \psi \frac{\partial p}{\partial t} 
-	+ p \frac{\psi^{\text{after EEqn.H} - \psi^\text{previous timestep}}}{\Delta t}
+	+ p \frac{\psi^{\text{after EEqn.H}} - \psi^\text{previous timestep}}{\Delta t}
 \end{equation*}
 
 Now, if we were to convert this back to expressions of density:
 
 \begin{equation*}
 	\frac{\partial \rho}{\partial t} = \psi \frac{\partial p}{\partial t} 
-	+  \frac{\rho^{\text{after EEqn.H} - \rho^\text{previous timestep}}}{\Delta t}
+	+  \frac{\rho^{\text{after EEqn.H}} - \rho^\text{previous timestep}}{\Delta t}
 \end{equation*}
 
 It would be evident now, based on the thermodynamic derivatives why 
@@ -1710,7 +1710,7 @@ enthalpy, one due to pressure.
 \begin{equation*}
 	\frac{\partial \rho}{\partial t} = \psi 
 	\frac{p^\text{next timestep} - p^\text{previous timestep}}{\Delta t} 
-	+ \frac{\rho^{\text{after EEqn.H} - \rho^\text{previous timestep}}}{\Delta t}
+	+ \frac{\rho^{\text{after EEqn.H}} - \rho^\text{previous timestep}}{\Delta t}
 \end{equation*}
 
 From this regard, the equations now make physical sense. And it is more 
@@ -1725,13 +1725,14 @@ and then the density is updated using the equation of state.
 
 Now, iterating over these equations many times makes guessing 
 $\rho^{\text{after EEqn.H}}$ much more accurate and consistent with 
-the pressure changes to be done. 
+the pressure changes to be done. This results in  
+equation \ref{eqn:time-derivative-of-density-discretised}:
 
-\begin{equation*}
+\begin{equation} \label{eqn:time-derivative-of-density-discretised}
 	\frac{\partial \rho}{\partial t} = \psi 
 	\frac{p^\text{n+1} - p^\text{n}}{\Delta t} 
-	+ \frac{\rho^{\text{after EEqn.H} - \rho^\text{n}}}{\Delta t}
-\end{equation*}
+	+ \frac{\rho^{\text{after EEqn.H}} - \rho^\text{n}}{\Delta t}
+\end{equation}
 
 With this, we get better estimates for pressure at the next timestep.
 
@@ -2297,6 +2298,24 @@ the $a_P$ terms. This will help in interpolating the terms at the faces.
 For pressure, we can use a Gauss linear scheme which is second order 
 accurate.
 
+Now, we still must consider the time derivative of density.
+
+We note that density is a function of both temperature and pressure.
+Recall equation \ref{eqn:time-derivative-of-density}:
+
+\begin{equation*} 
+	\frac{\partial \rho}{\partial t} = \psi \frac{\partial p}{\partial t} 
+	+ p \frac{\partial \psi}{\partial t}
+\end{equation*}
+
+Recall, that we discretise this to equation
+\ref{eqn:time-derivative-of-density-discretised}:
+
+\begin{equation*} 
+	\frac{\partial \rho}{\partial t} = \psi 
+	\frac{p^\text{n+1} - p^\text{n}}{\Delta t} 
+	+ \frac{\rho^{\text{after EEqn.H} - \rho^\text{n}}}{\Delta t}
+\end{equation*}
 
 %\begin{verbatim}
 %From AI:
