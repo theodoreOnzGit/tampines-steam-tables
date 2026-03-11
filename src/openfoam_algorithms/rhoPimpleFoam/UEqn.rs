@@ -50,3 +50,20 @@ pub struct UEqn {
     /// used to compute darcy friction factor
     d_h: Vec<Length>,
 }
+
+
+impl UEqn {
+    // these will be constructors
+
+}
+
+
+impl UEqn {
+
+    /// this gives a vector of the velocities at the next iteration 
+    /// based on the supplied parameters
+    pub fn U(&self) -> Vec<Velocity>{
+
+        todo!()
+    }
+}

@@ -2140,27 +2140,29 @@ This means we move the explicit constants to the right hand side:
 \end{align*}
 
 
-It is clear from this that H is:
+It is clear from this that H is defined as shown 
+in equation \ref{eqn:UEqn-H}:
 
-\begin{equation*}
+\begin{equation} \label{eqn:UEqn-H}
 	H = \frac{ \dot{m}^n}{\Delta t}
 	- \rho g A_{XS} \frac{\partial z}{\partial x}
-\end{equation*}
+\end{equation}
 
-And the equivalent of $\nabla P/\rho$ is:
+And the equivalent of $\nabla P/\rho$ is defined in 
+equation \ref{eqn:UEqn-dpdx}:
 
 
-\begin{equation*}
+\begin{equation} \label{eqn:UEqn-dpdx}
 	A_{XS} \frac{0.5 P^{n}_{CV+1}-0.5P^n_{CV-1}}{\Delta x} 
-\end{equation*}
+\end{equation}
 
-Then, $a_P$ is:
+Then, $a_P$ is in equation \ref{eqn:UEqn-A}:
 
-\begin{equation*}
+\begin{equation} \label{eqn:UEqn-A}
 	a_P = \frac{1 }{\Delta t}
 	+ \frac{1}{A_{XS} \rho} \frac{\sum_j \dot{m}_j^{n}}{\Delta x} 
 	+\frac{f_{fanning}^n P_w}{2 \rho A_{XS}^2} |\dot{m}^n|  
-\end{equation*}
+\end{equation}
 
 Now, the momentum predictor is:
 
