@@ -139,11 +139,79 @@ impl UEqn {
             let g: Acceleration = self.g;
             let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
 
+            // now we need to get the face flux 
+
+            // case 1: positive flow 1 -> 2 -> 3
+            // or 
+            // (n-1) -> (n) -> (n+1)
+
+            let m_n_flow: MassRate = *mass_rate_ptr;
+
+            // now, for m_n_minus_one and m_n_plus_one flow, we need 
+            // to handle edge cases
+
+            let m_n_minus_one_flow: MassRate;
+            let m_n_plus_one_flow: MassRate;
+            let dx_n: Length = self.dx[i];
+            let dx_n_minus_one: Length;
+            let dx_n_plus_one: Length;
+            let final_index: usize = self.mass_flowrate_vector_last_iter.len() - 1;
+
+            // if this is the first control vol in the vector
+            // we need to handle the edge case
+            if i == 0 {
+                m_n_minus_one_flow = self.mass_flowrate_vector_last_iter[final_index];
+                dx_n_minus_one = self.dx[final_index];
+            } else {
+                m_n_minus_one_flow = self.mass_flowrate_vector_last_iter[i-1];
+                dx_n_minus_one = self.dx[i-1];
+            }
+
+            // if this is the last control volume in the vector, we also need 
+            // to handle that edge case, 
+            // this assumes that control volumes are in one straight line in series
+            if i == final_index {
+                m_n_plus_one_flow = self.mass_flowrate_vector_last_iter[0];
+                dx_n_plus_one = self.dx[0];
+            } else {
+                m_n_plus_one_flow = self.mass_flowrate_vector_last_iter[i+1];
+                dx_n_plus_one = self.dx[i+1];
+            }
+
+
+            // now let's handle case 1, 2 and 3
+            //
+            let m_n_minus_one_flow_positive: bool = 
+                m_n_minus_one_flow > MassRate::ZERO;
+            let m_n_flow_positive: bool = 
+                m_n_flow > MassRate::ZERO;
+            let m_n_plus_one_flow_positive: bool = 
+                m_n_plus_one_flow > MassRate::ZERO;
+
+            let m_n_minus_1_n_face_flow: MassRate;
+            let m_23_face_flow: MassRate;
+            let total_length_n_minus_1_n: Length = dx_n + dx_n_minus_one;
+            let total_length_n_n_plus_1: Length = dx_n + dx_n_plus_one;
+            
+
+            // let's do the face at 12
+
+            if m_n_minus_one_flow_positive && m_n_flow_positive {
+                m_n_minus_1_n_face_flow = m_n_minus_one_flow;
+            } else if !m_n_minus_one_flow_positive && !m_n_flow_positive {
+                m_n_minus_1_n_face_flow = m_n_flow;
+            } else {
+                m_n_minus_1_n_face_flow 
+                    = m_n_minus_one_flow * dx_n/total_length_n_minus_1_n 
+                    + m_n_flow * dx_n_minus_one/total_length_n_minus_1_n;
+            }
 
         }
 
 
     }
+
+
 
 }
 
