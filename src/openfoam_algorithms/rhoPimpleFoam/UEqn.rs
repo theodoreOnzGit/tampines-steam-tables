@@ -159,6 +159,8 @@ impl UEqn {
 
             // if this is the first control vol in the vector
             // we need to handle the edge case
+            // and go like in a cyclic BC
+            // This is most definitely true for Rankine Cycle
             if i == 0 {
                 m_n_minus_one_flow = self.mass_flowrate_vector_last_iter[final_index];
                 dx_n_minus_one = self.dx[final_index];
@@ -170,6 +172,9 @@ impl UEqn {
             // if this is the last control volume in the vector, we also need 
             // to handle that edge case, 
             // this assumes that control volumes are in one straight line in series
+            //
+            // and go like in a cyclic BC
+            // This is most definitely true for Rankine Cycle
             if i == final_index {
                 m_n_plus_one_flow = self.mass_flowrate_vector_last_iter[0];
                 dx_n_plus_one = self.dx[0];
@@ -189,12 +194,12 @@ impl UEqn {
                 m_n_plus_one_flow > MassRate::ZERO;
 
             let m_n_minus_1_n_face_flow: MassRate;
-            let m_23_face_flow: MassRate;
+            let m_n_n_plus_1_face_flow: MassRate;
             let total_length_n_minus_1_n: Length = dx_n + dx_n_minus_one;
             let total_length_n_n_plus_1: Length = dx_n + dx_n_plus_one;
             
 
-            // let's do the face at 12
+            // let's do the face at (n-1) | (n)
 
             if m_n_minus_one_flow_positive && m_n_flow_positive {
                 m_n_minus_1_n_face_flow = m_n_minus_one_flow;
@@ -204,6 +209,17 @@ impl UEqn {
                 m_n_minus_1_n_face_flow 
                     = m_n_minus_one_flow * dx_n/total_length_n_minus_1_n 
                     + m_n_flow * dx_n_minus_one/total_length_n_minus_1_n;
+            }
+
+            // let's do the face at (n) | (n+1)
+            if m_n_plus_one_flow_positive && m_n_flow_positive {
+                m_n_n_plus_1_face_flow = m_n_flow;
+            } else if !m_n_plus_one_flow_positive && !m_n_flow_positive {
+                m_n_n_plus_1_face_flow = m_n_flow;
+            } else {
+                m_n_n_plus_1_face_flow 
+                    = m_n_plus_one_flow * dx_n/total_length_n_n_plus_1 
+                    + m_n_flow * dx_n_plus_one/total_length_n_n_plus_1;
             }
 
         }
