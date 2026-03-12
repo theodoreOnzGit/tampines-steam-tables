@@ -1983,6 +1983,49 @@ and is essentially the same as the central difference approximation.
 
 Upwinding means that the mass flowrate depends on the flow direction.
 
+\begin{lstlisting}
+
+// How can we start with upwinding, let's think of 3 cases 
+
+// we will have 3 control volumes, 1, 2 and 3,
+
+// we need to find the mass flowrates at face at the interface 
+// of 1-2, and face 2-3
+
+// note, positive flow means going from 1 -> 2 -> 3 
+// and negatve flow means 1 <- 2 <- 3
+
+let m1_flow_kg_per_s = 3.0;
+let m2_flow_kg_per_s = 5.0;
+let m3_flow_kg_per_s = 4.0;
+
+let length_1_meter = 1.0;
+let length_2_meter = 2.0;
+let length_3_meter = 1.0;
+
+let m12_face_flow_kg_per_s: f64;
+let m12_face_flow_kg_per_s: f64;
+
+if m1_flow_kg_per_s > 0.0 && m2_flow_kg_per_s > 0.0 {
+	// case 1: this is upwinding in positive flow scenarios
+	m12_face_flow_kg_per_s = m1_flow_kg_per_s;
+} else if m1_flow_kg_per_s <= 0.0 && m2_flow_kg_per_s <= 0.0 {
+	// case 2: this is upwinding in negative flow scenarios
+	m12_face_flow_kg_per_s = m2_flow_kg_per_s;
+} else {
+	// case 3: no clear direction, then we use linear approximation 
+	// using length interpolation
+
+	let total_length = length_1_meter + length_2_meter;
+	m12_face_flow_kg_per_s 
+	= m1_flow_kg_per_s * length_2_meter / total_length
+	+ m2_flow_kg_per_s * length_1_meter / total_length;
+}
+
+// So this is upwinding in cases, but if it is an unclear situation, we 
+// use Gauss linear
+
+\end{lstlisting}
 
 Meaning to say, if there is influx into the cell, the mass flowrate at 
 the face is the mass flowrate at the neighbouring cell centroid. If 

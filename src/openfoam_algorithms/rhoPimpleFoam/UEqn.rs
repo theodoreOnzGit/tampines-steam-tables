@@ -120,7 +120,7 @@ impl UEqn {
     /// flowrates at the faces
     ///
     ///
-    /// upwinding scenarios
+    /// upwinding scenarios are described in documents
     pub fn A_upwind(&self,
         include_transient_term: bool,
         include_advection_term: bool,
