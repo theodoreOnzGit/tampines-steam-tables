@@ -114,5 +114,36 @@ impl UEqn {
         return h_times_delta_t_vec;
     }
 
-    
+
+
+    /// returns the A term, using an upwind scheme to interpolate mass 
+    /// flowrates at the faces
+    ///
+    ///
+    /// upwinding scenarios
+    pub fn A_upwind(&self,
+        include_transient_term: bool,
+        include_advection_term: bool,
+    ){
+        let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
+        let mut a_vec: Vec<Frequency> 
+            = vec![Frequency::ZERO; vector_length];
+        // obtain timestep
+        let delta_t = self.delta_t;
+
+        for (i, mass_rate_ptr) in self.mass_flowrate_vector_last_iter.iter().enumerate(){
+
+            let theta: Angle = self.theta_vec[i];
+
+            let rho: MassDensity = self.density_vector_last_iter[i];
+            let g: Acceleration = self.g;
+            let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
+
+
+        }
+
+
+    }
+
 }
+
