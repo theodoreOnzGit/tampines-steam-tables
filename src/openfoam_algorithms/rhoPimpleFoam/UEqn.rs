@@ -120,8 +120,8 @@ impl UEqn {
     /// flowrates at the faces
     ///
     ///
-    /// upwinding scenarios are described in documents
-    pub fn A_upwind(&self,
+    /// upwinding is used to interpolate flux at the faces
+    pub fn A(&self,
         include_transient_term: bool,
         include_advection_term: bool,
     ){
@@ -139,7 +139,10 @@ impl UEqn {
             let g: Acceleration = self.g;
             let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
 
-            // now we need to get the face flux 
+
+
+            // now, if we consider the advection and transient term,
+            // we need to get the face flux 
 
             // case 1: positive flow 1 -> 2 -> 3
             // or 
@@ -221,6 +224,13 @@ impl UEqn {
                     = m_n_plus_one_flow * dx_n/total_length_n_n_plus_1 
                     + m_n_flow * dx_n_plus_one/total_length_n_n_plus_1;
             }
+
+            // now we can compute total flow out from cell,
+            // which is the meaning of the divergence operator
+
+            let total_outflow_from_cell: MassRate = 
+                -m_n_minus_1_n_face_flow
+                +m_n_n_plus_1_face_flow;
 
         }
 
