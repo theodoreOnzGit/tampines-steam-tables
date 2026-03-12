@@ -46,6 +46,8 @@ pub struct UEqn {
     theta_vec: Vec<Angle>,
     /// this is length of each component
     dx: Vec<Length>,
+    /// this is wetted perimeter of each component
+    p_w: Vec<Length>,
     /// pressure vector 
     pressure_vector_last_iter: Vec<Pressure>,
     /// this is the hydraulic diameter of each component 
@@ -138,6 +140,27 @@ impl UEqn {
             let rho: MassDensity = self.density_vector_last_iter[i];
             let g: Acceleration = self.g;
             let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
+
+            // let's consider the fanning term: 
+            //
+            // delta P = 1/2 rho u^2 (f L/D + K) 
+            //
+            // delta P = 1/2 rho (m/(rho A_XS))^2 (f L/D + K)
+            // delta P = 1/2 rho (m^2/(rho^2 A_XS^2)) (f L/D + K)
+            // delta P = 1/2 (m^2/(rho A_XS^2)) (f L/D + K)
+            //
+            // we multiply by wetted perimeter
+            // delta P * p_w = 1/2 (m^2/(rho A_XS^2)) * p_w (f L/D + K)
+            //
+            // Take it on a per unit mass basis
+            //
+            // delta P * p_w/m = 1/2 (m/(rho A_XS^2)) * p_w (f L/D + K)
+            //
+            // we then get our answer for getting the term: 
+            //
+            // 1/2 (m/(rho A_XS^2)) * p_w (f L/D + K)
+
+            let absolute_mass_flowrate: MassRate = mass_rate_ptr.abs();
 
 
 
