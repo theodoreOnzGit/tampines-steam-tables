@@ -182,6 +182,13 @@ positioning,fit,backgrounds}
 
 \part{What is TAMPINES}
 
+
+\section{Equations of State}
+
+For helium, PR-EOS requires some quantum 
+correction \citep{aasen2020accurate}.
+
+
 \part{Steam Tables}
 
 \part{Rankine Cycle Derivations}
@@ -192,7 +199,7 @@ simple Rankine cycle. This will form the theoretical basis to
 \chapter{Mass, Energy and Momentum Balance}
 
 In OpenFOAM, the PIMPLE algorithm is often used to solve for incompressible 
-fluid flow \citep{devolder2015review}, this is one of the many standard 
+fluid flow \citep{devolder2015review,greenshields2022notes}, this is one of the many standard 
 solvers for solving flow in OpenFOAM \citep{penttinen2011pimplefoam}.
 Jasak has published this in his PhD thesis, available online,
 \citep{jasak1996error} on page 143-149.
@@ -2394,6 +2401,14 @@ we can set UEqn as a struct.
 %13. Final ρ = thermo.rho() update
 %14. **Calculate dpdt = (p_new - p_old)/Δt** ← For next EEqn.
 %\end{verbatim}
+
+
+\part{Appendix: Incompressible Equations}
+
+To understand rhoPimpleFoam, one should first understand the 
+pressure equations provided by the OpenFOAM CFD manual \citep{greenshields2022notes}
+in Chapter 2. 
+
 
 \printbibliography
 
