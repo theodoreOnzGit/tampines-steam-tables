@@ -2406,9 +2406,95 @@ we can set UEqn as a struct.
 \part{Appendix: Incompressible Equations}
 
 To understand rhoPimpleFoam, one should first understand the 
-pressure equations provided by the OpenFOAM CFD manual \citep{greenshields2022notes}
-in Chapter 2. 
+pressure equations provided by the OpenFOAM CFD manual 
+\citep{greenshields2022notes} in Chapter 2. 
 
+For incompressible flow, we refer to 
+\href{https://doc.cfd.direct/notes/cfd-general-principles/incompressible-flow}{Pressure Equation}.
+
+Equation \ref{eqn:continutity-incomrpessible} is the incompressible 
+continuity equation:
+
+\begin{equation} \label{eqn:continutity-incomrpessible}
+	\nabla \bullet \mathbf{u} = 0
+\end{equation}
+
+For newtonian fluid (constant dynamic viscosity and density) 
+
+\begin{equation} \label{eqn:momentum-balance-incomrpessible}
+	\frac{\partial \mathbf{u}}{\partial t} 
+	+ \nabla \bullet (\mathbf{u} \mathbf{u})
+	= 
+	-\nabla p 
+	+ \mathbf{b} 
+	+\nu \nabla^2 \mathbf{u}
+\end{equation}
+
+How to get pressure equation? We take divergence of 
+Equation \ref{eqn:momentum-balance-incomrpessible}:
+
+\begin{equation*} 
+	\nabla \bullet \frac{\partial \mathbf{u}}{\partial t} 
+	+ \nabla \bullet\nabla \bullet (\mathbf{u} \mathbf{u})
+	= 
+	-\nabla \bullet\nabla p 
+	+ \nabla \bullet\mathbf{b} 
+	+\nabla \bullet (\nu \nabla^2 \mathbf{u})
+\end{equation*}
+
+We use \href{https://www.geeksforgeeks.org/engineering-mathematics/clairauts-theorem/}{Clairaut's Theorem} 
+which states that order of partial derivatives doesn't matter.
+
+
+\begin{equation*} 
+	 \frac{\partial \nabla \bullet\mathbf{u}}{\partial t} 
+	+ \nabla \bullet\nabla \bullet (\mathbf{u} \mathbf{u})
+	= 
+	-\nabla \bullet\nabla p 
+	+ \nabla \bullet\mathbf{b} 
+	+\nabla \bullet (\nu \nabla^2 \mathbf{u})
+\end{equation*}
+
+Since $\nabla \bullet \mathbf{u} = 0$, 
+\begin{equation*} 
+	\nabla \bullet\nabla \bullet (\mathbf{u} \mathbf{u})
+	= 
+	-\nabla^2 p 
+	+ \nabla \bullet\mathbf{b} 
+	+\nabla \bullet (\nu \nabla^2 \mathbf{u})
+\end{equation*}
+
+Presuming $\mathbf{b}$ is constant,
+
+\begin{equation*} 
+	\nabla \bullet\nabla \bullet (\mathbf{u} \mathbf{u})
+	= 
+	-\nabla^2 p 
+	+\nabla \bullet (\nu \nabla^2 \mathbf{u})
+\end{equation*}
+
+Again, $\nu$ is constant, so:
+\begin{equation*} 
+	\nabla \bullet\nabla \bullet (\mathbf{u} \mathbf{u})
+	= 
+	-\nabla^2 p 
+	+ \nu ( \nabla^2 (\nabla \bullet\mathbf{u}))
+\end{equation*}
+
+Since $\nabla \bullet \mathbf{u} = 0$, 
+
+\begin{equation*} 
+	\nabla \bullet [\nabla \bullet (\mathbf{u} \mathbf{u})]
+	= 
+	-\nabla^2 p 
+\end{equation*}
+
+Hence, we have our pressure equation shown in 
+\href{https://doc.cfd.direct/notes/cfd-general-principles/incompressible-flow}{here}:
+\begin{equation*} 
+	\nabla \bullet [\nabla \bullet (\mathbf{u} \mathbf{u})]
+	+ \nabla^2 p = 0
+\end{equation*}
 
 \printbibliography
 
