@@ -75,12 +75,14 @@ impl UEqn {
     /// traditionally, OpenFOAM gives a U function, 
     /// I am just going to take the mass rate vector and divide by 
     /// cross sectional area and density
-    pub fn U(&self) -> Vec<Velocity> {
+    /// this assumes boundary conditions are cyclic
+    /// for velocity and pressure
+    pub fn U_loop(&self) -> Vec<Velocity> {
         
         let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
         let mut u_vec: Vec<Velocity> = vec![Velocity::ZERO; vector_length];
         let predicted_mass_rate_vec: Vec<MassRate> = 
-            self.get_mass_rate_vec_momentum_predictor();
+            self.get_mass_rate_vec_momentum_predictor_loop();
 
         for (i, mass_rate_ptr) in predicted_mass_rate_vec.iter().enumerate() {
 
@@ -100,7 +102,9 @@ impl UEqn {
 
     /// this gives a vector of the velocities at the next iteration 
     /// based on the supplied parameters
-    pub fn get_mass_rate_vec_momentum_predictor(&self) -> Vec<MassRate>{
+    ///
+    /// this assumes the control volumes are arranged in a loop
+    pub fn get_mass_rate_vec_momentum_predictor_loop(&self) -> Vec<MassRate>{
 
         // include both terms into equation first
         let include_transient_term = self.include_transient_term;
@@ -110,10 +114,10 @@ impl UEqn {
 
         // let's load a, H and dpdx
 
-        let A = self.A(include_transient_term, include_advection_term);
+        let A = self.A_loop(include_transient_term, include_advection_term);
         let H_times_delta_t_vec = self.get_H_times_delta_t(include_transient_term);
         let dpdx_term_times_area_times_delta_t_vec = 
-            self.get_dpdx_term_times_area_times_delta_t();
+            self.get_dpdx_term_times_area_times_delta_t_loop();
 
         //let mut u_vec: Vec<Velocity> = vec![Velocity::ZERO; vector_length];
         let mut m_vec: Vec<MassRate> = vec![MassRate::ZERO; vector_length];
@@ -196,7 +200,7 @@ impl UEqn {
     ///
     /// upwinding is used to interpolate flux at the faces
     /// note: this assumes the control volumes are connected in a loop
-    pub fn A(&self,
+    pub fn A_loop(&self,
         include_transient_term: bool,
         include_advection_term: bool,
     ) -> Vec<Frequency> {
@@ -404,7 +408,9 @@ impl UEqn {
 
     /// this is pressure gradient term 
     /// A_XS * (0.5 P_CV+1 - 0.5 P_CV-1)/delta_x
-    pub fn get_dpdx_term_times_area_times_delta_t(&self) -> Vec<MassRate>{
+    ///
+    /// this assumes control volumes are arranged in a loop
+    pub fn get_dpdx_term_times_area_times_delta_t_loop(&self) -> Vec<MassRate>{
 
         // obtain timestep
         let delta_t = self.delta_t;
