@@ -199,7 +199,11 @@ OpenFOAM in order to solve the multiphase equations for the Rankine Cycle.
 This can just as easily be done for the Brayton Cycle. Do note, we 
 are using the Homogeneous Equation Model, the simplest of them for 
 two phase flow described in 12.5.1 of Kazimi Vol ii
-\citep{todreas2021nuclear}.
+\citep{todreas2021nuclear}. This is much simpler than MELCOR, which 
+was used for AP-1000 PWR simulations \citep{malicki2019development}
+and uses the two-fluid two phase model for its thermal hydraulics \cite{kim2014sensitivity}
+wherein separate equations are solved for the two velocities under two 
+phase flow, section 1.3 \citep{gauntt2000melcor}.
 
 This will form the theoretical basis to make a solver 
 for transient balances in this Rankine Cycle.
