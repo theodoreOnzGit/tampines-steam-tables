@@ -194,7 +194,15 @@ correction \citep{aasen2020accurate}.
 \part{Rankine Cycle Derivations}
 
 In this part, we consider a four control volume system representing a 
-simple Rankine cycle. This will form the theoretical basis to 
+simple Rankine cycle. We will adapt the rhoPimpleFoam algorithm from 
+OpenFOAM in order to solve the multiphase equations for the Rankine Cycle.
+This can just as easily be done for the Brayton Cycle. Do note, we 
+are using the Homogeneous Equation Model, the simplest of them for 
+two phase flow described in 12.5.1 of Kazimi Vol ii
+\citep{todreas2021nuclear}.
+
+This will form the theoretical basis to make a solver 
+for transient balances in this Rankine Cycle.
 
 \chapter{Mass, Energy and Momentum Balance}
 
