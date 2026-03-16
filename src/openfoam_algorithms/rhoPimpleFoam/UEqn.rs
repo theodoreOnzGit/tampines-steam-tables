@@ -131,7 +131,7 @@ impl UEqn {
     pub fn A(&self,
         include_transient_term: bool,
         include_advection_term: bool,
-    ){
+    ) -> Vec<Frequency> {
         let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
         let mut a_vec: Vec<Frequency> 
             = vec![Frequency::ZERO; vector_length];
@@ -140,10 +140,11 @@ impl UEqn {
 
         for (i, mass_rate_ptr) in self.mass_flowrate_vector_last_iter.iter().enumerate(){
 
-            let theta: Angle = self.theta_vec[i];
 
             let rho: MassDensity = self.density_vector_last_iter[i];
-            let g: Acceleration = self.g;
+            // these are not needed, just commenting out
+            //let theta: Angle = self.theta_vec[i];
+            //let g: Acceleration = self.g;
             let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
 
             let hydraulic_diameter = self.d_h[i];
@@ -190,16 +191,34 @@ impl UEqn {
                     form_loss_k.into()
                 ).unwrap();
 
+            // this is the friction loss term
             let mut A: Frequency = 
                 pressure_drop/
                 absolute_mass_flowrate*
                 wetted_perimeter;
 
 
+            // now, if we don't include transient or advection term, 
+            // just push A to a_vector 
 
+            if !include_transient_term && !include_advection_term {
+                a_vec[i] = A;
+                continue;
+            };
 
+            // now, let's see if we include the transient term, 
+            // this will be quite simple 
 
+            if include_transient_term {
+                A += delta_t.recip();
+            };
 
+            // if we don't include the advection term, then exit 
+
+            if !include_advection_term {
+                a_vec[i] = A;
+                continue;
+            };
 
             // now, if we consider the advection and transient term,
             // we need to get the face flux 
@@ -292,11 +311,25 @@ impl UEqn {
                 -m_n_minus_1_n_face_flow
                 +m_n_n_plus_1_face_flow;
 
+            let advection_term: Frequency = 
+                total_outflow_from_cell/
+                pipe_length/ 
+                xs_area/
+                rho;
 
 
+            // we add the advection term in
+            A += advection_term;
 
+            
+            // then we return A
+            a_vec[i] = A;
 
         }
+
+        // after all this, we return the a_vec 
+
+        return a_vec;
 
 
     }
