@@ -170,6 +170,7 @@ impl UEqn {
 
             let absolute_mass_flowrate: MassRate = mass_rate_ptr.abs();
             let fluid_viscosity = self.mu[i];
+            let wetted_perimeter: Length = self.p_w[i];
 
             // note that for steam turbine, we just assume zero K term 
             // and smooth pipe, for ease of calculation
@@ -188,6 +189,13 @@ impl UEqn {
                     absolute_roughness, 
                     form_loss_k.into()
                 ).unwrap();
+
+            let mut A: Frequency = 
+                pressure_drop/
+                absolute_mass_flowrate*
+                wetted_perimeter;
+
+
 
 
 
