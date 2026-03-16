@@ -56,6 +56,11 @@ pub struct UEqn {
     d_h: Vec<Length>,
     /// this is the fluid viscosity
     mu: Vec<DynamicViscosity>,
+    /// this is the setting to include the transient term 
+    include_transient_term: bool,
+    /// this is the setting to include the advection term 
+    include_advection_term: bool,
+
 }
 
 
@@ -67,11 +72,74 @@ impl UEqn {
 
 impl UEqn {
 
+    /// traditionally, OpenFOAM gives a U function, 
+    /// I am just going to take the mass rate vector and divide by 
+    /// cross sectional area and density
+    pub fn U(&self) -> Vec<Velocity> {
+        
+        let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
+        let mut u_vec: Vec<Velocity> = vec![Velocity::ZERO; vector_length];
+        let predicted_mass_rate_vec: Vec<MassRate> = 
+            self.get_mass_rate_vec_momentum_predictor();
+
+        for (i, mass_rate_ptr) in predicted_mass_rate_vec.iter().enumerate() {
+
+            let mass_rate: MassRate = *mass_rate_ptr;
+            let rho: MassDensity = self.density_vector_last_iter[i];
+            let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
+
+            let u: Velocity = mass_rate/rho/xs_area;
+
+            u_vec[i] = u;
+
+        }
+
+        return u_vec;
+
+    }
+
     /// this gives a vector of the velocities at the next iteration 
     /// based on the supplied parameters
-    pub fn U(&self) -> Vec<Velocity>{
+    pub fn get_mass_rate_vec_momentum_predictor(&self) -> Vec<MassRate>{
 
-        todo!()
+        // include both terms into equation first
+        let include_transient_term = self.include_transient_term;
+        let include_advection_term = self.include_advection_term;
+        let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
+        let delta_t = self.delta_t;
+
+        // let's load a, H and dpdx
+
+        let A = self.A(include_transient_term, include_advection_term);
+        let H_times_delta_t_vec = self.get_H_times_delta_t(include_transient_term);
+        let dpdx_term_times_area_times_delta_t_vec = 
+            self.get_dpdx_term_times_area_times_delta_t();
+
+        //let mut u_vec: Vec<Velocity> = vec![Velocity::ZERO; vector_length];
+        let mut m_vec: Vec<MassRate> = vec![MassRate::ZERO; vector_length];
+
+        // lets do a mass rate vector 
+
+        for (i, A_ptr) in A.iter().enumerate() {
+
+            let a_p: Frequency = *A_ptr;
+            let h_times_delta_t = H_times_delta_t_vec[i];
+            let dpdx_term_times_area_times_delta_t = 
+                dpdx_term_times_area_times_delta_t_vec[i];
+
+            let mass_rate: MassRate = 
+                (h_times_delta_t 
+                + dpdx_term_times_area_times_delta_t) 
+                / delta_t 
+                / a_p;
+
+
+            m_vec[i] = mass_rate;
+
+        };
+
+
+        return m_vec;
     }
 
 
@@ -84,7 +152,7 @@ impl UEqn {
     /// so i rather return 
     ///
     /// H * delta_t
-    pub fn H_times_delta_t(&self, include_transient_term: bool) -> Vec<MassRate> {
+    pub fn get_H_times_delta_t(&self, include_transient_term: bool) -> Vec<MassRate> {
 
         let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
         let mut h_times_delta_t_vec: Vec<MassRate> 
