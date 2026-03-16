@@ -1,4 +1,5 @@
-///*---------------------------------------------------------------------------*\
+// Found in: $FOAM_SRC/finiteVolume/cfdTools/compressible/rhoEqn.H
+////*---------------------------------------------------------------------------*\
 //  =========                 |
 //  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
 //   \\    /   O peration     |
