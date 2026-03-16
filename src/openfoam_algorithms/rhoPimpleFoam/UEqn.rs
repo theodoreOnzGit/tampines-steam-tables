@@ -77,6 +77,11 @@ impl UEqn {
     /// cross sectional area and density
     /// this assumes boundary conditions are cyclic
     /// for velocity and pressure
+    ///
+    /// Though for Rankine Cycle, 
+    /// we often define a condenser pressure
+    /// and a outlet pressure of the pump
+    /// Hence, we may not have a cyclic BC per se for the pressure
     pub fn U_loop(&self) -> Vec<Velocity> {
         
         let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
