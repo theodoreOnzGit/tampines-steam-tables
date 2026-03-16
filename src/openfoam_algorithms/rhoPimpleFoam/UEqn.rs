@@ -334,7 +334,60 @@ impl UEqn {
 
     }
 
+    /// this is pressure gradient term 
+    /// A_XS * (0.5 P_CV+1 - 0.5 P_CV-1)/delta_x
+    pub fn get_dpdx_term_times_area_times_delta_t(&self) -> Vec<MassRate>{
+
+        // obtain timestep
+        let delta_t = self.delta_t;
+
+        let vector_length: usize = self.mass_flowrate_vector_last_iter.len();
+        let mut dpdx_term_times_area_times_delta_t: Vec<MassRate> = 
+            vec![MassRate::ZERO; vector_length];
+        let final_index: usize = self.mass_flowrate_vector_last_iter.len() - 1;
+        
+
+        for (i, dx_ptr) in self.dx.iter().enumerate(){
+
+            let dx: Length = *dx_ptr;
+            let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
+
+            let p_cv_plus_one: Pressure;
+            let p_cv_minus_one: Pressure;
+
+            if i == 0 {
+                // if this is the first control vol in the vector
+                // we need to handle the edge case
+                // and go like in a cyclic BC
+                // This is most definitely true for Rankine Cycle
+                p_cv_minus_one = self.pressure_vector_last_iter[final_index];
+                p_cv_plus_one = self.pressure_vector_last_iter[i+1];
+            } else if i == final_index {
+                // if this is the last control volume in the vector, we also need 
+                // to handle that edge case, 
+                // this assumes that control volumes are in one straight line in series
+                //
+                // and go like in a cyclic BC
+                // This is most definitely true for Rankine Cycle
+                p_cv_minus_one = self.pressure_vector_last_iter[i-1];
+                p_cv_plus_one = self.pressure_vector_last_iter[0];
+            } else {
+                p_cv_minus_one = self.pressure_vector_last_iter[i-1];
+                p_cv_plus_one = self.pressure_vector_last_iter[i+1];
+            }
+
+            let dp: Pressure = 0.5 * p_cv_plus_one - 0.5 * p_cv_minus_one;
+            let dpdx = dp/dx;
+
+
+            dpdx_term_times_area_times_delta_t[i] = 
+                dpdx * xs_area * delta_t;
+
+        }
+
+        return dpdx_term_times_area_times_delta_t;
+    }
+    
 
 
 }
-
