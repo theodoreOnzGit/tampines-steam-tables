@@ -18,6 +18,7 @@ thiserror = "1.0.58"
 uom = "0.36.0"
 tuas_boussinesq_solver = "0.0.10"
 
+
 [target.'cfg(windows)'.dependencies]
 ndarray-linalg = { version = "0.16.0", features = ["intel-mkl-static"] }
 

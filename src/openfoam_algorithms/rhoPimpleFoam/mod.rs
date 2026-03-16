@@ -208,3 +208,4 @@ pub use UEqn::*;
 mod EEqn;
 mod pcEqn;
 mod pEqn;
+mod rhoEqn;
