@@ -1,3 +1,4 @@
+use tuas_boussinesq_solver::fluid_mechanics_correlations::pipe_calculations::pipe_calc_pressure_loss;
 //// Solve the Momentum equation
 //
 //MRF.correctBoundaryVelocity(U);
@@ -53,6 +54,8 @@ pub struct UEqn {
     /// this is the hydraulic diameter of each component 
     /// used to compute darcy friction factor
     d_h: Vec<Length>,
+    /// this is the fluid viscosity
+    mu: Vec<DynamicViscosity>,
 }
 
 
@@ -120,9 +123,11 @@ impl UEqn {
 
     /// returns the A term, using an upwind scheme to interpolate mass 
     /// flowrates at the faces
-    ///
+    /// 
+    /// In this case, A is in units of frequency
     ///
     /// upwinding is used to interpolate flux at the faces
+    /// note: this assumes the control volumes are connected in a loop
     pub fn A(&self,
         include_transient_term: bool,
         include_advection_term: bool,
@@ -140,6 +145,9 @@ impl UEqn {
             let rho: MassDensity = self.density_vector_last_iter[i];
             let g: Acceleration = self.g;
             let xs_area: Area = self.cross_sectional_area_vec_last_iter[i];
+
+            let hydraulic_diameter = self.d_h[i];
+            let pipe_length = self.dx[i];
 
             // let's consider the fanning term: 
             //
@@ -161,6 +169,27 @@ impl UEqn {
             // 1/2 (m/(rho A_XS^2)) * p_w (f L/D + K)
 
             let absolute_mass_flowrate: MassRate = mass_rate_ptr.abs();
+            let fluid_viscosity = self.mu[i];
+
+            // note that for steam turbine, we just assume zero K term 
+            // and smooth pipe, for ease of calculation
+
+            let form_loss_k: Ratio = Ratio::ZERO;
+            let absolute_roughness: Length = Length::ZERO;
+
+            let pressure_drop: Pressure = 
+                pipe_calc_pressure_loss(
+                    absolute_mass_flowrate, 
+                    xs_area, 
+                    hydraulic_diameter, 
+                    fluid_viscosity, 
+                    rho, 
+                    pipe_length, 
+                    absolute_roughness, 
+                    form_loss_k.into()
+                ).unwrap();
+
+
 
 
 
@@ -254,6 +283,10 @@ impl UEqn {
             let total_outflow_from_cell: MassRate = 
                 -m_n_minus_1_n_face_flow
                 +m_n_n_plus_1_face_flow;
+
+
+
+
 
         }
 
