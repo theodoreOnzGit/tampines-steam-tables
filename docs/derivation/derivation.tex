@@ -267,6 +267,118 @@ For simplistic modelling, we can consider using a fixed pressure increase
 so that the condenser pressure is set, and a fixed pressure increase is 
 set at a constant flowrate.
 
+In the turbine, we can simply model it as having a fixed pressure drop 
+\citep{zimmer2008modelling}. However, I want something more substantial.
+From first principles, steam turbines extract energy due to momentum 
+transfer from steam to the blades as it is for impulse turbines 
+\citep{kareem2018design}. Dixon et al. writes extensively about this 
+in his textbook \citep{dixon2013fluid}. 
+
+The key is this:
+
+\begin{equation*}
+	W = \dot{m} \Delta h
+\end{equation*}
+
+How then do we model the enthalpy change? It is very much related
+to turbine RPM and so forth. Let us investigate the models.
+Now, for power plants, the most common type is the axial turbine 
+\citep{agromayor2019preliminary}, and to calculate the energy balances
+across here, we correlate enthalpy changes using stagnation properties 
+\citep{agromayor2019preliminary}. Using Eq 17 of 
+Agromayor \citep{agromayor2019preliminary}:
+
+
+\begin{equation*}
+	h_{in} + 0.5 w^2_{in} = h_{out} + 0.5 w^2_{out}
+\end{equation*}
+
+In steam turbines specifically, kinetic energy cannot 
+be neglected in the energy balance. Some of this kinetic energy 
+is transferred to the rotor via momentum balance. To understand how 
+much momentum is transferred, we need to understand the inner workings 
+of steam turbines.
+
+Now, how can we break down steam turbines to something more bite sized 
+and understandable? We can simplify them as they 
+are considered a series of Rotor and Stator blades \citep{dixon2013fluid}.
+This is known as a cascade model under section 2.4 of 
+Agromayor et al.'s paper \citep{agromayor2019preliminary}.
+Stator blades help guide steam into the Rotor blades, and they are stationary 
+to help guide flow. A simple Darcy Weisbach equation may be sufficient to 
+model losses over the stator blades. Otherwise, we may use some other 
+empirical loss correlations.
+
+What I want to do here is to correlate the enthalpy change to a turbine 
+rotation speed.
+For rotational kinetic energy, or angular momentum, we can do the following 
+balance:
+
+\begin{equation*}
+	\frac{\partial (I \omega)}{\partial t} = \text{source} - \text{sinks}
+\end{equation*}
+
+Of course, moment of inertia for the turbine is constant:
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = \text{source} - \text{sinks}
+\end{equation*}
+
+Here, we can use 
+\href{https://web.mit.edu/16.unified/www/FALL/thermodynamics/notes/node91.html}{Euler's Turbine Equation}
+(equation \ref{eqn:euler-turbine} in order to determine the source terms:
+
+\begin{equation} \label{eqn:euler-turbine}
+	\Delta h = \omega (r_c v_c - r_b v_b)
+\end{equation}
+
+where, $c$ and $b$ indicate properties of the turbine at the beginning 
+and end of the stage. $v$ is the steam velocity
+
+What then determines this velocity change? 
+Now, we come back to mass, energy and momentum balance of the fluid. 
+For energy and momentum balance, we use conservation of rotalphy 
+\citep{agromayor2019preliminary}. Mass balance can be a simple continuity 
+equation, though technically, it should be a transient balance.
+Nevertheless, that will govern the velocity at the exit.
+
+This will be a custom energy sink in the turbine stage. We can do 
+a single turbine stage for starters.
+
+As for the sinks of the turbine angular momentum balance, we need 
+to account for friction, and electromotive force. Now, of course, 
+we can be rather detailed in these two things, but for simplicity, friction 
+and the regenerative braking effect can be assumed to be proportional to  
+$\omega$. For regenerative braking, we can use \citep{zhang2022research}:
+
+\begin{equation*}
+	E_{regen} = \eta \int F_{brake} v dt
+\end{equation*}
+
+Where $\eta$ can be taken to be 0.85-0.94 \citep{zhang2022research}. We 
+can back calculate the braking force using the energy balance:
+
+\begin{equation*}
+	P = \frac{\varepsilon^2}{R}
+\end{equation*}
+
+[To be continued]
+
+
+We have to use some velocity triangles of sorts, for the momentum transfer.
+
+Now, for the steam turbine, the velocity of a blade is 
+\citep{agromayor2019preliminary}:
+
+\begin{equation*}
+	u = \omega r
+\end{equation*}
+
+
+
+Note, for loss coefficients, they are in Appendix A1 to A6 of 
+Agromayor's equations \citep{agromayor2019preliminary}.
+
 \section{Converting forms to Mass Flowrate}
 
 It is often more convenient to convert the momentum equations to be 
