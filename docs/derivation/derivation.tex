@@ -362,6 +362,68 @@ can back calculate the braking force using the energy balance:
 	P = \frac{\varepsilon^2}{R}
 \end{equation*}
 
+Let's differentiate the equations for regen braking:
+
+\begin{equation*}
+	P_{regen} = \eta F_{brake} v 
+\end{equation*}
+
+\begin{equation*}
+	\frac{\varepsilon^2}{R} = \eta F_{brake} v 
+\end{equation*}
+
+For a coiled solenoid in a magnetic field, the flux linkage Phi is:
+
+\begin{equation*}
+	\Phi = N B A \sin \theta
+\end{equation*}
+
+We take that $\theta = \omega t$. So if we differentiate things using 
+Faraday's law and Lenz's law:
+\begin{equation*}
+	\varepsilon = -\frac{d}{dt}\Phi = - N B A \omega (\cos \omega t)
+\end{equation*}
+
+
+Substituting in:
+
+
+\begin{equation*}
+	\frac{(- N B A \omega (\cos \omega t))^2}{R} = \eta F_{brake} v 
+\end{equation*}
+
+\begin{equation*}
+	\frac{( N^2 B^2 A^2 \omega^2 (\cos^2 \omega t))}{R} = \eta F_{brake} v 
+\end{equation*}
+
+
+\begin{equation*}
+	\frac{( N^2 B^2 A^2 )}{R}\omega^2 (\cos^2 \omega t) = \eta F_{brake} v 
+\end{equation*}
+
+We note that for the velocity of the car, $v$, this is related to 
+the speed of the ``wheel'' of the car. In the turbine terms, this 
+$v$ is the shaft radius times $\omega$.
+
+\begin{equation*}
+	\frac{( N^2 B^2 A^2 )}{R}\omega^2 (\cos^2 \omega t) = \eta F_{brake} r_{shaft} \omega
+\end{equation*}
+
+\begin{equation*}
+	\frac{( N^2 B^2 A^2 )}{\eta R_{load} r_{shaft}}\omega (\cos^2 \omega t) = F_{brake} 
+\end{equation*}
+
+If we have multiple coils, then we can have various coils at various 
+phase omegas
+
+\begin{equation*}
+	\frac{( N^2 B^2 A^2 )}{\eta R_{load} r_{shaft}}\omega 
+	\sum_j \cos^2 (\omega t + b_j) = F_{brake} 
+\end{equation*}
+
+$b_j$ in this case is a phase shift, if we have $j$ coils in this generator.
+
+
 [To be continued]
 
 
