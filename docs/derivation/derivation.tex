@@ -326,7 +326,7 @@ Of course, moment of inertia for the turbine is constant:
 
 Here, we can use 
 \href{https://web.mit.edu/16.unified/www/FALL/thermodynamics/notes/node91.html}{Euler's Turbine Equation}
-(equation \ref{eqn:euler-turbine} in order to determine the source terms:
+(equation \ref{eqn:euler-turbine} in order to determine the source terms):
 
 \begin{equation} \label{eqn:euler-turbine}
 	\Delta h = \omega (r_c v_c - r_b v_b)
@@ -423,6 +423,36 @@ phase omegas
 
 $b_j$ in this case is a phase shift, if we have $j$ coils in this generator.
 
+
+In the case that the load is disconnected $R_{load} \rightarrow \infty$ 
+and the braking force tends to zero.
+
+With braking force, we can find a braking torque using $\tau = F r_{shaft}$:
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = \text{source} 
+	- F_{brake} r_{shaft} 
+\end{equation*}
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = \text{source} 
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} r_{shaft}}\omega 
+	\sum_j \cos^2 (\omega t + b_j) r_{shaft} 
+\end{equation*}
+
+So we arrive at:
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = \text{source} 
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega 
+	\sum_j \cos^2 (\omega t + b_j)  
+\end{equation*}
+
+
+Now, based on Euler's turbine equation (Eq \ref{eqn:euler-turbine}):
+\begin{equation*} 
+	\Delta h = \omega (r_c v_c - r_b v_b)
+\end{equation*}
 
 [To be continued]
 
