@@ -243,9 +243,31 @@ body force, $- \nabla P$ represents the pressure gradient.
 
 Where $+ \sum_j \mathbf{\tau}_j \cdot \mathbf{u}_j $ is basically the 
 friction loss terms where energy is transformed from kinetic energy 
-to sensible heat. Q and W represent the thermodynamic work
+to sensible heat. Q and W represent the thermodynamic work.
 
-\section{converting forms to mass flowrate}
+\section{Boundary Conditions}
+
+For such flow in a Rankine cycle, we need to consider boundary conditions.
+The main ones are those of pressure, enthalpy and velocity, as each
+will be solved.
+
+For mass balance, the boundary conditions are clearly cyclic as steam 
+flows in a cycle, unless it is leaked, or such. For leakage, a source 
+term or loss term can be added volumetrically or at the surface. It doesn't 
+really matter much for a 1D case.
+
+For momentum balance, we do not care too much about shockwaves unless we 
+do detailed modelling of turbines and pumps. In the momentum balance, 
+the boundary conditions for pressure need to be considered. In this regard,
+there are two main places where pressure is set. That is, before and after 
+the pump. There is a positive pressure gradient and a positive flow because 
+of a pressure source term.
+
+For simplistic modelling, we can consider using a fixed pressure increase 
+so that the condenser pressure is set, and a fixed pressure increase is 
+set at a constant flowrate.
+
+\section{Converting forms to Mass Flowrate}
 
 It is often more convenient to convert the momentum equations to be 
 in terms of mass flowrates. This is for 1D case.
