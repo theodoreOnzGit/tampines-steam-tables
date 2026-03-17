@@ -454,6 +454,28 @@ Now, based on Euler's turbine equation (Eq \ref{eqn:euler-turbine}):
 	\Delta h = \omega (r_c v_c - r_b v_b)
 \end{equation*}
 
+And the torque is as found \href{https://web.mit.edu/16.unified/www/FALL/thermodynamics/notes/node91.html}{here}:
+
+\begin{equation*}
+	\tau = \dot{m} (r_c v_c - r_b v_b)
+\end{equation*}
+
+Substituting in:
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = 
+	\dot{m} (r_c v_c - r_b v_b) 
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega 
+	\sum_j \cos^2 (\omega t + b_j)  
+\end{equation*}
+
+For the torque, we want to consider whether it is an impulse vs a 
+reaction turbine. Though for steam turbines, we will have impulse 
+stages in the beginning and reaction turbine towards the end 
+as shown \href{https://www.youtube.com/watch?v=lL6Cf544Gjg}{here}.
+It is easier to think of impulse as in hitting on the blade itself, whereas 
+reaction is treating turbine blades like airfoils.
+
 [To be continued]
 
 
