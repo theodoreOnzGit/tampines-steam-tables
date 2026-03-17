@@ -29,6 +29,11 @@ use uom::{ConstZero, si::{angle::radian, f64::*}};
 
 /// within UEqn, we work with mass flowrates
 /// note: this wasn't vibe coded
+///
+/// note 2: this doesn't take into account boundary conditions yet 
+///
+/// from AI, the boundary conditions are taken care of when making the matrix 
+/// coeffs
 #[derive(Debug, Clone, PartialEq)]
 pub struct UEqn {
     /// note that for H, we need 
@@ -61,12 +66,28 @@ pub struct UEqn {
     /// this is the setting to include the advection term 
     include_advection_term: bool,
 
+    /// this is the relaxation factor for U, 
+    velocity_relaxation_factor: Ratio,
+
+    /// switch for relaxation 
+    relax_mass_flowrate: bool,
+
 }
 
 
 impl UEqn {
     // these will be constructors
 
+}
+
+/// these will be getters and setters
+impl UEqn {
+
+    /// in OpenFOAM, 
+    /// the relax function implicitly relaxes the matrices
+    pub fn relax(&mut self){
+        self.relax_mass_flowrate = true;
+    }
 }
 
 
