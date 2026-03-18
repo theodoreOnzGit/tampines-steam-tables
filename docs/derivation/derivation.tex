@@ -661,52 +661,95 @@ We still have conservation of momentum. Assuming the ideal state,
 where no momentum is lost in the nozzle (isentropic anyway).
 
 \begin{equation*}
-	\sum F = \frac{d}{dt} (m_1 v_1 - m_1 v_2)
+	\sum F_{CV} = \frac{D}{Dt} (m v)_{CV}
 \end{equation*}
 
-If there are no frictional forces, assuming there is no acceleration 
-of $v_1$ and $v_2$.
+In a 1D case:
 
 \begin{equation*}
-	\dot{m}_1 v_1 = \dot{m}_2 v_2
+	\sum F_{CV} = \frac{\partial }{\partial t} (m v)_{CV} 
+	+ u \frac{\partial}{\partial x} (m v)_{CV}
 \end{equation*}
 
-If we apply the formula for $\dot{m} = \rho A v$:
+We assume there is no force on the CV, and we neglect the time derivative:
+
+\begin{equation*}
+	u \frac{\partial}{\partial x} (m v)_{CV} = 0
+\end{equation*}
+
+We take the mass of the CV out:
+
+\begin{equation*}
+	u \frac{\partial}{\partial x}\Delta x (\rho A_{XS}  u)_{CV} = 0
+\end{equation*}
 
 \begin{equation*}
 	\rho_1 A_1 v_1^2 = \rho_2 A_2 v_2^2
 \end{equation*}
 
-Of course, applying mass balance, then $\dot{m}_1 = \dot{m}_2$
-then we arrive at the constraint:
-
+Noting the mass balance:
 \begin{equation*}
-	v_1 =  v_2
+	\rho_1 A_1 u_1 = \rho_2 A_2 u_2
 \end{equation*}
 
-Which doesn't really make sense, as a nozzle would expand the fluid 
-which should cause the velocity to increase.
+We arrive at:
 
 \begin{equation*}
-	\sum F = m_1 \frac{d v_1}{dt} + \dot{m}_1 v_1 - m_2 \frac{d v_2}{dt} 
-	- \dot{m}_2 v_2
+	v_1 = v_2
 \end{equation*}
 
+Which doesn't make sense.
+
+However, if we have some frictional loss, there may be some decent 
+correlation we can use.
 
 \begin{equation*}
-	m_2 \frac{d v_2}{dt} 
-	+ \dot{m}_2 v_2
-	= m_1 \frac{d v_1}{dt} + \dot{m}_1 v_1 
+	\sum F_{CV} = u \frac{\partial}{\partial x} (m v)_{CV}
 \end{equation*}
 
-What does $m_1$ and $m_2$ even mean?
+If we use Darcy Weisbach equaiton to determine pressure drop,
 
-How can momentum balance have constraints upon $\rho_1$ and $\rho_2$?
+\begin{equation*}
+	0.5 \rho u_{CV}^2 K \Delta x P_w = u \frac{\partial}{\partial x} (m v)_{CV}
+\end{equation*}
 
-In this regard, let's assume that the advection of momentum into the 
-diffuser is equal to advection of momentum out of the diffuser.
+We can approximate the frictional loss as to be dependent on $v_1$
 
+\begin{equation*}
+	0.5 \rho_1 v_{1}^2 K \Delta x P_w = u \frac{\partial}{\partial x} (m v)_{CV}
+\end{equation*}
 
+And then replace $m = \rho A_{XS} u $
+\begin{equation*}
+	0.5 \rho_1 v_{1}^2 K \Delta x P_w = \frac{\rho_1 A_1 v_1^2 - \rho_2 A_2 v_2^2}{\Delta x} 
+\end{equation*}
+
+We can do some simplification 
+
+\begin{equation*}
+	0.5 \rho_1 v_{1}^2 K \Delta x P_w = \dot{m} \frac{v_1 - v_2}{\Delta x} 
+\end{equation*}
+
+In essence, we can set everything else in the nozzle, by then we 
+would have an expression for $v_2$. 
+Thus in setting geometric constraints and loss constraints, 
+the outlet enthalpy would be fully determined.
+
+\begin{equation*}
+	h_1 + 0.5 v^2_1 = h_2 + 0.5 v_2^2
+\end{equation*}
+
+Now, with outlet enthalpy fully determined, we need one more variable 
+to determine its thermodynamic state.
+
+The density is the most straightforward one:
+
+\begin{equation*}
+	\rho_1 A_1 v_1 = \rho_2 A_2 v_2
+\end{equation*}
+
+So we have fully determined the outlet state in theory using 
+$\rho_2$ and $h_2$.
 
 [To be continued]
 
