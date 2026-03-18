@@ -680,25 +680,46 @@ We assume there is no force on the CV, and we neglect the time derivative:
 We take the mass of the CV out:
 
 \begin{equation*}
-	u \frac{\partial}{\partial x}\Delta x (\rho A_{XS}  u)_{CV} = 0
+	u \frac{\partial}{\partial x}\Delta x (\rho A_{XS}  u^2)_{CV} = 0
+\end{equation*}
+
+We need $u_{CV}$ here. A good proxy is $u_{CV} = 0.5 v_1 + 0.5 v_2$ if we
+consider that the steam is continuously expanding.
+
+\begin{equation*}
+	(0.5 v_1 + 0.5 v_2) (\rho_1 A_{1}  v_1^2 - \rho_2 A_2 v_2^2) = 0
+\end{equation*}
+
+Noting continuity, we can eliminate the mass flowrate 
+as $\dot{m} = \rho_1 A_1 u_2 = \rho_2 A_2 u_2$.
+
+
+\begin{equation*}
+	( v_1 +  v_2) (v_1 - v_2) = 0
 \end{equation*}
 
 \begin{equation*}
-	\rho_1 A_1 v_1^2 = \rho_2 A_2 v_2^2
+	(v_1^2 - v_2^2) = 0
 \end{equation*}
 
-Noting the mass balance:
-\begin{equation*}
-	\rho_1 A_1 u_1 = \rho_2 A_2 u_2
-\end{equation*}
-
-We arrive at:
 
 \begin{equation*}
-	v_1 = v_2
+	v_1^2 = v_2^2
 \end{equation*}
 
-Which doesn't make sense.
+Either $v_1 = v_2$ or $v_1 = -v_2$. In the former case, the flow 
+does not increase in speed, in the latter case, flow proceeds in 
+the opposite direction as if it were an elastic collision.
+In either of these cases, it doesn't make sense.
+
+Though for one thing, I may have forgotten the pressure drop.
+
+\begin{equation*}
+	P_1 A_1 - P_2 A_2 = \sum F
+\end{equation*}
+
+
+[note: bottom section needs correction as $u_{CV} \neq v_1 \neq v_2$]
 
 However, if we have some frictional loss, there may be some decent 
 correlation we can use.
