@@ -474,7 +474,43 @@ Note that $v_c$ and $v_b$ are tangential velocities of the steam.
 How then can we determine the relative velocities? This is done 
 through \href{https://www.youtube.com/watch?v=n1O8C6lb2Ho}{velocity triangles}.
 
+Now, if we were to use velocity triangles, we can do some 
+\href{https://www.youtube.com/watch?v=5YsMPEw-zlM}{derivations as was 
+done in NPTEL}, to obtain:
 
+\begin{equation*}
+	\frac{\partial p_{tangential}}{\partial t} = 
+	\dot{m} (v_{inlet} \cos \alpha_{inlet} - v_{blade}) (1+ k_b)
+\end{equation*}
+
+Where $v_{inlet}$ is inlet velocity (denoted $v_b$ previously).
+$\alpha_{inlet}$ is the angle in radians for which the steam 
+leaves the nozzle with reference to the $z$ axis (axial or 
+$z$ direction of flow).
+The torque is then:
+
+\begin{equation*}
+	r \frac{\partial p_{tangential}}{\partial t} = 
+	\dot{m} r (v_{inlet} \cos \alpha_{inlet} - v_{blade}) (1+ k_b)
+\end{equation*}
+
+Hence, in terms of $v_{inlet}$, $\alpha_{inlet}$ and $v_{blade}$,
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = 
+	\dot{m} r (v_{inlet} \cos \alpha_{inlet} - v_{blade}) (1+ k_b)
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega 
+	\sum_j \cos^2 (\omega t + b_j)  
+\end{equation*}
+
+But we also need to know that $v_{blade} = r_{blade} \omega$:
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = 
+	\dot{m} r (v_{inlet} \cos \alpha_{inlet} - r_{blade} \omega) (1+ k_b)
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega 
+	\sum_j \cos^2 (\omega t + b_j)  
+\end{equation*}
 For the torque, we want to consider whether it is an impulse vs a 
 reaction turbine. Though for steam turbines, we will have impulse 
 stages in the beginning and reaction turbine towards the end 
