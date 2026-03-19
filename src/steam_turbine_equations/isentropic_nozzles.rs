@@ -4,7 +4,6 @@ use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
 use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
-use crate::prelude::functional_programming::ph_flash_eqm::v_ph_eqm;
 use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
 
@@ -234,10 +233,9 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 
         let h1_minus_h2: AvailableEnergy = 
             0.5 * (
-                rho1_a1_by_rho2_a2 
+                rho1_a1_by_rho2_a2 * rho1_a1_by_rho2_a2
                 + ratio_one
-            ) * v1 * p1a1_minus_p2a2/mass_flowrate
-            ;
+            ) * v1 * v1;
 
         h2_guess = h1 - h1_minus_h2;
 
