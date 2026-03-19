@@ -836,6 +836,46 @@ velocity $v_2$. It is only problematic that iterations are required.
 
 Note that the nozzle area can vary independently from $r_{blade}$.
 
+\paragraph{Isentropic Correlations}
+
+The above constitute mass and energy balances along with momentum balances.
+
+However, we need a way for the isentropic balances to be put in.
+Here is one algorithm:
+
+First, we use 
+\begin{equation*}
+	h_1 - h_{predicted} = 
+	0.5 \left( \left(
+			\frac{\rho_1 A_1 }{\rho_{2,old} A_2 } 
+		\right)^2
+	- 1 \right) v_1^2 
+\end{equation*}
+
+Then we use the $h_{predicted}$ to guess the next thermodynamic state. 
+
+As the process is isentropic,
+\begin{equation*}
+	s_1 = s_2
+\end{equation*}
+
+The predicted state is:
+
+\begin{equation*}
+	\rho_\text{2,guess} = \rho(h_{predicted},s_1)
+\end{equation*}
+
+Using this density, we can guess pressure $P_2$, 
+
+\begin{equation*}
+	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} =  \left( 
+		\frac{\rho_1 A_1 }{\rho_2  A_2} - 1
+	\right)
+	v_1
+\end{equation*}
+
+
+
 \paragraph{Blade Velocity/Friction coefficient}
 
 Also note: 

@@ -3,6 +3,7 @@ use uom::si::f64::*;
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
+use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
 use crate::prelude::{TampinesSteamTableCV};
 use crate::prelude::functional_programming::ph_flash_eqm::v_ph_eqm;
 
@@ -62,6 +63,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point(
         TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
 
     let rho1: MassDensity = state_1.get_specific_volume().recip();
+    let s1: SpecificHeatCapacity = state_1.get_specific_entropy();
     let v1: Velocity = mass_flowrate/rho1/a1;
 
     let mut rho2_guess: MassDensity = rho1;
@@ -77,7 +79,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point(
         let rho2 = rho2_guess;
         // let's define a few terms 
         //
-        let rho1_a1_by_rho2_a2: Ratio = rho1 * a1 / (rho2 * a2);
+        let mut rho1_a1_by_rho2_a2: Ratio = rho1 * a1 / (rho2 * a2);
 
         // in this part 
         // h1 - h2 = 0.5 * (rho1_a1_by_rho2_a2^2 - 1) * v1sq
@@ -89,6 +91,11 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point(
             ) * v1 * v1;
 
         h2_guess = h1 - h1_minus_h2;
+
+        rho2_guess = v_hs_eqm(h2_guess, s1).recip();
+
+        rho1_a1_by_rho2_a2 = rho1 * a1 / (rho2_guess * a2);
+
 
         // then 
         // p1 a1 - p2 a2 = mass_flowrate * v1 (rho1_a1_by_rho2_a2 - 1)
@@ -104,7 +111,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point(
 
         // now we have new thermodynamic state
 
-        rho2_guess = v_ph_eqm(p2_guess, h2_guess).recip();
+        //rho2_guess = v_ph_eqm(p2_guess, h2_guess).recip();
 
         // then let's get residual
 
@@ -145,7 +152,7 @@ mod nozzles_test {
     pub fn nozzles_test(){
 
         let a1: Area = Area::new::<square_centimeter>(5.0);
-        let a2: Area = Area::new::<square_centimeter>(2.0);
+        let a2: Area = Area::new::<square_centimeter>(4.0);
         let mass_flowrate = MassRate::new::<kilogram_per_second>(0.18);
         let tolerance: Option<f64> = Option::None;
         // let this be steam at 10 bar 330 C
@@ -210,7 +217,7 @@ mod nozzles_test {
         let force_bal_residual: f64 = 
             (1.0 - (nozzle_force/momentum_change_rate).get::<ratio>()).abs();
 
-        dbg!(&force_bal_residual);
+        dbg!(&(force_bal_residual,mass_flowrate_residual,stagnation_enthalpy_residual));
 
         assert!(force_bal_residual < 1e-3);
 
