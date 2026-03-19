@@ -727,7 +727,7 @@ From equation \ref{eqn:nozzle}, we combine this with the energy (enthalpy)
 balance to obtain:
 
 \begin{equation*}
-	h_1 - h_2 = 0.5 \left( \frac{A_1 }{A_2 } - 1 \right)^2 v_1^2 
+	h_1 - h_2 = 0.5 \left( \frac{A_1 \rho_1}{A_2 \rho_2} - 1 \right)^2 v_1^2 
 \end{equation*}
 
 Of course, if we want to eliminate $v_2$, so we can find the final 
@@ -745,6 +745,18 @@ thermodynamic state,
 \begin{equation*}
 	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} = \frac{\rho_1 A_1 v_1}{\rho_2  A_2} - v_1
 \end{equation*}
+
+\begin{equation*}
+	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} = v_1 \left( 
+		\frac{\rho_1 A_1 }{\rho_2  A_2} - 1
+	\right)
+\end{equation*}
+
+Basically, this leaves us with two equations with which to obtain the 
+thermodynamic state at the nozzle exit. There are three unknowns,
+$h_2$, $P_2$ and $\rho_2$ and two equations. We presume that areas are 
+known. The steam tables provide the equation of state (EOS) which helps 
+to provide the third equation.
 
 We have to use some velocity triangles of sorts, for the momentum transfer.
 
