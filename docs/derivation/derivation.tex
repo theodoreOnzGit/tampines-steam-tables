@@ -910,6 +910,47 @@ Using this density, we can guess $h_{2}$
 	- 1 \right) v_1^2 
 \end{equation*}
 
+I tried using the above, didn't quite work. I'm changing the 
+$h_{prediction}$ equation to make it more tightly coupled.
+
+Now, we can use the new enthalpy, in another equation, so that we update 
+the pressure
+we can actually split
+\begin{equation*}
+	h_1 - h_{predicted} = 
+	0.5 
+	\left( 
+		\frac{\rho_1 A_1 }{\rho_{2,old} A_2 } 
+	- 1 \right) 
+	v_1
+	\left( 
+		\frac{\rho_1 A_1 }{\rho_{2,old} A_2 } 
+	+ 1 \right) 
+	v_1 
+\end{equation*}
+
+Substituting the pressure equation in:
+
+
+\begin{equation*}
+	h_1 - h_{predicted} = 
+	0.5 
+	\frac{P_1 A_1 - P_{predicted} A_2}{\dot{m}}
+	\left( 
+		\frac{\rho_1 A_1 }{\rho_{2,old} A_2 } 
+	+ 1 \right) 
+	v_1 
+\end{equation*}
+
+Still didn't work, but actually what I forgot was to update the pressure 
+again using the isentropically predicted pressure.
+\begin{equation*}
+	\frac{P_1 A_1 - P_{predicted} A_2}{\dot{m}} =  \left( 
+		\frac{\rho_1 A_1 }{\rho_{2,guess}  A_2} - 1
+	\right)
+	v_1
+\end{equation*}
+
 \paragraph{Blade Velocity/Friction coefficient}
 
 Also note: 

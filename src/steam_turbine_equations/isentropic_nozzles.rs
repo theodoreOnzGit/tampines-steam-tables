@@ -4,6 +4,7 @@ use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
 use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
+use crate::prelude::functional_programming::ph_flash_eqm::v_ph_eqm;
 use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
 
@@ -208,33 +209,40 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
         // in the (p,s) algorithm, we first guess p2
         // p1 a1 - p2 a2 = mass_flowrate * v1 (rho1_a1_by_rho2_a2 - 1)
 
-        let p1a1_minus_p2a2: Force 
+        let mut p1a1_minus_p2a2: Force 
             = mass_flowrate * v1 * (rho1_a1_by_rho2_a2 - ratio_one);
 
 
-        let p2a2 = p1a1 - p1a1_minus_p2a2;
+        let mut p2a2 = p1a1 - p1a1_minus_p2a2;
 
         p2_guess = p2a2/a2;
 
-        // with this p2_guess, we can guess the density at the new state
         rho2_guess = v_ps_eqm(p2_guess, s2).recip();
-
         rho1_a1_by_rho2_a2 = rho1 * a1 / (rho2_guess * a2);
 
+        // with this p2_guess, we can guess the density at the new state
         // in this part 
         // h1 - h2 = 0.5 * (rho1_a1_by_rho2_a2^2 - 1) * v1sq
 
         let h1_minus_h2: AvailableEnergy = 
             0.5 * (
-                rho1_a1_by_rho2_a2 * rho1_a1_by_rho2_a2 
-                - ratio_one
-            ) * v1 * v1;
+                rho1_a1_by_rho2_a2 
+                + ratio_one
+            ) * v1 * p1a1_minus_p2a2/mass_flowrate
+            ;
 
         h2_guess = h1 - h1_minus_h2;
 
 
+        // need to update p2_guess after
+
+        p1a1_minus_p2a2
+            = mass_flowrate * v1 * (rho1_a1_by_rho2_a2 - ratio_one);
 
 
+        p2a2 = p1a1 - p1a1_minus_p2a2;
+
+        p2_guess = p2a2/a2;
 
 
         // now we have new thermodynamic state
@@ -246,7 +254,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
         rho_residual = ((rho2 - rho2_guess)/rho2_guess).into();
         rho_residual = rho_residual.abs();
 
-        let debug = false;
+        let debug = true;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
@@ -348,6 +356,7 @@ mod nozzles_test {
         dbg!(&(force_bal_residual,mass_flowrate_residual,stagnation_enthalpy_residual));
 
         assert!(force_bal_residual < 1e-3);
+        todo!();
 
     }
     #[test]
@@ -422,6 +431,8 @@ mod nozzles_test {
         dbg!(&(force_bal_residual,mass_flowrate_residual,stagnation_enthalpy_residual));
 
         assert!(force_bal_residual < 1e-3);
+
+        todo!();
 
     }
 }
