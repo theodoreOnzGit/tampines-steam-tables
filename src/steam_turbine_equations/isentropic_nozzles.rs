@@ -66,13 +66,13 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point(
 
     let mut rho2_guess: MassDensity = rho1;
     let mut p2_guess: Pressure = Pressure::ZERO;
-    let mut residual = 1.0;
+    let mut rho_residual = 1.0;
     let mut h2_guess = AvailableEnergy::ZERO;
     let ratio_one = Ratio::new::<ratio>(1.0);
 
     // now we are ready to loop 
 
-    while residual > tolerance {
+    while rho_residual > tolerance {
 
         let rho2 = rho2_guess;
         // let's define a few terms 
@@ -108,14 +108,14 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point(
 
         // then let's get residual
 
-        residual = ((rho2 - rho2_guess)/rho2_guess).into();
-        residual = residual.abs();
+        rho_residual = ((rho2 - rho2_guess)/rho2_guess).into();
+        rho_residual = rho_residual.abs();
 
         let debug = false;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
-            dbg!(&((residual,tolerance)));
+            dbg!(&((rho_residual,tolerance)));
         }
 
 
