@@ -1,4 +1,4 @@
-use uom::si::{f64::*, ratio::ratio, volume::cubic_meter};
+use uom::{ConstZero, si::{f64::*, ratio::ratio, volume::cubic_meter}};
 
 use crate::prelude::{TampinesSteamTableCV, functional_programming::ph_flash_eqm::v_ph_eqm};
 
@@ -40,9 +40,9 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
     let rho1: MassDensity = state_1.get_specific_volume().recip();
 
     let mut rho2_guess: MassDensity = rho1;
-    let mut p2_guess: Pressure;
+    let mut p2_guess: Pressure = Pressure::ZERO;
     let mut residual = 1.0;
-    let mut h2_guess;
+    let mut h2_guess = AvailableEnergy::ZERO;
     let ratio_one = Ratio::new::<ratio>(1.0);
 
     // now we are ready to loop 
