@@ -233,9 +233,10 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 
         let h1_minus_h2: AvailableEnergy = 
             0.5 * (
-                rho1_a1_by_rho2_a2 * rho1_a1_by_rho2_a2
+                rho1_a1_by_rho2_a2 
                 + ratio_one
-            ) * v1 * v1;
+            ) * v1 * p1a1_minus_p2a2/mass_flowrate
+            ;
 
         h2_guess = h1 - h1_minus_h2;
 
