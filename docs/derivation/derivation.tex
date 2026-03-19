@@ -267,6 +267,8 @@ For simplistic modelling, we can consider using a fixed pressure increase
 so that the condenser pressure is set, and a fixed pressure increase is 
 set at a constant flowrate.
 
+\section{Steam Turbine Modelling}
+
 In the turbine, we can simply model it as having a fixed pressure drop 
 \citep{zimmer2008modelling}. However, I want something more substantial.
 From first principles, steam turbines extract energy due to momentum 
@@ -311,6 +313,8 @@ empirical loss correlations.
 
 What I want to do here is to correlate the enthalpy change to a turbine 
 rotation speed.
+
+\subsection{Angular Momentum Equation}
 For rotational kinetic energy, or angular momentum, we can do the following 
 balance:
 
@@ -324,6 +328,7 @@ Of course, moment of inertia for the turbine is constant:
 	I \frac{\partial  \omega}{\partial t} = \text{source} - \text{sinks}
 \end{equation*}
 
+\subsubsection{Euler's Turbine Equation}
 Here, we can use 
 \href{https://web.mit.edu/16.unified/www/FALL/thermodynamics/notes/node91.html}{Euler's Turbine Equation}
 (equation \ref{eqn:euler-turbine} in order to determine the source terms):
@@ -345,6 +350,7 @@ Nevertheless, that will govern the velocity at the exit.
 This will be a custom energy sink in the turbine stage. We can do 
 a single turbine stage for starters.
 
+\subsubsection{Regenerative Braking via Faraday's Law}
 As for the sinks of the turbine angular momentum balance, we need 
 to account for friction, and electromotive force. Now, of course, 
 we can be rather detailed in these two things, but for simplicity, friction 
@@ -449,10 +455,7 @@ So we arrive at:
 \end{equation*}
 
 
-Now, based on Euler's turbine equation (Eq \ref{eqn:euler-turbine}):
-\begin{equation*} 
-	\Delta h = \omega (r_c v_c - r_b v_b)
-\end{equation*}
+\subsubsection{Impulse Turbine}
 
 For the torque, we want to consider whether it is an impulse vs a 
 reaction turbine. Though for steam turbines, we will have impulse 
@@ -780,12 +783,14 @@ the outlet thermodynamic state.
 From there, it should be easy to calculate $\rho_2$ and the outlet 
 velocity $v_2$. It is only problematic that iterations are required.
 
-\subsection{Finalised Nozzle (Stator) and Rotor Equations for Impulse Turbine}
+\subsubsection{Finalised Nozzle (Stator) and Rotor Equations for Impulse Turbine}
 
+\paragraph{Given\dots}
 \begin{equation*}
 	r_{blade} = r_{first-blade} * (1.05)^j
 \end{equation*}
 
+\paragraph{Impulse Turbine Angular Momentum Balance}
 \begin{align*}
 	& I \frac{\partial  \omega}{\partial t} = 
 	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega 
@@ -795,6 +800,8 @@ velocity $v_2$. It is only problematic that iterations are required.
 	(v_{inlet,j} \cos \alpha_{inlet} - 1.05^j r_{first-blade}  \omega) (1+ k_b)
 	\\
 \end{align*}
+
+\paragraph{Stator/Nozzle Balances}
 
 \begin{equation*}
 	h_1 - h_2 = 0.5 \left( \frac{\rho_1 A_1 }{\rho_2 A_2 } - 1 \right)^2 v_1^2 
@@ -808,10 +815,23 @@ velocity $v_2$. It is only problematic that iterations are required.
 
 Note that the nozzle area can vary independently from $r_{blade}$.
 
-Also note: $k_b = v_\text{nozzle inlet next stage}/v_\text{nozzle outlet last stage}$
+\paragraph{Blade Velocity/Friction coefficient}
+
+Also note: 
+
+$k_b = 
+v_\text{nozzle inlet next stage}/
+v_\text{nozzle outlet last stage}$
+
+\subsubsection{Reaction Turbines}
+
+Reaction Turbines lose pressure both within the stator and the rotor.
+[To be continued\dots]
 
 Now we have the stator and rotor equations, we need to consider how 
 they will connect to the control volumes
+
+
 
 \subsection{Simplifications}
 
