@@ -90,7 +90,7 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
         residual = ((rho2 - rho2_guess)/rho2_guess).into();
         residual = residual.abs();
 
-        let debug = true;
+        let debug = false;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
