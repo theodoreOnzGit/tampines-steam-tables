@@ -39,6 +39,7 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
 ///
 /// Note: this uses (h,s) equations, so it can only cover part of the steam 
 /// table
+/// this also uses the (p,s) equations
 #[inline]
 pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
     p1: Pressure,
@@ -94,7 +95,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
         // in this part 
         // h1 - h2 = 0.5 * (rho1_a1_by_rho2_a2^2 - 1) * v1sq
 
-        let h1_minus_h2: AvailableEnergy = 
+        let mut h1_minus_h2: AvailableEnergy = 
             0.5 * (
                 rho1_a1_by_rho2_a2 * rho1_a1_by_rho2_a2 
                 - ratio_one
@@ -117,6 +118,13 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
         let p2a2 = p1a1 - p1a1_minus_p2a2;
 
         p2_guess = p2a2/a2;
+        h1_minus_h2=  
+            0.5 * (
+                rho1_a1_by_rho2_a2 * rho1_a1_by_rho2_a2 
+                - ratio_one
+            ) * v1 * v1;
+
+        h2_guess = h1 - h1_minus_h2;
 
         // now we have new thermodynamic state
 
@@ -127,7 +135,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
         rho_residual = ((rho2 - rho2_guess)/rho2_guess).into();
         rho_residual = rho_residual.abs();
 
-        let debug = false;
+        let debug = true;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
