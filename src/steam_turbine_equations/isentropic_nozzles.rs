@@ -210,6 +210,7 @@ mod nozzles_test {
         let force_bal_residual: f64 = 
             (1.0 - (nozzle_force/momentum_change_rate).get::<ratio>()).abs();
 
+        dbg!(&force_bal_residual);
 
         assert!(force_bal_residual < 1e-3);
 
