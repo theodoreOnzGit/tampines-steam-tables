@@ -152,8 +152,11 @@ mod nozzles_test {
         let (p2,h2,rho2) = get_isentropic_nozzles_outlet_ph_rho_point(
             p1, h1, mass_flowrate, a1, a2, tolerance);
 
-        dbg!(p2,h2,rho2);
+        dbg!(&(p2,h2,rho2));
 
+        let v2: Velocity = mass_flowrate/a2/rho2;
+
+        dbg!(&v2);
 
         todo!();
 
