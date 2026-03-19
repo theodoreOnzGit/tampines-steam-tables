@@ -671,116 +671,65 @@ In a 1D case:
 	+ u \frac{\partial}{\partial x} (m v)_{CV}
 \end{equation*}
 
-We assume there is no force on the CV, and we neglect the time derivative:
+Note, the force on the control volume is the sum of the force contributions 
+due to pressure
 
 \begin{equation*}
-	u \frac{\partial}{\partial x} (m v)_{CV} = 0
+	P_2 A_2 - P_1 A_1 = \sum F_{CV}
 \end{equation*}
 
-We take the mass of the CV out:
-
-\begin{equation*}
-	u \frac{\partial}{\partial x}\Delta x (\rho A_{XS}  u^2)_{CV} = 0
-\end{equation*}
-
-We need $u_{CV}$ here. A good proxy is $u_{CV} = 0.5 v_1 + 0.5 v_2$ if we
-consider that the steam is continuously expanding.
-
-\begin{equation*}
-	(0.5 v_1 + 0.5 v_2) (\rho_1 A_{1}  v_1^2 - \rho_2 A_2 v_2^2) = 0
-\end{equation*}
-
-Noting continuity, we can eliminate the mass flowrate 
-as $\dot{m} = \rho_1 A_1 u_2 = \rho_2 A_2 u_2$.
+Substituting in,
 
 
 \begin{equation*}
-	( v_1 +  v_2) (v_1 - v_2) = 0
+	P_2 A_2 - P_1 A_1 = u \frac{\partial}{\partial x} (m v)_{CV}
 \end{equation*}
 
 \begin{equation*}
-	(v_1^2 - v_2^2) = 0
+	P_2 A_2 - P_1 A_1 = u \frac{\partial}{\partial x} (\rho A_{XS} \Delta x v)_{CV}
 \end{equation*}
-
 
 \begin{equation*}
-	v_1^2 = v_2^2
+	P_2 A_2 - P_1 A_1 = \frac{\rho_1 A_1 u_1^2 - \rho_2 A_2 u_2^2 }{\Delta x} (\Delta x )_{CV}
 \end{equation*}
-
-Either $v_1 = v_2$ or $v_1 = -v_2$. In the former case, the flow 
-does not increase in speed, in the latter case, flow proceeds in 
-the opposite direction as if it were an elastic collision.
-In either of these cases, it doesn't make sense.
-
-Though for one thing, I may have forgotten the pressure drop.
 
 \begin{equation*}
-	P_1 A_1 - P_2 A_2 = \sum F
+	P_2 A_2 - P_1 A_1 = \rho_1 A_1 u_1^2 - \rho_2 A_2 u_2^2 
 \end{equation*}
 
+In terms of mass flowrate, $\dot{m} = \rho_1 A_1 u_1 = \rho_2 A_2 u_2$:
 
 \begin{equation*}
-	P_1 A_1 - P_2 A_2 = u \frac{\partial}{\partial x} (m v)_{CV}
+	\frac{P_2 A_2 - P_1 A_1}{\dot{m}} = u_1 - u_2
 \end{equation*}
+
+We note that in nozzles, $P_1 > P_2$, $A_1 > A_2$, $u_2 > u_1$ as 
+seen in figure \ref{fig:nozzle-diagram}:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./figures/nozzle.png}
+	\caption{Nozzle Diagram}
+	\label{fig:nozzle-diagram}
+\end{figure}
+
+So the following equation should be correct:
+
+\begin{equation}\label{eqn:nozzle}
+	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} = u_2 - u_1
+\end{equation}
 
 Just want to be clear on sign convention, forces towards the right 
 are positive, and momentum flows towards the right (larger $x$) are positive.
 
-
-[note: bottom section needs correction as $u_{CV} \neq v_1 \neq v_2$]
-
-However, if we have some frictional loss, there may be some decent 
-correlation we can use.
+From equation \ref{eqn:nozzle}, we combine this with the energy (enthalpy) 
+balance to obtain:
 
 \begin{equation*}
-	\sum F_{CV} = u \frac{\partial}{\partial x} (m v)_{CV}
+	h_1 - h_2 = 
+	0.5 \left( \frac{A_1 }{A_2 } - 1 \right)^2 v_1^2 
 \end{equation*}
 
-If we use Darcy Weisbach equaiton to determine pressure drop,
-
-\begin{equation*}
-	0.5 \rho u_{CV}^2 K \Delta x P_w = u \frac{\partial}{\partial x} (m v)_{CV}
-\end{equation*}
-
-We can approximate the frictional loss as to be dependent on $v_1$
-
-\begin{equation*}
-	0.5 \rho_1 v_{1}^2 K \Delta x P_w = u \frac{\partial}{\partial x} (m v)_{CV}
-\end{equation*}
-
-And then replace $m = \rho A_{XS} u $
-\begin{equation*}
-	0.5 \rho_1 v_{1}^2 K \Delta x P_w = \frac{\rho_1 A_1 v_1^2 - \rho_2 A_2 v_2^2}{\Delta x} 
-\end{equation*}
-
-We can do some simplification 
-
-\begin{equation*}
-	0.5 \rho_1 v_{1}^2 K \Delta x P_w = \dot{m} \frac{v_1 - v_2}{\Delta x} 
-\end{equation*}
-
-In essence, we can set everything else in the nozzle, by then we 
-would have an expression for $v_2$. 
-Thus in setting geometric constraints and loss constraints, 
-the outlet enthalpy would be fully determined.
-
-\begin{equation*}
-	h_1 + 0.5 v^2_1 = h_2 + 0.5 v_2^2
-\end{equation*}
-
-Now, with outlet enthalpy fully determined, we need one more variable 
-to determine its thermodynamic state.
-
-The density is the most straightforward one:
-
-\begin{equation*}
-	\rho_1 A_1 v_1 = \rho_2 A_2 v_2
-\end{equation*}
-
-So we have fully determined the outlet state in theory using 
-$\rho_2$ and $h_2$.
-
-[To be continued]
 
 
 We have to use some velocity triangles of sorts, for the momentum transfer.
