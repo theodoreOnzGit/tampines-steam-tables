@@ -1,6 +1,10 @@
-use uom::{ConstZero, si::{f64::*, ratio::ratio, volume::cubic_meter}};
+use uom::ConstZero;
+use uom::si::f64::*;
+use uom::si::ratio::ratio;
+use uom::si::volume::cubic_meter;
 
-use crate::prelude::{TampinesSteamTableCV, functional_programming::ph_flash_eqm::v_ph_eqm};
+use crate::prelude::{TampinesSteamTableCV};
+use crate::prelude::functional_programming::ph_flash_eqm::v_ph_eqm;
 
 /// given inlet and outlet areas, 
 /// a1 and a2
@@ -13,21 +17,20 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
     mass_flowrate: MassRate,
     a1: Area,
     a2: Area,
-    v1: Velocity,
-    tolerance: Option<f64>,
+    user_set_tolerance: Option<f64>,
 ) -> (Pressure, AvailableEnergy) {
 
-    let tol: f64;
+    let tolerance: f64;
 
-    match tolerance {
+    match user_set_tolerance {
         Some(mut user_tol) => {
             if user_tol >= 1.0 {
                 user_tol = 1e-2;
             }
-            tol = user_tol;
+            tolerance = user_tol;
         },
         None => {
-            tol = 1e-2;
+            tolerance = 1e-2;
         },
     }
 
@@ -38,6 +41,7 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
         TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
 
     let rho1: MassDensity = state_1.get_specific_volume().recip();
+    let v1: Velocity = mass_flowrate/rho1/a1;
 
     let mut rho2_guess: MassDensity = rho1;
     let mut p2_guess: Pressure = Pressure::ZERO;
@@ -47,7 +51,7 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
 
     // now we are ready to loop 
 
-    while residual > tol {
+    while residual > tolerance {
 
         let rho2 = rho2_guess;
         // let's define a few terms 
@@ -84,11 +88,13 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
         // then let's get residual
 
         residual = ((rho2 - rho2_guess)/rho2_guess).into();
+        residual = residual.abs();
 
         let debug = true;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
+            dbg!(&((residual,tolerance)));
         }
 
 
@@ -97,4 +103,40 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
 
     return (p2_guess, h2_guess);
 
+}
+
+#[cfg(test)]
+mod nozzles_test {
+    use uom::si::f64::*;
+    use uom::si::area::square_centimeter;
+    use uom::si::mass_rate::kilogram_per_second;
+    use uom::si::pressure::bar;
+    use uom::si::thermodynamic_temperature::degree_celsius;
+
+    use crate::prelude::functional_programming::pt_flash_eqm::h_tp_eqm_single_phase;
+    use crate::steam_turbine_equations::get_isentropic_nozzles_outlet_ph_point;
+
+
+    #[test]
+    pub fn nozzles_test(){
+
+        let a1: Area = Area::new::<square_centimeter>(5.0);
+        let a2: Area = Area::new::<square_centimeter>(2.0);
+        let mass_flowrate = MassRate::new::<kilogram_per_second>(0.018);
+        let tolerance: Option<f64> = Option::None;
+        // let this be steam at 10 bar 330 C
+        // this is superheated steam
+        let p1 = Pressure::new::<bar>(10.0);
+        let t1 = ThermodynamicTemperature::new::<degree_celsius>(330.0);
+        let h1 = h_tp_eqm_single_phase(t1, p1);
+        
+
+        let (p2,h2) = get_isentropic_nozzles_outlet_ph_point(
+            p1, h1, mass_flowrate, a1, a2, tolerance);
+
+        dbg!(p2,h2);
+
+        todo!();
+
+    }
 }
