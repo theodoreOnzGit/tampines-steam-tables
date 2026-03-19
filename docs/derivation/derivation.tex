@@ -758,6 +758,29 @@ $h_2$, $P_2$ and $\rho_2$ and two equations. We presume that areas are
 known. The steam tables provide the equation of state (EOS) which helps 
 to provide the third equation.
 
+How can we iterate our way there? Using these equations:
+
+\begin{equation*}
+	h_1 - h_2 = 0.5 \left( \frac{\rho_1 A_1 }{\rho_2 A_2 } - 1 \right)^2 v_1^2 
+\end{equation*}
+\begin{equation*}
+	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} =  \left( 
+		\frac{\rho_1 A_1 }{\rho_2  A_2} - 1
+	\right)
+	v_1
+\end{equation*}
+
+We could start with an initial guess of $\rho_2 = \rho_1$. From both 
+equations, we would get $h_2$ and $P_2$ separately. Then we could get 
+a second guess of $\rho_2$ using the steam tables. We calculate a residual 
+and compare it to tolerance, and then we iterate our way till 
+$\rho_2$ converges. Based on that, we have or $(p_2,h_2)$ solution for 
+the outlet thermodynamic state.
+
+From there, it should be easy to calculate $\rho_2$ and the outlet 
+velocity $v_2$. It is only problematic that iterations are required.
+
+
 We have to use some velocity triangles of sorts, for the momentum transfer.
 
 Now, for the steam turbine, the velocity of a blade is 
