@@ -165,6 +165,9 @@ mod nozzles_test {
         let mass_flowrate_residual: f64 = 
             (1.0 - (m2/mass_flowrate).get::<ratio>()).abs();
 
+        // to test for internal consistency, we do mass, energy and 
+        // momentum balance before and after the nozzle
+
         // for conservation of mass
         // assert that the mass flowrate is within 0.1%
         assert!(mass_flowrate_residual < 1e-3);
