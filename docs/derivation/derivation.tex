@@ -690,20 +690,20 @@ Substituting in,
 \end{equation*}
 
 \begin{equation*}
-	P_2 A_2 - P_1 A_1 = \frac{\rho_1 A_1 u_1^2 - \rho_2 A_2 u_2^2 }{\Delta x} (\Delta x )_{CV}
+	P_2 A_2 - P_1 A_1 = \frac{\rho_1 A_1 v_1^2 - \rho_2 A_2 v_2^2 }{\Delta x} (\Delta x )_{CV}
 \end{equation*}
 
 \begin{equation*}
-	P_2 A_2 - P_1 A_1 = \rho_1 A_1 u_1^2 - \rho_2 A_2 u_2^2 
+	P_2 A_2 - P_1 A_1 = \rho_1 A_1 v_1^2 - \rho_2 A_2 v_2^2 
 \end{equation*}
 
-In terms of mass flowrate, $\dot{m} = \rho_1 A_1 u_1 = \rho_2 A_2 u_2$:
+In terms of mass flowrate, $\dot{m} = \rho_1 A_1 v_1 = \rho_2 A_2 v_2$:
 
 \begin{equation*}
-	\frac{P_2 A_2 - P_1 A_1}{\dot{m}} = u_1 - u_2
+	\frac{P_2 A_2 - P_1 A_1}{\dot{m}} = v_1 - v_2
 \end{equation*}
 
-We note that in nozzles, $P_1 > P_2$, $A_1 > A_2$, $u_2 > u_1$ as 
+We note that in nozzles, $P_1 > P_2$, $A_1 > A_2$, $v_2 > v_1$ as 
 seen in figure \ref{fig:nozzle-diagram}:
 
 \begin{figure}[H]
@@ -716,7 +716,7 @@ seen in figure \ref{fig:nozzle-diagram}:
 So the following equation should be correct:
 
 \begin{equation}\label{eqn:nozzle}
-	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} = u_2 - u_1
+	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} = v_2 - v_1
 \end{equation}
 
 Just want to be clear on sign convention, forces towards the right 
@@ -726,8 +726,7 @@ From equation \ref{eqn:nozzle}, we combine this with the energy (enthalpy)
 balance to obtain:
 
 \begin{equation*}
-	h_1 - h_2 = 
-	0.5 \left( \frac{A_1 }{A_2 } - 1 \right)^2 v_1^2 
+	h_1 - h_2 = 0.5 \left( \frac{A_1 }{A_2 } - 1 \right)^2 v_1^2 
 \end{equation*}
 
 
