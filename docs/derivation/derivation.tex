@@ -780,20 +780,39 @@ the outlet thermodynamic state.
 From there, it should be easy to calculate $\rho_2$ and the outlet 
 velocity $v_2$. It is only problematic that iterations are required.
 
-
-We have to use some velocity triangles of sorts, for the momentum transfer.
-
-Now, for the steam turbine, the velocity of a blade is 
-\citep{agromayor2019preliminary}:
+\subsection{Finalised Nozzle (Stator) and Rotor Turbine Equations}
 
 \begin{equation*}
-	u = \omega r
+	r_{blade} = r_{first-blade} * (1.05)^j
 \end{equation*}
 
+\begin{align*}
+	& I \frac{\partial  \omega}{\partial t} = 
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega 
+	\sum_j \cos^2 (\omega t + b_j)  \\ &
+	+ 
+	\sum_j 1.05^j \dot{m}  r_{first-blade} 
+	(v_{inlet,j} \cos \alpha_{inlet} - 1.05^j r_{first-blade}  \omega) (1+ k_b)
+	\\
+\end{align*}
 
+\begin{equation*}
+	h_1 - h_2 = 0.5 \left( \frac{\rho_1 A_1 }{\rho_2 A_2 } - 1 \right)^2 v_1^2 
+\end{equation*}
+\begin{equation*}
+	\frac{P_1 A_1 - P_2 A_2}{\dot{m}} =  \left( 
+		\frac{\rho_1 A_1 }{\rho_2  A_2} - 1
+	\right)
+	v_1
+\end{equation*}
+
+Note that the nozzle area can vary independently from $r_{blade}$.
+
+\subsection{Simplifications}
 
 Note, for loss coefficients, they are in Appendix A1 to A6 of 
 Agromayor's equations \citep{agromayor2019preliminary}.
+We are ignoring turbine losses in this work.
 
 \section{Converting forms to Mass Flowrate}
 
