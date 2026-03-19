@@ -129,8 +129,11 @@ mod nozzles_test {
     use uom::si::area::square_centimeter;
     use uom::si::mass_rate::kilogram_per_second;
     use uom::si::pressure::bar;
+    use uom::si::ratio::ratio;
     use uom::si::thermodynamic_temperature::degree_celsius;
+    use uom::si::volume::cubic_meter;
 
+    use crate::prelude::TampinesSteamTableCV;
     use crate::prelude::functional_programming::pt_flash_eqm::h_tp_eqm_single_phase;
     use crate::steam_turbine_equations::get_isentropic_nozzles_outlet_ph_rho_point;
 
@@ -157,7 +160,52 @@ mod nozzles_test {
 
         dbg!(&(p2,h2,rho2,v2));
 
-        todo!();
+        let m2: MassRate = rho2*v2*a2;
+
+        let mass_flowrate_residual: f64 = 
+            (1.0 - (m2/mass_flowrate).get::<ratio>()).abs();
+
+        // for conservation of mass
+        // assert that the mass flowrate is within 0.1%
+        assert!(mass_flowrate_residual < 1e-3);
+
+        // for conservation of energy 
+        // assert that stagnation enthalpy is within 0.1%
+
+        let ref_vol = Volume::new::<cubic_meter>(1.0);
+        let state_1: TampinesSteamTableCV = 
+            TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
+
+        let rho1: MassDensity = state_1.get_specific_volume().recip();
+        let v1 = mass_flowrate/rho1/a1;
+        let stagnation_enthalpy_1: AvailableEnergy = 
+            h1 + 0.5 * v1*v1;
+
+        let stagnation_enthalpy_2: AvailableEnergy = 
+            h2 + 0.5 *v2*v2;
+
+        let stagnation_enthalpy_residual: f64 = 
+            (1.0 - (stagnation_enthalpy_1/stagnation_enthalpy_2) 
+            .get::<ratio>())
+            .abs();
+
+
+        assert!(stagnation_enthalpy_residual < 1e-3);
+
+        // thirdly, we must assert the force balance for conservation 
+        // of momentum
+        // that is 
+        // p1a1 - p2a2 = m_flowrate (v2 -v1)
+
+        let nozzle_force: Force = p1*a1 - p2*a2;
+
+        let momentum_change_rate: Force = mass_flowrate *(v2-v1);
+
+        let force_bal_residual: f64 = 
+            (1.0 - (nozzle_force/momentum_change_rate).get::<ratio>()).abs();
+
+
+        assert!(force_bal_residual < 1e-3);
 
     }
 }
