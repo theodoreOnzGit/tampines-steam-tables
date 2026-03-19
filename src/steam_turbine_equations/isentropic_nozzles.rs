@@ -6,11 +6,7 @@ use uom::si::volume::cubic_meter;
 use crate::prelude::{TampinesSteamTableCV};
 use crate::prelude::functional_programming::ph_flash_eqm::v_ph_eqm;
 
-/// given inlet and outlet areas, 
-/// a1 and a2
-/// the inlet conditions, p1, h1, and v1
-/// mass flowrate
-/// one should be able to find iteratively, p2 and h2
+/// basically the same code, but returns only p2 and h2
 pub fn get_isentropic_nozzles_outlet_ph_point(
     p1: Pressure,
     h1: AvailableEnergy,
@@ -19,6 +15,28 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
     a2: Area,
     user_set_tolerance: Option<f64>,
 ) -> (Pressure, AvailableEnergy) {
+    let (p2,h2,_rho2) = 
+        get_isentropic_nozzles_outlet_ph_rho_point(
+            p1, h1, mass_flowrate, a1, a2, user_set_tolerance
+        );
+
+    return (p2,h2);
+}
+
+/// given inlet and outlet areas, 
+/// a1 and a2
+/// the inlet conditions, p1, h1, and v1
+/// mass flowrate
+/// one should be able to find iteratively, p2 and h2
+#[inline]
+pub fn get_isentropic_nozzles_outlet_ph_rho_point(
+    p1: Pressure,
+    h1: AvailableEnergy,
+    mass_flowrate: MassRate,
+    a1: Area,
+    a2: Area,
+    user_set_tolerance: Option<f64>,
+) -> (Pressure, AvailableEnergy, MassDensity) {
 
     let tolerance: f64;
 
@@ -101,7 +119,7 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
     };
     
 
-    return (p2_guess, h2_guess);
+    return (p2_guess, h2_guess,rho2_guess);
 
 }
 
@@ -114,7 +132,7 @@ mod nozzles_test {
     use uom::si::thermodynamic_temperature::degree_celsius;
 
     use crate::prelude::functional_programming::pt_flash_eqm::h_tp_eqm_single_phase;
-    use crate::steam_turbine_equations::get_isentropic_nozzles_outlet_ph_point;
+    use crate::steam_turbine_equations::get_isentropic_nozzles_outlet_ph_rho_point;
 
 
     #[test]
@@ -122,7 +140,7 @@ mod nozzles_test {
 
         let a1: Area = Area::new::<square_centimeter>(5.0);
         let a2: Area = Area::new::<square_centimeter>(2.0);
-        let mass_flowrate = MassRate::new::<kilogram_per_second>(0.018);
+        let mass_flowrate = MassRate::new::<kilogram_per_second>(0.18);
         let tolerance: Option<f64> = Option::None;
         // let this be steam at 10 bar 330 C
         // this is superheated steam
@@ -131,10 +149,11 @@ mod nozzles_test {
         let h1 = h_tp_eqm_single_phase(t1, p1);
         
 
-        let (p2,h2) = get_isentropic_nozzles_outlet_ph_point(
+        let (p2,h2,rho2) = get_isentropic_nozzles_outlet_ph_rho_point(
             p1, h1, mass_flowrate, a1, a2, tolerance);
 
-        dbg!(p2,h2);
+        dbg!(p2,h2,rho2);
+
 
         todo!();
 
