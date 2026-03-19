@@ -28,6 +28,9 @@ pub fn get_isentropic_nozzles_outlet_ph_point(
 /// the inlet conditions, p1, h1, and v1
 /// mass flowrate
 /// one should be able to find iteratively, p2 and h2
+///
+/// these are very simple iterative equations that back-substitute the 
+/// density 
 #[inline]
 pub fn get_isentropic_nozzles_outlet_ph_rho_point(
     p1: Pressure,
