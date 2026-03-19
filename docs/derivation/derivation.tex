@@ -836,8 +836,9 @@ velocity $v_2$. It is only problematic that iterations are required.
 
 Note that the nozzle area can vary independently from $r_{blade}$.
 
-\paragraph{Isentropic Correlations}
+\paragraph{Isentropic Correlations and Algorithm}
 
+\subparagraph{(h,s) algorithm}
 The above constitute mass and energy balances along with momentum balances.
 
 However, we need a way for the isentropic balances to be put in.
@@ -874,7 +875,40 @@ Using this density, we can guess pressure $P_2$,
 	v_1
 \end{equation*}
 
+We can iterate until the $\rho_2$ reaches some steady state.
 
+\subparagraph{(p,s) algorithm}
+Now, this uses the $(h,s)$ backward equations in the steam table.
+This is good, except that $(h,s)$ only covers part of the steam table.
+For the entire steam tables, $(p,s)$ equations work better.
+
+How would we do this?
+
+First, we use 
+\begin{equation*}
+	\frac{P_1 A_1 - P_{predicted} A_2}{\dot{m}} =  \left( 
+		\frac{\rho_1 A_1 }{\rho_{2,old}  A_2} - 1
+	\right)
+	v_1
+\end{equation*}
+
+As the process is isentropic,
+\begin{equation*}
+	s_1 = s_2
+\end{equation*}
+
+\begin{equation*}
+	\rho_\text{2,guess} = \rho(P_{predicted},s_2) = \rho(P_{predicted},s_1)
+\end{equation*}
+
+Using this density, we can guess $h_{2}$
+\begin{equation*}
+	h_1 - h_{predicted} = 
+	0.5 \left( \left(
+			\frac{\rho_1 A_1 }{\rho_{2,old} A_2 } 
+		\right)^2
+	- 1 \right) v_1^2 
+\end{equation*}
 
 \paragraph{Blade Velocity/Friction coefficient}
 
