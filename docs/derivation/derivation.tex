@@ -780,7 +780,7 @@ the outlet thermodynamic state.
 From there, it should be easy to calculate $\rho_2$ and the outlet 
 velocity $v_2$. It is only problematic that iterations are required.
 
-\subsection{Finalised Nozzle (Stator) and Rotor Turbine Equations}
+\subsection{Finalised Nozzle (Stator) and Rotor Equations for Impulse Turbine}
 
 \begin{equation*}
 	r_{blade} = r_{first-blade} * (1.05)^j
@@ -809,6 +809,9 @@ velocity $v_2$. It is only problematic that iterations are required.
 Note that the nozzle area can vary independently from $r_{blade}$.
 
 Also note: $k_b = v_\text{nozzle inlet next stage}/v_\text{nozzle outlet last stage}$
+
+Now we have the stator and rotor equations, we need to consider how 
+they will connect to the control volumes
 
 \subsection{Simplifications}
 
