@@ -4,6 +4,7 @@ use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
 use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
+use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
 
@@ -134,11 +135,14 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
         rho_residual = ((rho2 - rho2_guess)/rho2_guess).into();
         rho_residual = rho_residual.abs();
 
+        let s2_guess = s_ph_eqm(p2_guess, h2_guess);
+
         let debug = true;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
             dbg!(&((rho_residual,tolerance)));
+            dbg!(&((s2,s2_guess)));
         }
 
 
@@ -258,6 +262,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 
         // then let's get residual
 
+        let s2_guess = s_ph_eqm(p2_guess, h2_guess);
         rho_residual = ((rho2 - rho2_guess)/rho2_guess).into();
         rho_residual = rho_residual.abs();
 
@@ -266,6 +271,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
             dbg!(&((rho_residual,tolerance)));
+            dbg!(&((s2,s2_guess)));
         }
 
 
