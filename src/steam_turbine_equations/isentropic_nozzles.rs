@@ -271,6 +271,15 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
         // then let's get residual
 
         let s2_guess = s_ph_eqm(p2_guess, h2_guess);
+
+        // if guessed entropy is less than reference entropy, s2 
+        // expand gas 
+        if s2_guess < s2 {
+            rho2_guess *= 1.05
+        } else {
+            rho2_guess *= 0.95
+        }
+
         s_residual = ((s2_guess -s2).abs()/s2).into();
 
         let debug = true;
