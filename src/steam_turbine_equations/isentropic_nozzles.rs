@@ -80,14 +80,14 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
 
     let mut rho2_guess: MassDensity = rho1;
     let mut p2_guess: Pressure = Pressure::ZERO;
-    let mut s_residual = 1.0;
+    let mut rho_residual = 1.0;
     let mut h2_guess = AvailableEnergy::ZERO;
     let ratio_one = Ratio::new::<ratio>(1.0);
     let p1a1: Force = p1*a1;
 
     // now we are ready to loop 
 
-    while s_residual > tolerance {
+    while rho_residual > tolerance {
 
         let rho2 = rho2_guess;
         // let's define a few terms 
@@ -136,7 +136,8 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
 
 
         let s2_guess = s_ph_eqm(p2_guess, h2_guess);
-        s_residual = ((s2_guess -s2).abs()/s2).into();
+        rho_residual = ((rho2_guess -rho2).abs()/rho2_guess).into();
+        let s_residual: f64 = ((s2_guess -s2).abs()/s2).into();
 
         let debug = true;
         if debug {
@@ -213,13 +214,13 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
     let p1a1: Force = p1*a1;
     let mut rho2_guess: MassDensity = rho1;
     let mut p2_guess: Pressure = Pressure::ZERO;
-    let mut s_residual = 1.0;
+    let mut rho_residual = 1.0;
     let mut h2_guess = AvailableEnergy::ZERO;
     let ratio_one = Ratio::new::<ratio>(1.0);
 
     // now we are ready to loop 
 
-    while s_residual > tolerance {
+    while rho_residual > tolerance {
 
         let rho2 = rho2_guess;
         // let's define a few terms 
@@ -272,15 +273,8 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 
         let s2_guess = s_ph_eqm(p2_guess, h2_guess);
 
-        // if guessed entropy is less than reference entropy, s2 
-        // expand gas 
-        if s2_guess < s2 {
-            rho2_guess *= 1.05
-        } else {
-            rho2_guess *= 0.95
-        }
-
-        s_residual = ((s2_guess -s2).abs()/s2).into();
+        rho_residual = ((rho2_guess -rho2).abs()/rho2_guess).into();
+        let s_residual: f64 = ((s2_guess -s2).abs()/s2).into();
 
         let debug = true;
         if debug {
