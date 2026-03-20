@@ -173,4 +173,59 @@ impl ThreePhaseElectricGenerator {
         self.B = B
     }
 
+    pub fn get_emf_1(&self, t: Time) -> ElectricPotential {
+
+        let nba: MagneticFlux = self.N as f64 * self.B * self.A;
+        let omega = self.omega;
+
+        let phase_shift_1 = Angle::ZERO;
+
+        let theta: Angle = (self.omega * t).into();
+        let cos_angle_1: Ratio = (theta + phase_shift_1).cos();
+
+        let emf = -nba * omega * cos_angle_1;
+
+        return emf;
+
+    }
+
+    pub fn get_emf_2(&self, t: Time) -> ElectricPotential {
+
+        let nba: MagneticFlux = self.N as f64 * self.B * self.A;
+        let omega = self.omega;
+
+        let phase_shift_2 = Angle::new::<degree>(120.0);
+
+        let theta: Angle = (self.omega * t).into();
+        let cos_angle_2: Ratio = (theta + phase_shift_2).cos();
+
+        let emf = -nba * omega * cos_angle_2;
+
+        return emf;
+
+    }
+    pub fn get_emf_3(&self, t: Time) -> ElectricPotential {
+
+        let nba: MagneticFlux = self.N as f64 * self.B * self.A;
+        let omega = self.omega;
+
+        let phase_shift_3 = Angle::new::<degree>(240.0);
+
+        let theta: Angle = (self.omega * t).into();
+        let cos_angle_3: Ratio = (theta + phase_shift_3).cos();
+
+        let emf = -nba * omega * cos_angle_3;
+
+        return emf;
+
+    }
+
+    pub fn get_power(&self,
+        load_resistance: ElectricalResistance
+    ) -> Power {
+        todo!();
+    }
+
+
+
 }
