@@ -221,9 +221,21 @@ impl ThreePhaseElectricGenerator {
     }
 
     pub fn get_power(&self,
-        load_resistance: ElectricalResistance
+        load_resistance: ElectricalResistance,
+        t: Time
     ) -> Power {
-        todo!();
+
+        let emf_1 = self.get_emf_1(t);
+        let emf_2 = self.get_emf_2(t);
+        let emf_3 = self.get_emf_3(t);
+
+        let p: Power = load_resistance.recip() *
+            (emf_1 * emf_1
+            +emf_2 * emf_2
+            +emf_3 * emf_3);
+
+        return p;
+            
     }
 
 
