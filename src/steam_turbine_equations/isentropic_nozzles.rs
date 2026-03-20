@@ -4,6 +4,7 @@ use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
 use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
+use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
 
@@ -50,6 +51,8 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
 ) -> (Pressure, AvailableEnergy, MassDensity) {
 
     let tolerance: f64;
+    let max_iter: usize = 30;
+    let mut n_iter: usize = 1;
 
     match user_set_tolerance {
         Some(mut user_tol) => {
@@ -77,14 +80,14 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
 
     let mut rho2_guess: MassDensity = rho1;
     let mut p2_guess: Pressure = Pressure::ZERO;
-    let mut rho_residual = 1.0;
+    let mut s_residual = 1.0;
     let mut h2_guess = AvailableEnergy::ZERO;
     let ratio_one = Ratio::new::<ratio>(1.0);
     let p1a1: Force = p1*a1;
 
     // now we are ready to loop 
 
-    while rho_residual > tolerance {
+    while s_residual > tolerance {
 
         let rho2 = rho2_guess;
         // let's define a few terms 
@@ -131,16 +134,23 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
 
         // then let's get residual
 
-        rho_residual = ((rho2 - rho2_guess)/rho2_guess).into();
-        rho_residual = rho_residual.abs();
+
+        let s2_guess = s_ph_eqm(p2_guess, h2_guess);
+        s_residual = ((s2_guess -s2).abs()/s2).into();
 
         let debug = true;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
-            dbg!(&((rho_residual,tolerance)));
+            dbg!(&((s_residual,tolerance)));
+            dbg!(&((s2,s2_guess)));
         }
 
+        n_iter += 1;
+
+        if n_iter > max_iter {
+            break
+        };
 
     };
     
@@ -173,6 +183,8 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 ) -> (Pressure, AvailableEnergy, MassDensity) {
 
     let tolerance: f64;
+    let max_iter: usize = 30;
+    let mut n_iter: usize = 1;
 
     match user_set_tolerance {
         Some(mut user_tol) => {
@@ -201,13 +213,13 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
     let p1a1: Force = p1*a1;
     let mut rho2_guess: MassDensity = rho1;
     let mut p2_guess: Pressure = Pressure::ZERO;
-    let mut rho_residual = 1.0;
+    let mut s_residual = 1.0;
     let mut h2_guess = AvailableEnergy::ZERO;
     let ratio_one = Ratio::new::<ratio>(1.0);
 
     // now we are ready to loop 
 
-    while rho_residual > tolerance {
+    while s_residual > tolerance {
 
         let rho2 = rho2_guess;
         // let's define a few terms 
@@ -258,15 +270,22 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 
         // then let's get residual
 
-        rho_residual = ((rho2 - rho2_guess)/rho2_guess).into();
-        rho_residual = rho_residual.abs();
+        let s2_guess = s_ph_eqm(p2_guess, h2_guess);
+        s_residual = ((s2_guess -s2).abs()/s2).into();
 
         let debug = true;
         if debug {
             dbg!(&(rho2_guess));
             dbg!(&(p2_guess,h2_guess));
-            dbg!(&((rho_residual,tolerance)));
+            dbg!(&((s_residual,tolerance)));
+            dbg!(&((s2,s2_guess)));
         }
+
+        n_iter += 1;
+
+        if n_iter > max_iter {
+            break
+        };
 
 
     };
