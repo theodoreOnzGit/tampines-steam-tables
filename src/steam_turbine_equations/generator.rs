@@ -12,7 +12,7 @@ use uom::si::torque::newton_meter;
 #[allow(non_snake_case)]
 use uom::si::f64::*;
 #[derive(Debug,Clone, PartialEq)]
-pub struct ThreePhaseElectricGenerator {
+pub struct ThreePhaseElectricGeneratorTurbine {
     /// I
     I: MomentOfInertia,
 
@@ -35,7 +35,7 @@ pub struct ThreePhaseElectricGenerator {
 }
 
 /// these are defaults for a three phase generator
-impl ThreePhaseElectricGenerator {
+impl ThreePhaseElectricGeneratorTurbine {
 
     pub fn new_250_megawatt_generator() -> Self {
 
@@ -76,7 +76,7 @@ impl ThreePhaseElectricGenerator {
     }
 }
 
-impl ThreePhaseElectricGenerator {
+impl ThreePhaseElectricGeneratorTurbine {
 
     /// this immutably calculates new angular velocity 
     /// in an explicit manner, given a source term
@@ -238,6 +238,25 @@ impl ThreePhaseElectricGenerator {
             
     }
 
+    pub fn get_current_1(&self, 
+        load_resistance: ElectricalResistance,
+        t: Time) -> ElectricCurrent {
+        
+        self.get_emf_1(t)/load_resistance
+    }
+
+    pub fn get_current_2(&self, 
+        load_resistance: ElectricalResistance,
+        t: Time) -> ElectricCurrent {
+        
+        self.get_emf_2(t)/load_resistance
+    }
+    pub fn get_current_3(&self, 
+        load_resistance: ElectricalResistance,
+        t: Time) -> ElectricCurrent {
+        
+        self.get_emf_3(t)/load_resistance
+    }
 
 
 }
