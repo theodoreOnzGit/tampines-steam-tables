@@ -78,7 +78,8 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
     let s2 = s1;
     let v1: Velocity = mass_flowrate/rho1/a1;
 
-    let mut rho2_guess: MassDensity = rho1;
+    // we expect expansion, so density decreases
+    let mut rho2_guess: MassDensity = rho1 * 0.9;
     let mut p2_guess: Pressure = Pressure::ZERO;
     let mut rho_residual = 1.0;
     let mut h2_guess = AvailableEnergy::ZERO;
@@ -212,7 +213,8 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
     let v1: Velocity = mass_flowrate/rho1/a1;
 
     let p1a1: Force = p1*a1;
-    let mut rho2_guess: MassDensity = rho1;
+    // we expect expansion, so density decreases
+    let mut rho2_guess: MassDensity = rho1 * 0.9;
     let mut p2_guess: Pressure = Pressure::ZERO;
     let mut rho_residual = 1.0;
     let mut h2_guess = AvailableEnergy::ZERO;
@@ -300,6 +302,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 
 #[cfg(test)]
 mod nozzles_test {
+    use uom::si::available_energy::kilojoule_per_kilogram;
     use uom::si::f64::*;
     use uom::si::area::square_centimeter;
     use uom::si::mass_rate::kilogram_per_second;
@@ -385,7 +388,6 @@ mod nozzles_test {
         dbg!(&(force_bal_residual,mass_flowrate_residual,stagnation_enthalpy_residual));
 
         assert!(force_bal_residual < 1e-3);
-        todo!();
 
     }
     #[test]
@@ -461,7 +463,66 @@ mod nozzles_test {
 
         assert!(force_bal_residual < 1e-3);
 
-        todo!();
 
     }
+
+
+    /// note that the hs and ps algorithm give slightly 
+    /// different answer as both are backward equations
+    ///
+    /// One only need look at the hs algorithm and ps algorithm 
+    /// look at the absolute enthalpy.
+    ///
+    /// Okay something is really fishy
+    #[test]
+    pub fn nozzles_test_hs_ps_algo_comparison(){
+
+        let a1: Area = Area::new::<square_centimeter>(5.0);
+        let a2: Area = Area::new::<square_centimeter>(4.0);
+        let mass_flowrate = MassRate::new::<kilogram_per_second>(0.18);
+        let tolerance: Option<f64> = Option::None;
+        // let this be steam at 10 bar 330 C
+        // this is superheated steam
+        let p1 = Pressure::new::<bar>(10.0);
+        let t1 = ThermodynamicTemperature::new::<degree_celsius>(330.0);
+        let h1 = h_tp_eqm_single_phase(t1, p1);
+        
+
+        let (p2_hs_algo,h2_hs_algo,_rho2_hs_algo) = get_isentropic_nozzles_outlet_ph_rho_point_hs_algo(
+            p1, h1, mass_flowrate, a1, a2, tolerance);
+
+        let (p2_ps_algo,h2_ps_algo,_rho2_ps_algo) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
+            p1, h1, mass_flowrate, a1, a2, tolerance);
+
+        approx::assert_relative_eq!(
+            h1.get::<kilojoule_per_kilogram>(),
+            3115.676,
+            max_relative=1e-4,
+        );
+
+        approx::assert_relative_eq!(
+            h2_hs_algo.get::<kilojoule_per_kilogram>(),
+            3112.848,
+            max_relative=1e-4,
+        );
+        approx::assert_relative_eq!(
+            h2_ps_algo.get::<kilojoule_per_kilogram>(),
+            3115.090,
+            max_relative=1e-4,
+        );
+        approx::assert_relative_eq!(
+            p2_hs_algo.get::<bar>(),
+            12.385,
+            max_relative=1e-4,
+        );
+        approx::assert_relative_eq!(
+            p2_ps_algo.get::<bar>(),
+            12.476,
+            max_relative=1e-4,
+        );
+
+        todo!("something is really fishy here with the algos");
+
+    }
+
 }
