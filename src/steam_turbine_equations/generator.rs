@@ -1,6 +1,10 @@
 use uom::ConstZero;
 use uom::si::angle::degree;
+use uom::si::area::square_meter;
 use uom::si::energy::joule;
+use uom::si::magnetic_flux_density::tesla;
+use uom::si::moment_of_inertia::kilogram_square_meter;
+use uom::si::ratio::ratio;
 use uom::si::torque::newton_meter;
 /// This is a 3 phase generator where 
 /// phase shift is 0 degrees, 60 degrees and 120 degrees 
@@ -30,6 +34,48 @@ pub struct ThreePhaseElectricGenerator {
 
 }
 
+/// these are defaults for a three phase generator
+impl ThreePhaseElectricGenerator {
+
+    pub fn new_250_megawatt_generator() -> Self {
+
+        let B = MagneticFluxDensity::new::<tesla>(1.0);
+        let A = Area::new::<square_meter>(1.0);
+        let N: usize = 25;
+        let I = MomentOfInertia::new::<kilogram_square_meter>(100_000.0);
+        let eta = Ratio::new::<ratio>(0.98);
+        let omega = AngularVelocity::ZERO;
+
+        return Self {
+            I,
+            omega,
+            N,
+            B,
+            A,
+            eta,
+        };
+    }
+    pub fn new(
+        B: MagneticFluxDensity,
+        A: Area,
+        N: usize,
+        I: MomentOfInertia,
+        eta: Ratio,
+        omega: AngularVelocity,
+    ) -> Self {
+
+
+        return Self {
+            I,
+            omega,
+            N,
+            B,
+            A,
+            eta,
+        };
+    }
+}
+
 impl ThreePhaseElectricGenerator {
 
     /// this immutably calculates new angular velocity 
@@ -46,6 +92,7 @@ impl ThreePhaseElectricGenerator {
     ///
     /// omega^{t + Delta t} (I/delta_t + (NBA)^2/(eta R_load) 
     /// sum (cos^2 (omega^t t + b_j))
+    ///
     pub fn calculate_new_angular_velocity(
         &self,
         source: Torque,
@@ -94,6 +141,36 @@ impl ThreePhaseElectricGenerator {
 
 
         return (rhs/coeff).into();
+    }
+    /// this mutably calculates new angular velocity 
+    /// in an explicit manner, given a source term
+    ///     \begin{equation*}
+    /// 	\omega^{t+ \Delta t} \left(
+    /// 		\frac{I}{\Delta t} 
+    /// 		+ \frac{( N^2 B^2 A^2 )}{\eta R_{load} } \sum_j \cos^2 (\omega^t t + b_j)  
+    /// \right)
+    /// 	= 
+    /// 	I \frac{\omega^{t } }{\Delta t}
+    /// 	+ \text{source} 
+    /// \end{equation*}
+    ///
+    /// omega^{t + Delta t} (I/delta_t + (NBA)^2/(eta R_load) 
+    /// sum (cos^2 (omega^t t + b_j))
+    pub fn advance_timestep(
+        &mut self,
+        source: Torque,
+        load_resistance: ElectricalResistance,
+        current_time: Time,
+        delta_t: Time,
+    ){
+        let new_angular_velocity = self.calculate_new_angular_velocity(
+            source, load_resistance, current_time, delta_t);
+
+        self.omega = new_angular_velocity;
+    }
+
+    pub fn set_magnetic_field(&mut self,B: MagneticFluxDensity){
+        self.B = B
     }
 
 }
