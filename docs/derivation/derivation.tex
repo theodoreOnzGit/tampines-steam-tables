@@ -454,6 +454,46 @@ So we arrive at:
 	\sum_j \cos^2 (\omega t + b_j)  
 \end{equation*}
 
+\paragraph{Discretisation}
+Should we want to implement this code, we need to perform some time 
+discretisation:
+
+\begin{equation*}
+	I \frac{\partial  \omega}{\partial t} = \text{source} 
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega 
+	\sum_j \cos^2 (\omega t + b_j)  
+\end{equation*}
+
+With a semi implicit manner of discretisation:
+
+\begin{equation*}
+	I \frac{\omega^{t + \Delta t} - \omega^t}{\Delta t} = \text{source} 
+	- \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega^{t + \Delta t} 
+	\sum_j \cos^2 (\omega^t t + b_j)  
+\end{equation*}
+
+
+\begin{equation*}
+	I \frac{\omega^{t + \Delta t} }{\Delta t} 
+	+ \frac{( N^2 B^2 A^2 )}{\eta R_{load} }\omega^{t + \Delta t} 
+	\sum_j \cos^2 (\omega^t t + b_j)  
+	= 
+	I \frac{\omega^{t } }{\Delta t}
+	+ \text{source} 
+\end{equation*}
+
+
+
+\begin{equation*}
+	\omega^{t+ \Delta t} \left(
+		\frac{I}{\Delta t} 
+		+ \frac{( N^2 B^2 A^2 )}{\eta R_{load} } \sum_j \cos^2 (\omega^t t + b_j)  
+\right)
+	= 
+	I \frac{\omega^{t } }{\Delta t}
+	+ \text{source} 
+\end{equation*}
+
 
 \subsubsection{Impulse Turbine}
 
