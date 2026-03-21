@@ -81,6 +81,15 @@ impl FHRSimulatorApp {
 
                 ui.add(secondary_loop_mass_flowrate_slider);
 
+                let turbine_rpm_slider = egui::Slider::new(
+                    &mut fhr_state_ptr.turbine_rpm, 
+                    0.00..=3000.0)
+                    .logarithmic(false)
+                    .text("Turbine RPM slider")
+                    .drag_value_speed(0.001);
+
+                ui.add(turbine_rpm_slider);
+
                 ui.separator();
 
                 // cloning the entire fhr state for diagnostics
