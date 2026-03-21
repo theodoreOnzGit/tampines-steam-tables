@@ -1,5 +1,9 @@
+use std::f64::consts::PI;
+
 use egui::{epaint::PathShape, vec2, Color32, Pos2, Sense, Stroke, Vec2, Widget};
 use egui::epaint::CubicBezierShape;
+use uom::ConstZero;
+use uom::si::angle::radian;
 use uom::si::ratio::ratio;
 use uom::si::{f64::*, thermodynamic_temperature::degree_celsius};
 
@@ -83,30 +87,44 @@ impl Widget for TurbineWidget {
             Color32::DARK_GRAY
         );
 
-        let rotor_mid_position_y: f64 = 
-            rect_y as f64 * 
-            self.get_theta().cos().get::<ratio>();
+        for i in 0..20 {
 
-        let rotor_blade_center: Pos2 = 
-            Pos2 { 
-                x: turbine_center.x, 
-                y: turbine_center.y + rotor_mid_position_y as f32            
-            };
+            let theta_plus_phase_shift = 
+                self.get_theta()
+                + 
+                Angle::new::<radian>(i as f64 * (2.0 * PI)/(20_f64))
+                - Angle::new::<radian>(PI)
+                ;
+
+            let rotor_mid_position_y: f64 = 
+                rect_y as f64 * 
+                theta_plus_phase_shift.cos().get::<ratio>();
+
+            let rotor_blade_center: Pos2 = 
+                Pos2 { 
+                    x: turbine_center.x, 
+                    y: turbine_center.y + rotor_mid_position_y as f32            
+                };
 
 
 
 
-        // this makes a spinning blade
-        //painter.line_segment(
-        //    [turbine_center - vec2(-0.20*turbine_blade_thickness, stroke_mid_position_y as f32 * 1.1), 
-        //    turbine_center + vec2(0.20*turbine_blade_thickness, stroke_mid_position_y as f32 * 0.9)], 
-        //    turbine_rotor_stroke
-        //);
-        painter.line_segment(
-            [rotor_blade_center - vec2(0.50*turbine_blade_thickness, 20.0), 
-            rotor_blade_center + vec2(0.50*turbine_blade_thickness, 20.0)], 
-            turbine_rotor_stroke
-        );
+            // this makes a spinning blade
+            //painter.line_segment(
+            //    [turbine_center - vec2(-0.20*turbine_blade_thickness, stroke_mid_position_y as f32 * 1.1), 
+            //    turbine_center + vec2(0.20*turbine_blade_thickness, stroke_mid_position_y as f32 * 0.9)], 
+            //    turbine_rotor_stroke
+
+            //);
+            // only paint moving blades if turbine 
+            if theta_plus_phase_shift > Angle::ZERO {
+                painter.line_segment(
+                    [rotor_blade_center - vec2(0.50*turbine_blade_thickness, 20.0), 
+                    rotor_blade_center + vec2(0.50*turbine_blade_thickness, 20.0)], 
+                    turbine_rotor_stroke
+                );
+            }
+        }
 
         return response;
     }

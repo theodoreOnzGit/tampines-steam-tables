@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use egui::{vec2, Pos2, Rect, Vec2};
 use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipeColourBlueRedTempSensitive};
+use uom::ConstZero;
 use uom::si::angular_velocity::revolution_per_minute;
 use uom::si::f64::*;
 use uom::si::thermodynamic_temperature::degree_celsius;
@@ -1002,7 +1003,7 @@ impl FHRSimulatorApp {
             ui, reactor_width, reactor_height);
         // turbine rotors 
         {
-            let omega = AngularVelocity::new::<revolution_per_minute>(200.0);
+            let omega = AngularVelocity::new::<revolution_per_minute>(10.0);
 
             let t: Time = Time::new::<second>(
                 fhr_state_clone.prke_simulation_time_seconds
@@ -1010,7 +1011,7 @@ impl FHRSimulatorApp {
 
             let theta: Angle = (omega * t).into();
 
-            let size = vec2(15.0, 100.0);
+            let size = vec2(15.0, 30.0);
 
             let turbine_moving = TurbineWidget::new(size, theta);
 
@@ -1021,6 +1022,7 @@ impl FHRSimulatorApp {
                     min: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18c_start_point,
                     max: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18l_end_point,
                 };
+            // only paint turbines moving in one direction
             ui.put(turbine_rect, turbine_moving);
 
         }
