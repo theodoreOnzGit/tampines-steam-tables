@@ -1008,7 +1008,7 @@ impl FHRSimulatorApp {
             );
 
             let t: Time = Time::new::<second>(
-                fhr_state_clone.prke_simulation_time_seconds
+                fhr_state_clone.prke_elapsed_time_seconds
             );
 
             let theta: Angle = (omega * t).into();
