@@ -5,8 +5,9 @@ use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::Sin
 use uom::ConstZero;
 use uom::si::angular_velocity::revolution_per_minute;
 use uom::si::f64::*;
+use uom::si::frequency::hertz;
 use uom::si::thermodynamic_temperature::degree_celsius;
-use uom::si::time::second;
+use uom::si::time::{millisecond, second};
 
 use crate::app::local_widgets_and_buttons::pipes::{SinglePipeColourBlackRedTempSensitive, SinglePipeColourBlueWhiteQualitySensitive};
 use crate::app::local_widgets_and_buttons::turbine_widget::TurbineWidget;
@@ -96,7 +97,11 @@ impl eframe::App for FHRSimulatorApp {
         
 
 
-        ctx.request_repaint_after(Duration::from_millis(50));
+        // 60 fps 
+        // 
+        //let repaint_time = Frequency::new::<hertz>(60.0).recip().get::<millisecond>().round();
+        // this is 16.67 ms
+        ctx.request_repaint_after(Duration::from_millis(16));
 
         // adding the return here because there are too many closing 
         // parantheses
