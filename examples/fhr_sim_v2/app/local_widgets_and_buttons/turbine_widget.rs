@@ -93,7 +93,6 @@ impl Widget for TurbineWidget {
                 self.get_theta()
                 + 
                 Angle::new::<radian>(i as f64 * (2.0 * PI)/(20_f64))
-                - Angle::new::<radian>(PI)
                 ;
 
             let rotor_mid_position_y: f64 = 
@@ -117,7 +116,7 @@ impl Widget for TurbineWidget {
 
             //);
             // only paint moving blades if turbine 
-            if theta_plus_phase_shift > Angle::ZERO {
+            if theta_plus_phase_shift.sin() > Ratio::ZERO {
                 painter.line_segment(
                     [rotor_blade_center - vec2(0.50*turbine_blade_thickness, 20.0), 
                     rotor_blade_center + vec2(0.50*turbine_blade_thickness, 20.0)], 
