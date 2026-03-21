@@ -30,6 +30,10 @@ impl TurbineWidget {
         self.theta = (omega * simulation_time).into();
     }
 
+    pub fn get_theta(&self) -> Angle {
+        self.theta
+    }
+
 }
 
 impl Widget for TurbineWidget {
@@ -45,4 +49,9 @@ impl Widget for TurbineWidget {
 
         return response;
     }
+}
+
+/// this is responsble
+pub fn turbine_rectangle(){
+
 }
