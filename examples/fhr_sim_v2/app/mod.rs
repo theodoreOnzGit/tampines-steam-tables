@@ -1010,7 +1010,7 @@ impl FHRSimulatorApp {
 
             let theta: Angle = (omega * t).into();
 
-            let size = vec2(40.0, 500.0);
+            let size = vec2(15.0, 100.0);
 
             let turbine_moving = TurbineWidget::new(size, theta);
 
@@ -1018,7 +1018,7 @@ impl FHRSimulatorApp {
             // higher in x and y position than the start point:
             let turbine_rect = 
                 egui::Rect {
-                    min: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18l_start_point,
+                    min: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18c_start_point,
                     max: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18l_end_point,
                 };
             ui.put(turbine_rect, turbine_moving);
