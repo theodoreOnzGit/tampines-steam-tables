@@ -2,10 +2,13 @@ use std::time::Duration;
 
 use egui::{vec2, Pos2, Rect, Vec2};
 use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipeColourBlueRedTempSensitive};
+use uom::si::angular_velocity::revolution_per_minute;
 use uom::si::f64::*;
 use uom::si::thermodynamic_temperature::degree_celsius;
+use uom::si::time::second;
 
 use crate::app::local_widgets_and_buttons::pipes::{SinglePipeColourBlackRedTempSensitive, SinglePipeColourBlueWhiteQualitySensitive};
+use crate::app::local_widgets_and_buttons::turbine_widget::TurbineWidget;
 use crate::{FHRSimulatorApp, FHRState};
 use crate::Panel;
 
@@ -902,6 +905,8 @@ impl FHRSimulatorApp {
             turbine_tube_18c_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
 
+
+
         // turbine outline 
 
         // tubine axle
@@ -995,6 +1000,30 @@ impl FHRSimulatorApp {
             turbine_tube_18l_start_point, 
             turbine_tube_18l_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
+        // turbine rotors 
+        {
+            let omega = AngularVelocity::new::<revolution_per_minute>(200.0);
+
+            let t: Time = Time::new::<second>(
+                fhr_state_clone.prke_simulation_time_seconds
+            );
+
+            let theta: Angle = (omega * t).into();
+
+            let size = vec2(80.0, 100.0);
+
+            let turbine_moving = TurbineWidget::new(size, theta);
+
+            // now in the case that end point is 
+            // higher in x and y position than the start point:
+            let turbine_rect = 
+                egui::Rect {
+                    min: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18l_start_point,
+                    max: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18l_end_point,
+                };
+            ui.put(turbine_rect, turbine_moving);
+
+        }
 
         // condenser
         let condenser_tube_19a_start_point = 
@@ -1027,6 +1056,7 @@ impl FHRSimulatorApp {
             condenser_tube_19c_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
         ui.separator();
+
 
         // pump
         let pump_20a_start_point = 

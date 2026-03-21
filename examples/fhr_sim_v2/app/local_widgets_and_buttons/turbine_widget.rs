@@ -18,6 +18,10 @@ pub struct TurbineWidget {
 // These strokes will vary position with sine wave functions
 impl TurbineWidget {
 
+    pub fn new(size: Vec2, theta: Angle) -> Self {
+        Self { size, theta  }
+    }
+
     /// gets the size of the widget 
     pub fn size(&self) -> Vec2 {
 
