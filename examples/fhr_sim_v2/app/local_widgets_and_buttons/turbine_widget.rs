@@ -44,14 +44,42 @@ impl Widget for TurbineWidget {
         );
         // this will be the main bulk of code
 
+        let rect = response.rect;
+        let c = rect.center();
+
+        let rect_x = rect.width();
+        let rect_y = rect.height();
+        // we start with rectangles
+
+        let turbine_blade_thickness = rect_x * 0.3;
+        let turbine_radius_mid_blade = rect_y * 0.25;
 
 
+        let turbine_blade_colour = Color32::LIGHT_GRAY;
+
+
+        let turbine_blade_stroke = Stroke::new(
+            turbine_blade_thickness, 
+            turbine_blade_colour
+        );
+
+        let turbine_center = c;
+
+        painter.line_segment(
+            [turbine_center - vec2(-0.20*turbine_blade_thickness, turbine_radius_mid_blade), 
+            turbine_center + vec2(0.20*turbine_blade_thickness, turbine_radius_mid_blade)], 
+            turbine_blade_stroke
+        );
+
+        // this is the spinning part
+        let turbine_rotor_ratio = 0.08;
+        let turbine_rotor_stroke = Stroke::new(
+            turbine_blade_thickness * turbine_rotor_ratio, 
+            turbine_blade_colour
+        );
 
         return response;
     }
 }
 
-/// this is responsble
-pub fn turbine_rectangle(){
 
-}
