@@ -1,5 +1,6 @@
 use egui::{epaint::PathShape, vec2, Color32, Pos2, Sense, Stroke, Vec2, Widget};
 use egui::epaint::CubicBezierShape;
+use uom::si::ratio::ratio;
 use uom::si::{f64::*, thermodynamic_temperature::degree_celsius};
 
 use super::hot_to_cold_colour_mark_1;
@@ -56,7 +57,7 @@ impl Widget for TurbineWidget {
         // we start with rectangles
 
         let turbine_blade_thickness = rect_x * 0.3;
-        let turbine_radius_mid_blade = rect_y * 0.25;
+        let turbine_radius_mid_blade = rect_y;
 
 
         let turbine_blade_colour = Color32::LIGHT_GRAY;
@@ -67,7 +68,7 @@ impl Widget for TurbineWidget {
             turbine_blade_colour
         );
 
-        let turbine_center = c;
+        let turbine_center: Pos2 = c;
 
         painter.line_segment(
             [turbine_center - vec2(-0.20*turbine_blade_thickness, turbine_radius_mid_blade), 
@@ -76,10 +77,35 @@ impl Widget for TurbineWidget {
         );
 
         // this is the spinning part
-        let turbine_rotor_ratio = 0.08;
+        let turbine_rotor_ratio = 0.20;
         let turbine_rotor_stroke = Stroke::new(
             turbine_blade_thickness * turbine_rotor_ratio, 
-            turbine_blade_colour
+            Color32::DARK_GRAY
+        );
+
+        let rotor_mid_position_y: f64 = 
+            rect_y as f64 * 
+            self.get_theta().cos().get::<ratio>();
+
+        let rotor_blade_center: Pos2 = 
+            Pos2 { 
+                x: turbine_center.x, 
+                y: turbine_center.y + rotor_mid_position_y as f32            
+            };
+
+
+
+
+        // this makes a spinning blade
+        //painter.line_segment(
+        //    [turbine_center - vec2(-0.20*turbine_blade_thickness, stroke_mid_position_y as f32 * 1.1), 
+        //    turbine_center + vec2(0.20*turbine_blade_thickness, stroke_mid_position_y as f32 * 0.9)], 
+        //    turbine_rotor_stroke
+        //);
+        painter.line_segment(
+            [rotor_blade_center - vec2(0.50*turbine_blade_thickness, 20.0), 
+            rotor_blade_center + vec2(0.50*turbine_blade_thickness, 20.0)], 
+            turbine_rotor_stroke
         );
 
         return response;
