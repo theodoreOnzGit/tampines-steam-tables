@@ -8,6 +8,8 @@ use super::hot_to_cold_colour_mark_1;
 pub struct TurbineWidget {
 
     size: Vec2,
+
+    theta: Angle,
 }
 
 // for the turbine widget, this is basically a collection of rectangles 
@@ -21,6 +23,13 @@ impl TurbineWidget {
 
         self.size.clone()
     }
+
+    pub fn set_theta(&mut self, 
+        omega: AngularVelocity,
+        simulation_time: Time){
+        self.theta = (omega * simulation_time).into();
+    }
+
 }
 
 impl Widget for TurbineWidget {
