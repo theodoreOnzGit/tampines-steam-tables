@@ -1010,7 +1010,7 @@ impl FHRSimulatorApp {
 
             let theta: Angle = (omega * t).into();
 
-            let size = vec2(80.0, 100.0);
+            let size = vec2(40.0, 500.0);
 
             let turbine_moving = TurbineWidget::new(size, theta);
 
