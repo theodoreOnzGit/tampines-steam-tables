@@ -87,7 +87,7 @@ impl Widget for TurbineWidget {
             Color32::DARK_GRAY
         );
 
-        let turbine_num_blades = 30;
+        let turbine_num_blades = 20;
         for i in 0..turbine_num_blades {
 
             let theta_plus_phase_shift = 
@@ -97,7 +97,7 @@ impl Widget for TurbineWidget {
                 ;
 
             let rotor_mid_position_y: f64 = 
-                turbine_radius_mid_blade as f64 * 
+                0.4 * turbine_radius_mid_blade as f64 * 
                 theta_plus_phase_shift.cos().get::<ratio>();
 
             let rotor_blade_center: Pos2 = 
