@@ -1003,7 +1003,9 @@ impl FHRSimulatorApp {
             ui, reactor_width, reactor_height);
         // turbine rotors 
         {
-            let omega = AngularVelocity::new::<revolution_per_minute>(10.0);
+            let omega = AngularVelocity::new::<revolution_per_minute>(
+                fhr_state_clone.turbine_rpm
+            );
 
             let t: Time = Time::new::<second>(
                 fhr_state_clone.prke_simulation_time_seconds
