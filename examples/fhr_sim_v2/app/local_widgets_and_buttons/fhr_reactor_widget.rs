@@ -1,4 +1,5 @@
-use egui::{epaint::{CubicBezierShape, PathShape}, vec2, Color32, Pos2, Sense, Stroke, Vec2, Widget};
+use egui::{epaint::PathShape, vec2, Color32, Pos2, Sense, Stroke, Vec2, Widget};
+use egui::epaint::CubicBezierShape;
 use uom::si::{f64::*, thermodynamic_temperature::degree_celsius};
 
 use super::hot_to_cold_colour_mark_1;
