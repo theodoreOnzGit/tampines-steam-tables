@@ -24,6 +24,8 @@ impl FHRSimulatorApp {
         user_specified_secondary_loop_mass_flowrate: &mut MassRate,
         // pump settings 
         user_specified_pump_outlet_pressure: Pressure,
+        current_simulation_time: Time,
+        turbine_omega: AngularVelocity,
     ) -> SecondaryLoopState {
         let heat_rate_to_steam_generator_tube = 
             -fhr_th_state.heat_added_to_steam_generator_shell_side
@@ -180,6 +182,11 @@ impl FHRSimulatorApp {
             *user_specified_secondary_loop_mass_flowrate * 
             (condenser_inlet_enthalpy - condenser_outlet_enthalpy);
 
+        // now the steam turbine, 
+        let mut steam_turbine = 
+            ThreePhaseElectricGeneratorTurbine::new_250_megawatt_generator();
+
+
 
         let secondary_loop_state = 
             SecondaryLoopState {
@@ -191,7 +198,7 @@ impl FHRSimulatorApp {
                 steam_quality_after_steam_generator_tube_side,
                 steam_quality_after_turbine,
                 sat_temperature_in_sg_tube_degc,
-                steam_turbine: ThreePhaseElectricGeneratorTurbine::new_250_megawatt_generator(),
+                steam_turbine,
             };
 
 

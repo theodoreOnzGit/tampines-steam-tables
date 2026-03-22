@@ -9,6 +9,7 @@ use tampines_steam_tables::steam_turbine_equations::ThreePhaseElectricGeneratorT
 use tuas_boussinesq_solver::boussinesq_thermophysical_properties::LiquidMaterial;
 use tuas_boussinesq_solver::pre_built_components::shell_and_tube_heat_exchanger::SimpleShellAndTubeHeatExchanger;
 use tuas_boussinesq_solver::prelude::beta_testing::{FluidArray, HeatTransferEntity, HeatTransferInteractionType};
+use uom::si::angular_velocity::revolution_per_minute;
 use uom::si::energy::kilojoule;
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::power::megawatt;
@@ -1206,12 +1207,20 @@ impl FHRSimulatorApp {
                     .user_specified_secondary_loop_pump_outlet_pressure_bar
                 );
 
+            let turbine_omega: AngularVelocity 
+                = AngularVelocity::new::<revolution_per_minute>(
+                    fhr_state_clone.lock().unwrap().turbine_rpm
+                );
+
             current_fhr_steam_gen_state = 
                 Self::secondary_loop_single_timestep(
                     &mut current_fhr_thermal_hydraulics_state, 
                     thermal_hydraulics_timestep, 
                     &mut user_specified_secondary_loop_mass_flowrate, 
-                    user_specified_pump_outlet_pressure
+                    user_specified_pump_outlet_pressure,
+                    current_simulation_time,
+                    turbine_omega,
+
                 );
             
             if debug {
