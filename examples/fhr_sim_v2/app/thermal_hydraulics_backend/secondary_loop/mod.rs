@@ -212,14 +212,21 @@ impl FHRSimulatorApp {
             /turbine_inlet_rho/ 
             turbine_inlet_area;
 
-        let turbine_steam_relative_velocity: Velocity = 
+        // note: using relative velocity is kind of unstable
+        // numerically
+        let _turbine_steam_relative_velocity: Velocity = 
             turbine_steam_speed - turbine_blade_speed;
 
         let turbine_force: Force = 
-            turbine_power_input/turbine_steam_relative_velocity;
+            turbine_power_input/turbine_steam_speed;
+
+        // this is just an arbitrary efficiency factor
+        let efficiency_factor = 0.7;
 
 
-        torque_source = (turbine_force * turbine_radius).into();
+
+        torque_source = 
+            (turbine_force * turbine_radius * efficiency_factor).into();
 
 
         steam_turbine.advance_timestep(
@@ -230,9 +237,6 @@ impl FHRSimulatorApp {
         );
         let turbine_power: Power = 
             steam_turbine.get_power(load_resistance, current_simulation_time);
-
-        dbg!(&turbine_power);
-        
 
 
 
