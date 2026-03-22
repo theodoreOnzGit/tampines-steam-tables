@@ -62,7 +62,7 @@ impl Widget for TurbineWidget {
         let turbine_num_axial_sides = 5;
 
         let turbine_blade_axial_thickness = 
-            (2.0 * turbine_num_axial_sides as f32 + 2.0).recip() * rect_x;
+            (2.0 * turbine_num_axial_sides as f32 + 1.0).recip() * rect_x;
         let turbine_max_radius = 0.5*rect_y;
 
 
