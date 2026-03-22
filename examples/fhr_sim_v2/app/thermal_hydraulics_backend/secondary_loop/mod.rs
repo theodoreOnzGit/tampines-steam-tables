@@ -221,7 +221,9 @@ impl FHRSimulatorApp {
             turbine_power_input/turbine_steam_speed;
 
         // this is just an arbitrary efficiency factor
-        let efficiency_factor = 0.7;
+        // I don't have actual figures, so the efficiency ratios may 
+        // be incorrect
+        let efficiency_factor = 0.07;
 
 
 
