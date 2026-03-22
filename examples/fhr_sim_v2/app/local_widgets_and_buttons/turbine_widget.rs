@@ -92,10 +92,15 @@ impl Widget for TurbineWidget {
         let turbine_num_blades = 20;
         let turbine_num_axial_sides = 5;
 
+        let turbine_min_radius_pixels: f32 = 
+            turbine_max_radius / turbine_num_axial_sides as f32;
+
         
         let paint_turbine_blade_set = |set_number: isize|{
 
-
+            let turbine_radius: f32 = 
+                turbine_min_radius_pixels 
+                * (set_number - 1) as f32;
 
 
             let offset_factor_to_the_right = set_number as f32;
@@ -104,11 +109,11 @@ impl Widget for TurbineWidget {
             painter.line_segment(
                 [turbine_center - vec2(
                     -turbine_blade_axial_thickness * offset_factor_to_the_right, 
-                    turbine_max_radius
+                    turbine_radius
                 ), 
                 turbine_center + vec2(
                     turbine_blade_axial_thickness * offset_factor_to_the_right, 
-                    turbine_max_radius
+                    turbine_radius
                 )], 
                 turbine_blade_stroke
             );
@@ -121,7 +126,7 @@ impl Widget for TurbineWidget {
                     ;
 
                 let rotor_mid_position_y: f64 = 
-                    0.9 * turbine_max_radius as f64 * 
+                    0.9 * turbine_radius as f64 * 
                     theta_plus_phase_shift.cos().get::<ratio>();
 
                 let rotor_blade_center: Pos2 = 
@@ -148,11 +153,11 @@ impl Widget for TurbineWidget {
                     painter.line_segment(
                         [rotor_blade_center - vec2(
                             0.5*turbine_blade_axial_thickness, 
-                            10.0
+                            0.1 * turbine_radius
                         ), 
                         rotor_blade_center + vec2(
                             0.5*turbine_blade_axial_thickness, 
-                            10.0
+                            0.1 * turbine_radius
                         )], 
                         turbine_rotor_stroke
                     );
@@ -161,11 +166,11 @@ impl Widget for TurbineWidget {
                         painter.line_segment(
                             [rotor_blade_center - vec2(
                                 0.5*turbine_blade_axial_thickness, 
-                                10.0
+                                0.1 * turbine_radius
                             ), 
                             rotor_blade_center + vec2(
                                 0.5*turbine_blade_axial_thickness, 
-                                10.0
+                                0.1 * turbine_radius
                             )], 
                             turbine_rotor_stroke_white
                         );
