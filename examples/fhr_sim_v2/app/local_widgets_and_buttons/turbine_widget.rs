@@ -1,13 +1,11 @@
 use std::f64::consts::PI;
 
-use egui::{epaint::PathShape, vec2, Color32, Pos2, Sense, Stroke, Vec2, Widget};
-use egui::epaint::CubicBezierShape;
+use egui::{vec2, Color32, Pos2, Sense, Stroke, Vec2, Widget};
 use uom::ConstZero;
 use uom::si::angle::radian;
 use uom::si::ratio::ratio;
-use uom::si::{f64::*, thermodynamic_temperature::degree_celsius};
+use uom::si::f64::*;
 
-use super::hot_to_cold_colour_mark_1;
 
 #[derive(Debug,Clone, PartialEq)]
 pub struct TurbineWidget {

@@ -1026,8 +1026,8 @@ impl FHRSimulatorApp {
             // higher in x and y position than the start point:
             let turbine_rect = 
                 egui::Rect {
-                    min: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18c_start_point,
-                    max: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18l_end_point,
+                    min: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18j_end_point,
+                    max: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18f_end_point,
                 };
             // only paint turbines moving in one direction
             ui.put(turbine_rect, turbine_moving);
