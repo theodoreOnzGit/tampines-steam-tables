@@ -3,6 +3,7 @@ use crate::app::thermal_hydraulics_backend::fhr_thermal_hydraulics_state::FHRThe
 use tampines_steam_tables::interfaces::functional_programming::ph_flash_eqm::x_ph_flash;
 use tampines_steam_tables::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use tampines_steam_tables::interfaces::functional_programming::{ph_flash_eqm, ps_flash_eqm, pt_flash_eqm};
+use tampines_steam_tables::prelude::functional_programming::ph_flash_eqm::v_ph_eqm;
 use tampines_steam_tables::region_4_vap_liq_equilibrium::sat_temp_4;
 use tampines_steam_tables::steam_turbine_equations::ThreePhaseElectricGeneratorTurbine;
 use uom::si::f64::*;
@@ -189,14 +190,33 @@ impl FHRSimulatorApp {
 
         let torque_source: Torque;
         // these are some arbitrary Parameters
-        let turbine_enthalpy_diff = 
-            turbine_outlet_enthalpy - turbine_inlet_enthalpy;
-        let pressure_diff = turbine_inlet_pressure - turbine_outlet_pressure;
-        let turbine_area = Length::new::<inch>(20.0) * Length::new::<inch>(20.0);
+        let turbine_enthalpy_loss: AvailableEnergy = 
+            turbine_inlet_enthalpy - turbine_outlet_enthalpy;
 
-        let turbine_force: Force = 0.95 * pressure_diff * turbine_area;
+        let turbine_power_input: Power = 
+            *user_specified_secondary_loop_mass_flowrate * 
+            turbine_enthalpy_loss;
+
+        let turbine_inlet_area = Length::new::<inch>(20.0) * Length::new::<inch>(20.0);
+
 
         let turbine_radius = Length::new::<meter>(5.0);
+        let turbine_blade_speed: Velocity = 
+            turbine_radius * turbine_omega;
+
+        let turbine_steam_speed: Velocity;
+        let turbine_inlet_rho: MassDensity = 
+            v_ph_eqm(turbine_inlet_pressure, turbine_inlet_enthalpy).recip();
+
+        turbine_steam_speed = *user_specified_secondary_loop_mass_flowrate
+            /turbine_inlet_rho/ 
+            turbine_inlet_area;
+
+        let turbine_steam_relative_velocity: Velocity = 
+            turbine_steam_speed - turbine_blade_speed;
+
+        let turbine_force: Force = 
+            turbine_power_input/turbine_steam_relative_velocity;
 
 
         torque_source = (turbine_force * turbine_radius).into();
