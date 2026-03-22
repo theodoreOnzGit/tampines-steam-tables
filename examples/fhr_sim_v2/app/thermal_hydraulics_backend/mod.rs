@@ -5,6 +5,7 @@ use std::time::{Duration, SystemTime};
 
 use fhr_thermal_hydraulics_state::FHRThermalHydraulicsState;
 use ndarray::{Array, Array1};
+use tampines_steam_tables::steam_turbine_equations::ThreePhaseElectricGeneratorTurbine;
 use tuas_boussinesq_solver::boussinesq_thermophysical_properties::LiquidMaterial;
 use tuas_boussinesq_solver::pre_built_components::shell_and_tube_heat_exchanger::SimpleShellAndTubeHeatExchanger;
 use tuas_boussinesq_solver::prelude::beta_testing::{FluidArray, HeatTransferEntity, HeatTransferInteractionType};
@@ -1036,6 +1037,7 @@ impl FHRSimulatorApp {
             steam_quality_after_steam_generator_tube_side: 1.0,
             steam_quality_after_turbine: 0.2,
             sat_temperature_in_sg_tube_degc: 120.0,
+            steam_turbine: ThreePhaseElectricGeneratorTurbine::new_250_megawatt_generator(),
         };
         dbg!(&current_fhr_steam_gen_state);
         // calculation loop (indefinite)
@@ -1186,7 +1188,10 @@ impl FHRSimulatorApp {
                     steam_generator_tube_side_temperature, 
                     steam_generator_overall_ua);
 
-            dbg!(&current_fhr_thermal_hydraulics_state);
+            let debug = false;
+            if debug {
+                dbg!(&current_fhr_thermal_hydraulics_state); 
+            }
 
 
             // now calculate the secondary loop 
@@ -1202,14 +1207,16 @@ impl FHRSimulatorApp {
                 );
 
             current_fhr_steam_gen_state = 
-                Self::secondary_loop_single_timestep_steady_state_simplified(
+                Self::secondary_loop_single_timestep(
                     &mut current_fhr_thermal_hydraulics_state, 
                     thermal_hydraulics_timestep, 
                     &mut user_specified_secondary_loop_mass_flowrate, 
                     user_specified_pump_outlet_pressure
                 );
             
-            dbg!(&current_fhr_steam_gen_state);
+            if debug {
+                dbg!(&current_fhr_steam_gen_state);
+            }
 
 
             current_simulation_time += thermal_hydraulics_timestep;
@@ -1362,40 +1369,57 @@ impl FHRSimulatorApp {
                 // secondary loop state
                 fhr_state_lock
                     .user_specified_secondary_loop_mass_flowrate_kg_per_s = 
-                    (user_specified_secondary_loop_mass_flowrate
-                    .get::<kilogram_per_second>()*1000.0)/1000.0;
+                    (
+                        user_specified_secondary_loop_mass_flowrate
+                        .get::<kilogram_per_second>()*1000.0
+                    )/1000.0;
 
                 fhr_state_lock 
                     .steam_generator_tube_outlet_temperature_degc = 
-                    (current_fhr_steam_gen_state 
-                     .steam_gen_tube_outlet_temperature
-                     .get::<degree_celsius>()*1000.0)/1000.0;
+                    (
+                        current_fhr_steam_gen_state 
+                        .steam_gen_tube_outlet_temperature
+                        .get::<degree_celsius>()*1000.0
+                    )/1000.0;
                 fhr_state_lock 
                     .steam_quality_after_condenser = 
-                    (current_fhr_steam_gen_state 
-                     .steam_quality_after_condenser*1000.0)/1000.0;
+                    (
+                        current_fhr_steam_gen_state 
+                        .steam_quality_after_condenser*1000.0
+                    )/1000.0;
                 fhr_state_lock 
                     .steam_quality_after_pump = 
                     (current_fhr_steam_gen_state 
-                     .steam_quality_after_pump*1000.0)/1000.0;
+                     .steam_quality_after_pump*1000.0
+                    )/1000.0;
                 fhr_state_lock 
                     .steam_quality_after_steam_generator_tube_side = 
-                    (current_fhr_steam_gen_state 
-                     .steam_quality_after_steam_generator_tube_side*1000.0)/1000.0;
+                    (
+                        current_fhr_steam_gen_state 
+                        .steam_quality_after_steam_generator_tube_side*1000.0
+                    )/1000.0;
                 fhr_state_lock 
                     .steam_quality_after_turbine = 
-                    (current_fhr_steam_gen_state 
-                     .steam_quality_after_turbine*1000.0)/1000.0;
+                    (
+                        current_fhr_steam_gen_state 
+                        .steam_quality_after_turbine*1000.0
+                    )/1000.0;
                 fhr_state_lock 
                     .turbine_power_megawatts = 
-                    (current_fhr_steam_gen_state 
-                     .turbine_power
-                     .get::<megawatt>()*1000.0)/1000.0;
+                    (
+                        current_fhr_steam_gen_state 
+                        .turbine_power
+                        .get::<megawatt>()*1000.0
+                    )/1000.0;
                 fhr_state_lock 
                     .condenser_duty_megawatts = 
-                    (current_fhr_steam_gen_state 
-                     .condenser_duty
-                     .get::<megawatt>()*1000.0)/1000.0;
+                    (
+                        current_fhr_steam_gen_state 
+                        .condenser_duty
+                        .get::<megawatt>()*1000.0
+                    )/1000.0;
+
+                
 
             }
 

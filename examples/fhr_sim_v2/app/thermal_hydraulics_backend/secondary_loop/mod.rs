@@ -4,6 +4,7 @@ use tampines_steam_tables::interfaces::functional_programming::ph_flash_eqm::x_p
 use tampines_steam_tables::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use tampines_steam_tables::interfaces::functional_programming::{ph_flash_eqm, ps_flash_eqm, pt_flash_eqm};
 use tampines_steam_tables::region_4_vap_liq_equilibrium::sat_temp_4;
+use tampines_steam_tables::steam_turbine_equations::ThreePhaseElectricGeneratorTurbine;
 use uom::si::f64::*;
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::pressure::bar;
@@ -17,7 +18,7 @@ impl FHRSimulatorApp {
     ///
     /// note that in this simplified steam generator calculation,
     /// everything instantly goes to steady state
-    pub(crate) fn secondary_loop_single_timestep_steady_state_simplified(
+    pub(crate) fn secondary_loop_single_timestep(
         fhr_th_state: &mut FHRThermalHydraulicsState,
         timestep: Time,
         user_specified_secondary_loop_mass_flowrate: &mut MassRate,
@@ -190,6 +191,7 @@ impl FHRSimulatorApp {
                 steam_quality_after_steam_generator_tube_side,
                 steam_quality_after_turbine,
                 sat_temperature_in_sg_tube_degc,
+                steam_turbine: ThreePhaseElectricGeneratorTurbine::new_250_megawatt_generator(),
             };
 
 
@@ -221,6 +223,10 @@ pub struct SecondaryLoopState {
 
     /// sat temperature in sg tube 
     pub sat_temperature_in_sg_tube_degc: f64,
+
+    /// steam turbine 
+    pub steam_turbine: ThreePhaseElectricGeneratorTurbine,
+
 }
 
 /// some code for departure from nucleate boiling.

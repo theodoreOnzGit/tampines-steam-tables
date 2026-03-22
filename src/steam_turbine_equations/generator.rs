@@ -258,5 +258,14 @@ impl ThreePhaseElectricGeneratorTurbine {
         self.get_emf_3(t)/load_resistance
     }
 
+    /// sets the rpm
+    pub fn set_omega(&mut self, omega: AngularVelocity){
+        self.omega = omega
+    }
+
+    /// gets the rpm
+    pub fn get_omega(&self) -> AngularVelocity{
+        self.omega
+    }
 
 }
