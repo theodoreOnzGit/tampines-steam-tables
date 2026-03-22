@@ -64,7 +64,7 @@ impl Widget for TurbineWidget {
         let turbine_num_axial_sides = 5;
 
         let turbine_blade_axial_thickness = 
-            (2.0 * turbine_num_axial_sides as f32).recip() * rect_x;
+            (2.0 * turbine_num_axial_sides as f32 + 2.0).recip() * rect_x;
         let turbine_max_radius = 0.5*rect_y;
 
 
@@ -101,7 +101,9 @@ impl Widget for TurbineWidget {
         let paint_turbine_blade_set = |set_number: isize|{
 
             let turbine_radius: f32 = 
-                turbine_min_radius_pixels * (set_number - 1).abs() as f32;
+                turbine_min_radius_pixels * set_number.abs() as f32;
+
+            
 
 
             let offset_factor_to_the_right = set_number as f32;
@@ -119,6 +121,26 @@ impl Widget for TurbineWidget {
                 )], 
                 turbine_blade_stroke
             );
+
+            // this paints the axel for the turbine 
+            if set_number == 0 {
+
+                let axel_radius: f32 = 
+                    turbine_min_radius_pixels * 0.5 as f32;
+                painter.line_segment(
+                    [turbine_center - vec2(
+                        -turbine_x_offset, 
+                        axel_radius
+                    ), 
+                    turbine_center + vec2(
+                        turbine_x_offset, 
+                        axel_radius
+                    )], 
+                    turbine_blade_stroke
+                );
+            }
+
+
             for i in 0..turbine_num_blades {
 
                 // 
@@ -149,7 +171,7 @@ impl Widget for TurbineWidget {
 
                 //);
                 // only paint moving blades if turbine 
-                if theta_plus_phase_shift.sin() > Ratio::ZERO {
+                if theta_plus_phase_shift.sin() > Ratio::ZERO && set_number != 0 {
 
 
 
@@ -186,8 +208,7 @@ impl Widget for TurbineWidget {
             }
         };
 
-        //paint_turbine_blade_set(-1);
-        //paint_turbine_blade_set(-2);
+        // now we paint all turbine blades
         for i in -turbine_num_axial_sides..=turbine_num_axial_sides {
             paint_turbine_blade_set(i);
         }
