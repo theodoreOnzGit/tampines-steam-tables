@@ -6,6 +6,7 @@ use tampines_steam_tables::interfaces::functional_programming::{ph_flash_eqm, ps
 use tampines_steam_tables::region_4_vap_liq_equilibrium::sat_temp_4;
 use tampines_steam_tables::steam_turbine_equations::ThreePhaseElectricGeneratorTurbine;
 use uom::si::f64::*;
+use uom::si::length::{inch, meter};
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::pressure::bar;
 use uom::si::thermodynamic_temperature::degree_celsius;
@@ -26,6 +27,7 @@ impl FHRSimulatorApp {
         user_specified_pump_outlet_pressure: Pressure,
         current_simulation_time: Time,
         turbine_omega: AngularVelocity,
+        load_resistance: ElectricalResistance,
     ) -> SecondaryLoopState {
         let heat_rate_to_steam_generator_tube = 
             -fhr_th_state.heat_added_to_steam_generator_shell_side
@@ -185,6 +187,28 @@ impl FHRSimulatorApp {
         // now the steam turbine, 
         let mut steam_turbine = 
             ThreePhaseElectricGeneratorTurbine::new_250_megawatt_generator();
+
+        steam_turbine.set_omega(turbine_omega);
+
+
+        let torque_source: Torque;
+        // these are some arbitrary Parameters
+        let pressure_diff = turbine_inlet_pressure - turbine_outlet_pressure;
+        let turbine_area = Length::new::<inch>(20.0) * Length::new::<inch>(20.0);
+
+        let turbine_force: Force = 0.95 * pressure_diff * turbine_area;
+
+        let turbine_radius = Length::new::<meter>(5.0);
+
+        torque_source = (turbine_force * turbine_radius).into();
+
+
+        steam_turbine.advance_timestep(
+            torque_source, 
+            load_resistance, 
+            current_simulation_time, 
+            timestep,
+        );
 
 
 

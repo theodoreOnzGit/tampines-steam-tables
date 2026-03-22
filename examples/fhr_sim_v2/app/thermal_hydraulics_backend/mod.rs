@@ -33,6 +33,7 @@ use uom::si::f64::*;
 //use uom::si::ratio::ratio;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::ConstZero;
+use uom::si::electrical_resistance::kiloohm;
 
 
 use components::*;
@@ -1212,6 +1213,7 @@ impl FHRSimulatorApp {
                     fhr_state_clone.lock().unwrap().turbine_rpm
                 );
 
+            let load_resistance = ElectricalResistance::new::<kiloohm>(200.0);
             current_fhr_steam_gen_state = 
                 Self::secondary_loop_single_timestep(
                     &mut current_fhr_thermal_hydraulics_state, 
@@ -1220,7 +1222,17 @@ impl FHRSimulatorApp {
                     user_specified_pump_outlet_pressure,
                     current_simulation_time,
                     turbine_omega,
+                    load_resistance,
+                );
 
+            // now let's get the turbine current rpm 
+
+            let turbine_omega: AngularVelocity = 
+                current_fhr_steam_gen_state.steam_turbine.get_omega();
+            let turbine_power: Power = 
+                current_fhr_steam_gen_state.steam_turbine.get_power(
+                    load_resistance,
+                    current_simulation_time,
                 );
             
             if debug {

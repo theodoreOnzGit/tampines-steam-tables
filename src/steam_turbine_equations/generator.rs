@@ -158,13 +158,13 @@ impl ThreePhaseElectricGeneratorTurbine {
     /// sum (cos^2 (omega^t t + b_j))
     pub fn advance_timestep(
         &mut self,
-        source: Torque,
+        torque_source: Torque,
         load_resistance: ElectricalResistance,
         current_time: Time,
         delta_t: Time,
     ){
         let new_angular_velocity = self.calculate_new_angular_velocity(
-            source, load_resistance, current_time, delta_t);
+            torque_source, load_resistance, current_time, delta_t);
 
         self.omega = new_angular_velocity;
     }
