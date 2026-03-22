@@ -60,40 +60,58 @@ impl Widget for TurbineWidget {
         let rect_y = rect.height();
         // we start with rectangles
 
-        let turbine_blade_thickness = rect_x * 0.3;
-        let turbine_radius_mid_blade = rect_y;
+        let turbine_blade_axial_thickness = 0.1 * rect_x;
+        let turbine_max_radius = 0.5*rect_y;
 
 
         let turbine_blade_colour = Color32::GRAY;
 
 
         let turbine_blade_stroke = Stroke::new(
-            turbine_blade_thickness, 
+            turbine_blade_axial_thickness, 
             turbine_blade_colour
         );
 
         let turbine_center: Pos2 = c;
 
-        painter.line_segment(
-            [turbine_center - vec2(-0.20*turbine_blade_thickness, turbine_radius_mid_blade), 
-            turbine_center + vec2(0.20*turbine_blade_thickness, turbine_radius_mid_blade)], 
-            turbine_blade_stroke
-        );
 
         // this is the spinning part
+        //
+        // the rotor ratio is the relative ratio of the blade to the 
+        // axial width of the turbine
         let turbine_rotor_ratio = 0.20;
         let turbine_rotor_stroke = Stroke::new(
-            turbine_blade_thickness * turbine_rotor_ratio, 
+            turbine_blade_axial_thickness * turbine_rotor_ratio, 
             Color32::BLACK
         );
-        let turbine_rotor_stroke_red = Stroke::new(
-            turbine_blade_thickness * turbine_rotor_ratio, 
-            Color32::RED
+        let turbine_rotor_stroke_white = Stroke::new(
+            turbine_blade_axial_thickness * turbine_rotor_ratio, 
+            Color32::WHITE
         );
 
         let turbine_num_blades = 20;
+        let turbine_num_axial_sides = 5;
 
-        let paint_turbine_blade_set = ||{
+        
+        let paint_turbine_blade_set = |set_number: isize|{
+
+
+
+
+            let offset_factor_to_the_right = set_number as f32;
+
+            // first the stroke for the turbine
+            painter.line_segment(
+                [turbine_center - vec2(
+                    -turbine_blade_axial_thickness * offset_factor_to_the_right, 
+                    turbine_max_radius
+                ), 
+                turbine_center + vec2(
+                    turbine_blade_axial_thickness * offset_factor_to_the_right, 
+                    turbine_max_radius
+                )], 
+                turbine_blade_stroke
+            );
             for i in 0..turbine_num_blades {
 
                 let theta_plus_phase_shift = 
@@ -103,12 +121,12 @@ impl Widget for TurbineWidget {
                     ;
 
                 let rotor_mid_position_y: f64 = 
-                    0.4 * turbine_radius_mid_blade as f64 * 
+                    0.9 * turbine_max_radius as f64 * 
                     theta_plus_phase_shift.cos().get::<ratio>();
 
                 let rotor_blade_center: Pos2 = 
                     Pos2 { 
-                        x: turbine_center.x, 
+                        x: turbine_center.x + offset_factor_to_the_right * turbine_blade_axial_thickness, 
                         y: turbine_center.y + rotor_mid_position_y as f32            
                     };
 
@@ -124,25 +142,48 @@ impl Widget for TurbineWidget {
                 //);
                 // only paint moving blades if turbine 
                 if theta_plus_phase_shift.sin() > Ratio::ZERO {
+
+
+
                     painter.line_segment(
-                        [rotor_blade_center - vec2(0.50*turbine_blade_thickness, 10.0), 
-                        rotor_blade_center + vec2(0.50*turbine_blade_thickness, 10.0)], 
+                        [rotor_blade_center - vec2(
+                            0.5*turbine_blade_axial_thickness, 
+                            10.0
+                        ), 
+                        rotor_blade_center + vec2(
+                            0.5*turbine_blade_axial_thickness, 
+                            10.0
+                        )], 
                         turbine_rotor_stroke
                     );
 
                     if i == 10 {
                         painter.line_segment(
-                            [rotor_blade_center - vec2(0.50*turbine_blade_thickness, 10.0), 
-                            rotor_blade_center + vec2(0.50*turbine_blade_thickness, 10.0)], 
-                            turbine_rotor_stroke_red
+                            [rotor_blade_center - vec2(
+                                0.5*turbine_blade_axial_thickness, 
+                                10.0
+                            ), 
+                            rotor_blade_center + vec2(
+                                0.5*turbine_blade_axial_thickness, 
+                                10.0
+                            )], 
+                            turbine_rotor_stroke_white
                         );
 
                     }
                 }
+
+
+                // end of blade painting
             }
         };
 
-        paint_turbine_blade_set();
+        //paint_turbine_blade_set(-1);
+        paint_turbine_blade_set(-2);
+        //for i in -5..=5 {
+        //    paint_turbine_blade_set(i);
+        //}
+
 
         //for i in 0..turbine_num_blades {
 
