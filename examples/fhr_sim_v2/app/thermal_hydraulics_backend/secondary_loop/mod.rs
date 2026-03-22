@@ -218,7 +218,7 @@ impl FHRSimulatorApp {
             turbine_steam_speed - turbine_blade_speed;
 
         let turbine_force: Force = 
-            turbine_power_input/turbine_steam_speed;
+            turbine_power_input/turbine_blade_speed;
 
         // this is just an arbitrary efficiency factor
         // I don't have actual figures, so the efficiency ratios may 
