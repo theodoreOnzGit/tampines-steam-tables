@@ -1213,7 +1213,7 @@ impl FHRSimulatorApp {
                     fhr_state_clone.lock().unwrap().turbine_rpm
                 );
 
-            let load_resistance = ElectricalResistance::new::<kiloohm>(200.0);
+            let load_resistance = ElectricalResistance::new::<kiloohm>(20.0);
             current_fhr_steam_gen_state = 
                 Self::secondary_loop_single_timestep(
                     &mut current_fhr_thermal_hydraulics_state, 
@@ -1227,8 +1227,6 @@ impl FHRSimulatorApp {
 
             // now let's get the turbine current rpm 
 
-            let turbine_omega: AngularVelocity = 
-                current_fhr_steam_gen_state.steam_turbine.get_omega();
             
             if debug {
                 dbg!(&current_fhr_steam_gen_state);

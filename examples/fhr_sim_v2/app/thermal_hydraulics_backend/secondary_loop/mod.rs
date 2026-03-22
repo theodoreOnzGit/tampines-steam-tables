@@ -189,12 +189,15 @@ impl FHRSimulatorApp {
 
         let torque_source: Torque;
         // these are some arbitrary Parameters
+        let turbine_enthalpy_diff = 
+            turbine_outlet_enthalpy - turbine_inlet_enthalpy;
         let pressure_diff = turbine_inlet_pressure - turbine_outlet_pressure;
         let turbine_area = Length::new::<inch>(20.0) * Length::new::<inch>(20.0);
 
         let turbine_force: Force = 0.95 * pressure_diff * turbine_area;
 
         let turbine_radius = Length::new::<meter>(5.0);
+
 
         torque_source = (turbine_force * turbine_radius).into();
 
