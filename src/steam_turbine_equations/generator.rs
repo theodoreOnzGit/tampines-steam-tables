@@ -1,4 +1,3 @@
-use serde::{Deserialize,Serialize};
 use uom::ConstZero;
 use uom::si::angle::degree;
 use uom::si::area::square_meter;
@@ -12,7 +11,7 @@ use uom::si::torque::newton_meter;
 /// respectively
 #[allow(non_snake_case)]
 use uom::si::f64::*;
-#[derive(Debug,Clone, PartialEq,Serialize,Deserialize)]
+#[derive(Debug,Clone, PartialEq)]
 pub struct ThreePhaseElectricGeneratorTurbine {
     /// I
     I: MomentOfInertia,

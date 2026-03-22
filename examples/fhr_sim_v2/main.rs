@@ -210,7 +210,6 @@ pub struct FHRState {
     pub turbine_power_megawatts: f64,
     pub condenser_duty_megawatts: f64,
     pub turbine_rpm: f64,
-    pub turbine: ThreePhaseElectricGeneratorTurbine,
 }
 
 impl Default for FHRState {
@@ -277,8 +276,7 @@ impl Default for FHRState {
             steam_quality_after_turbine: 0.0,
             turbine_power_megawatts: 0.0,
             condenser_duty_megawatts: 0.0,
-            turbine_rpm: 0.0,
-            turbine: ThreePhaseElectricGeneratorTurbine::new_250_megawatt_generator(),
+            turbine_rpm: 10.0,
         }
     }
 }
