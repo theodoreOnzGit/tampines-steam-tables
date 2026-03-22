@@ -223,7 +223,7 @@ impl FHRSimulatorApp {
         // this is just an arbitrary efficiency factor
         // I don't have actual figures, so the efficiency ratios may 
         // be incorrect
-        let efficiency_factor = 0.07;
+        let efficiency_factor = 0.75;
 
 
 
