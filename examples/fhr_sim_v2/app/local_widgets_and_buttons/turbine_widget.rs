@@ -60,7 +60,11 @@ impl Widget for TurbineWidget {
         let rect_y = rect.height();
         // we start with rectangles
 
-        let turbine_blade_axial_thickness = 0.1 * rect_x;
+        let turbine_num_blades = 20;
+        let turbine_num_axial_sides = 5;
+
+        let turbine_blade_axial_thickness = 
+            (2.0 * turbine_num_axial_sides as f32).recip() * rect_x;
         let turbine_max_radius = 0.5*rect_y;
 
 
@@ -89,8 +93,6 @@ impl Widget for TurbineWidget {
             Color32::WHITE
         );
 
-        let turbine_num_blades = 20;
-        let turbine_num_axial_sides = 5;
 
         let turbine_min_radius_pixels: f32 = 
             turbine_max_radius / turbine_num_axial_sides as f32;
@@ -99,40 +101,41 @@ impl Widget for TurbineWidget {
         let paint_turbine_blade_set = |set_number: isize|{
 
             let turbine_radius: f32 = 
-                turbine_min_radius_pixels 
-                * (set_number - 1) as f32;
+                turbine_min_radius_pixels * (set_number - 1).abs() as f32;
 
 
             let offset_factor_to_the_right = set_number as f32;
 
+            let turbine_x_offset = turbine_blade_axial_thickness * offset_factor_to_the_right;
             // first the stroke for the turbine
             painter.line_segment(
                 [turbine_center - vec2(
-                    -turbine_blade_axial_thickness * offset_factor_to_the_right, 
+                    -turbine_x_offset, 
                     turbine_radius
                 ), 
                 turbine_center + vec2(
-                    turbine_blade_axial_thickness * offset_factor_to_the_right, 
+                    turbine_x_offset, 
                     turbine_radius
                 )], 
                 turbine_blade_stroke
             );
             for i in 0..turbine_num_blades {
 
+                // 
                 let theta_plus_phase_shift = 
                     self.get_theta()
                     + 
                     Angle::new::<radian>(i as f64 * (2.0 * PI)/(turbine_num_blades as f64))
                     ;
 
-                let rotor_mid_position_y: f64 = 
+                let rotor_blade_y_offset: f64 = 
                     0.9 * turbine_radius as f64 * 
                     theta_plus_phase_shift.cos().get::<ratio>();
 
                 let rotor_blade_center: Pos2 = 
                     Pos2 { 
-                        x: turbine_center.x + offset_factor_to_the_right * turbine_blade_axial_thickness, 
-                        y: turbine_center.y + rotor_mid_position_y as f32            
+                        x: turbine_center.x + turbine_x_offset, 
+                        y: turbine_center.y + rotor_blade_y_offset as f32            
                     };
 
 
@@ -184,10 +187,10 @@ impl Widget for TurbineWidget {
         };
 
         //paint_turbine_blade_set(-1);
-        paint_turbine_blade_set(-2);
-        //for i in -5..=5 {
-        //    paint_turbine_blade_set(i);
-        //}
+        //paint_turbine_blade_set(-2);
+        for i in -turbine_num_axial_sides..=turbine_num_axial_sides {
+            paint_turbine_blade_set(i);
+        }
 
 
         //for i in 0..turbine_num_blades {
