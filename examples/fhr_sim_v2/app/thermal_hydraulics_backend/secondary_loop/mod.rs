@@ -167,10 +167,6 @@ impl FHRSimulatorApp {
                 turbine_outlet_enthalpy);
 
 
-        let work_done_by_turbine_per_unit_mass = 
-            turbine_inlet_enthalpy - turbine_outlet_enthalpy;
-        let turbine_power: Power = 
-            *user_specified_secondary_loop_mass_flowrate * work_done_by_turbine_per_unit_mass;
 
         // now it goes into the condenser 
         let condenser_inlet_enthalpy = turbine_outlet_enthalpy;
@@ -209,6 +205,10 @@ impl FHRSimulatorApp {
             current_simulation_time, 
             timestep,
         );
+        let turbine_power: Power = 
+            steam_turbine.get_power(load_resistance, current_simulation_time);
+
+        
 
 
 

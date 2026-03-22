@@ -1229,11 +1229,6 @@ impl FHRSimulatorApp {
 
             let turbine_omega: AngularVelocity = 
                 current_fhr_steam_gen_state.steam_turbine.get_omega();
-            let turbine_power: Power = 
-                current_fhr_steam_gen_state.steam_turbine.get_power(
-                    load_resistance,
-                    current_simulation_time,
-                );
             
             if debug {
                 dbg!(&current_fhr_steam_gen_state);
@@ -1424,6 +1419,13 @@ impl FHRSimulatorApp {
                     (
                         current_fhr_steam_gen_state 
                         .steam_quality_after_turbine*1000.0
+                    )/1000.0;
+                fhr_state_lock
+                    .turbine_rpm = 
+                    (
+                        current_fhr_steam_gen_state 
+                        .steam_turbine.get_omega()
+                        .get::<revolution_per_minute>()*1000.0
                     )/1000.0;
                 fhr_state_lock 
                     .turbine_power_megawatts = 
