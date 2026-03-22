@@ -231,6 +231,7 @@ impl FHRSimulatorApp {
         let turbine_power: Power = 
             steam_turbine.get_power(load_resistance, current_simulation_time);
 
+        dbg!(&turbine_power);
         
 
 

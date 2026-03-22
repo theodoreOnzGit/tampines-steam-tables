@@ -1213,7 +1213,7 @@ impl FHRSimulatorApp {
                     fhr_state_clone.lock().unwrap().turbine_rpm
                 );
 
-            let load_resistance = ElectricalResistance::new::<kiloohm>(20.0);
+            let load_resistance = ElectricalResistance::new::<kiloohm>(0.1);
             current_fhr_steam_gen_state = 
                 Self::secondary_loop_single_timestep(
                     &mut current_fhr_thermal_hydraulics_state, 
