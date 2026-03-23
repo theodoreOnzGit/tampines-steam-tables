@@ -169,9 +169,16 @@ impl Widget for TurbineWidget {
 
                 //);
                 // only paint moving blades if turbine 
-                if theta_plus_phase_shift.sin() > Ratio::ZERO && set_number != 0 {
+                if theta_plus_phase_shift.sin() > Ratio::ZERO && set_number > 0 {
 
 
+                    // this is for set_number > 0 
+                    // turbine must spin in such a way that the right hand grip rule 
+                    // points right 
+                    // also, the blades must be pointed in a way consistent with the steam 
+                    // flow 
+                    //
+                    // they are angled downwards
 
                     painter.line_segment(
                         [rotor_blade_center - vec2(
@@ -194,6 +201,46 @@ impl Widget for TurbineWidget {
                             rotor_blade_center + vec2(
                                 0.5*turbine_blade_axial_thickness, 
                                 0.1 * turbine_radius
+                            )], 
+                            turbine_rotor_stroke_white
+                        );
+
+                    }
+                }
+                //
+                if theta_plus_phase_shift.sin() > Ratio::ZERO && set_number < 0 {
+
+
+                    // this is for set_number > 0 
+                    // turbine must spin in such a way that the right hand grip rule 
+                    // points right 
+                    //
+                    // also, the blades must be pointed in a way consistent with the steam 
+                    // flow 
+                    //
+                    // they are angled upwards
+
+                    painter.line_segment(
+                        [rotor_blade_center - vec2(
+                            0.5*turbine_blade_axial_thickness, 
+                            -0.1 * turbine_radius
+                        ), 
+                        rotor_blade_center + vec2(
+                            0.5*turbine_blade_axial_thickness, 
+                            -0.1 * turbine_radius
+                        )], 
+                        turbine_rotor_stroke
+                    );
+
+                    if i == 10 {
+                        painter.line_segment(
+                            [rotor_blade_center - vec2(
+                                0.5*turbine_blade_axial_thickness, 
+                                -0.1 * turbine_radius
+                            ), 
+                            rotor_blade_center + vec2(
+                                0.5*turbine_blade_axial_thickness, 
+                                -0.1 * turbine_radius
                             )], 
                             turbine_rotor_stroke_white
                         );
