@@ -14,7 +14,6 @@ fn main(){
 }
 use std::{sync::{Arc, Mutex}, thread};
 
-use tampines_steam_tables::steam_turbine_equations::ThreePhaseElectricGeneratorTurbine;
 use uom::si::{f64::*, power::kilowatt};
 
 use crate::app::{graph_data::PagePlotData, panel_enum::Panel};

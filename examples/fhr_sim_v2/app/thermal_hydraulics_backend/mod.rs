@@ -33,7 +33,7 @@ use uom::si::f64::*;
 //use uom::si::ratio::ratio;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::ConstZero;
-use uom::si::electrical_resistance::kiloohm;
+use uom::si::electrical_resistance::{kiloohm, ohm};
 
 
 use components::*;
@@ -1213,7 +1213,9 @@ impl FHRSimulatorApp {
                     fhr_state_clone.lock().unwrap().turbine_rpm
                 );
 
-            let load_resistance = ElectricalResistance::new::<kiloohm>(0.1);
+            // note: estimate was AI generated,
+            // need to check
+            let load_resistance = ElectricalResistance::new::<ohm>(1.3);
             current_fhr_steam_gen_state = 
                 Self::secondary_loop_single_timestep(
                     &mut current_fhr_thermal_hydraulics_state, 
