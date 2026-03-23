@@ -1,5 +1,6 @@
 use uom::ConstZero;
 use uom::si::f64::*;
+use uom::si::pressure::{bar, millibar};
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
@@ -299,6 +300,206 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
     return (p2_guess, h2_guess,rho2_guess);
 
 }
+
+macro_rules! function_debug {
+    () => {{
+        fn f() {}
+        fn type_name_of<T>(_: T) -> &'static str {
+            std::any::type_name::<T>()
+        }
+        let name = type_name_of(f);
+        // Gets the function name from the full path
+        name.strip_suffix("::f")
+            .unwrap_or(name)
+            .rsplit("::")
+            .next()
+            .unwrap_or(name)
+    }};
+}
+
+/// given inlet and outlet areas, 
+/// a1 and a2
+/// the inlet conditions, p1, h1, and v1
+/// mass flowrate
+/// one should be able to find iteratively, p2 and h2
+///
+/// these are very simple iterative equations that back-substitute the 
+/// density 
+///
+/// Note: this uses (p,s) equations, so it 
+/// can cover all of the steam table table
+///
+/// For this, we neglect kinetic energy of the inlet
+///
+#[inline]
+pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+    p1: Pressure,
+    h1: AvailableEnergy,
+    mass_flowrate: MassRate,
+    a1: Area,
+    a2: Area,
+    user_set_tolerance: Option<f64>,
+) -> (Pressure, AvailableEnergy, MassDensity) {
+
+    let tolerance: f64;
+    let max_iter: usize = 30;
+    let mut n_iter: usize = 1;
+
+    match user_set_tolerance {
+        Some(mut user_tol) => {
+            if user_tol >= 1.0 {
+                user_tol = 1e-2;
+            }
+            tolerance = user_tol;
+        },
+        None => {
+            tolerance = 1e-2;
+        },
+    }
+
+    // now let's get the thermodynamic state 
+
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    let state_1: TampinesSteamTableCV = 
+        TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
+
+    let rho1: MassDensity = state_1.get_specific_volume().recip();
+    let s1: SpecificHeatCapacity = state_1.get_specific_entropy();
+    // note: this is isentropic, hence s2 = s1;
+    let s2 = s1;
+    let v1: Velocity = mass_flowrate/rho1/a1;
+
+    let p1a1: Force = p1*a1;
+    // left hand side of momentum balance
+    //
+    // P1 A1 + dot{m}^2/{rho1 a1}
+    let lhs: Force = p1a1 + mass_flowrate * v1;
+    // we expect expansion, so density decreases
+    let mut rho2_guess: MassDensity = rho1 * 0.9;
+    let mut p2_upper_bound = p1;
+    // don't expect turbine exhaust to be 
+    // lower than condenser pressure on a good day, 0.04 bar
+    let mut p2_lower_bound = Pressure::new::<bar>(0.01);
+
+    // with these two bounds, let's calculate the signs
+
+    fn lhs_minus_rhs_greater_than_zero(
+        lhs: Force,
+        p2: Pressure,
+        s2: SpecificHeatCapacity,
+        mass_flowrate: MassRate,
+        a2: Area,) -> bool {
+
+        let p2a2 = p2 * a2;
+        let rho2 = v_ps_eqm(p2, s2).recip();
+        let rhs: Force = p2a2 + mass_flowrate * mass_flowrate/rho2/a2;
+
+        if lhs > rhs {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    let p2_upper_bound_positive = 
+        lhs_minus_rhs_greater_than_zero(
+            lhs, p2_upper_bound, s2, mass_flowrate, a2
+        );
+    let p2_lower_bound_positive = 
+        lhs_minus_rhs_greater_than_zero(
+            lhs, p2_lower_bound, s2, mass_flowrate, a2
+        );
+
+    if p2_lower_bound_positive && p2_upper_bound_positive ||
+    !p2_lower_bound_positive && !p2_upper_bound_positive {
+        dbg!("Error in {}: ", function_debug!());
+        panic!("no sign chg, bisection algorithm won't work");
+    };
+
+
+
+    let mut p2a2: Force;
+
+
+    // initial guess for p2
+    let mut p2_guess: Pressure = 0.5*p2_upper_bound;
+    let mut force_residual = 1.0;
+
+    // now we are ready to loop 
+
+    while force_residual > tolerance {
+
+        // first let's guess p2 
+        p2a2 = p2_guess * a2;
+        // we take rho2 based on s2 and p2 
+        rho2_guess = v_ps_eqm(p2_guess, s2).recip();
+        let v2_guess: Velocity = mass_flowrate/rho2_guess/a2;
+
+        let rhs: Force  = p2a2 + v2_guess * mass_flowrate;
+
+        let root: Force = lhs - rhs;
+
+        if root > Force::ZERO {
+            // this is lhs > rhs,
+
+            if p2_upper_bound_positive {
+                // if p2 upper bound is positive, then 
+                // we move the upper bound lower
+                p2_upper_bound = 
+                    0.5 * p2_upper_bound
+                    + 0.5 * p2_lower_bound;
+
+            } else {
+                // if p2 lower bound is positive, then 
+                // we move the lower bound higher
+                p2_lower_bound = 
+                    0.5 * p2_upper_bound
+                    + 0.5 * p2_lower_bound;
+
+            }
+
+        } else {
+
+            // this is rhs > lhs
+            if p2_lower_bound_positive {
+                // if p2 lower bound is positive, then 
+                // we move the upper bound lower
+                p2_upper_bound = 
+                    0.5 * p2_upper_bound
+                    + 0.5 * p2_lower_bound;
+
+            } else {
+                // if p2 upper bound is positive, then 
+                // we move the lower bound higher
+                p2_lower_bound = 
+                    0.5 * p2_upper_bound
+                    + 0.5 * p2_lower_bound;
+
+            }
+
+        }
+
+        p2_guess = 0.5 * p2_upper_bound + 0.5 * p2_lower_bound;
+
+        force_residual = ((lhs - rhs)/lhs).get::<ratio>();
+
+        n_iter += 1;
+
+        if n_iter > max_iter {
+            break
+        };
+
+
+    };
+    let rho2 = rho2_guess;
+    let v2: Velocity = mass_flowrate/rho2/a2;
+    let h2 = h1 - 0.5* v2*v2;
+
+    return (p2_guess, h2,rho2);
+
+}
+
+
 
 #[cfg(test)]
 mod nozzles_test {
