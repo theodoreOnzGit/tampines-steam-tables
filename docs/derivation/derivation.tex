@@ -1068,6 +1068,32 @@ Or,
 	\right)
 \end{equation*}
 
+
+\begin{equation*}
+	P_1 A_1 +  
+	\frac{\dot{m}^2}{\rho_1 A_1} 
+	= 
+	P_{2} A_2 +
+	\frac{\dot{m}^2}{\rho_2 A_2}
+\end{equation*}
+
+From this, the right hand side is unknown, the left hand side is known.
+
+The algorithm can be as follows: 
+
+\begin{enumerate}
+	\item Find out thermodynamic state entropy $s_1$ using $h_1, p_1$
+	\item $s_2 = s_1$ for isentropic valve
+	\item guess $p$ using a bisection algorithm with bounds between $P_1$ and $0$ Pa
+	\item calculate $\rho_2$ and substitute 
+	\item calculate residual 
+	\item repeat until suitable $P_2$ is found
+	\item escape outside iteration loop
+	\item calculate $v_2$ using mass balance 
+	\item calculate $h_2$ using energy balance 
+\end{enumerate}
+
+
 \subsubsection{Reaction Turbines}
 
 Reaction Turbines lose pressure both within the stator and the rotor.
