@@ -292,7 +292,7 @@ Agromayor \citep{agromayor2019preliminary}:
 
 
 \begin{equation*}
-	h_{in} + 0.5 w^2_{in} = h_{out} + 0.5 w^2_{out}
+	h_{in} + 0.5 v^2_{in} = h_{out} + 0.5 v^2_{out}
 \end{equation*}
 
 In steam turbines specifically, kinetic energy cannot 
@@ -998,6 +998,75 @@ Also note:
 $k_b = 
 v_\text{nozzle inlet next stage}/
 v_\text{nozzle outlet last stage}$
+
+\subsubsection{Simplified P-S Algorithm for Stator - Rotor}
+
+Now, I note I have been experiencing bugs, in that previously, when 
+(p,s) and (h,s) algorithms are used, the equations did not converge 
+satisfactorily. The nozzle equations became such that entropy  
+decreased rather than stayed the same. And instead of pressure dropping,
+it also increase in a most peculiar manner, much to my frustration.
+
+One way is to opt for simpler equations. One where we neglect kinetic 
+energy of inlet. In doing so, we leave the energy out of 
+the iteration algorithm.
+
+\paragraph{stator nozzle}
+
+We noted before that:
+\begin{equation*}
+	\left( h + 0.5 v^2 \right)_1 = 
+	\left( h + 0.5 v^2 \right)_2
+\end{equation*}
+
+In some derivations, we simplified things by neglecting kinetic 
+energy of the steam initially, relative to enthalpy drop as 
+is done \href{https://www.gcoeara.ac.in/learning_material/mech/UNIT_III_Steam_Turbine1.pdf}{here}:
+
+\begin{equation*}
+	h_1 = 
+	h_2 + 0.5 v^2_2 
+\end{equation*}
+
+\begin{equation*}
+	h_{inlet} = 
+	h_{outlet} + 0.5 v^2_{outlet} 
+\end{equation*}
+
+Now, the momentum balance is:
+\begin{equation*}
+	\frac{P_1 A_1 - P_{2} A_2}{\dot{m}} =  \left( 
+		\frac{\rho_1 A_1 }{\rho_{2}  A_2} - 1
+	\right)
+	v_1
+\end{equation*}
+
+Noting again:
+
+\begin{equation*}
+	\rho_1 A_1 v_1 = \rho_2 A_2 v_2
+\end{equation*}
+
+We can derive:
+
+\begin{equation*}
+	\frac{P_1 A_1 - P_{2} A_2}{\dot{m}} =  \left( 
+		\frac{\rho_1 A_1 }{\rho_{2}  A_2} - 1
+	\right)
+	\frac{\dot{m}_1}{\rho_1 A_1}
+\end{equation*}
+\begin{equation*}
+	\frac{P_1 A_1 - P_{2} A_2}{\dot{m}^2} =  \left( 
+		\frac{1}{\rho_{2}  A_2} - \frac{1}{\rho_1 A_1}
+	\right)
+\end{equation*}
+
+Or, 
+\begin{equation*}
+	P_1 A_1 - P_{2} A_2 = \dot{m}^2 \left( 
+		\frac{1}{\rho_{2}  A_2} - \frac{1}{\rho_1 A_1}
+	\right)
+\end{equation*}
 
 \subsubsection{Reaction Turbines}
 
