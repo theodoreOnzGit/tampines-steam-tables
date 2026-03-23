@@ -1,6 +1,6 @@
 use uom::si::f64::*;
 
-use crate::dynamic_viscosity::mu_ph_eqm;
+use crate::{dynamic_viscosity::mu_ph_eqm, prelude::functional_programming::ph_flash_eqm::w_ph_eqm};
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
     pub fn get_pressure(&self) -> Pressure {
@@ -44,6 +44,16 @@ impl super::TampinesSteamTableCV {
         let h = self.specific_enthalpy;
 
         return mu_ph_eqm(p, h);
+    }
+
+
+    /// returns speed of sound 
+    /// important for compressible flow in turbine 
+    pub fn get_speed_of_sound(&self) -> Velocity {
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+
+        return w_ph_eqm(p, h);
     }
 }
 
