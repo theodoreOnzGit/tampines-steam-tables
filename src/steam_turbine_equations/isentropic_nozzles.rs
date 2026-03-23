@@ -481,7 +481,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
 
         p2_guess = 0.5 * p2_upper_bound + 0.5 * p2_lower_bound;
 
-        force_residual = ((lhs - rhs)/lhs).get::<ratio>();
+        force_residual = ((lhs - rhs)/lhs).get::<ratio>().abs();
 
         n_iter += 1;
 
