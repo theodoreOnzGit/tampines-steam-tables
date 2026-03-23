@@ -40,12 +40,17 @@ impl ThreePhaseElectricGeneratorTurbine {
 
     pub fn new_250_megawatt_generator() -> Self {
 
+        // For 250 MW Steam Turbine-Generator Set with STIFF shaft
+        // (AI Generated)
         let B = MagneticFluxDensity::new::<tesla>(1.0);
-        let A = Area::new::<square_meter>(1.0);
-        let N: usize = 250;
-        let I = MomentOfInertia::new::<kilogram_square_meter>(100_000.0);
+        let A = Area::new::<square_meter>(0.65);
+        let N: usize = 70;
+        let I = MomentOfInertia::new::<kilogram_square_meter>(530_000.0);  // Combined!
         let eta = Ratio::new::<ratio>(0.98);
         let omega = AngularVelocity::ZERO;
+
+        // No need for K_shaft or D_shaft
+        // Optional: system damping coefficient D_system ≈ 30,000 N·m·s/rad
 
         return Self {
             I,
