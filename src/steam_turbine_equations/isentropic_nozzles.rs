@@ -499,6 +499,17 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
 
 }
 
+pub fn force_balance_nozzle(
+    p1: Pressure,
+    h1: AvailableEnergy,
+    mass_flowrate: MassRate,
+    a1: Area,
+    a2: Area,
+    user_set_tolerance: Option<f64>,
+    ){
+
+}
+
 
 
 #[cfg(test)]
