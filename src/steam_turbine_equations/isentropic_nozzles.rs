@@ -412,7 +412,15 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
 
     if p2_lower_bound_positive && p2_upper_bound_positive ||
     !p2_lower_bound_positive && !p2_upper_bound_positive {
-        dbg!("Error in {}: ", function_debug!());
+        dbg!("Error in isentropic nozzle bisection: ", function_debug!());
+        dbg!(&(p2_lower_bound, p2_upper_bound));
+        let force_bal_lower_bound = 
+            force_balance_isentropic_nozzle(
+                p1, p2_lower_bound, h1, mass_flowrate, a1, a2);
+        let force_bal_upper_bound = 
+            force_balance_isentropic_nozzle(
+                p1, p2_upper_bound, h1, mass_flowrate, a1, a2);
+        dbg!(&(force_bal_lower_bound,force_bal_upper_bound));
         panic!("no sign chg, bisection algorithm won't work");
     };
 
