@@ -772,7 +772,6 @@ mod isentropic_vibe_coded_nozzles_test {
 #[cfg(test)]
 mod nozzle_tests {
     use super::*;
-    use uom::si::f64::*;
     use uom::si::pressure::bar;
     use uom::si::available_energy::joule_per_kilogram;
     use uom::si::mass_rate::kilogram_per_second;

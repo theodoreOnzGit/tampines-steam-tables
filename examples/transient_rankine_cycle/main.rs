@@ -35,10 +35,11 @@ pub fn isnentropic_nozzle_tests(){
     // now let's plot a trend of isentropic nozzles 
 
     println!("{:?}",&("oulet pressure (Bar)","force bal(Newton)"));
+    let mut p2 = p1;
     let n = 100;
     for i in 0..n {
 
-        let p2 = (n as f64 - i as f64)/(n as f64) * p1;
+        p2 = (n as f64 - i as f64)/(n as f64) * p1;
 
         let force_bal: Force = 
             force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2);
@@ -47,9 +48,24 @@ pub fn isnentropic_nozzle_tests(){
 
     }
 
-    let p2 = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
-        p1, h1, mass_flowrate, a1, a2, Option::None
-    );
+    // let's also check the lower bound pressures
+    // below the first 100 points
+    for i in 0..n {
+
+        p2 = (1_f64)/(n as f64) * p1;
+        p2 *= (n-i) as f64 / (n as f64);
+
+
+        let force_bal: Force = 
+            force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2);
+
+        println!("{:?}",&(p2.get::<bar>(),force_bal.get::<newton>()));
+
+    }
+
+    //let p2 = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+    //    p1, h1, mass_flowrate, a1, a2, Option::None
+    //);
 }
 
 
