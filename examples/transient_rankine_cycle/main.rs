@@ -35,12 +35,12 @@ pub fn isnentropic_nozzle_tests(){
 
 
     // next, IP Turbine
-    println!("\n=== IP Turbine Nozzle ===");
         
     print_graph_pts_for_outlet_pressure_and_force_balance(
         p1, h1, a1, a2, mass_flowrate
     );
 
+    println!("\n=== IP Turbine Nozzle ===");
     // Inlet conditions (after HP turbine and reheater)
     let p1 = Pressure::new::<bar>(40.0);  // 40 bar
     let h1 = AvailableEnergy::new::<joule_per_kilogram>(3_400_000.0);  // Reheated to ~540°C
