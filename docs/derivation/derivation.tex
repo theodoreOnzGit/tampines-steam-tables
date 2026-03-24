@@ -1093,6 +1093,58 @@ The algorithm can be as follows:
 	\item calculate $h_2$ using energy balance 
 \end{enumerate}
 
+Now, with this algorithm, I tried a bisection root finding algorithm 
+and was running into problems with root finding for the following equation:
+
+\begin{equation*}
+	P_1 A_1 +  
+	\frac{\dot{m}^2}{\rho_1 A_1} 
+	-
+	P_{2} A_2 +
+	\frac{\dot{m}^2}{\rho_2 A_2}
+	= 0
+\end{equation*}
+
+I was getting problems at step 3-6 as the bisection algorithm requires 
+that the equation should yield a negative and positive value. However, 
+for cases where there are no roots, or more than one root, or where the 
+bounds for pressure are chosen poorly, the force balance equation can 
+yield both positive or negative values.
+
+If we define LHS and RHS to be the left hand side and right hand side 
+of this force balance:
+
+\begin{equation*}
+	P_1 A_1 +  
+	\frac{\dot{m}^2}{\rho_1 A_1} 
+	= 
+	P_{2} A_2 +
+	\frac{\dot{m}^2}{\rho_2 A_2}
+\end{equation*}
+
+If we plot LHS - RHS for various inlet pressures using Rust, we get
+if plotting against the outlet pressure, figure 
+\ref{fig:force-balance-diagram}:
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{./figures/force_balance_isentropic_nozzles.png}
+	\caption{Force Balance Diagram}
+	\label{fig:force-balance-diagram}
+\end{figure}
+
+Noting the shape of this curve in figure~\ref{fig:force-balance-diagram}, 
+for various pressures, there are usually two roots. The shape of the curve
+is similar for all. Not quite a parabola, but like an upside down quartic 
+curve.
+
+For this, it looks like a Newton Raphson algorithm may work, at least for a first 
+guess. Then perform some sort of crawling until proper bisection can be 
+performed. So it's a hybrid of Newton Raphson and bisection.
+
+
+
 
 \subsubsection{Reaction Turbines}
 
