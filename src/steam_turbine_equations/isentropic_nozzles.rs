@@ -499,14 +499,36 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
 
 }
 
-pub fn force_balance_nozzle(
+pub fn force_balance_isentropic_nozzle(
     p1: Pressure,
+    p2: Pressure,
     h1: AvailableEnergy,
     mass_flowrate: MassRate,
     a1: Area,
     a2: Area,
-    user_set_tolerance: Option<f64>,
-    ){
+    ) -> Force {
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    let state_1: TampinesSteamTableCV = 
+        TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
+
+    let rho1: MassDensity = state_1.get_specific_volume().recip();
+    let s1: SpecificHeatCapacity = state_1.get_specific_entropy();
+    // note: this is isentropic, hence s2 = s1;
+    let s2 = s1;
+    let v1: Velocity = mass_flowrate/rho1/a1;
+
+    let p1a1: Force = p1*a1;
+    // left hand side of momentum balance
+    //
+    // P1 A1 + dot{m}^2/{rho1 a1}
+    let lhs: Force = p1a1 + mass_flowrate * v1;
+
+    // if we have p2, we can get the second thermodynamic state
+    let p2a2 = p2 * a2;
+    let rho2 = v_ps_eqm(p2, s2).recip();
+    let rhs: Force = p2a2 + mass_flowrate * mass_flowrate/rho2/a2;
+
+    return lhs-rhs;
 
 }
 
