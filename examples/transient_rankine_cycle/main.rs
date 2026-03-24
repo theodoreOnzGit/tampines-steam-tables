@@ -34,10 +34,11 @@ pub fn isnentropic_nozzle_tests(){
 
     // now let's plot a trend of isentropic nozzles 
 
-    println!("{:?}",&("oulet pressure (Pa)","force bal(Newton)"));
-    for i in 0..100 {
+    println!("{:?}",&("oulet pressure (Bar)","force bal(Newton)"));
+    let n = 100;
+    for i in 0..n {
 
-        let p2 = (100.0 - i as f64)/100.0 * p1;
+        let p2 = (n as f64 - i as f64)/(n as f64) * p1;
 
         let force_bal: Force = 
             force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2);
