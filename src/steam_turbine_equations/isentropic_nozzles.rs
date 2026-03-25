@@ -1,6 +1,7 @@
 use uom::ConstZero;
 use uom::si::f64::*;
-use uom::si::pressure::{bar, millibar};
+use uom::si::force::newton;
+use uom::si::pressure::{bar, millibar, pascal};
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
@@ -379,109 +380,45 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
     let mut p2_upper_bound = p1;
     // don't expect turbine exhaust to be 
     // lower than condenser pressure on a good day, 0.04 bar
-    let mut p2_lower_bound = Pressure::new::<bar>(0.01);
+    let mut p2_lower_bound = Pressure::new::<bar>(0.03);
 
-    // first part is a newton raphson method
-    let dp: Pressure = (p2_upper_bound - p2_lower_bound) * 1e-3;
+    let mut p2_guess: Pressure = p2_upper_bound;
+    // now this part is to determine better upper and lower bounds
+    //
+    // I'm going to bring the upper bound down first
 
-    #[inline]
-    fn rhs(p2: Pressure,
-        a2: Area,
-        s2: SpecificHeatCapacity,
-        mass_flowrate: MassRate,) -> Force {
+    let n = 20;
+    for i in 0..n {
 
-        let p2a2: Force = p2*a2;
-        let rho2 = v_ps_eqm(p2, s2).recip();
+        p2_guess = (n as f64 - i as f64)/(n as f64) * p1;
 
-        let v2: Velocity = mass_flowrate/rho2/a2;
+        let force_bal: Force = 
+            force_balance_isentropic_nozzle(
+                p1, p2_guess, 
+                h1, mass_flowrate, a1, a2
+            );
 
-        return p2a2 + mass_flowrate * v2;
+        // usually, based on shape of the graph, force balance is below 
+        // 0 
+        // for upper bound for such nozzles 
 
-    }
-    // with these two bounds, let's calculate the signs
-
-    #[inline]
-    fn lhs_minus_rhs_greater_than_zero(
-        lhs: Force,
-        p2: Pressure,
-        s2: SpecificHeatCapacity,
-        mass_flowrate: MassRate,
-        a2: Area,) -> bool {
-
-        let rhs = rhs(p2, a2, s2, mass_flowrate);
-
-        if lhs > rhs {
-            return true;
+        if force_bal < Force::ZERO {
+            p2_upper_bound = p2_guess;
         } else {
-            return false;
-        }
-    }
+            // if force balance is positive, the lower bound becomes the 
+            // p2_guess 
+            p2_lower_bound = p2_guess;
 
-    // this was started with manual coding, and finished 
-    // with vibe coding
-    #[inline]
-    fn newton_raphson_2_bounds(
-        lhs: Force,
-        p1: Pressure,
-        h1: AvailableEnergy,
-        a1: Area,
-        mut p2_upper_bound: Pressure,
-        mut p2_lower_bound: Pressure,
-        dp: Pressure,
-        mass_flowrate: MassRate,
-        a2: Area,
-        s2: SpecificHeatCapacity,
-        max_iterations: usize,
-    ) -> (Pressure, Pressure) {
+            break;
+            // break out of this cycle
 
-        for _ in 0..max_iterations {
-            // Calculate gradient using finite difference
-            p2_lower_bound = p2_upper_bound - dp;
-            let gradient = (rhs(p2_upper_bound, a2, s2, mass_flowrate) -
-                rhs(p2_lower_bound, a2, s2, mass_flowrate)) / dp;
-
-            // Calculate force balance at upper bound
-            let force_bal_p2_upper_bound = 
-                lhs - rhs(p2_upper_bound, a2, s2, mass_flowrate);
-
-            // Newton-Raphson step
-            let delta_p: Pressure = -force_bal_p2_upper_bound / gradient;
-            let p2_guess = delta_p + p2_upper_bound;
-
-            // Calculate force balance at guess
-            let force_bal_p2_guess = 
-                force_balance_isentropic_nozzle(
-                    p1, p2_guess, h1, mass_flowrate, a1, a2
-                );
-
-            // Update bounds based on sign comparison
-            if force_bal_p2_guess.signum() == force_bal_p2_upper_bound.signum() {
-                // Same sign: guess becomes new upper bound
-                p2_upper_bound = p2_guess;
-            } else {
-                // Different sign: guess becomes new lower bound
-                p2_lower_bound = p2_guess;
-                // Root is bracketed, we can return
-                return (p2_lower_bound, p2_upper_bound);
-            }
-
-            // Check if bounds are close enough
-            if (p2_upper_bound - p2_lower_bound).abs() < dp * 0.1 {
-                return (p2_lower_bound, p2_upper_bound);
-            }
         }
 
-        // Return the best bounds found
-        (p2_lower_bound, p2_upper_bound)
-    }
-    
+        println!("{:?}",&(p2_guess.get::<bar>(),force_bal.get::<newton>()));
 
-    (p2_lower_bound,p2_upper_bound) = 
-        newton_raphson_2_bounds(
-            lhs, p1, h1, a1, p2_upper_bound, 
-            p2_lower_bound, dp, mass_flowrate, 
-            a2, s2, max_iter
-        );
+    }
+
+
 
 
 
@@ -489,7 +426,6 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
 
 
     // initial guess for p2
-    let mut p2_guess: Pressure = 0.5*p2_upper_bound;
     let mut force_residual = 1.0;
 
     // now we are ready to loop 
