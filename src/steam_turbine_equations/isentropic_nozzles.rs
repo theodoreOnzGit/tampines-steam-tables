@@ -302,21 +302,6 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo(
 
 }
 
-macro_rules! function_debug {
-    () => {{
-        fn f() {}
-        fn type_name_of<T>(_: T) -> &'static str {
-            std::any::type_name::<T>()
-        }
-        let name = type_name_of(f);
-        // Gets the function name from the full path
-        name.strip_suffix("::f")
-            .unwrap_or(name)
-            .rsplit("::")
-            .next()
-            .unwrap_or(name)
-    }};
-}
 
 /// given inlet and outlet areas, 
 /// a1 and a2
