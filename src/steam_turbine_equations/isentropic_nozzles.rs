@@ -418,6 +418,10 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
 
     }
 
+    // after all this, p2_guess should be midpoint of upper and lower bound 
+
+    p2_guess = 0.5 * p2_upper_bound + 0.5 * p2_lower_bound;
+
 
 
 
