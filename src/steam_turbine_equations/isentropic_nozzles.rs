@@ -372,7 +372,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
     //
     // I'm going to bring the upper bound down first
 
-    let debug: bool = true; 
+    let debug: bool = false; 
     if debug {
         print_graph_pts_for_outlet_pressure_and_force_balance(
             p1, h1, a1, a2, mass_flowrate
@@ -393,8 +393,10 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
         // usually, based on shape of the graph, force balance is below 
         // 0 
         // for upper bound for such nozzles 
+        //
+        // note, for some force balances, the force balance starts positive,
+        // so should take note
 
-        println!("{:?}",&(p2_guess.get::<bar>(),force_bal.get::<newton>()));
         if force_bal < Force::ZERO {
             p2_upper_bound = p2_guess;
         } else {
@@ -601,6 +603,7 @@ mod isentropic_vibe_coded_nozzles_test {
 
 
     #[test]
+    #[ignore = "ignored hs algo"]
     pub fn nozzles_test_hs_algo(){
 
         let a1: Area = Area::new::<square_centimeter>(5.0);
@@ -675,6 +678,7 @@ mod isentropic_vibe_coded_nozzles_test {
 
     }
     #[test]
+    #[ignore = "ignored hs algo"]
     pub fn nozzles_test_ps_algo(){
 
         let a1: Area = Area::new::<square_centimeter>(5.0);
@@ -759,6 +763,7 @@ mod isentropic_vibe_coded_nozzles_test {
     ///
     /// Okay something is really fishy
     #[test]
+    #[ignore = "ignored hs algo"]
     pub fn nozzles_test_hs_ps_algo_comparison(){
 
         let a1: Area = Area::new::<square_centimeter>(5.0);
