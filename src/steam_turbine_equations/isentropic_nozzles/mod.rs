@@ -6,9 +6,11 @@ use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
 use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
-use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
+use crate::prelude::functional_programming::ph_flash_eqm::{s_ph_eqm, w_ph_eqm};
 use crate::prelude::functional_programming::ps_flash_eqm::{h_ps_eqm, v_ps_eqm};
 use crate::prelude::{TampinesSteamTableCV};
+
+pub mod choked_flow_vibe_code;
 
 /// basically the same code, but returns only p2 and h2
 ///
@@ -326,26 +328,17 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
     a2: Area,
     user_set_tolerance: Option<f64>,
 ) -> (Pressure, AvailableEnergy, MassDensity, Velocity) {
-
-    let tolerance: f64;
-    let max_iter: usize = 30;
-    let mut n_iter: usize = 1;
-
-    match user_set_tolerance {
+    let tol_force: f64 = match user_set_tolerance {
         Some(mut user_tol) => {
-            if user_tol >= 1.0 {
-                user_tol = 1e-2;
-            }
-            tolerance = user_tol;
-        },
-        None => {
-            tolerance = 1e-2;
-        },
-    }
+            if user_tol >= 1.0 { user_tol = 1e-2; }
+            user_tol
+        }
+        None => 1e-2,
+    };
 
-    // now let's get the thermodynamic state 
+    let max_iter_bisect: usize = 60;
 
-        // --- Inlet state ---
+    // --- Inlet state ---
     let ref_vol = Volume::new::<cubic_meter>(1.0);
     let state_1: TampinesSteamTableCV = TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
 
@@ -354,98 +347,117 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
     let s2 = s1; // isentropic
     let v1: Velocity = mass_flowrate / rho1 / a1;
 
-    // --- Bracket p2 for bisection on f(p2) = force_balance_isentropic_nozzle(...) ---
-    // You must end up with f(low)*f(high) < 0.
-    let mut p_low: Pressure = Pressure::new::<bar>(0.03);
-    let mut p_high: Pressure = p1;
+    // --- Define search interval for p2 ---
+    let p_min: Pressure = Pressure::new::<bar>(0.03);
+    let p_max: Pressure = p1;
 
-    let mut f_low: Force =
-        force_balance_isentropic_nozzle(p1, p_low, h1, mass_flowrate, a1, a2);
-    let mut f_high: Force =
-        force_balance_isentropic_nozzle(p1, p_high, h1, mass_flowrate, a1, a2);
+    // --- Helper: force balance f(p2) ---
+    let f = |p2: Pressure| -> Force {
+        force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2)
+    };
 
-    // If not bracketed, try to find a bracket by scanning from p1 downward.
-    // (This avoids your previous non-guaranteed bound logic.)
-    if (f_low > Force::ZERO) == (f_high > Force::ZERO) {
-        let n_scan: usize = 60;
-        let mut found = false;
+    // --- 1) Find ALL sign-change brackets in [p_min, p_max] ---
+    // Increase n_scan if you suspect multiple roots and narrow features.
+    let n_scan: usize = 200;
 
-        for i in 1..=n_scan {
-            // Candidate between p1 and p_low (log or linear; linear here)
-            let frac = 1.0 - (i as f64) / (n_scan as f64); // goes 0.983.. -> 0.0
-            let p_cand = p_low + frac * (p1 - p_low);
+    let mut brackets: Vec<(Pressure, Pressure)> = Vec::new();
 
-            let f_cand: Force =
-                force_balance_isentropic_nozzle(p1, p_cand, h1, mass_flowrate, a1, a2);
+    let mut p_prev = p_min;
+    let mut f_prev = f(p_prev);
 
-            // Look for sign change between (p_cand, p_high)
-            if (f_cand > Force::ZERO) != (f_high > Force::ZERO) {
-                p_low = p_cand;
-                f_low = f_cand;
-                found = true;
+    for i in 1..=n_scan {
+        let frac = (i as f64) / (n_scan as f64);
+        let p_curr = p_min + frac * (p_max - p_min);
+        let f_curr = f(p_curr);
+
+        // Strict sign change => bracket a root in [p_prev, p_curr]
+        if (f_prev > Force::ZERO) != (f_curr > Force::ZERO) {
+            brackets.push((p_prev, p_curr));
+        }
+
+        p_prev = p_curr;
+        f_prev = f_curr;
+    }
+
+    if brackets.is_empty() {
+        panic!("No root found for force balance in the scanned interval.");
+    }
+
+    // --- Helper: bisection solver on one bracket ---
+    let bisect = |mut p_low: Pressure, mut p_high: Pressure| -> Pressure {
+        let mut f_low = f(p_low);
+        let mut f_high = f(p_high);
+
+        // Safety: must be bracketed
+        if (f_low > Force::ZERO) == (f_high > Force::ZERO) {
+            // fallback to midpoint (shouldn't happen if bracket came from sign change)
+            return 0.5 * (p_low + p_high);
+        }
+
+        let mut p_mid = 0.5 * (p_low + p_high);
+        let mut f_mid = f(p_mid);
+
+        for _ in 0..max_iter_bisect {
+            let rel_resid: f64 = (f_mid / (p1 * a1)).get::<ratio>().abs();
+            if rel_resid <= tol_force {
                 break;
             }
 
-            // Or between (p_low, p_cand)
-            if (f_low > Force::ZERO) != (f_cand > Force::ZERO) {
-                p_high = p_cand;
-                f_high = f_cand;
-                found = true;
-                break;
+            if (f_low > Force::ZERO) == (f_mid > Force::ZERO) {
+                p_low = p_mid;
+                f_low = f_mid;
+            } else {
+                p_high = p_mid;
+                f_high = f_mid;
+            }
+
+            p_mid = 0.5 * (p_low + p_high);
+            f_mid = f(p_mid);
+        }
+
+        p_mid
+    };
+
+    // --- 2) Solve each bracket, compute energy/continuity mismatch, pick best ---
+    let tol_v_mismatch = Ratio::new::<ratio>(1e-3);
+
+    let mut best: Option<(Pressure, AvailableEnergy, MassDensity, Velocity, Ratio)> = None;
+
+    for (p_low, p_high) in brackets {
+        let p2 = bisect(p_low, p_high);
+
+        let rho2: MassDensity = v_ps_eqm(p2, s2).recip();
+        let h2: AvailableEnergy = h_ps_eqm(p2, s2);
+
+        // velocity from energy
+        let v2_e: Velocity = (v1 * v1 + 2.0 * (h1 - h2)).sqrt();
+
+        // velocity from continuity
+        let v2_c: Velocity = mass_flowrate / rho2 / a2;
+
+        let mismatch: Ratio = ((v2_e - v2_c) / v2_e).abs();
+
+        match best {
+            None => best = Some((p2, h2, rho2, v2_e, mismatch)),
+            Some((_bp, _bh, _br, _bv, best_m)) => {
+                if mismatch < best_m {
+                    best = Some((p2, h2, rho2, v2_e, mismatch));
+                }
             }
         }
-
-        if !found {
-            // No bracket => bisection cannot proceed safely.
-            // You may want to return Result<> instead of panic in production.
-            panic!("Could not bracket outlet pressure p2: force balance has same sign at bounds.");
-        }
     }
 
-    // --- Bisection loop ---
-    let mut p_mid: Pressure = 0.5 * (p_low + p_high);
-    let mut f_mid: Force =
-        force_balance_isentropic_nozzle(p1, p_mid, h1, mass_flowrate, a1, a2);
+    let (p2, h2, rho2, v2, mismatch) = best.expect("Internal error: best root missing");
 
-    let mut iter: usize = 0;
-    loop {
-        iter += 1;
-
-        // Relative residual (dimensionless)
-        let rel_resid: f64 = (f_mid / (p1 * a1)).get::<ratio>().abs();
-        if rel_resid <= tolerance || iter >= max_iter {
-            break;
-        }
-
-        // Standard bisection update:
-        // keep the sub-interval where the sign change occurs.
-        if (f_low > Force::ZERO) == (f_mid > Force::ZERO) {
-            p_low = p_mid;
-            f_low = f_mid;
-        } else {
-            p_high = p_mid;
-            f_high = f_mid;
-        }
-
-        p_mid = 0.5 * (p_low + p_high);
-        f_mid = force_balance_isentropic_nozzle(p1, p_mid, h1, mass_flowrate, a1, a2);
+    // --- 3) Enforce your requirement: if mismatch too large, "other root" didn't help ---
+    if mismatch > tol_v_mismatch {
+        panic!(
+            "Found force-balance root(s), but none satisfy energy/continuity. Best mismatch = {:?}",
+            mismatch
+        );
     }
-
-    let p2: Pressure = p_mid;
-
-    // --- Exit state from (p,s) ---
-    let rho2: MassDensity = v_ps_eqm(p2, s2).recip();
-    let h2: AvailableEnergy = h_ps_eqm(p2, s2);
-
-    // --- Exit velocity from energy equation (isentropic nozzle energy balance) ---
-    // v2 = sqrt(v1^2 + 2(h1 - h2))
-    let v2: Velocity = (v1 * v1 + 2.0 * (h1 - h2)).sqrt();
-
-    // Optional consistency check (continuity velocity used in momentum closure):
-    // let v2_cont: Velocity = mass_flowrate / rho2 / a2;
 
     (p2, h2, rho2, v2)
-
 }
 
 #[inline]
@@ -1197,4 +1209,6 @@ mod nozzle_tests {
     }
 
 }
+
+
 

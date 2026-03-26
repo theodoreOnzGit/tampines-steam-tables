@@ -1,3 +1,5 @@
+/// equations for isentropic nozzles, including choked flow 
+/// at sonic speeds
 pub mod isentropic_nozzles;
 pub use isentropic_nozzles::*;
 
