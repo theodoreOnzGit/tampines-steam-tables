@@ -7,7 +7,7 @@ use uom::si::volume::cubic_meter;
 
 use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
-use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
+use crate::prelude::functional_programming::ps_flash_eqm::{h_ps_eqm, v_ps_eqm};
 use crate::prelude::{TampinesSteamTableCV};
 
 /// basically the same code, but returns only p2 and h2
@@ -325,7 +325,7 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
     a1: Area,
     a2: Area,
     user_set_tolerance: Option<f64>,
-) -> (Pressure, AvailableEnergy, MassDensity) {
+) -> (Pressure, AvailableEnergy, MassDensity, Velocity) {
 
     let tolerance: f64;
     let max_iter: usize = 30;
@@ -345,167 +345,106 @@ pub fn get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
 
     // now let's get the thermodynamic state 
 
+        // --- Inlet state ---
     let ref_vol = Volume::new::<cubic_meter>(1.0);
-    let state_1: TampinesSteamTableCV = 
-        TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
+    let state_1: TampinesSteamTableCV = TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
 
     let rho1: MassDensity = state_1.get_specific_volume().recip();
     let s1: SpecificHeatCapacity = state_1.get_specific_entropy();
-    // note: this is isentropic, hence s2 = s1;
-    let s2 = s1;
-    let v1: Velocity = mass_flowrate/rho1/a1;
+    let s2 = s1; // isentropic
+    let v1: Velocity = mass_flowrate / rho1 / a1;
 
-    let p1a1: Force = p1*a1;
-    // left hand side of momentum balance
-    //
-    // P1 A1 + dot{m}^2/{rho1 a1}
-    let lhs: Force = p1a1 + mass_flowrate * v1;
-    // we expect expansion, so density decreases
-    let mut rho2_guess: MassDensity = rho1;
-    let mut p2_upper_bound = p1;
-    // don't expect turbine exhaust to be 
-    // lower than condenser pressure on a good day, 0.04 bar
-    let mut p2_lower_bound = Pressure::new::<bar>(0.03);
+    // --- Bracket p2 for bisection on f(p2) = force_balance_isentropic_nozzle(...) ---
+    // You must end up with f(low)*f(high) < 0.
+    let mut p_low: Pressure = Pressure::new::<bar>(0.03);
+    let mut p_high: Pressure = p1;
 
-    let mut p2_guess: Pressure = p2_upper_bound;
-    // now this part is to determine better upper and lower bounds
-    //
-    // I'm going to bring the upper bound down first
+    let mut f_low: Force =
+        force_balance_isentropic_nozzle(p1, p_low, h1, mass_flowrate, a1, a2);
+    let mut f_high: Force =
+        force_balance_isentropic_nozzle(p1, p_high, h1, mass_flowrate, a1, a2);
 
-    let debug: bool = false; 
-    if debug {
-        print_graph_pts_for_outlet_pressure_and_force_balance(
-            p1, h1, a1, a2, mass_flowrate
-        );
+    // If not bracketed, try to find a bracket by scanning from p1 downward.
+    // (This avoids your previous non-guaranteed bound logic.)
+    if (f_low > Force::ZERO) == (f_high > Force::ZERO) {
+        let n_scan: usize = 60;
+        let mut found = false;
+
+        for i in 1..=n_scan {
+            // Candidate between p1 and p_low (log or linear; linear here)
+            let frac = 1.0 - (i as f64) / (n_scan as f64); // goes 0.983.. -> 0.0
+            let p_cand = p_low + frac * (p1 - p_low);
+
+            let f_cand: Force =
+                force_balance_isentropic_nozzle(p1, p_cand, h1, mass_flowrate, a1, a2);
+
+            // Look for sign change between (p_cand, p_high)
+            if (f_cand > Force::ZERO) != (f_high > Force::ZERO) {
+                p_low = p_cand;
+                f_low = f_cand;
+                found = true;
+                break;
+            }
+
+            // Or between (p_low, p_cand)
+            if (f_low > Force::ZERO) != (f_cand > Force::ZERO) {
+                p_high = p_cand;
+                f_high = f_cand;
+                found = true;
+                break;
+            }
+        }
+
+        if !found {
+            // No bracket => bisection cannot proceed safely.
+            // You may want to return Result<> instead of panic in production.
+            panic!("Could not bracket outlet pressure p2: force balance has same sign at bounds.");
+        }
     }
 
-    let n = 20;
-    for i in 0..n {
+    // --- Bisection loop ---
+    let mut p_mid: Pressure = 0.5 * (p_low + p_high);
+    let mut f_mid: Force =
+        force_balance_isentropic_nozzle(p1, p_mid, h1, mass_flowrate, a1, a2);
 
-        p2_guess = (n as f64 - i as f64)/(n as f64) * p1;
+    let mut iter: usize = 0;
+    loop {
+        iter += 1;
 
-        let force_bal: Force = 
-            force_balance_isentropic_nozzle(
-                p1, p2_guess, 
-                h1, mass_flowrate, a1, a2
-            );
-
-        // usually, based on shape of the graph, force balance is below 
-        // 0 
-        // for upper bound for such nozzles 
-        //
-        // note, for some force balances, the force balance starts positive,
-        // so should take note
-
-        if force_bal < Force::ZERO {
-            p2_upper_bound = p2_guess;
-        } else {
-            // if force balance is positive, the lower bound becomes the 
-            // p2_guess 
-            p2_lower_bound = p2_guess;
-
+        // Relative residual (dimensionless)
+        let rel_resid: f64 = (f_mid / (p1 * a1)).get::<ratio>().abs();
+        if rel_resid <= tolerance || iter >= max_iter {
             break;
-            // break out of this cycle
-
         }
 
+        // Standard bisection update:
+        // keep the sub-interval where the sign change occurs.
+        if (f_low > Force::ZERO) == (f_mid > Force::ZERO) {
+            p_low = p_mid;
+            f_low = f_mid;
+        } else {
+            p_high = p_mid;
+            f_high = f_mid;
+        }
 
+        p_mid = 0.5 * (p_low + p_high);
+        f_mid = force_balance_isentropic_nozzle(p1, p_mid, h1, mass_flowrate, a1, a2);
     }
 
-    // after all this, p2_guess should be midpoint of upper and lower bound 
+    let p2: Pressure = p_mid;
 
-    p2_guess = 0.5 * p2_upper_bound + 0.5 * p2_lower_bound;
+    // --- Exit state from (p,s) ---
+    let rho2: MassDensity = v_ps_eqm(p2, s2).recip();
+    let h2: AvailableEnergy = h_ps_eqm(p2, s2);
 
+    // --- Exit velocity from energy equation (isentropic nozzle energy balance) ---
+    // v2 = sqrt(v1^2 + 2(h1 - h2))
+    let v2: Velocity = (v1 * v1 + 2.0 * (h1 - h2)).sqrt();
 
+    // Optional consistency check (continuity velocity used in momentum closure):
+    // let v2_cont: Velocity = mass_flowrate / rho2 / a2;
 
-
-
-    let mut p2a2: Force;
-
-
-    // initial guess for p2
-    let mut force_residual = 1.0;
-
-    // now we are ready to loop 
-
-    while force_residual > tolerance {
-
-        // first let's guess p2 
-        p2a2 = p2_guess * a2;
-        // we take rho2 based on s2 and p2 
-        rho2_guess = v_ps_eqm(p2_guess, s2).recip();
-        let v2_guess: Velocity = mass_flowrate/rho2_guess/a2;
-
-        let rhs: Force  = p2a2 + v2_guess * mass_flowrate;
-
-        let root: Force = lhs - rhs;
-
-        let p2_lower_bound_positive = 
-            force_balance_isentropic_nozzle(
-                p1, p2_lower_bound, h1, mass_flowrate, a1, a2
-            ).is_sign_positive();
-        let p2_upper_bound_positive = 
-            force_balance_isentropic_nozzle(
-                p1, p2_upper_bound, h1, mass_flowrate, a1, a2
-            ).is_sign_positive();
-
-        if root > Force::ZERO {
-            // this is lhs > rhs,
-
-            if p2_upper_bound_positive {
-                // if p2 upper bound is positive, then 
-                // we move the upper bound lower
-                p2_upper_bound = 
-                    0.5 * p2_upper_bound
-                    + 0.5 * p2_lower_bound;
-
-            } else {
-                // if p2 lower bound is positive, then 
-                // we move the lower bound higher
-                p2_lower_bound = 
-                    0.5 * p2_upper_bound
-                    + 0.5 * p2_lower_bound;
-
-            }
-
-        } else {
-
-            // this is rhs > lhs
-            if p2_lower_bound_positive {
-                // if p2 lower bound is positive, then 
-                // we move the upper bound lower
-                p2_upper_bound = 
-                    0.5 * p2_upper_bound
-                    + 0.5 * p2_lower_bound;
-
-            } else {
-                // if p2 upper bound is positive, then 
-                // we move the lower bound higher
-                p2_lower_bound = 
-                    0.5 * p2_upper_bound
-                    + 0.5 * p2_lower_bound;
-
-            }
-
-        }
-
-        p2_guess = 0.5 * p2_upper_bound + 0.5 * p2_lower_bound;
-
-        force_residual = ((lhs - rhs)/lhs).get::<ratio>().abs();
-
-        n_iter += 1;
-
-        if n_iter > max_iter {
-            break
-        };
-
-
-    };
-    let rho2 = rho2_guess;
-    let v2: Velocity = mass_flowrate/rho2/a2;
-    let h2 = h1 + 0.5*v1*v1 - 0.5*v2*v2;
-
-    return (p2_guess, h2,rho2);
+    (p2, h2, rho2, v2)
 
 }
 
@@ -846,12 +785,12 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(0.15);  // Inlet area
         let a2 = Area::new::<square_meter>(0.20);  // Outlet area (diverging)
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
         // Calculate outlet conditions
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         let expansion_ratio = p1 / p2;
         
         println!("Inlet:  P1 = {:.1} bar, h1 = {:.1} kJ/kg", 
@@ -887,11 +826,11 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(0.30);
         let a2 = Area::new::<square_meter>(0.40);
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         
         println!("Inlet:  P1 = {:.1} bar, h1 = {:.1} kJ/kg", 
             p1.get::<bar>(), h1.get::<joule_per_kilogram>() / 1e3);
@@ -920,11 +859,11 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(2.0);
         let a2 = Area::new::<square_meter>(3.5);  // Large expansion
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         
         println!("Inlet:  P1 = {:.3} bar, h1 = {:.1} kJ/kg", 
             p1.get::<bar>(), h1.get::<joule_per_kilogram>() / 1e3);
@@ -954,11 +893,11 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(0.10);
         let a2 = Area::new::<square_meter>(0.05);
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         
         println!("Inlet:  P1 = {:.1} bar, A1 = {:.3} m²", 
             p1.get::<bar>(), a1.get::<square_meter>());
@@ -983,11 +922,11 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(0.08);
         let a2 = Area::new::<square_meter>(0.50);  // 6.25:1 area ratio
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-5)
         );
         
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         let expansion_ratio = p1 / p2;
         
         println!("Inlet:  P1 = {:.1} bar", p1.get::<bar>());
@@ -1015,11 +954,11 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(0.08);
         let a2 = Area::new::<square_meter>(0.12);
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         
         println!("Partial load operation:");
         println!("Mass flow: {:.1} kg/s", mass_flowrate.get::<kilogram_per_second>());
@@ -1043,11 +982,11 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(3.0);
         let a2 = Area::new::<square_meter>(5.0);
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         
         println!("Wet steam expansion:");
         println!("P1 = {:.3} bar → P2 = {:.3} bar", 
@@ -1076,11 +1015,11 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(0.15);
         let a2 = Area::new::<square_meter>(0.08);  // Throat (smallest area)
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
-        let v2 = mass_flowrate / rho2 / a2;
+        //let v2 = mass_flowrate / rho2 / a2;
         let pressure_ratio = p2 / p1;
         
         println!("Choked flow analysis:");
@@ -1113,11 +1052,11 @@ mod nozzle_tests {
         let a_throat = Area::new::<square_meter>(0.05);  // Throat area (a1)
         let a_exit = Area::new::<square_meter>(0.15);    // Exit area (a2) - 3:1 expansion
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a_throat, a_exit, Some(1e-5)
         );
         
-        let v2 = mass_flowrate / rho2 / a_exit;
+        //let v2 = mass_flowrate / rho2 / a_exit;
         
         // Estimate speed of sound (rough approximation for steam)
         // a = sqrt(gamma * R * T), for steam ~400-500 m/s depending on conditions
@@ -1153,7 +1092,7 @@ mod nozzle_tests {
         println!("\n--- Stage 1: HP First Nozzle ---");
         let p1_stage1 = Pressure::new::<bar>(160.0);
         let h1_stage1 = AvailableEnergy::new::<joule_per_kilogram>(3_450_000.0);
-        let (p2_stage1, h2_stage1, rho2_stage1) = 
+        let (p2_stage1, h2_stage1, rho2_stage1, v2_stage1) = 
             get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
                 p1_stage1, h1_stage1, mass_flowrate,
                 Area::new::<square_meter>(0.15),
@@ -1168,7 +1107,7 @@ mod nozzle_tests {
         
         // Stage 2: HP Turbine second nozzle (uses stage 1 outlet)
         println!("\n--- Stage 2: HP Second Nozzle ---");
-        let (p2_stage2, h2_stage2, rho2_stage2) = 
+        let (p2_stage2, h2_stage2, rho2_stage2, v2_stage2) = 
             get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
                 p2_stage1, h2_stage1, mass_flowrate,
                 Area::new::<square_meter>(0.25),
@@ -1184,7 +1123,7 @@ mod nozzle_tests {
         // Stage 3: IP Turbine nozzle (after reheater)
         println!("\n--- Stage 3: IP Nozzle (after reheat) ---");
         let h1_stage3 = AvailableEnergy::new::<joule_per_kilogram>(3_400_000.0);  // Reheated
-        let (p2_stage3, h2_stage3, rho2_stage3) = 
+        let (p2_stage3, h2_stage3, rho2_stage3, v2_stage3) = 
             get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
                 p2_stage2, h1_stage3, mass_flowrate,
                 Area::new::<square_meter>(0.40),
@@ -1221,7 +1160,7 @@ mod nozzle_tests {
         let a1 = Area::new::<square_meter>(5.0);
         let a2 = Area::new::<square_meter>(8.0);
         
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-4)
         );
         
@@ -1246,7 +1185,7 @@ mod nozzle_tests {
         let a2 = Area::new::<square_meter>(0.18);
         
         // Test with very tight tolerance
-        let (p2, h2, rho2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
+        let (p2, h2, rho2, v2) = get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified(
             p1, h1, mass_flowrate, a1, a2, Some(1e-6)  // Very tight!
         );
         

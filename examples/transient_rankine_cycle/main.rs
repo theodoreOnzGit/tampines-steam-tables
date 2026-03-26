@@ -6,6 +6,8 @@ fn main(){
 
 
 }
+use tampines_steam_tables::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
+use tampines_steam_tables::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use tampines_steam_tables::steam_turbine_equations::{force_balance_isentropic_nozzle, get_isentropic_nozzles_outlet_ph_rho_point_ps_algo_simplified};
 use uom::si::force::newton;
 use uom::si::pressure::{bar, pascal};
@@ -40,6 +42,14 @@ pub fn isnentropic_nozzle_tests(){
         p1, h1, a1, a2, mass_flowrate
     );
 
+    let s1 = s_ph_eqm(p1, h1);
+    let h2 = h_ps_eqm(Pressure::new::<bar>(120.0), s1);
+
+    println!("\n h1 and h2 post expansion");
+    dbg!(&(h1,h2));
+
+
+
     println!("\n=== IP Turbine Nozzle ===");
     // Inlet conditions (after HP turbine and reheater)
     let p1 = Pressure::new::<bar>(40.0);  // 40 bar
@@ -71,6 +81,19 @@ pub fn isnentropic_nozzle_tests(){
         p1, h1, a1, a2, mass_flowrate
     );
 
+    println!("\n=== Supersonic Converging-Diverging Nozzle ===");
+    let p1 = Pressure::new::<bar>(80.0);
+    let h1 = AvailableEnergy::new::<joule_per_kilogram>(3_300_000.0);
+    let mass_flowrate = MassRate::new::<kilogram_per_second>(120.0);
+
+    // Converging-diverging (de Laval nozzle)
+    // This models the DIVERGING section after the throat
+    let a_throat = Area::new::<square_meter>(0.05);  // Throat area (a1)
+    let a_exit = Area::new::<square_meter>(0.15);    // Exit area (a2) - 3:1 expansion
+
+    print_graph_pts_for_outlet_pressure_and_force_balance(
+        p1, h1, a_throat, a_exit, mass_flowrate
+    );
 }
 
 pub fn print_graph_pts_for_outlet_pressure_and_force_balance(
