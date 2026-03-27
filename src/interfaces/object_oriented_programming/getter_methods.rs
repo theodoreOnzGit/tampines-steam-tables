@@ -1,4 +1,4 @@
-use uom::si::f64::*;
+use uom::si::{f64::*, ratio::ratio};
 
 use crate::{dynamic_viscosity::mu_ph_eqm, prelude::functional_programming::ph_flash_eqm::{cp_ph_eqm, cv_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, w_ph_eqm}};
 impl super::TampinesSteamTableCV {
@@ -98,6 +98,32 @@ impl super::TampinesSteamTableCV {
         let h = self.specific_enthalpy;
 
         lambda_ph_eqm(p, h)
+    }
+
+    /// returns critical pressure ratio for choked flow 
+    /// ie to accelerate the flow to Mach 1
+    ///
+    /// P*/P0 = (2/(k+1))^(k/(k-1))
+    pub fn get_critical_pressure_ratio(&self) -> Ratio {
+        
+        let k = self.get_specific_heat_ratio();
+
+        let ratio_one = Ratio::new::<ratio>(1.0);
+
+        let k_plus_one = k + ratio_one;
+
+        let k_minus_one = k - ratio_one;
+
+        let exponent: f64 = (k/k_minus_one).get::<ratio>();
+        let coeff: f64 = (2.0/k_plus_one).get::<ratio>();
+
+        let ratio_value = coeff.powf(exponent);
+
+
+
+
+        Ratio::new::<ratio>(ratio_value)
+
     }
 }
 
