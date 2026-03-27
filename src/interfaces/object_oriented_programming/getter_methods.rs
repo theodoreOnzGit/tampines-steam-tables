@@ -104,7 +104,9 @@ impl super::TampinesSteamTableCV {
     /// ie to accelerate the flow to Mach 1
     ///
     /// P*/P0 = (2/(k+1))^(k/(k-1))
-    pub fn get_critical_pressure_ratio(&self) -> Ratio {
+    ///
+    /// This is under ideal gas assumption (may not work)
+    pub fn get_critical_pressure_ratio_ideal_gas(&self) -> Ratio {
         
         let k = self.get_specific_heat_ratio();
 
