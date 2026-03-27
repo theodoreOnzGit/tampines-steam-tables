@@ -1,6 +1,6 @@
 use uom::si::f64::*;
 
-use crate::{dynamic_viscosity::mu_ph_eqm, prelude::functional_programming::ph_flash_eqm::w_ph_eqm};
+use crate::{dynamic_viscosity::mu_ph_eqm, prelude::functional_programming::ph_flash_eqm::{cp_ph_eqm, cv_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, w_ph_eqm}};
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
     pub fn get_pressure(&self) -> Pressure {
@@ -54,6 +54,50 @@ impl super::TampinesSteamTableCV {
         let h = self.specific_enthalpy;
 
         return w_ph_eqm(p, h);
+    }
+
+    /// get mach number 
+    pub fn get_mach_number(&self, v: Velocity) -> Ratio {
+
+        v/self.get_speed_of_sound()
+    }
+
+    /// returns the specific heat ratio cp/cv of steam 
+    pub fn get_specific_heat_ratio(&self) -> Ratio {
+
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+
+        let cp = cp_ph_eqm(p, h);
+        let cv = cv_ph_eqm(p, h);
+
+        cp/cv
+    }
+
+    /// returns cp 
+    pub fn get_cp(&self) -> SpecificHeatCapacity {
+
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+
+        cp_ph_eqm(p, h)
+    }
+    /// returns cv
+    pub fn get_cv(&self) -> SpecificHeatCapacity {
+
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+
+        cv_ph_eqm(p, h)
+    }
+
+    /// returns thermal thermal_conductivity of steam 
+    pub fn get_thermal_conductivity(&self) -> ThermalConductivity {
+
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+
+        lambda_ph_eqm(p, h)
     }
 }
 
