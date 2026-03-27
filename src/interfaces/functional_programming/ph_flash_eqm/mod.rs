@@ -415,12 +415,70 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
             let w_liq = w_tp_1(t_sat, p);
             let w_vap = w_tp_2(t_sat, p);
 
-            let w = steam_quality * w_vap + (1.0 - steam_quality) * w_liq;
 
-            w
+            let rho_liq = v_tp_1(t_sat, p).recip();  // You'll need these functions
+            let rho_vap = v_tp_2(t_sat, p).recip();  // or calculate from v_tp functions
+
+            // Use homogeneous equilibrium model
+            w_two_phase_homogeneous(
+                Ratio::new::<ratio>(steam_quality)
+                , w_liq, w_vap, rho_liq, rho_vap
+            )
         },
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
+}
+
+/// Returns the speed of sound in a two-phase mixture using the 
+/// homogeneous equilibrium model
+///
+/// This model assumes:
+/// - Thermal and mechanical equilibrium between phases
+/// - No slip between liquid and vapor phases
+/// - Isentropic process
+///
+/// Formula: w_mix = sqrt(1 / (rho_mix * ((x/(rho_g * w_g^2)) + ((1-x)/(rho_f * w_f^2)))))
+///
+/// where:
+/// - x = steam quality (vapor mass fraction)
+/// - rho_g = vapor density
+/// - rho_f = liquid density
+/// - w_g = speed of sound in vapor
+/// - w_f = speed of sound in liquid
+/// - rho_mix = mixture density = 1/((x/rho_g) + ((1-x)/rho_f))
+pub fn w_two_phase_homogeneous(
+    steam_quality: Ratio,
+    w_liq: Velocity,
+    w_vap: Velocity,
+    rho_liq: MassDensity,
+    rho_vap: MassDensity,
+) -> Velocity {
+    
+    let x = steam_quality.get::<ratio>();
+    let one_minus_x = 1.0 - x;
+    
+    // Get raw values for calculation
+    let w_f = w_liq;
+    let w_g = w_vap;
+    let rho_f = rho_liq;
+    let rho_g = rho_vap;
+    
+    // Calculate mixture density
+    // rho_mix = 1 / ((x/rho_g) + ((1-x)/rho_f))
+    let specific_volume_mix = (x / rho_g) + (one_minus_x / rho_f);
+    let rho_mix = 1.0 / specific_volume_mix;
+    
+    // Calculate compressibility term
+    // ((x/(rho_g * w_g^2)) + ((1-x)/(rho_f * w_f^2)))
+    let compressibility_term = (x / (rho_g * w_g * w_g)) 
+                              + (one_minus_x / (rho_f * w_f * w_f));
+    
+    // Calculate mixture speed of sound
+    // w_mix = sqrt(1 / (rho_mix * compressibility_term))
+    let w_mix_squared = 1.0 / (rho_mix * compressibility_term);
+    let w_mix = w_mix_squared.sqrt();
+    
+    w_mix
 }
 
 
