@@ -233,5 +233,9 @@ impl super::TampinesSteamTableCV {
         // Return midpoint if not converged
         (p_low + p_high) / 2.0
     }
+
+    pub fn get_rho(&self) -> MassDensity {
+        self.get_specific_volume().recip()
+    }
 }
 
