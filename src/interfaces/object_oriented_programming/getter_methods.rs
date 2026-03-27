@@ -1,6 +1,6 @@
-use uom::si::{f64::*, ratio::ratio};
+use uom::{ConstZero, si::{f64::*, pressure::pascal, ratio::ratio}};
 
-use crate::{dynamic_viscosity::mu_ph_eqm, prelude::functional_programming::ph_flash_eqm::{cp_ph_eqm, cv_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, w_ph_eqm}};
+use crate::{dynamic_viscosity::mu_ph_eqm, prelude::functional_programming::{ph_flash_eqm::{cp_ph_eqm, cv_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, s_ph_eqm, w_ph_eqm}, ps_flash_eqm::h_ps_eqm}};
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
     pub fn get_pressure(&self) -> Pressure {
@@ -126,6 +126,104 @@ impl super::TampinesSteamTableCV {
 
         Ratio::new::<ratio>(ratio_value)
 
+    }
+
+    /// Returns critical pressure ratio for choked flow using isentropic relations
+    /// This accounts for real gas behavior of steam
+    ///
+    /// The critical pressure P* is found where the flow reaches Mach 1 during
+    /// isentropic expansion from stagnation conditions (P0, h0)
+    pub fn get_critical_pressure_ratio(&self) -> Ratio {
+        let p0 = self.pressure;
+
+        // Find critical pressure where Mach = 1
+        // This requires iterative solution
+        let p_star = self.find_critical_pressure_isentropic();
+
+        p_star / p0
+    }
+
+    /// Finds the pressure where Mach number = 1 during isentropic expansion
+    fn find_critical_pressure_isentropic(&self) -> Pressure {
+
+        let ideal_gas_critical_pressure_ratio = 
+            self.get_critical_pressure_ratio_ideal_gas();
+
+        let p0 = self.pressure;
+        let s0 = self.specific_entropy;
+        let h0 = self.specific_enthalpy;
+        // Initial guess: use ideal gas approximation as starting point
+        let p_guess = p0 * ideal_gas_critical_pressure_ratio; 
+        // ~(2/(k+1))^(k/(k-1)) for k≈1.3
+
+
+        // Newton-Raphson or bisection to find where:
+        // v = w (velocity equals speed of sound)
+        //
+        // From energy equation: h0 = h + v²/2
+        // At critical point: v = w, so: h0 = h + w²/2
+
+        let tolerance = Pressure::new::<pascal>(1.0); // 1 Pa tolerance
+        let max_iterations = 50;
+
+        // Bisection method bounds
+        // Set bounds around the ideal gas guess (±30% to be safe)
+        // This reduces iterations compared to starting at 0.1*p0 to 1.0*p0
+        let mut p_low = p_guess * 0.7;   // 30% below guess
+        let mut p_high = p_guess * 1.3;  // 30% above guess
+
+        // Clamp bounds to reasonable range
+        if p_low < p0 * 0.1 {
+            p_low = p0 * 0.1;
+        }
+        if p_high > p0 * 0.99 {
+            p_high = p0 * 0.99;
+        }
+
+
+        for _ in 0..max_iterations {
+            let p_mid = (p_low + p_high) / 2.0;
+
+            // Get properties at this pressure (isentropic)
+            let h_mid = h_ps_eqm(p_mid, s0);
+            let w_mid = w_ph_eqm(p_mid, h_mid);
+
+            // Calculate velocity from energy equation
+            // h0 = h + v²/2  =>  v = sqrt(2*(h0 - h))
+            let delta_h = h0 - h_mid;
+
+            if delta_h < AvailableEnergy::ZERO {
+                // Pressure too low, expansion exceeded stagnation enthalpy
+                p_low = p_mid;
+                continue;
+            }
+
+            let v_squared = 2.0 * delta_h;
+            let v = v_squared.sqrt();
+
+            // Check if Mach = 1 (v = w)
+            let mach = v / w_mid;
+            let mach_value = mach.get::<ratio>();
+
+            if (mach_value - 1.0).abs() < 0.0001 {
+                return p_mid;
+            }
+
+            // Adjust bounds
+            if mach_value < 1.0 {
+                p_high = p_mid; // Need lower pressure (more expansion)
+            } else {
+                p_low = p_mid;  // Need higher pressure (less expansion)
+            }
+
+            // Check convergence
+            if (p_high - p_low) < tolerance {
+                return (p_low + p_high) / 2.0;
+            }
+        }
+
+        // Return midpoint if not converged
+        (p_low + p_high) / 2.0
     }
 }
 
