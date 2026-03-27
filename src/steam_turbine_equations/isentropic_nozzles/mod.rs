@@ -56,3 +56,28 @@ pub fn get_dv_isentropic_nozzle_diffuser(
     dv
 
 }
+
+/// Returns both pressure and velocity changes for isentropic nozzle/diffuser
+/// More efficient than calling get_dp and get_dv separately
+pub fn get_dp_dv_isentropic_nozzle_diffuser(
+    a1: Area,
+    a2: Area,
+    p1: Pressure,
+    h1: AvailableEnergy,
+    v1: Velocity) -> (Pressure, Velocity) {
+
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    let state_1 = TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
+    let rho1: MassDensity = state_1.get_rho();
+    let mach_number_at_inlet: Ratio = state_1.get_mach_number(v1);
+    let m_squared = mach_number_at_inlet * mach_number_at_inlet;
+    let ratio_one = Ratio::new::<ratio>(1.0);
+    
+    let da_over_a = (a2 - a1) / a1;
+    let denominator = ratio_one - m_squared;
+    
+    let dp = da_over_a * (rho1 * v1 * v1) / denominator;
+    let dv = -da_over_a * v1 / denominator;
+    
+    (dp, dv)
+}
