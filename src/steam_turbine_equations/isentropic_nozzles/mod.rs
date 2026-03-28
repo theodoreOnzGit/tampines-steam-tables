@@ -82,8 +82,13 @@ pub fn get_dp_dv_isentropic_nozzle_diffuser(
     (dp, dv)
 }
 
-/// given a step size, obtain the outlet pressure, velocity and 
-/// enthalpy of the system
+/// Given a step size, obtain the outlet pressure, velocity and 
+/// enthalpy of the system using incremental quasi-1D analysis
+///
+/// da_by_a_max: Maximum fractional area change per step (e.g., 0.05 for 5%)
+///              Should be small to maintain accuracy of differential relations
+///
+/// note: written originally, used AI to check
 pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
     a1: Area,
     a2: Area,
@@ -92,53 +97,72 @@ pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
     v1: Velocity,
     da_by_a_max: Ratio) -> (Pressure, Velocity, AvailableEnergy) {
 
-    // this process is isentropic, hence obtain the entropy
+    // This process is isentropic, hence obtain the entropy
     let s1 = s_ph_eqm(p1, h1);
 
-    let da_by_a_total: Ratio = (a1-a2)/a1;
+    // Total fractional area change needed
+    let da_by_a_total: Ratio = (a2 - a1) / a1;  
+    
+    // Track remaining area change (use absolute value for comparison)
+    let mut da_by_a_remaining = da_by_a_total.abs();
+    
+    // Determine sign of area change
+    let area_change_sign: f64 = if da_by_a_total >= Ratio::ZERO { 
+        1.0 
+    } else { 
+        -1.0 
+    };
 
-    let mut da_by_a_remaining = da_by_a_total;
-
-    // set some parameters 
+    // Set initial parameters 
     let mut area_before = a1;
-    let mut da_by_a = da_by_a_max;
-
-
-    if da_by_a >= da_by_a_remaining {
-        da_by_a = da_by_a_remaining;
-    }
-
-    let mut area_after = area_before + area_before * da_by_a_max;
     let mut p_intermediate = p1;
     let mut h_intermediate = h1;
     let mut v_intermediate = v1;
 
-    while da_by_a_remaining >= Ratio::ZERO {
+    // Tolerance for convergence
+    let tolerance = Ratio::new::<ratio>(1e-6);
 
+    while da_by_a_remaining > tolerance {
+        
+        // Determine step size for this iteration
+        let da_by_a_step = if da_by_a_max < da_by_a_remaining {
+            da_by_a_max
+        } else {
+            da_by_a_remaining
+        };
+        
+        // Apply sign to step
+        let da_by_a_signed = Ratio::new::<ratio>(
+            da_by_a_step.get::<ratio>() * area_change_sign
+        );
+        
+        // Calculate area after this step
+        let area_after = area_before * (Ratio::new::<ratio>(1.0) + da_by_a_signed);
+
+        // Get pressure and velocity changes
         let (dp, dv) = get_dp_dv_isentropic_nozzle_diffuser(
-            area_before, area_after, p_intermediate, h_intermediate, v_intermediate
+            area_before, 
+            area_after, 
+            p_intermediate, 
+            h_intermediate, 
+            v_intermediate
         );
 
-        // reset the parameters 
-        p_intermediate += dp;
-        v_intermediate += dv;
-
-        if da_by_a >= da_by_a_remaining {
-            da_by_a = da_by_a_remaining;
-        }
-
-        area_before = area_after;
-        area_after = area_after + area_after * da_by_a;
+        // Update state
+        p_intermediate = p_intermediate + dp;
+        v_intermediate = v_intermediate + dv;
         h_intermediate = h_ps_eqm(p_intermediate, s1);
-
-        da_by_a_remaining -= da_by_a;
+        
+        // Move to next step
+        area_before = area_after;
+        da_by_a_remaining = da_by_a_remaining - da_by_a_step;
     }
 
     let p2 = p_intermediate;
     let h2 = h_intermediate;
     let v2 = v_intermediate;
 
-    return (p2, v2, h2);
+    (p2, v2, h2)
 }
 
 
