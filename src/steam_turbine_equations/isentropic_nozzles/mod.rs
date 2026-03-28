@@ -81,3 +81,64 @@ pub fn get_dp_dv_isentropic_nozzle_diffuser(
     
     (dp, dv)
 }
+
+/// given a step size, obtain the outlet pressure, velocity and 
+/// enthalpy of the system
+pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
+    a1: Area,
+    a2: Area,
+    p1: Pressure,
+    h1: AvailableEnergy,
+    v1: Velocity,
+    da_by_a_max: Ratio) -> (Pressure, Velocity, AvailableEnergy) {
+
+    // this process is isentropic, hence obtain the entropy
+    let s1 = s_ph_eqm(p1, h1);
+
+    let da_by_a_total: Ratio = (a1-a2)/a1;
+
+    let mut da_by_a_remaining = da_by_a_total;
+
+    // set some parameters 
+    let mut area_before = a1;
+    let mut da_by_a = da_by_a_max;
+
+
+    if da_by_a >= da_by_a_remaining {
+        da_by_a = da_by_a_remaining;
+    }
+
+    let mut area_after = area_before + area_before * da_by_a_max;
+    let mut p_intermediate = p1;
+    let mut h_intermediate = h1;
+    let mut v_intermediate = v1;
+
+    while da_by_a_remaining >= Ratio::ZERO {
+
+        let (dp, dv) = get_dp_dv_isentropic_nozzle_diffuser(
+            area_before, area_after, p_intermediate, h_intermediate, v_intermediate
+        );
+
+        // reset the parameters 
+        p_intermediate += dp;
+        v_intermediate += dv;
+
+        if da_by_a >= da_by_a_remaining {
+            da_by_a = da_by_a_remaining;
+        }
+
+        area_before = area_after;
+        area_after = area_after + area_after * da_by_a;
+        h_intermediate = h_ps_eqm(p_intermediate, s1);
+
+        da_by_a_remaining -= da_by_a;
+    }
+
+    let p2 = p_intermediate;
+    let h2 = h_intermediate;
+    let v2 = v_intermediate;
+
+    return (p2, v2, h2);
+}
+
+
