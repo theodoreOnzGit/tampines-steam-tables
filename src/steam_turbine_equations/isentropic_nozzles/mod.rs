@@ -1,14 +1,14 @@
 use uom::ConstZero;
 use uom::si::f64::*;
-use uom::si::force::newton;
-use uom::si::pressure::{bar, millibar, pascal};
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
-use crate::prelude::functional_programming::hs_flash_eqm::v_hs_eqm;
-use crate::prelude::functional_programming::ph_flash_eqm::{s_ph_eqm, w_ph_eqm};
-use crate::prelude::functional_programming::ps_flash_eqm::{h_ps_eqm, v_ps_eqm};
+use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
+use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
+
+#[cfg(test)]
+mod tests;
 
 
 // for isentropic/adiabatic diffusers/nozzles, we follow the mach number
@@ -75,9 +75,34 @@ pub fn get_dp_dv_isentropic_nozzle_diffuser(
     
     let da_over_a = (a2 - a1) / a1;
     let denominator = ratio_one - m_squared;
+
+    // we should handle two edge cases, 
+    // one outside the vicinity of choked flow,
+    // one near it.
+    //
+
+    let dp_times_denominator = da_over_a * (rho1 * v1 * v1);
+    let dv_times_denominator = -da_over_a * v1;
+
+    // now we have singularity issue, near sonic flow, choked flow occurs
+    // in such a regime, dv approaches zero.
+
+    let m_value = mach_number_at_inlet.get::<ratio>();
+    if m_value > 0.99 && m_value < 1.01 {
+        // At throat: use isentropic relations, not dp/dA formula
+        // The throat condition is: M = 1, which fixes the relationship
+        //
+        // dp and da go to zero here
+
+        let dp = Pressure::ZERO;
+        let dv = Velocity::ZERO;
+
+        return (dp,dv);
+
+    }
     
-    let dp = da_over_a * (rho1 * v1 * v1) / denominator;
-    let dv = -da_over_a * v1 / denominator;
+    let dp = dp_times_denominator / denominator;
+    let dv = dv_times_denominator / denominator;
     
     (dp, dv)
 }
