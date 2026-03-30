@@ -8,6 +8,8 @@ use uom::si::available_energy::kilojoule_per_kilogram;
 use validity_range::s_crit;
 
 
+use crate::constants::p_crit_water;
+use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::region_1_subcooled_liquid::{p_hs_1, t_ph_1};
 use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, tsat_hs_4};
 use crate::region_3_single_phase_plus_supercritical_steam::v_ps_flash::v_ps_3b;
@@ -325,10 +327,21 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
 
                 // first, I'm given (h,s) point
                 // 
+                // I can try to guess the pressure to get the root 
 
+
+                // now, I need to either bound pressure, or use a 
+                // newton raphson method.
+                //
+                // For this method, I would like to bound between 
+                // the critical pressure 
+                // and the minimum pressure
+                // which is 0.000 611 MPa,
+                // I'm increasing this slightly due to numerical error
+
+                let sat_pressure = find_pressure_from_hs_region_4(h, s);
 
                 // page 103 
-                let sat_pressure = sat_pressure_4(sat_temp);
 
                 // now, we are using the enthalpy, temperature and 
                 // pressure to find quality using 
@@ -342,8 +355,6 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
                 // I'm not overly concerned about computational cost now 
                 // but it is an inefficiency
                 let specific_volume = v_ps_eqm(sat_pressure, s);
-                dbg!(&(s,min_entropy_for_backward_eqn));
-                unimplemented!("entropy too low for equilibrium (h,s)");
                 return (sat_temp, sat_pressure, specific_volume, quality.into());
             };
         },
@@ -994,3 +1005,86 @@ fn additional_temperature_check_for_1073_15_k_isotherm(
 /// for simplicity to avoid iterations
 pub mod validity_range;
 
+
+/// Finds pressure given enthalpy and entropy using bisection method
+/// 
+/// Given: h and s (known state point)
+/// Find: p such that s(p, h) = s_target
+///
+/// Uses bisection between minimum pressure 
+/// (triple point) and critical pressure
+/// vibe coded and edited
+pub fn find_pressure_from_hs_region_4(
+    h_target: AvailableEnergy,
+    s_target: SpecificHeatCapacity,
+) -> Pressure {
+    
+    use uom::si::pressure::megapascal;
+    use uom::si::specific_heat_capacity::joule_per_kilogram_kelvin;
+    
+    // Bounds for bisection
+    let minimum_pressure_bound = Pressure::new::<megapascal>(0.000_622);
+    let maximum_pressure_bound = p_crit_water();
+    
+    let mut p_low = minimum_pressure_bound;
+    let mut p_high = maximum_pressure_bound;
+    
+    // Tolerances
+    let pressure_tolerance = Pressure::new::<megapascal>(0.001); // 1 kPa
+    let entropy_tolerance = SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(0.1); // 0.1 J/(kg·K)
+    let max_iterations = 100;
+    
+    // Residual function
+    let residual = |p: Pressure| -> SpecificHeatCapacity {
+        let s_calc = s_ph_eqm(p, h_target);
+        s_calc - s_target
+    };
+    
+    // Check if solution exists in bounds
+    let f_low = residual(p_low);
+    let f_high = residual(p_high);
+    
+    // Check if bounds bracket the solution
+    if f_low.get::<joule_per_kilogram_kelvin>() * f_high.get::<joule_per_kilogram_kelvin>() > 0.0 {
+        panic!("Solution not bracketed by pressure bounds. Check if (h,s) point is physically valid.");
+    }
+    
+    // Bisection iteration
+    for iteration in 0..max_iterations {
+        let p_mid = (p_low + p_high) / 2.0;
+        let f_mid = residual(p_mid);
+        
+        // Check convergence on entropy
+        if f_mid.abs() < entropy_tolerance {
+            return p_mid;
+        }
+        
+        // Check convergence on pressure
+        if (p_high - p_low) < pressure_tolerance {
+            return p_mid;
+        }
+        
+        // Update bounds
+        let f_low_val = residual(p_low).get::<joule_per_kilogram_kelvin>();
+        let f_mid_val = f_mid.get::<joule_per_kilogram_kelvin>();
+        
+        if f_low_val * f_mid_val < 0.0 {
+            // Root is between p_low and p_mid
+            p_high = p_mid;
+        } else {
+            // Root is between p_mid and p_high
+            p_low = p_mid;
+        }
+    }
+    
+    // Return best estimate if max iterations reached
+    let p_final = (p_low + p_high) / 2.0;
+    let final_error = residual(p_final);
+    
+    eprintln!("Warning: Bisection did not converge after {} iterations. \
+               Final error = {:.3} J/(kg·K)", 
+              max_iterations, 
+              final_error.get::<joule_per_kilogram_kelvin>());
+    
+    p_final
+}
