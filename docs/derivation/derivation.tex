@@ -1143,6 +1143,20 @@ For this, it looks like a Newton Raphson algorithm may work, at least for a firs
 guess. Then perform some sort of crawling until proper bisection can be 
 performed. So it's a hybrid of Newton Raphson and bisection.
 
+\subsection{Sonic Flow and Transonic Flow}
+
+Now,
+I tried all this, and I found that the mass, energy and momentum 
+balances cannot really find a solution due to choked flow phenomenon,
+where compressible effects cannot be ignored. It turns out that this 
+is very important especially during LOCA accidents. Hence, it is important 
+to model for both steam/gas turbines and loss of coolant accidents 
+(LOCA) in reactors.
+
+In such flows, we have choked flows, where we can assume isentropic 
+nozzles. Or we may have shockwaves, where entropy generation is present 
+when doing supersonic/transonic flow. I use Cengel's 8th edition of 
+thermodynamics to study this \citep{cengel2002thermodynamics}.
 
 
 
