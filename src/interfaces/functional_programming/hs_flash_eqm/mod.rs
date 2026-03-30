@@ -1048,6 +1048,7 @@ pub fn find_pressure_from_hs_region_4(
     if f_low.get::<joule_per_kilogram_kelvin>() * f_high.get::<joule_per_kilogram_kelvin>() > 0.0 {
         panic!("Solution not bracketed by pressure bounds. Check if (h,s) point is physically valid.");
     }
+    let mut n_iter = 0;
     
     // Bisection iteration
     for iteration in 0..max_iterations {
@@ -1056,11 +1057,15 @@ pub fn find_pressure_from_hs_region_4(
         
         // Check convergence on entropy
         if f_mid.abs() < entropy_tolerance {
+            dbg!("number of iterations for (h,s) iterative solver:");
+            dbg!(&iteration);
             return p_mid;
         }
         
         // Check convergence on pressure
         if (p_high - p_low) < pressure_tolerance {
+            dbg!("number of iterations for (h,s) iterative solver:");
+            dbg!(&iteration);
             return p_mid;
         }
         
@@ -1075,7 +1080,12 @@ pub fn find_pressure_from_hs_region_4(
             // Root is between p_mid and p_high
             p_low = p_mid;
         }
+
+        n_iter += 1;
     }
+
+    dbg!("number of iterations for (h,s) iterative solver:");
+    dbg!(&n_iter);
     
     // Return best estimate if max iterations reached
     let p_final = (p_low + p_high) / 2.0;
