@@ -13,7 +13,7 @@ pub fn get_choked_flow_state_for_nozzle_subsonic(
     mass_flowrate: MassRate,
 ){
 
-    let ref_vol = Volume::new::<cubic_meter>(1.0):
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
     let state_1: TampinesSteamTableCV = 
         TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
     let rho1: MassDensity = state_1.get_rho();
