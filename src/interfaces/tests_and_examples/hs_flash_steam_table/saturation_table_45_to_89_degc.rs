@@ -75,14 +75,18 @@ pub fn saturation_table_45_to_89_degc(){
             let enthalpy_of_vap_kj_per_kg = dataset[7];
             let s_liq_kj_per_kg_k = dataset[8];
             let s_vap_kj_per_kg_k = dataset[9];
-            assert_hs_flash(t_deg_c, t_kelvin, psat_bar, 
+            assert_hs_flash_high_quality_steam(t_deg_c, t_kelvin, psat_bar, 
+                v_liq_m3_per_kg, v_vap_m3_per_kg, h_liq_kj_per_kg, 
+                h_vap_kj_per_kg, enthalpy_of_vap_kj_per_kg, 
+                s_liq_kj_per_kg_k, s_vap_kj_per_kg_k);
+            assert_hs_flash_low_quality_steam(t_deg_c, t_kelvin, psat_bar, 
                 v_liq_m3_per_kg, v_vap_m3_per_kg, h_liq_kj_per_kg, 
                 h_vap_kj_per_kg, enthalpy_of_vap_kj_per_kg, 
                 s_liq_kj_per_kg_k, s_vap_kj_per_kg_k);
         }
 
 }
-fn assert_hs_flash(t_deg_c: f64,
+fn assert_hs_flash_high_quality_steam(t_deg_c: f64,
     t_kelvin: f64,
     psat_bar: f64,
     v_liq_m3_per_kg: f64,
@@ -139,6 +143,68 @@ fn assert_hs_flash(t_deg_c: f64,
         enthalpy_of_vap.get::<kilojoule_per_kilogram>(),
         max_relative=1e-5
         );
+
+
+
+}
+
+fn assert_hs_flash_low_quality_steam(t_deg_c: f64,
+    t_kelvin: f64,
+    psat_bar: f64,
+    v_liq_m3_per_kg: f64,
+    v_vap_m3_per_kg: f64,
+    h_liq_kj_per_kg: f64,
+    h_vap_kj_per_kg: f64,
+    enthalpy_of_vap_kj_per_kg: f64,
+    s_liq_kj_per_kg_k: f64,
+    s_vap_kj_per_kg_k: f64){
+
+    // specify a vapour quality
+    let x_ref = 0.17;
+    let p = Pressure::new::<bar>(psat_bar);
+    let h = AvailableEnergy::new::<kilojoule_per_kilogram>(
+        (1.0-x_ref) * h_liq_kj_per_kg + x_ref * h_vap_kj_per_kg
+    );
+    let s = SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+        (1.0-x_ref) * s_liq_kj_per_kg_k + x_ref * s_vap_kj_per_kg_k
+    );
+
+    // first test temperatures 
+
+    let t = t_hs_eqm(h, s);
+
+    approx::assert_abs_diff_eq!(
+        t_deg_c,
+        t.get::<degree_celsius>(),
+        epsilon=0.1
+        );
+    approx::assert_relative_eq!(
+        t_kelvin,
+        t.get::<kelvin>(),
+        max_relative=1e-3
+        );
+
+    // then liquid and vapour specific vol
+    let v_ref_m3_per_kg = (1.0 - x_ref) * v_liq_m3_per_kg + x_ref * v_vap_m3_per_kg;
+    let v = v_hs_eqm(h, s);
+
+    approx::assert_relative_eq!(
+        v_ref_m3_per_kg,
+        v.get::<cubic_meter_per_kilogram>(),
+        max_relative=5e-3
+        );
+
+
+    // enthalpy of vaporisation
+    // a.k.a latent heat
+    // kind of manual, not really in the flashing function
+    let enthalpy_of_vap = h_tp_2(t, p) - h_tp_1(t, p);
+
+    approx::assert_relative_eq!(
+        enthalpy_of_vap_kj_per_kg,
+        enthalpy_of_vap.get::<kilojoule_per_kilogram>(),
+        max_relative=1e-3
+    );
 
 
 

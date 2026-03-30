@@ -3,7 +3,7 @@ use uom::si::f64::*;
 use uom::si::ratio::ratio;
 use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
-use uom::si::pressure::megapascal;
+use uom::si::pressure::{kilopascal, megapascal};
 use uom::si::available_energy::kilojoule_per_kilogram;
 use validity_range::s_crit;
 
@@ -340,6 +340,9 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
 
                 let sat_pressure = find_pressure_from_hs_region_4(h, s);
                 let sat_temp = t_ph_eqm(sat_pressure, h);
+                
+
+                dbg!(&sat_temp.get::<degree_celsius>());
 
                 // page 103 
 
@@ -1030,7 +1033,7 @@ pub fn find_pressure_from_hs_region_4(
     let mut p_high = maximum_pressure_bound;
     
     // Tolerances
-    let pressure_tolerance = Pressure::new::<megapascal>(0.001); // 1 kPa
+    let pressure_tolerance = Pressure::new::<kilopascal>(0.001); 
     let entropy_tolerance = SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(0.1); // 0.1 J/(kg·K)
     let max_iterations = 100;
     
