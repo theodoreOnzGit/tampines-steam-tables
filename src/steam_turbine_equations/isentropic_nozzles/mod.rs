@@ -121,6 +121,8 @@ pub fn get_dp_dv_isentropic_nozzle_diffuser(
 ///              Should be small to maintain accuracy of differential relations
 ///
 /// note: written originally, used AI to check
+///
+/// this is good for mach number 0-0.7 and 1.3 onwards
 pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
     a1: Area,
     a2: Area,
@@ -198,3 +200,4 @@ pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
 }
 
 
+pub mod momentum_balance_rayleigh_line;
