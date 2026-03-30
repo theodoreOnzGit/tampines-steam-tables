@@ -276,26 +276,30 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
             return (temperature, pressure, specific_volume, quality.into());
         },
         BackwdEqnSubRegion::Region4 => {
-            // page 101
+            // page 101-102 of Kretzchmar's book
             // note, this only works for temperatures above 623.15 K
             // not for temperatures near critical point.
                 
             let max_sat_temp_for_backward = 
                 ThermodynamicTemperature::new::<kelvin>(623.15);
+            let min_entropy_for_backward_eqn = 
+                SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+                    5.210_887_825_f64
+                );
             let sat_pressure_for_backward = 
                 sat_pressure_4(max_sat_temp_for_backward);
 
             let steam_quality_bound = 1.0;
-            let min_entropy_for_backward_eqn = 
-                s_tp_eqm_two_phase(max_sat_temp_for_backward, 
-                    sat_pressure_for_backward, steam_quality_bound);
 
 
             let sat_temp = tsat_hs_4(h, s);
 
-            if s >= min_entropy_for_backward_eqn {
+            if s >= min_entropy_for_backward_eqn && 
+                sat_temp <= max_sat_temp_for_backward 
+            {
 
                 // page 103 
+                let sat_temp = tsat_hs_4(h, s);
                 let sat_pressure = sat_pressure_4(sat_temp);
 
                 // now, we are using the enthalpy, temperature and 
@@ -313,11 +317,18 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
                 return (sat_temp, sat_pressure, specific_volume, quality.into());
             } else {
 
+                dbg!(&(s,min_entropy_for_backward_eqn));
+                unimplemented!("entropy too low for equilibrium (h,s)");
                 // if in regime above 623.15 K, 
                 // or below the threshold entropy 
                 // we need another procedure...
                 // may include iteration...
                 // to determine temperature
+
+                // first, I'm given (h,s) point
+                // 
+
+
                 // page 103 
                 let sat_pressure = sat_pressure_4(sat_temp);
 
