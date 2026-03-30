@@ -1156,8 +1156,136 @@ to model for both steam/gas turbines and loss of coolant accidents
 In such flows, we have choked flows, where we can assume isentropic 
 nozzles. Or we may have shockwaves, where entropy generation is present 
 when doing supersonic/transonic flow. I use Cengel's 8th edition of 
-thermodynamics to study this \citep{cengel2002thermodynamics}.
+thermodynamics to study this \citep{cengel2002thermodynamics}. 
+This was done during the weekend of 28/29th march 2026.
 
+In equation 17-16 and 17-17 of Cengel's thermodynamics textbook, 
+we have:
+
+\begin{equation}
+	\frac{dA}{A} = \frac{dP}{\rho v^2} (1 - \text{Ma}^2)
+\end{equation}
+
+\begin{equation}
+	\frac{dA}{A} = -\frac{dv}{v} (1 - \text{Ma}^2)
+\end{equation}
+
+Why does mach number come in?
+
+Mach number, comes in due to the importance of speed of sound. The speed 
+of sound is characterised by \textbf{isentropic} pressure waves.
+
+From the Maxwell relations:
+
+\begin{equation*}
+	T ds = dh - V dP
+\end{equation*}
+
+\begin{equation*}
+	T ds = dh -  \frac{dP}{\rho}
+\end{equation*}
+
+Under isentropic assumption, $ds = 0$
+
+\begin{equation*}
+	dh =   \frac{dP}{\rho}
+\end{equation*}
+
+From the derivation of speed of sound, considering energy balance 
+on the front of a sound wave:
+
+\begin{equation*}
+	dh =  c dV
+\end{equation*}
+
+And the mass balance:
+
+\begin{equation*}
+	c d\rho  = \rho dV
+\end{equation*}
+
+
+
+We eliminate $h$ and $dV$ from the equation under isentropic conditions:
+
+\begin{equation*}
+	dh = \frac{dP}{\rho} =  c dV
+\end{equation*}
+
+And we substitute dV 
+
+
+\begin{equation*}
+	\frac{dP}{\rho} =  c dV = c^2 \frac{d \rho}{\rho}
+\end{equation*}
+
+So we get
+
+\begin{equation*}
+	\frac{dP}{\rho} = c^2 \frac{d \rho}{\rho}
+\end{equation*}
+
+Under ds = 0:
+
+\begin{equation*}
+	\frac{dP}{d \rho} = c^2 
+\end{equation*}
+
+
+\begin{equation*}
+	c^2 = \left(\frac{dP}{d \rho} \right)_s
+\end{equation*}
+
+Now, this will be important for flow in nozzles.
+
+We start with mass balance:
+
+\begin{equation*}
+	d (\dot{m}) = 0
+\end{equation*}
+\begin{equation*}
+	d (\rho A v) = 0
+\end{equation*}
+\begin{equation*}
+	A v d\rho + v \rho dA  + \rho A dv = 0
+\end{equation*}
+
+divide by $\dot{m} = \rho A v$:
+
+This is general mass balance equation:
+\begin{equation*}
+	\frac{d\rho}{\rho} + \frac{dA}{A}  + \frac{dv}{v} = 0
+\end{equation*}
+
+
+Then let's do energy balance:
+
+
+\begin{equation*}
+	d( h + v^2/2) = 0
+\end{equation*}
+
+
+\begin{equation*}
+	dh + vdv = 0
+\end{equation*}
+
+Now, we use maxwell relation again for isentropic case:
+
+
+\begin{equation*}
+	T ds = dh -  \frac{dP}{\rho}
+\end{equation*}
+
+Under isentropic assumption, $ds = 0$
+
+\begin{equation*}
+	dh =   \frac{dP}{\rho}
+\end{equation*}
+
+\begin{equation*}
+	dh + vdv = \frac{dP}{\rho}  + v dv =  0
+\end{equation*}
 
 
 \subsubsection{Reaction Turbines}
