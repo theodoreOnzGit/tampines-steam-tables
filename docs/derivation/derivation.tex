@@ -1145,6 +1145,7 @@ performed. So it's a hybrid of Newton Raphson and bisection.
 
 \subsection{Sonic Flow and Transonic Flow}
 
+\subsubsection{Nozzle Balances for Mach < 0.7 and Mach > 1.3}
 Now,
 I tried all this, and I found that the mass, energy and momentum 
 balances cannot really find a solution due to choked flow phenomenon,
@@ -1308,7 +1309,68 @@ Of course, dA/dv and dA/dp approach zero. Which is okay. But my goal is
 to find velocity change and pressure change. I am interested in dp and dv 
 rather than dA, which makes this rather problematic.
 
-\subsubsection{Reaction Turbines}
+In these regimes, one can approximate nozzle flow as isentropic.
+
+
+\subsubsection{Nozzle Balances for 0.7 < Mach <  1.3, Transonic regime}
+
+Now, for these kinds of problems, I'm overall trying to find 
+\textbf{pressure and velocity} at throat, given area for a transonic 
+flow situation in Mach number from 0.7 to 1.3.
+
+If coming from a subsonic velocity,
+for converging nozzles, flow choking will occur where the maximum 
+velocity at the throat is Mach 1. In such a case, velocity at the throat 
+is going to be the speed of sound.
+
+To accelerate the flow further, one must make the nozzle diverge after 
+the throat. This is done with a diverging nozzle for supersonic flow.
+
+
+\paragraph{Subsonic case, area decreasing}
+
+
+In this case, we will need a function to determine acceleration up to 
+this (critical point). Combining energy and mass balance:
+
+\begin{equation*}
+	h_1 + \frac{v_1^2}{2} = h_2 + \frac{v_2^2}{2}
+\end{equation*}
+
+Combining momentum and mass balance:
+
+\begin{equation*}
+	P_1 A_1 +  
+	\frac{\dot{m}^2}{\rho_1 A_1} 
+	= 
+	P_{2} A_2 +
+	\frac{\dot{m}^2}{\rho_2 A_2}
+\end{equation*}
+
+These are the governing equations. Now, with all these variables, we 
+are trying to check for a choked flow condition. Under choked flow,
+decreasing outlet pressure beyond a certain number 
+will not increase velocity. This is the critical pressure.
+
+In such choked flow, the inlet and outlet stagnation enthalpies will 
+match. The velocity at the outlet enthalpy will be speed of sound:
+
+\begin{equation*}
+	h_1 + \frac{v_1^2}{2} = h_2 + \frac{c^2}{2}
+\end{equation*}
+
+Given this, and the inlet pressure, we should be able to have 
+$s_1 = s_1 (h_1,p_1)$ from (p,h) equations. And from isentropic 
+relations, $s_1 = s_2$, so we can obtain state 2 from $(h,s)$ relations.
+This is for compressible flow only.
+
+Now, (h,s) equations are not quite tested for tampines steam tables,
+but they seem important. I will have to test them. Especially for turbines.
+
+
+
+
+\subsection{Reaction Turbines}
 
 Reaction Turbines lose pressure both within the stator and the rotor.
 [To be continued\dots]

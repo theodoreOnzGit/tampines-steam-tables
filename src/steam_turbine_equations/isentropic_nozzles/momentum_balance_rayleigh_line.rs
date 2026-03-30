@@ -6,6 +6,30 @@ use uom::si::volume::cubic_meter;
 use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
 
+
+/// this is essentially force balance and mass balance for 
+/// a constant area system
+///
+/// A(P1-P2) = mass flowrate * (v2 - v1)
+/// rho1*v1 = rho2*v2
+///
+/// this is obtaining pressure at two sides, then 
+/// the velocity and 
+/// enthalpy and entropy at the other side is obtained
+///
+/// Now, tricky thing is that we are not sure of the outlet entropy
+#[inline]
+pub fn rayleigh_line_point(
+    p1: Pressure,
+    h1: AvailableEnergy,
+    mass_flowrate: MassRate,
+    a1: Area,
+    p2: Pressure,
+){
+
+
+}
+
 #[inline]
 pub fn momentum_balance_nozzle_residual(
     p1: Pressure,

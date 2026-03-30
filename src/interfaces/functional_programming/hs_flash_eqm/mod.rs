@@ -203,9 +203,9 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
     match region {
         BackwdEqnSubRegion::Region1 => {
             // page 87 of Kretzchmar textbook
-            let mut pressure =  p_hs_1(h, s); 
+            let pressure =  p_hs_1(h, s); 
             // correct this once 
-            pressure = p_hs_newton_raphson_single_correction_fixed_t_estimate(h, s, pressure);
+            //pressure = p_hs_newton_raphson_single_correction_fixed_t_estimate(h, s, pressure);
             let temperature = t_ph_1(pressure, h);
             // in region 1, we are necessarily liquid,
             // quality is zero
@@ -277,7 +277,7 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
         },
         BackwdEqnSubRegion::Region4 => {
             // page 101
-            // note, this only works for temperatures below 623.15 K
+            // note, this only works for temperatures above 623.15 K
             // not for temperatures near critical point.
                 
             let max_sat_temp_for_backward = 
