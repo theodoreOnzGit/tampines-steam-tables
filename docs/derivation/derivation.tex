@@ -1287,6 +1287,26 @@ Under isentropic assumption, $ds = 0$
 	dh + vdv = \frac{dP}{\rho}  + v dv =  0
 \end{equation*}
 
+Thus we get differential equations for flow nozzles, not going to derive 
+here\ldots:
+
+\begin{equation}
+	\frac{dA}{A} = \frac{dP}{\rho v^2} (1 - \text{Ma}^2)
+\end{equation}
+
+\begin{equation}
+	\frac{dA}{A} = -\frac{dv}{v} (1 - \text{Ma}^2)
+\end{equation}
+
+Implementing this in Rust was quite trivial, as we can rearrange the 
+equations to get dv/v and dA/A.
+
+The problem now becomes when dealing with the term $1- \text{Ma}^2$
+near transonic speeds. Where this number approaches singularity. (ie 0)
+
+Of course, dA/dv and dA/dp approach zero. Which is okay. But my goal is 
+to find velocity change and pressure change. I am interested in dp and dv 
+rather than dA, which makes this rather problematic.
 
 \subsubsection{Reaction Turbines}
 
