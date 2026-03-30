@@ -1,7 +1,7 @@
 
 use uom::si::f64::*;
 use uom::si::ratio::ratio;
-use uom::si::thermodynamic_temperature::kelvin;
+use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::pressure::megapascal;
 use uom::si::available_energy::kilojoule_per_kilogram;
@@ -288,10 +288,6 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
                 SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
                     5.210_887_825_f64
                 );
-            let sat_pressure_for_backward = 
-                sat_pressure_4(max_sat_temp_for_backward);
-
-            let steam_quality_bound = 1.0;
 
 
             let sat_temp = tsat_hs_4(h, s);
@@ -316,9 +312,12 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
                 // I'm not overly concerned about computational cost now 
                 // but it is an inefficiency
                 let specific_volume = v_ps_eqm(sat_pressure, s);
+                dbg!("taking h,s algorithm, temperature is:");
+                dbg!(&sat_temp.get::<degree_celsius>());
                 return (sat_temp, sat_pressure, specific_volume, quality.into());
             } else {
 
+                dbg!("taking iterative algorithm");
                 // if in regime above 623.15 K, 
                 // or below the threshold entropy 
                 // we need another procedure...
@@ -340,6 +339,7 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
                 // I'm increasing this slightly due to numerical error
 
                 let sat_pressure = find_pressure_from_hs_region_4(h, s);
+                let sat_temp = t_ph_eqm(sat_pressure, h);
 
                 // page 103 
 

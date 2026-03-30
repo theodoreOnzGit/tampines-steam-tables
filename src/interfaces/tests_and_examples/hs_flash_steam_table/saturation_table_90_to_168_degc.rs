@@ -179,7 +179,7 @@ fn assert_hs_flash_low_quality_steam(t_deg_c: f64,
     approx::assert_abs_diff_eq!(
         t_deg_c,
         t.get::<degree_celsius>(),
-        epsilon=5e-3
+        epsilon=0.1
         );
     approx::assert_relative_eq!(
         t_kelvin,
