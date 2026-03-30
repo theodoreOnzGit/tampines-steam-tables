@@ -56,8 +56,14 @@ v0.1.6
 
 more to be added towards the fhr\_sim\_v2
 
-Added setter methods from AI vibe coding to help with steam turbine 
-modelling for TampinesSteamTableCV.
+Now, (h,s) algorithm is implemented and tested against steam table.
+These tests are under interfaces folder of source code.
+The backward equations are slightly less accurate 
+than (p,h) and (p,s) algorithm. And for low quality steam, it reverts 
+to iteratively doing a (p,h) flashing with bisection method. Not too 
+efficient, but it does the job (ish).
+
+
 
 v0.1.5 
 
