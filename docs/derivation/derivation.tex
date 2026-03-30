@@ -1364,10 +1364,15 @@ $s_1 = s_1 (h_1,p_1)$ from (p,h) equations. And from isentropic
 relations, $s_1 = s_2$, so we can obtain state 2 from $(h,s)$ relations.
 This is for compressible flow only.
 
-Now, (h,s) equations are not quite tested for tampines steam tables,
-but they seem important. I will have to test them. Especially for turbines.
 
+Note:, (h,s) equations were not quite tested for tampines steam tables,
+as of v0.1.5, but now in v0.1.6 onwards, these are tested. And for low 
+quality steam, below the threshold entropy of about 5.2 kJ/(kg K), this 
+defaults to iterative (p,h) algorithm with bisection.
 
+So with (h,s) equations, we obtain the outlet enthalpy. With outlet 
+enthalpy and entropy, we will be able to get outlet pressure, and 
+density $P_2$ and $\rho_2$ at choked flow.
 
 
 \subsection{Reaction Turbines}

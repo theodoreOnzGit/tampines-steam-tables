@@ -201,3 +201,7 @@ pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
 
 
 pub mod momentum_balance_rayleigh_line;
+
+/// for sonic flow, we need to get conditions where choked flow is 
+/// achieved
+pub mod choked_flow;
