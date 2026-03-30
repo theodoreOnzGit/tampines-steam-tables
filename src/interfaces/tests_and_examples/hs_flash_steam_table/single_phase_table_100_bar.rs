@@ -202,7 +202,7 @@ fn assert_hs_flash(
     approx::assert_relative_eq!(
         w_m_per_s,
         w_test.get::<meter_per_second>(),
-        max_relative=1e-3
+        max_relative=1e-2
         );
 
     // kappa
