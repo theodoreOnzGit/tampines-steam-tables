@@ -80,29 +80,36 @@ pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
                    mass_flowrate_error.get::<ratio>() * 100.0);
     }
     
-
-    // after this, it is time to do force balance
-    // force balance is 
-    //
-    // P1A1 + v1 * mass_flowrate  = P2A2 + c*mass_flowrate
-
-    let p1a1: Force = p1 * a1;
-    let p2a2: Force = p2 * a2;
+    let momentum_balance_check = false; 
     
-    let lhs: Force = p1a1 + v1 * choked_mass_flowrate;
-    let rhs: Force = p2a2 + c * choked_mass_flowrate;
+    if momentum_balance_check {
 
-    // for nozzle, 
-    // mass flowrate =  (p1a1 - p2a2) / (-v1 + c)
+        // after this, it is time to do force balance
+        // force balance is 
+        //
+        // P1A1 + v1 * mass_flowrate  = P2A2 + c*mass_flowrate
 
-    let momentum_balance_error: Ratio = (lhs - rhs)/lhs;
+        let p1a1: Force = p1 * a1;
+        let p2a2: Force = p2 * a2;
 
-    if momentum_balance_error.abs() >= Ratio::new::<ratio>(0.05) {
-        eprintln!("Warning: Momentum balance error = {:.2}%. \
+        let lhs: Force = p1a1 + v1 * choked_mass_flowrate;
+        let rhs: Force = p2a2 + c * choked_mass_flowrate;
+
+        // for nozzle, 
+        // mass flowrate =  (p1a1 - p2a2) / (-v1 + c)
+
+        let momentum_balance_error: Ratio = (lhs - rhs)/lhs;
+
+        if momentum_balance_error.abs() >= Ratio::new::<ratio>(0.05) {
+            eprintln!("Warning: Momentum balance error = {:.2}%. \
                    Check if flow is truly choked.",
                    momentum_balance_error.get::<ratio>() * 100.0);
-        // note: example question didn't do this
-        dbg!(&(lhs,rhs));
+            // note: example question didn't do this
+            //
+            // but to be fair, the nozzle walls exert a force on the fluid, 
+            // this is note accounted for in the above momentum balance
+            dbg!(&(lhs,rhs));
+        }
     }
 
     
