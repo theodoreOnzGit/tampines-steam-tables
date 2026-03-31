@@ -2,12 +2,10 @@ use std::time::Duration;
 
 use egui::{vec2, Pos2, Rect, Vec2};
 use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipeColourBlueRedTempSensitive};
-use uom::ConstZero;
 use uom::si::angular_velocity::revolution_per_minute;
 use uom::si::f64::*;
-use uom::si::frequency::hertz;
 use uom::si::thermodynamic_temperature::degree_celsius;
-use uom::si::time::{millisecond, second};
+use uom::si::time::second;
 
 use crate::app::local_widgets_and_buttons::pipes::{SinglePipeColourBlackRedTempSensitive, SinglePipeColourBlueWhiteQualitySensitive};
 use crate::app::local_widgets_and_buttons::turbine_widget::TurbineWidget;
