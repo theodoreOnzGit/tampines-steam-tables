@@ -25,7 +25,7 @@ use crate::prelude::{TampinesSteamTableCV, functional_programming::ps_flash_eqm:
 /// - Warns if mass balance error > 5% (inlet vs throat)
 /// - Warns if momentum balance error > 5%
 #[inline]
-pub fn get_choked_flow_state_for_nozzle_subsonic(
+pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
     p1: Pressure,
     h1: AvailableEnergy,
     a1: Area,
@@ -110,14 +110,18 @@ pub fn get_choked_flow_state_for_nozzle_subsonic(
 
 #[cfg(test)]
 mod choked_flow_examples{
+    use uom::si::area::square_centimeter;
+    use uom::si::available_energy::kilojoule_per_kilogram;
     use uom::si::mass_rate::kilogram_per_second;
     use uom::si::pressure::{kilopascal, megapascal};
     use uom::si::f64::*;
     use uom::si::ratio::ratio;
     use uom::si::thermodynamic_temperature::degree_celsius;
+    use uom::si::velocity::meter_per_second;
     use uom::si::volume::cubic_meter;
 
     use crate::prelude::TampinesSteamTableCV;
+    use crate::steam_turbine_equations::choked_flow::get_choked_flow_state_for_nozzle_subsonic_to_sonic;
 
 
     /// this is from example 17-16 in Cengel's thermodynamics 8th edition
@@ -144,12 +148,16 @@ mod choked_flow_examples{
 
         let p0 = p1;
         // we assume steam is superheated, so quality is 1 
-        let x0 = 1.0;
         let ref_vol = Volume::new::<cubic_meter>(1.0);
 
         let state_0 = TampinesSteamTableCV::new_from_tp_quality_1(
-            t1, p1, ref_vol
+            t1, p0, ref_vol
         );
+
+        let h0 = state_0.get_specific_enthalpy();
+
+        // let's get entropy
+        let s0 = state_0.get_specific_entropy();
 
         let critical_pressure_ratio = 
             state_0.get_critical_pressure_ratio();
@@ -169,14 +177,94 @@ mod choked_flow_examples{
         approx::assert_relative_eq!(
             p_throat.get::<megapascal>(),
             1.09,
+            max_relative=5e-3,
+        );
+
+        // now for throat conditions 
+
+        let state_throat = 
+            TampinesSteamTableCV::new_from_ps(
+                p_throat, s0, ref_vol
+            );
+
+        // let's find the velocity here 
+        // this is, of course, the speed of sound
+        let c = state_throat.get_speed_of_sound();
+
+        // now, based on enthalpy balance, we should get 
+        // a h_throat 
+
+        let h_throat = state_throat.get_specific_enthalpy();
+
+        approx::assert_relative_eq!(
+            h_throat.get::<kilojoule_per_kilogram>(),
+            3076.8,
             max_relative=1e-3,
         );
 
+        let v_throat: Velocity = (2.0 *(h0-h_throat)).sqrt();
 
+        // if we can see here, v_throat and c is about the same
+        // Cengel's answer is 585.8 m/s
+        // which is about there
+        approx::assert_relative_eq!(
+            c.get::<meter_per_second>(),
+            584.74,
+            max_relative=1e-3,
+        );
+
+        approx::assert_relative_eq!(
+            v_throat.get::<meter_per_second>(),
+            584.74,
+            max_relative=1e-3,
+        );
+
+        // now, we find throat area is 10.33 cm^2 from Cengel's 
+        // that's the answer, but we will work backwards using our function
+
+        // velocity at the inlet is based on the mass flowrate 
+
+        let a2 = Area::new::<square_centimeter>(10.33);
+        // now, this a1 is arbitrary.., we only need know that v1 is negligble
+        let a1 = 100.0 * a2;
+        let rho_1 = state_0.get_rho();
+        let v1: Velocity = mass_flowrate/rho_1/a1;
+        
+        approx::assert_relative_eq!(
+            v1.get::<meter_per_second>(),
+            3.659,
+            max_relative=1e-3,
+        );
+
+        // let's see whether given these areas, we get the correct
+        // critical pressure predictions 
+
+        let (p_crit, h_crit, mass_flowrate) = 
+            get_choked_flow_state_for_nozzle_subsonic_to_sonic(
+                p1, h0, a1, a2, v1
+            );
+
+        approx::assert_relative_eq!(
+            p_crit.get::<megapascal>(),
+            1.092,
+            max_relative=1e-3,
+        );
+        approx::assert_relative_eq!(
+            h_crit.get::<kilojoule_per_kilogram>(),
+            3076.8,
+            max_relative=1e-3,
+        );
+        approx::assert_relative_eq!(
+            mass_flowrate.get::<kilogram_per_second>(),
+            2.5,
+            max_relative=1e-3,
+        );
 
         dbg!(&(
                 critical_pressure_ratio,
-                p_throat,
+                p_throat.get::<megapascal>(),
+                v_throat.get::<meter_per_second>(),
+                c.get::<meter_per_second>(),
         ));
         todo!();
 
