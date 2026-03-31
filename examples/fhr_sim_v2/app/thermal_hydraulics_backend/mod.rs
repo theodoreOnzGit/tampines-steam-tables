@@ -33,7 +33,7 @@ use uom::si::f64::*;
 //use uom::si::ratio::ratio;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::ConstZero;
-use uom::si::electrical_resistance::{kiloohm, ohm};
+use uom::si::electrical_resistance::ohm;
 
 
 use components::*;
