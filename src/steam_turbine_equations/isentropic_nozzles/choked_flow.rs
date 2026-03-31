@@ -5,6 +5,25 @@ use crate::prelude::{TampinesSteamTableCV, functional_programming::{hs_flash_eqm
 
 /// This is an algorithm to obtain outlet thermodynamic state 
 /// for a converging nozzle with subsonic flow
+/// Given inlet conditions (p1, h1, v1) and geometry (a1, a2), calculates
+/// the throat conditions assuming choked flow (M = 1 at exit).
+///
+/// # Arguments
+/// * `p1` - Inlet pressure
+/// * `h1` - Inlet specific enthalpy
+/// * `a1` - Inlet area
+/// * `a2` - Throat (exit) area
+/// * `v1` - Inlet velocity
+///
+/// # Returns
+/// Tuple of (p2, h2, mass_flowrate) where:
+/// * `p2` - Throat pressure
+/// * `h2` - Throat specific enthalpy
+/// * `mass_flowrate` - Choked mass flow rate (determined by throat conditions)
+///
+/// # Warnings
+/// - Warns if mass balance error > 5% (inlet vs throat)
+/// - Warns if momentum balance error > 5%
 #[inline]
 pub fn get_choked_flow_state_for_nozzle_subsonic(
     p1: Pressure,
@@ -17,73 +36,75 @@ pub fn get_choked_flow_state_for_nozzle_subsonic(
     let ref_vol = Volume::new::<cubic_meter>(1.0);
     let state_1: TampinesSteamTableCV = 
         TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
+    let rho_1 = state_1.get_rho();
 
-
-
-    let stagnation_enthalpy: AvailableEnergy = 
-        h1 + 0.5 * v1 * v1;
 
     let s1 = state_1.get_specific_entropy();
 
+    let h0 = h1 + 0.5 * v1 * v1;
+    // stagnation state (initial)
+    let state_0 = TampinesSteamTableCV::new_from_hs(h0, s1, ref_vol);
+    let p0 = state_0.get_pressure();
+
+
     // now, i'll have to get a solver for choked flow 
-    // to obtain the outlet state, 
-    // because speed of sound will actually depend on outlet state.
-    // 
-    // So I will need to iterate
 
-    let mut c_guess: Velocity = state_1.get_speed_of_sound();
-    // this is energy and mass balance
-    let mut h2_guess: AvailableEnergy = 
-        stagnation_enthalpy - 0.5 *c_guess * c_guess;
+    // let's use the critical pressure 
 
-    let tolerance: f64 = 1e-5;
-    let max_iter = 100;
-    let mut n_iter = 0;
+    let critical_pressure_ratio: Ratio = 
+        state_0.get_critical_pressure_ratio();
 
-    // this will iterate until energy balance is okay, and speed of 
-    // sound convergees
-    loop {
-        // obtain next guess of c_guess 
-        let c_old = c_guess;
-        c_guess = w_hs_eqm(h2_guess, s1);
-        h2_guess = stagnation_enthalpy - 0.5 * c_guess * c_guess;
+    // this is critical pressure for mach 1
+    let p2 = critical_pressure_ratio * p0;
+    // let's get speed of sound here 
+    let s2 = s1;
+    let state_2 = TampinesSteamTableCV::new_from_ps(p2, s2, ref_vol);
+    let c = state_2.get_speed_of_sound();
+    let h2 = state_2.get_specific_enthalpy();
+    let rho_2 = state_2.get_rho();
 
-        // find residual of c 
+    // now let's get mass balance first 
 
-        let c_residual: Ratio = (c_old- c_guess)/c_old;
-        // if residual is less than some tolerance, break out
-        if c_residual.abs() <= Ratio::new::<ratio>(tolerance) {
-            break;
-        }
+    let mass_flowrate = a1 * v1 * rho_1;
+    let choked_mass_flowrate = a2 * c * rho_2;
 
-        n_iter += 1;
+    // assert that it isn't too different 
+    //
 
-        if n_iter >= max_iter {
+    let mass_flowrate_error: Ratio = 
+        (choked_mass_flowrate - mass_flowrate)/mass_flowrate;
 
-            dbg!("maximum iterations reached for choked flow solver");
-        }
-        
+    if mass_flowrate_error.abs() >= Ratio::new::<ratio>(0.05) {
+        eprintln!("Warning: Mass balance error = {:.2}%. \
+                   Inlet conditions may not be consistent with choked flow.",
+                   mass_flowrate_error.get::<ratio>() * 100.0);
     }
+    
 
     // after this, it is time to do force balance
     // force balance is 
     //
     // P1A1 + v1 * mass_flowrate  = P2A2 + c*mass_flowrate
-    let rho1: MassDensity = state_1.get_rho();
-    let h2 = h2_guess;
-    let s2 = s1;
-    let c = c_guess;
-    let p2 = p_hs_eqm(h2, s2);
 
     let p1a1: Force = p1 * a1;
     let p2a2: Force = p2 * a2;
+    
+    let lhs: Force = p1a1 + v1 * choked_mass_flowrate;
+    let rhs: Force = p2a2 + c * choked_mass_flowrate;
 
     // for nozzle, 
-    // mass flowrate =  (p1a1 - p2a2) / (v1 + c)
+    // mass flowrate =  (p1a1 - p2a2) / (-v1 + c)
 
-    let mass_flowrate = (p1a1 - p2a2)/(v1 + c);
+    let momentum_balance_error: Ratio = (lhs - rhs)/lhs;
+
+    if momentum_balance_error.abs() >= Ratio::new::<ratio>(0.05) {
+        eprintln!("Warning: Momentum balance error = {:.2}%. \
+                   Check if flow is truly choked.",
+                   momentum_balance_error.get::<ratio>() * 100.0);
+    }
+
     
-    return (p2, h2, mass_flowrate);
+    return (p2, h2, choked_mass_flowrate);
 
 }
 /// this is for the special case of isentropy, 

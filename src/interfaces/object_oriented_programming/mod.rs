@@ -1,6 +1,6 @@
 use uom::si::f64::*;
 
-use crate::interfaces::functional_programming::*;
+use crate::{interfaces::functional_programming::*, prelude::functional_programming::hs_flash_eqm::p_hs_eqm};
 
 /// this is the bread and butter for tampines steam tables, 
 /// the control volume
@@ -158,6 +158,14 @@ impl TampinesSteamTableCV {
     }
 
 
+    pub fn new_from_hs(
+        h: AvailableEnergy,
+        s: SpecificHeatCapacity,
+        volume: Volume) -> Self {
+
+        let p = p_hs_eqm(h, s);
+        return Self::new_from_ph(p, h, volume);
+    }
 
 }
 

@@ -152,7 +152,7 @@ impl super::TampinesSteamTableCV {
     }
 
     /// Finds the pressure where Mach number = 1 during isentropic expansion
-    fn find_critical_pressure_isentropic(&self) -> Pressure {
+    pub fn find_critical_pressure_isentropic(&self) -> Pressure {
 
         let ideal_gas_critical_pressure_ratio = 
             self.get_critical_pressure_ratio_ideal_gas();
