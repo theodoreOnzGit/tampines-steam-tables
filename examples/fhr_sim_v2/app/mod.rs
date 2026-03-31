@@ -862,7 +862,7 @@ impl FHRSimulatorApp {
         let sg_tube_14a_start_point = sg_tube_14_start_point;
         let sg_tube_14a_coordinate_chg_percentage = 
             vec2(30.0,0.0);
-        let sg_tube_14a_end_point = create_pipe_widget_secondary_loop(
+        let _sg_tube_14a_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_pump, 
             sg_tube_14a_start_point, 
             sg_tube_14a_coordinate_chg_percentage, 
@@ -958,7 +958,7 @@ impl FHRSimulatorApp {
             turbine_tube_18g_end_point;
         let turbine_tube_18h_coordinate_chg_percentage = 
             vec2(0.0,40.0);
-        let turbine_tube_18h_end_point = create_pipe_widget_secondary_loop(
+        let _turbine_tube_18h_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_turbine, 
             turbine_tube_18h_start_point, 
             turbine_tube_18h_coordinate_chg_percentage, 
@@ -969,7 +969,7 @@ impl FHRSimulatorApp {
             turbine_tube_18c_end_point;
         let turbine_tube_18i_coordinate_chg_percentage = 
             vec2(-45.0,15.0);
-        let turbine_tube_18i_end_point = create_pipe_widget_secondary_loop(
+        let _turbine_tube_18i_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_turbine, 
             turbine_tube_18i_start_point, 
             turbine_tube_18i_coordinate_chg_percentage, 
@@ -1080,7 +1080,7 @@ impl FHRSimulatorApp {
             pump_20a_end_point;
         let pump_20b_coordinate_chg_percentage = 
             vec2(-100.0,0.0);
-        let pump_20b_end_point = create_pipe_widget_secondary_loop(
+        let _pump_20b_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_condenser, 
             pump_20b_start_point, 
             pump_20b_coordinate_chg_percentage, 
