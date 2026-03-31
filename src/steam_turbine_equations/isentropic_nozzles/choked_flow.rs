@@ -1,6 +1,6 @@
 use uom::si::{f64::*, ratio::ratio, volume::cubic_meter};
 
-use crate::prelude::{TampinesSteamTableCV, functional_programming::ps_flash_eqm::v_ps_eqm};
+use crate::prelude::TampinesSteamTableCV;
 
 
 /// This is an algorithm to obtain outlet thermodynamic state 

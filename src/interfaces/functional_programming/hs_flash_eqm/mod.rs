@@ -29,7 +29,7 @@ use crate::backward_eqn_hs_region_1_to_4::region_2_and_3::tb23_s_boundary_enthal
 use crate::backward_eqn_hs_region_1_to_4::region_1_and_3::hb13_s_boundary_enthalpy;
 
 use super::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, mu_ph_eqm, t_ph_eqm, w_ph_eqm};
-use super::pt_flash_eqm::{s_tp_eqm_two_phase, FwdEqnRegion};
+use super::pt_flash_eqm::FwdEqnRegion;
 use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
 use super::ps_flash_eqm::v_ps_eqm;
@@ -368,28 +368,7 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
 
 }
 
-// for some pressures eg. 0.1 bar
-// the guessed pressure is inaccurate
-//
-// this does a single manual newton raphson correction in order to get 
-// it closer to the actual pressure
-// not implemented
-#[inline]
-fn p_hs_newton_raphson_single_correction_fixed_t_estimate(
-    _h: AvailableEnergy,
-    _s: SpecificHeatCapacity, 
-    _p_guess: Pressure) -> Pressure {
 
-    // we are trying to converge to a correct pressure using (h,s)
-    //
-    // however, first p(h,s) fails for low pressure
-    //
-
-
-
-    todo!();
-
-}
 
 /// allows the user to check which region one is in based on a ph flash
 ///
