@@ -84,6 +84,9 @@ pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
     
     // the mommentum balance check here does not account for wall forces,
     // so it may not always work
+    //
+    // so for isentropic flows, we only do mass and energy balances 
+    // the force balances are not accounted for
     if momentum_balance_check_1d {
 
         // after this, it is time to do force balance
