@@ -59,6 +59,8 @@ pub fn get_dv_isentropic_nozzle_diffuser(
 
 /// Returns both pressure and velocity changes for isentropic nozzle/diffuser
 /// More efficient than calling get_dp and get_dv separately
+///
+/// note that this only includes mass and energy balances
 pub fn get_dp_dv_isentropic_nozzle_diffuser(
     a1: Area,
     a2: Area,
