@@ -80,9 +80,11 @@ pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
                    mass_flowrate_error.get::<ratio>() * 100.0);
     }
     
-    let momentum_balance_check = false; 
+    let momentum_balance_check_1d = false; 
     
-    if momentum_balance_check {
+    // the mommentum balance check here does not account for wall forces,
+    // so it may not always work
+    if momentum_balance_check_1d {
 
         // after this, it is time to do force balance
         // force balance is 
