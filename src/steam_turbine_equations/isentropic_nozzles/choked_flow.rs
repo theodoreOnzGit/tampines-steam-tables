@@ -112,10 +112,12 @@ pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
 mod choked_flow_examples{
     use uom::si::area::square_centimeter;
     use uom::si::available_energy::kilojoule_per_kilogram;
+    use uom::si::heat_capacity::kilojoule_per_kelvin;
     use uom::si::mass_rate::kilogram_per_second;
     use uom::si::pressure::{kilopascal, megapascal};
     use uom::si::f64::*;
     use uom::si::ratio::ratio;
+    use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
     use uom::si::thermodynamic_temperature::degree_celsius;
     use uom::si::velocity::meter_per_second;
     use uom::si::volume::cubic_meter;
@@ -289,10 +291,43 @@ mod choked_flow_examples{
             max_relative=1e-3,
         );
 
+        // from Cengel's the exit entropy is 7.2019 Kj/kg k
+
+        let s_exit = state_exit.get_specific_entropy();
+
+        approx::assert_relative_eq!(
+            s_exit.get::<kilojoule_per_kilogram_kelvin>(),
+            7.2019,
+            max_relative=1e-3,
+        );
+
+        // for exit velocity, it is convenient to use a stagnation enthalpy 
+        // as the reference, since it is the same through the 
+        // whole nozzle 
+
+        let v_exit = (2.0*(h0 - h_exit)).sqrt();
+        approx::assert_relative_eq!(
+            v_exit.get::<meter_per_second>(),
+            929.8,
+            max_relative=1e-3,
+        );
+
+        // exit mach number is 1.804 
+
+        let mach_number_exit = state_exit.get_mach_number(v_exit);
+        approx::assert_relative_eq!(
+            mach_number_exit.get::<ratio>(),
+            1.804,
+            max_relative=1e-3,
+        );
+
         dbg!(&(
                 p_exit.get::<megapascal>(),
                 v_throat.get::<meter_per_second>(),
                 c_exit.get::<meter_per_second>(),
+                v_exit.get::<meter_per_second>(),
+                s_exit.get::<kilojoule_per_kilogram_kelvin>(),
+                mach_number_exit.get::<ratio>(),
         ));
 
     }
