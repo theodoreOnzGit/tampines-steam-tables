@@ -107,40 +107,84 @@ pub fn get_choked_flow_state_for_nozzle_subsonic(
     return (p2, h2, choked_mass_flowrate);
 
 }
-/// this is for the special case of isentropy, 
-/// but most of the time, 
-/// it won't work for isentropy for choked flow scenario
-/// as in mass and energy balance solves at the same time
-#[inline]
-fn force_balance_isentropic_nozzle(
-    p1: Pressure,
-    p2: Pressure,
-    h1: AvailableEnergy,
-    mass_flowrate: MassRate,
-    a1: Area,
-    a2: Area,
-    ) -> Force {
-    let ref_vol = Volume::new::<cubic_meter>(1.0);
-    let state_1: TampinesSteamTableCV = 
-        TampinesSteamTableCV::new_from_ph(p1, h1, ref_vol);
 
-    let rho1: MassDensity = state_1.get_specific_volume().recip();
-    let s1: SpecificHeatCapacity = state_1.get_specific_entropy();
-    // note: this is isentropic, hence s2 = s1;
-    let s2 = s1;
-    let v1: Velocity = mass_flowrate/rho1/a1;
+#[cfg(test)]
+mod choked_flow_examples{
+    use uom::si::mass_rate::kilogram_per_second;
+    use uom::si::pressure::{kilopascal, megapascal};
+    use uom::si::f64::*;
+    use uom::si::ratio::ratio;
+    use uom::si::thermodynamic_temperature::degree_celsius;
+    use uom::si::volume::cubic_meter;
 
-    let p1a1: Force = p1*a1;
-    // left hand side of momentum balance
-    //
-    // P1 A1 + dot{m}^2/{rho1 a1}
-    let lhs: Force = p1a1 + mass_flowrate * v1;
+    use crate::prelude::TampinesSteamTableCV;
 
-    // if we have p2, we can get the second thermodynamic state
-    let p2a2 = p2 * a2;
-    let rho2 = v_ps_eqm(p2, s2).recip();
-    let rhs: Force = p2a2 + mass_flowrate * mass_flowrate/rho2/a2;
 
-    return lhs-rhs;
+    /// this is from example 17-16 in Cengel's thermodynamics 8th edition
+    ///
+    /// Steam enters a converging-diverging nozzle at 2 MPa and 400C 
+    /// with negligble velocity and flowrate is 2.5 kg/s 
+    /// it exits at pressure of 300 kPa 
+    ///
+    /// from nozzle entrance to throat, it is isentropic 
+    /// after throat, it is 93 % efficient 
+    ///
+    /// what is 
+    /// 1. the throat and exit area
+    /// 2. mach number at throat and nozzle exit
+    #[test]
+    pub fn steam_flow_cd_nozzle(){
+
+        let p1 = Pressure::new::<megapascal>(2.0);
+        let t1 = ThermodynamicTemperature::new::<degree_celsius>(400.0);
+        let mass_flowrate = MassRate::new::<kilogram_per_second>(2.5);
+        let p_exit = Pressure::new::<kilopascal>(300.0);
+
+        // stagnation pressure = p1 as velocity is negligble 
+
+        let p0 = p1;
+        // we assume steam is superheated, so quality is 1 
+        let x0 = 1.0;
+        let ref_vol = Volume::new::<cubic_meter>(1.0);
+
+        let state_0 = TampinesSteamTableCV::new_from_tp_quality_1(
+            t1, p1, ref_vol
+        );
+
+        let critical_pressure_ratio = 
+            state_0.get_critical_pressure_ratio();
+
+        // In Cengel's textbook, critical pressure ratio is approximated 
+        // as 0.546 
+
+        approx::assert_relative_eq!(
+            critical_pressure_ratio.get::<ratio>(),
+            0.546,
+            max_relative=1e-3,
+        );
+
+        // critical pressure ratio checks out!
+        // now, we expect throat pressure to be 1.09 MPa
+        let p_throat = p1 * critical_pressure_ratio;
+        approx::assert_relative_eq!(
+            p_throat.get::<megapascal>(),
+            1.09,
+            max_relative=1e-3,
+        );
+
+
+
+        dbg!(&(
+                critical_pressure_ratio,
+                p_throat,
+        ));
+        todo!();
+
+
+
+
+    }
 
 }
+
+
