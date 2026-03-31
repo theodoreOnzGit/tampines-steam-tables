@@ -266,10 +266,34 @@ mod choked_flow_examples{
                 v_throat.get::<meter_per_second>(),
                 c.get::<meter_per_second>(),
         ));
-        todo!();
+
+        // now we want to deal with exit properties,
+        // we know the pressure and 
+        // Cengel writes the entahlpy as 2816.1 kJ/kg given a 0.93 
+        // efficiency (we are not testing for that here)
+
+        let h_exit = AvailableEnergy::new::<kilojoule_per_kilogram>(2816.1);
+
+        let state_exit = 
+            TampinesSteamTableCV::new_from_ph(
+                p_exit, h_exit, ref_vol
+            );
+
+        let c_exit: Velocity = state_exit.get_speed_of_sound();
 
 
+        // from Cengel's the exit speed of sound is 515.4 m/s
+        approx::assert_relative_eq!(
+            c_exit.get::<meter_per_second>(),
+            515.4,
+            max_relative=1e-3,
+        );
 
+        dbg!(&(
+                p_exit.get::<megapascal>(),
+                v_throat.get::<meter_per_second>(),
+                c_exit.get::<meter_per_second>(),
+        ));
 
     }
 
