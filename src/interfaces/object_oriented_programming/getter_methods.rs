@@ -11,7 +11,7 @@ use crate::prelude::functional_programming::ph_flash_eqm::cv_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::cp_ph_eqm;
 use crate::dynamic_viscosity::mu_ph_eqm;
 use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
-use crate::region_2_vapour::v_tp_2_metastable;
+use crate::region_2_vapour::*;
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
     pub fn get_pressure(&self) -> Pressure {
@@ -266,6 +266,149 @@ impl super::TampinesSteamTableCV {
             FwdEqnRegion::Region2 => {
                 let v = v_tp_2_metastable(t, p);
                 return Some(v);
+            },
+            FwdEqnRegion::Region1 => None,
+            FwdEqnRegion::Region3 => None,
+            FwdEqnRegion::Region4 => None,
+            FwdEqnRegion::Region5 => None,
+        }
+    }
+
+    /// get metastable steam state, (region 2 only) 
+    /// 
+    /// if not region 2, then returns a None value
+    pub fn get_metastable_steam_specific_enthalpy(&self) -> 
+        Option<AvailableEnergy>
+    {
+
+        let p = self.pressure;
+        let t = self.temperature;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        match region {
+            FwdEqnRegion::Region2 => {
+                let h = h_tp_2_metastable(t, p);
+                return Some(h);
+            },
+            FwdEqnRegion::Region1 => None,
+            FwdEqnRegion::Region3 => None,
+            FwdEqnRegion::Region4 => None,
+            FwdEqnRegion::Region5 => None,
+        }
+    }
+
+
+    /// get metastable steam state, (region 2 only) 
+    /// 
+    /// if not region 2, then returns a None value
+    pub fn get_metastable_steam_internal_energy(&self) -> 
+        Option<AvailableEnergy>
+    {
+
+        let p = self.pressure;
+        let t = self.temperature;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        match region {
+            FwdEqnRegion::Region2 => {
+                let u = u_tp_2_metastable(t, p);
+                return Some(u);
+            },
+            FwdEqnRegion::Region1 => None,
+            FwdEqnRegion::Region3 => None,
+            FwdEqnRegion::Region4 => None,
+            FwdEqnRegion::Region5 => None,
+        }
+    }
+
+
+    /// get metastable steam state, (region 2 only) 
+    /// 
+    /// if not region 2, then returns a None value
+    pub fn get_metastable_steam_specific_entropy(&self) -> 
+        Option<SpecificHeatCapacity>
+    {
+
+        let p = self.pressure;
+        let t = self.temperature;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        match region {
+            FwdEqnRegion::Region2 => {
+                let s = s_tp_2_metastable(t, p);
+                return Some(s);
+            },
+            FwdEqnRegion::Region1 => None,
+            FwdEqnRegion::Region3 => None,
+            FwdEqnRegion::Region4 => None,
+            FwdEqnRegion::Region5 => None,
+        }
+    }
+    /// get metastable steam state, (region 2 only) 
+    /// 
+    /// if not region 2, then returns a None value
+    pub fn get_metastable_steam_cp(&self) -> 
+        Option<SpecificHeatCapacity>
+    {
+
+        let p = self.pressure;
+        let t = self.temperature;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        match region {
+            FwdEqnRegion::Region2 => {
+                let cp = cp_tp_2_metastable(t, p);
+                return Some(cp);
+            },
+            FwdEqnRegion::Region1 => None,
+            FwdEqnRegion::Region3 => None,
+            FwdEqnRegion::Region4 => None,
+            FwdEqnRegion::Region5 => None,
+        }
+    }
+    /// get metastable steam state, (region 2 only) 
+    /// 
+    /// if not region 2, then returns a None value
+    pub fn get_metastable_steam_cv(&self) -> 
+        Option<SpecificHeatCapacity>
+    {
+
+        let p = self.pressure;
+        let t = self.temperature;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        match region {
+            FwdEqnRegion::Region2 => {
+                let cv = cv_tp_2_metastable(t, p);
+                return Some(cv);
+            },
+            FwdEqnRegion::Region1 => None,
+            FwdEqnRegion::Region3 => None,
+            FwdEqnRegion::Region4 => None,
+            FwdEqnRegion::Region5 => None,
+        }
+    }
+    /// get metastable steam state, (region 2 only) 
+    /// 
+    /// if not region 2, then returns a None value
+    pub fn get_metastable_steam_speed_of_sound(&self) -> 
+        Option<Velocity>
+    {
+
+        let p = self.pressure;
+        let t = self.temperature;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        match region {
+            FwdEqnRegion::Region2 => {
+                let c = w_tp_2_metastable(t, p);
+                return Some(c);
             },
             FwdEqnRegion::Region1 => None,
             FwdEqnRegion::Region3 => None,
