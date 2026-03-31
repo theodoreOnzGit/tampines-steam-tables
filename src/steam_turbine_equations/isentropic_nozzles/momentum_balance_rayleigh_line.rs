@@ -63,7 +63,9 @@ pub fn momentum_balance_nozzle_residual(
 
 }
 /// this is for the special case of isentropy, 
-/// but most of the time, it won't work for isentropy
+/// but most of the time, 
+/// it won't work for isentropy for choked flow scenario
+/// as in mass and energy balance solves at the same time
 #[inline]
 pub fn force_balance_isentropic_nozzle(
     p1: Pressure,

@@ -1374,6 +1374,28 @@ So with (h,s) equations, we obtain the outlet enthalpy. With outlet
 enthalpy and entropy, we will be able to get outlet pressure, and 
 density $P_2$ and $\rho_2$ at choked flow.
 
+\begin{equation*}
+	P_1 A_1 +  v_1 \dot{m}
+	= 
+	P_{2} A_2 + c \dot{m}
+\end{equation*}
+\begin{equation*}
+	P_1 A_1 -  P_{2} A_2
+	= 
+	v_1 \dot{m} + c \dot{m}
+\end{equation*}
+\begin{equation*}
+	\frac{P_1 A_1 -  P_{2} A_2}{v_1  + c }
+	= \dot{m} 
+\end{equation*}
+
+With all these, we get an equation for mass flowrate:
+\begin{equation*}
+	\dot{m} = \frac{P_1 A_1 -  P_{2} A_2}{v_1  + c }
+\end{equation*}
+
+I can program a function returning, p2, h2 and mass flowrate
+
 
 \subsection{Reaction Turbines}
 
