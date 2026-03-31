@@ -112,7 +112,6 @@ pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
 mod choked_flow_examples{
     use uom::si::area::square_centimeter;
     use uom::si::available_energy::kilojoule_per_kilogram;
-    use uom::si::heat_capacity::kilojoule_per_kelvin;
     use uom::si::mass_rate::kilogram_per_second;
     use uom::si::pressure::{kilopascal, megapascal};
     use uom::si::f64::*;
