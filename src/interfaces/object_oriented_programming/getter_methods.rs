@@ -3,12 +3,15 @@ use uom::si::f64::*;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 
+use crate::prelude::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::w_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::lambda_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::cv_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::cp_ph_eqm;
 use crate::dynamic_viscosity::mu_ph_eqm;
+use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
+use crate::region_2_vapour::v_tp_2_metastable;
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
     pub fn get_pressure(&self) -> Pressure {
@@ -237,5 +240,39 @@ impl super::TampinesSteamTableCV {
     pub fn get_rho(&self) -> MassDensity {
         self.get_specific_volume().recip()
     }
+
+    // get region of steam 
+    pub fn get_region(&self) -> FwdEqnRegion {
+        
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        return region;
+
+    }
+
+    /// get metastable steam state, (region 2 only) 
+    /// 
+    /// if not region 2, then returns a None value
+    pub fn get_metastable_steam_specific_volume(&self) -> Option<SpecificVolume>{
+
+        let p = self.pressure;
+        let t = self.temperature;
+        let h = self.specific_enthalpy;
+        let region = ph_flash_region(p, h);
+
+        match region {
+            FwdEqnRegion::Region2 => {
+                let v = v_tp_2_metastable(t, p);
+                return Some(v);
+            },
+            FwdEqnRegion::Region1 => None,
+            FwdEqnRegion::Region3 => None,
+            FwdEqnRegion::Region4 => None,
+            FwdEqnRegion::Region5 => None,
+        }
+    }
+
 }
 
