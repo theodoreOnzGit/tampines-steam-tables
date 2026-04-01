@@ -10,6 +10,59 @@ use crate::prelude::{TampinesSteamTableCV};
 #[cfg(test)]
 mod tests;
 
+// so here is the problem statement. 
+//
+//
+// I have a converging diverging nozzle 
+//
+// there is a SET 
+// inlet area, 
+// throat area,
+// outlet area,
+//
+// the conditions at inlet are known (this could be mass flowrate and 
+// inlet velocity and such)
+//
+// The pressure at the turbine outlet will be known 
+// (condenser pressure)
+//
+// It is very likely either 
+//
+// 1. saturated steam
+// 2. superheated steam
+//
+// Water can in theory flow through the tubrine but that is highly 
+// unlikely in steam turbine
+//
+// The turbine will have inlet pressure, and outlet pressure at condenser
+//
+// There will be a series of nozzles and turbine blades
+// before then arriving at the outlet
+// 
+// The steam turbine can be a stator rotor pair interlaced with 
+// many small control volumes in between each stator and rotor
+//
+// 
+// for such a case, then there will be an inlet control volume with 
+// known state, 
+//
+// then a stator (nozzle) and rotor pair
+//
+// For such a case, this is a pressure driven flow 
+//
+// the pressure difference between inlet and outlet will drive the flow
+//
+// It will be treated like a flow between two pressure points.
+//
+// Mass flowrate will be such that the pressures will equalise
+//
+//
+//
+// 
+// 
+//
+//
+
 
 // for isentropic/adiabatic diffusers/nozzles, we follow the mach number
 // formulae 
@@ -200,6 +253,8 @@ pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
 
     (p2, v2, h2)
 }
+
+
 
 
 pub mod momentum_balance_rayleigh_line;
