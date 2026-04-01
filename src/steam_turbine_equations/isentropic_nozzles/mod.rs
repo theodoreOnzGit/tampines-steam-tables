@@ -143,15 +143,16 @@ mod tests;
 // When the mass flowrate of the nozzle and supersonic diffuser match,
 // given the pressure difference set, 
 // then we have a mass flowrate solution in the nozzle.
-// 
 //
 //
+// After solving the nozzle part, the mass flowrate is known. And the exit 
+// velocity of the c-d nozzle is known. 
 //
+// Then we can just perform velocity reduction in the spinning part of 
+// the impulse turbine. 
 //
-//
-// 
-//
-//
+// And there we have it, we have mass flowrate and enthalpy at the end 
+// of the turbine stage.
 //
 //
 //
