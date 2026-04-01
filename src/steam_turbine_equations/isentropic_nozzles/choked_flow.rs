@@ -122,6 +122,90 @@ pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
 
 }
 
+/// based on steam pressure and enthalpy, 
+/// as well as mass flowrate, obtain the choked flow area
+/// you have to give the stagnation enthalpy and pressure as 
+/// inputs
+pub fn get_choked_flow_nozzle_area(
+    p0: Pressure,
+    h0: AvailableEnergy,
+    mass_flowrate: MassRate,
+    ) -> Area {
+
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    let state_0 = TampinesSteamTableCV::new_from_ph(p0, h0, ref_vol);
+    let s0 = state_0.get_specific_entropy();
+    let s1 = s0;
+
+
+    // now, i'll have to get a solver for choked flow 
+
+    // let's use the critical pressure 
+
+
+    let critical_pressure_ratio: Ratio = 
+        state_0.get_critical_pressure_ratio();
+
+    // this is critical pressure for mach 1
+    let p2 = critical_pressure_ratio * p0;
+    // let's get speed of sound here 
+    let s2 = s1;
+    let state_2 = TampinesSteamTableCV::new_from_ps(p2, s2, ref_vol);
+    let c = state_2.get_speed_of_sound();
+    let rho_2 = state_2.get_rho();
+
+    // after getting c, we should be able to get area
+    let a_throat: Area = mass_flowrate/rho_2/c;
+
+    return a_throat;
+    
+}
+/// based on steam pressure and enthalpy, 
+/// as well as mass flowrate, obtain the choked flow area
+/// you have to give the stagnation enthalpy and pressure as 
+/// inputs
+///
+/// isentropic nozzle assumed
+///
+/// also, mass flowrate and exit pressure given,
+/// assuming throat velocity is speed of sound
+pub fn get_choked_flow_exit_area_and_state_given_throat_area_and_exit_pressure(
+    p_throat: Pressure,
+    h_throat: AvailableEnergy,
+    p_exit: Pressure,
+    mass_flowrate: MassRate,
+    ) -> (Pressure, AvailableEnergy, Area) {
+
+
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    let state_throat = TampinesSteamTableCV::new_from_ph(
+        p_throat, h_throat, ref_vol
+    );
+
+    let c = state_throat.get_speed_of_sound();
+    // stagnation properties
+    let s0 = state_throat.get_specific_entropy();
+    // I assume speed of sound at the throat
+    let h0 = h_throat + 0.5 * c * c;
+
+    // at exit, the pressure is given
+
+    let state_exit = TampinesSteamTableCV::new_from_ps(
+        p_exit, s0, ref_vol
+    );
+
+    let h_exit = state_exit.get_specific_enthalpy();
+    let v_exit: Velocity = (2.0 * (h0 - h_exit)).sqrt();
+    let rho_exit = state_exit.get_rho();
+    let a_exit = mass_flowrate/v_exit/rho_exit;
+
+    
+
+
+    return (p_exit, h_exit, a_exit);
+    
+}
+
 #[cfg(test)]
 mod choked_flow_examples{
     use uom::si::area::square_centimeter;
@@ -136,7 +220,7 @@ mod choked_flow_examples{
     use uom::si::volume::cubic_meter;
 
     use crate::prelude::TampinesSteamTableCV;
-    use crate::steam_turbine_equations::choked_flow::get_choked_flow_state_for_nozzle_subsonic_to_sonic;
+    use crate::steam_turbine_equations::choked_flow::{get_choked_flow_nozzle_area, get_choked_flow_state_for_nozzle_subsonic_to_sonic};
 
 
     /// this is from example 17-16 in Cengel's thermodynamics 8th edition
@@ -342,6 +426,44 @@ mod choked_flow_examples{
                 s_exit.get::<kilojoule_per_kilogram_kelvin>(),
                 mach_number_exit.get::<ratio>(),
         ));
+
+
+    }
+
+    /// this is a converging diverging nozzle using Cengel's question 
+    /// 17-110
+    #[test]
+    fn steam_flow_cd_nozzle_2(){
+
+        let inlet_temperature = 
+            ThermodynamicTemperature::new::<degree_celsius>(
+                500.0
+            );
+
+        let inlet_pressure = 
+            Pressure::new::<megapascal>(
+                1.0 
+            );
+
+        let mass_flowrate = MassRate::new::<kilogram_per_second>(
+            2.5
+        );
+
+        let ref_vol = Volume::new::<cubic_meter>(1.0);
+        let state_0 = TampinesSteamTableCV::new_from_tp_quality_1(
+            inlet_temperature, inlet_pressure, ref_vol
+        );
+        let h0 = state_0.get_specific_enthalpy();
+        let p0 = inlet_pressure;
+
+        // note, throat diameter is 22.4 cm^2
+        let area = get_choked_flow_nozzle_area(p0, h0, mass_flowrate);
+        approx::assert_relative_eq!(
+            area.get::<square_centimeter>(),
+            22.399,
+            max_relative=1e-3,
+        );
+
 
 
     }
