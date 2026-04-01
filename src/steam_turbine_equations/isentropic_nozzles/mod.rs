@@ -51,14 +51,111 @@ mod tests;
 // For such a case, this is a pressure driven flow 
 //
 // the pressure difference between inlet and outlet will drive the flow
-//
 // It will be treated like a flow between two pressure points.
+// Mass flowrate will be such that the pressures will equalise.
 //
-// Mass flowrate will be such that the pressures will equalise
+// For now, an impulse turbine stage can look like this 
+// take two adjacent control volumes ,
+//
+//
+// obtain pressure difference between them 
+// knowing outlet pressure, I would then take this to be the nozzle 
+// outlet pressure, 
+//
+// 1. I would then solve for the nozzle flow using the pressure differences
+// 2. for the turbine blade, there is torque exerted, and the velocity 
+// will be slowed down on the way out. This is based on the velocity 
+// coefficient of the impulse turbine.
+// 3. the outlet stagnation enthalpy is then calculated to be the state 
+// of the steam entering the next control volume
+//
+// when pressure differences are given, we solve for mass flowrate 
+// and velocity individually.
+//
+// I suppose we could do finite differencing. 
+// In doing so, we may run into numerical errors such as Courant number.
+// May be needed to do a local timestepping of sorts.
+// Do we use rhoPimpleFoam algorithm? I myself am not sure.
+//
+// But the equations would be sort of an exponential type yeah... 
+//
+// not sure if I want to go down this rabbit hole 
+// but nevermind.
+//
+// Anyway for a nozzle, with pressure differences, and no specified 
+// mass flowrate 
+//
+// 1. assume stagnation in the inlet. (neglect KE in the inlet), otherwise 
+// add it in
+// 2. calculate throat velocity (possibly sonic), does this work?
+// 3. generally speaking, nozzles just obey mass and energy balance.
+// Energy balance is:
+// v_throat = (2.0 * (h0 - h_throat).sqrt()
+//
+// assuming inlet stagnation states are known (p0, h0), we can 
+// calculate entropy. This will also give us the inlet density of 
+// steam.
+//
+// Nozzle is isentropic. (s1 = s0 = s_throat)
+//
+// area of entrance and throat are known 
+//
+// rho1 * a1 * v1 = rho2 * a2 * v2
+//
+// from this, we can obtain:
+//
+// rho2 * v2/v1 = rho1 * a1 / (a2);
+//
+// rho2 * v2/v1 is constant from mass balance
+//
+// What we can do, is to guess a mass flowrate.
+//
+// After guessing mass flowrate, we obtain v1 first 
+// now we have the product of rho2 * v2.
+//
+// We have to guess h_throat iteratively. we shall have nested loop (oops)
+//
+// Otherwise, guess h_throat iteratively, the limits will be between 
+// v_throat is supersonic and v_throat is 0
+//
+// from then we can guess v_throat. 
+//
+// Better yet, just guess v_throat (v2) first.
+//
+// This makes it easy to guess h_throat. 
+// When h_throat is known, s_throat is known, thermodynamic state is fully 
+// known. 
+//
+// we then get a formula for v2/v1. 
+//
+// From this, we get v1. Which is the mass flowrate.
+//
+// Now, when v_throat is guessed, the pressure at the throat is also 
+// guessed.
+//
+// We have to see whether the pressure at the throat is good for the 
+// pressure bounds given.
+//
+// Once having a throat pressure, we can obtain an equation to get 
+// the mass flowrate in the outside part of the nozzle given the 
+// nozzle diverging part.
+//
+// When the mass flowrate of the nozzle and supersonic diffuser match,
+// given the pressure difference set, 
+// then we have a mass flowrate solution in the nozzle.
+// 
+//
+//
 //
 //
 //
 // 
+//
+//
+//
+//
+//
+//
 // 
 //
 //
