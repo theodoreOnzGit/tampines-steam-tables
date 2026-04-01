@@ -169,7 +169,7 @@ pub fn get_choked_flow_nozzle_area(
 ///
 /// also, mass flowrate and exit pressure given,
 /// assuming throat velocity is speed of sound
-pub fn get_choked_flow_exit_area_and_state_given_throat_area_and_exit_pressure(
+pub fn get_choked_flow_supersonic_nozzle_exit_area_and_state(
     p_throat: Pressure,
     h_throat: AvailableEnergy,
     p_exit: Pressure,
@@ -220,7 +220,7 @@ mod choked_flow_examples{
     use uom::si::volume::cubic_meter;
 
     use crate::prelude::TampinesSteamTableCV;
-    use crate::steam_turbine_equations::choked_flow::{get_choked_flow_nozzle_area, get_choked_flow_state_for_nozzle_subsonic_to_sonic};
+    use crate::steam_turbine_equations::choked_flow::{get_choked_flow_supersonic_nozzle_exit_area_and_state, get_choked_flow_nozzle_area, get_choked_flow_state_for_nozzle_subsonic_to_sonic};
 
 
     /// this is from example 17-16 in Cengel's thermodynamics 8th edition
@@ -463,9 +463,60 @@ mod choked_flow_examples{
             22.399,
             max_relative=1e-3,
         );
+        let ref_vol = Volume::new::<cubic_meter>(1.0);
+        let state_0 = TampinesSteamTableCV::new_from_ph(p0, h0, ref_vol);
+        let s0 = state_0.get_specific_entropy();
+        let s1 = s0;
 
 
+        // now, i'll have to get a solver for choked flow 
 
+        // let's use the critical pressure 
+
+
+        let critical_pressure_ratio: Ratio = 
+            state_0.get_critical_pressure_ratio();
+
+        // this is critical pressure for mach 1
+        let p_throat = critical_pressure_ratio * p0;
+        // let's get speed of sound here 
+        let s2 = s1;
+        let state_throat = TampinesSteamTableCV::new_from_ps(p_throat, s2, ref_vol);
+        let h_throat = state_throat.get_specific_enthalpy();
+        let p_exit = Pressure::new::<kilopascal>(200.0);
+
+        let (p_exit, h_exit, exit_area) = 
+            get_choked_flow_supersonic_nozzle_exit_area_and_state(
+            p_throat, h_throat, p_exit, mass_flowrate
+        );
+
+        approx::assert_relative_eq!(
+            exit_area.get::<square_centimeter>(),
+            31.5,
+            max_relative=1e-3,
+        );
+
+        // lastly, get mach number for exit
+        
+        let v_exit = (2.0*(h0-h_exit)).sqrt();
+        let state_exit = TampinesSteamTableCV::new_from_ph(
+            p_exit, h_exit, ref_vol
+        );
+        let mach_number = state_exit.get_mach_number(v_exit);
+
+
+        // cengel reports 1.738
+        // this is within 1% of the value given
+        approx::assert_relative_eq!(
+            mach_number.get::<ratio>(),
+            1.738,
+            max_relative=1e-2,
+        );
+        approx::assert_relative_eq!(
+            mach_number.get::<ratio>(),
+            1.728,
+            max_relative=1e-3,
+        );
     }
 
 }
