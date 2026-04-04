@@ -1469,6 +1469,13 @@ and mass flowrate.
 
 We need to break down into a few cases what may happen.
 
+There are a few cases, and we will need to segregate them by whether 
+choked flow happens or not. 
+
+\paragraph{How to decided if choked flow happens}
+
+TBD
+
 \paragraph{Case 0: Subsonic isentropic flow throughout}
 
 In this case, we don't have choked flow. The flow simply decelerates towards 
@@ -1518,16 +1525,54 @@ So the steps are:
 
 With these steps in mind, it should be pretty trivial
 
-\paragraph{Case 1: Choked, and Pressure at throat is less than exit pressure}
+\paragraph{Case 1: Choked, and no shocks forming, subsonic outlet flow}
 
-In this case, it is quite straightforward, there will be 
+In this case, it is not quite straightforward, there will be 
 decelartion towards subsonic flow. This can happen without shocks forming.
 Now, if the pressure drops below some threshold value, there will be 
 normal shocks forming in the system, and it is no longer isentropic flow.
 
-TBD
+For this case, we assume no shocks forming. What is the condition for this 
+to happen?
 
+We begin with the assumption of flow choking, so mass flowrate will be 
+fixed at:
 
+\begin{equation*}
+	\dot{m} = \rho_{choked} a_{throat} c
+\end{equation*}
+
+By continuity, the outlet mass flowrate is also fixed. But we do not know 
+the final thermodynamic state.
+
+\begin{equation*}
+	\dot{m} = \rho_{out} a_{throat} v_{out}
+\end{equation*}
+
+First, we can assume isentropic expansion. We first use the (p,s) flash 
+to determine $h_{out}$, and then we get $v_{out}$ using:
+
+\begin{equation*}
+	h_0 = h_{out} + 0.5 v^2_{out}
+\end{equation*}
+
+In this case, the outlet pressure will be somewhere between the throat 
+pressure (critical pressure) and the inlet pressure. This will be likely 
+candidate for subsonic flow.
+
+With (p,s) flash, we should be able to guess a $\rho_{out}$ and $v_{out}$.
+Now, if the mass flowrate numbers tally, we should be able to confirm that no shocks 
+are occuring. Thus, the equations are solved. Otherwise, we need to move 
+to other cases.
+
+\begin{itemize}
+	\item Determine that flow is subsonic (fixed amss flowrate)
+	\item Assume isentropic, find end-state at exit using (p,s) flash 
+	\item Using end state, find $v_{exit}$ using $h_0 = h_{exit} + 0.5 v_{exit}^2$
+	\item Using $v_{exit}$ and $\rho_{exit}$ from end state, find mass flowrate
+	\item check if mass flowrate matches choked mass flowrate to within 0.1\% tolerance
+	\item if it does, then solution is reached! outlet conditions and mass flowrate are known
+\end{itemize}
 
 \paragraph{Case 2: Choked and nozzle results in Supersonic flow}
 
@@ -1537,6 +1582,7 @@ without any shocks forming.
 
 How low is low enough?
 
+\paragraph{Case 3: Choked flow and shocks occur, subsonic outlet flow}
 
 
 
