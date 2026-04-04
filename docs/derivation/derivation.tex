@@ -1499,37 +1499,24 @@ In the subsonic flow case, entropy is fixed, specifying $v_{exit}$ will
 determine $h_{exit}$, and $\rho_{exit}$ with the use of the isentropic 
 relations. Hence, one more constraint is required.
 
-For this, we can consider the entrance state:
+The most straightforward way in this case is to use a (p,s) flash, 
+if we indeed confirm that the flow is isentropic. 
+With these, $h_{exit}$ is found, then $v_{exit}$ will be found via 
+the energy balance. 
 
-\begin{equation*}
-	\dot{m} = \rho_{entrance} a_{entrance} v_{entrance}
-\end{equation*}
-
-But again, $v_{entrance}$ is not really specified, it just needs to be  
-negligble in comparision to $h_0$.
-
-What we can do is consider also the throat mass balance:
-
-\begin{equation*}
-	\dot{m} = a_{throat} v_{throat} \rho_{throat}
-\end{equation*}
-\begin{equation*}
-	h_0 = h_{throat} - 0.5 * v_{throat}^2
-\end{equation*}
-
-\begin{equation*}
-	s_0 = s_{throat}
-\end{equation*}
-
-
-Now, again $v_{throat}$ is specifiable. What we can do is that change 
-$v_{throat}$ and $v_{exit}$ such that the mass balances tally.
-
+$\rho_{exit}$ will be determined by this exit state, and then from therein,
+we get the mass flowrate. 
 
 \paragraph{Case 1: Choked, and Pressure at throat is less than exit pressure}
 
 In this case, it is quite straightforward, there will be 
 decelartion towards subsonic flow. This can happen without shocks forming.
+Now, if the pressure drops below some threshold value, there will be 
+normal shocks forming in the system, and it is no longer isentropic flow.
+
+TBD
+
+
 
 \paragraph{Case 2: Choked and nozzle results in Supersonic flow}
 
