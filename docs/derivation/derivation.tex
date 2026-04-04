@@ -1455,6 +1455,93 @@ pub fn get_choked_flow_massrate_and_state_from_stagnation_properties_and_area(
 \end{lstlisting}
 
 
+Now, this mass flowrate will be the upper bound mass flowrate for 
+choked flow, the lower bound, is of course, 0 kg/s. This is the nozzle 
+calculation.
+
+Now, for the diverging part, we will also solve similar equations. But 
+the flow may or may not be isentropic due to presence of shocks. This will 
+depend on the outlet pressure. The outlet pressure is indeed fixed, 
+but the throat pressure is not.
+
+However, given a throat velocity, we will have a fixed throat pressure 
+and mass flowrate.
+
+We need to break down into a few cases what may happen.
+
+\paragraph{Case 0: Subsonic isentropic flow throughout}
+
+In this case, we don't have choked flow. The flow simply decelerates towards 
+the exit with appropriate exit pressure. Flow is subsonic, isentropic.
+No shocks or anything interesting.
+
+In such a case, the exit velocity is limited by the exit area rather than 
+anything. 
+
+With stagnation properties p0, h0, and exit area,
+
+\begin{equation*}
+	h_0 = h_{exit} - 0.5 * v_{exit}^2
+\end{equation*}
+\begin{equation*}
+	s_0 = s_{exit}
+\end{equation*}
+
+
+\begin{equation*}
+	\dot{m} = \rho_{exit} a_{exit} v_{exit}
+\end{equation*}
+
+Solving these equations simultaneously will allow for mass flowrate to be 
+determined.
+
+In the subsonic flow case, entropy is fixed, specifying $v_{exit}$ will 
+determine $h_{exit}$, and $\rho_{exit}$ with the use of the isentropic 
+relations. Hence, one more constraint is required.
+
+For this, we can consider the entrance state:
+
+\begin{equation*}
+	\dot{m} = \rho_{entrance} a_{entrance} v_{entrance}
+\end{equation*}
+
+But again, $v_{entrance}$ is not really specified, it just needs to be  
+negligble in comparision to $h_0$.
+
+What we can do is consider also the throat mass balance:
+
+\begin{equation*}
+	\dot{m} = a_{throat} v_{throat} \rho_{throat}
+\end{equation*}
+\begin{equation*}
+	h_0 = h_{throat} - 0.5 * v_{throat}^2
+\end{equation*}
+
+\begin{equation*}
+	s_0 = s_{throat}
+\end{equation*}
+
+
+Now, again $v_{throat}$ is specifiable. What we can do is that change 
+$v_{throat}$ and $v_{exit}$ such that the mass balances tally.
+
+
+\paragraph{Case 1: Choked, and Pressure at throat is less than exit pressure}
+
+In this case, it is quite straightforward, there will be 
+decelartion towards subsonic flow. This can happen without shocks forming.
+
+\paragraph{Case 2: Choked and nozzle results in Supersonic flow}
+
+In this case, it is also relatively straightforward, the exit pressure 
+is low enough that flow can expand and acceleaate through the nozzle 
+without any shocks forming.
+
+How low is low enough?
+
+
+
+
 
 
 
