@@ -284,3 +284,45 @@ pub fn guess_massrate_and_state_for_converge_nozzle_from_stagnation(
     return (mass_flowrate, state_out);
 
 }
+
+
+/// This gives the mass flowrate for choked flow given the area of a throat
+/// and the inlet stagnation properties (negligble KE)
+#[inline]
+pub fn get_choked_flow_massrate_and_state_from_stagnation_properties_and_area(
+    p0: Pressure,
+    h0: AvailableEnergy,
+    a_throat: Area,
+) -> (MassRate, TampinesSteamTableCV) {
+
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    // now we have inlet stagnation state
+    let state_0 = TampinesSteamTableCV::new_from_ph(p0, h0, ref_vol);
+
+
+    // calculate entropy, because process should be isentropic,
+    // entropy is constant
+    let s0 = state_0.get_specific_entropy();
+
+
+    // calculate critical pressure
+    let critical_pressure_ratio: Ratio = 
+        state_0.get_critical_pressure_ratio();
+
+    // this is critical pressure for mach 1
+    let p_critical = critical_pressure_ratio * p0;
+    let s_throat = s0;
+
+    let state_choked = TampinesSteamTableCV::new_from_ps(
+        p_critical, s_throat, ref_vol
+    );
+
+    let c = state_choked.get_speed_of_sound();
+
+    let rho_choked = state_choked.get_rho();
+
+    let massrate: MassRate = c * rho_choked * a_throat;
+
+
+    return (massrate, state_choked);
+}
