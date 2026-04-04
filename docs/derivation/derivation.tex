@@ -1507,6 +1507,17 @@ the energy balance.
 $\rho_{exit}$ will be determined by this exit state, and then from therein,
 we get the mass flowrate. 
 
+So the steps are:
+
+\begin{itemize}
+	\item Determine that flow is subsonic (no choked flow)
+	\item Find end-state at exit using (p,s) flash 
+	\item Using end state, find $v_{exit}$ using $h_0 = h_{exit} + 0.5 v_{exit}^2$
+	\item Using $v_{exit}$ and $\rho_{exit}$ from end state, find mass flowrate
+\end{itemize}
+
+With these steps in mind, it should be pretty trivial
+
 \paragraph{Case 1: Choked, and Pressure at throat is less than exit pressure}
 
 In this case, it is quite straightforward, there will be 
@@ -1529,7 +1540,7 @@ How low is low enough?
 
 
 
-
+\subsection{stability issues and local time stepping (Courant Number)}
 
 
 \subsection{Reaction Turbines}
