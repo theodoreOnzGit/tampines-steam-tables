@@ -1327,7 +1327,7 @@ To accelerate the flow further, one must make the nozzle diverge after
 the throat. This is done with a diverging nozzle for supersonic flow.
 
 
-\paragraph{Subsonic case, area decreasing}
+\paragraph{Nozzle tthrough to Throat Subsonic case, area decreasing}
 
 
 In this case, we will need a function to determine acceleration up to 
@@ -1335,6 +1335,11 @@ this (critical point). Combining energy and mass balance:
 
 \begin{equation*}
 	h_1 + \frac{v_1^2}{2} = h_2 + \frac{v_2^2}{2}
+\end{equation*}
+
+The mass balance is:
+\begin{equation*}
+	\rho_1 A_1 v_1 = \rho_2 A_2 v_2
 \end{equation*}
 
 Combining momentum and mass balance:
@@ -1346,6 +1351,13 @@ Combining momentum and mass balance:
 	P_{2} A_2 +
 	\frac{\dot{m}^2}{\rho_2 A_2}
 \end{equation*}
+
+Now, this momentum equation is valid for short nozzles, where force 
+by the nozzle surfaces on the fluid is neglibible. But in general,
+that is not the case. Most of the time in Cengel's textbook, we don't 
+use force balances for that reason, except when considering shockwaves 
+where the force balance is used for the Rayleigh line (momentum and 
+mass balance).
 
 These are the governing equations. Now, with all these variables, we 
 are trying to check for a choked flow condition. Under choked flow,
@@ -1372,29 +1384,26 @@ defaults to iterative (p,h) algorithm with bisection.
 
 So with (h,s) equations, we obtain the outlet enthalpy. With outlet 
 enthalpy and entropy, we will be able to get outlet pressure, and 
-density $P_2$ and $\rho_2$ at choked flow.
+density $P_2$ and $\rho_2$ at choked flow. This is done using 
+critical pressure ratio functions, which determine the thermodynamic 
+state at the throat.
 
-\begin{equation*}
-	P_1 A_1 +  v_1 \dot{m}
-	= 
-	P_{2} A_2 + c \dot{m}
-\end{equation*}
-\begin{equation*}
-	P_1 A_1 -  P_{2} A_2
-	= 
-	-v_1 \dot{m} + c \dot{m}
-\end{equation*}
-\begin{equation*}
-	\frac{P_1 A_1 -  P_{2} A_2}{-v_1  + c }
-	= \dot{m} 
-\end{equation*}
+Now, the problem statement for a nozzle (stator) plus rotor section is 
+this.
 
-With all these, we get an equation for mass flowrate:
-\begin{equation*}
-	\dot{m} = \frac{P_1 A_1 -  P_{2} A_2}{-v_1  + c }
-\end{equation*}
+\begin{itemize}
+	\item We have two control volumes between nozzle/rotor pair
+	\item CV-1 before nozzle has known (p,h) state, and stagnation state 
+	\item CV-2 after the rotor, has known (p,h) state
+	\item steam goes from CV-1 to throat, accelerates 
+	\item steam accelerates further or goes through shock before diverging nozzle exit 
+	\item steam goes under no pressure decrease in impulse turbine, only velocity decrease 
+	\item steam isentropically returns to stagnation state before entering CV-2
+\end{itemize}
 
-I can program a function returning, p2, h2 and mass flowrate
+
+
+
 
 
 \subsection{Reaction Turbines}
