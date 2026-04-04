@@ -1582,8 +1582,81 @@ without any shocks forming.
 
 How low is low enough?
 
+We know that mass flowrate is fixed at choked flow. This is a good 
+starting point. We also know that for no shocks to occur, flow is indeed 
+isentropic. Hence, the constraint is isentropy, and mass flowrate is equal.
+
+\begin{equation*}
+	\dot{m} = \rho_{out} a_{throat} v_{out}
+\end{equation*}
+
+\begin{equation*}
+	h_0 = h_{out} + 0.5 v^2_{out}
+\end{equation*}
+
+Now, for this, we will have to find a pressure point. A critical outlet 
+pressure where both mass and energy balance are satisfied. This will be 
+somwhere between the choked pressure and outlet pressure. A (p,s) flash 
+must be used iteratively in order to find this critical pressure.
+
+If the outlet pressure is lower to or equal this critical pressure, there 
+will be no shocks in the nozzle. In fact, if outlet pressure is lower 
+than critical pressure, we expect shocks to occur outside the nozzle.
+Perhaps oblique shocks. But as far as the nozzle is concerned, no shocks 
+are present.
+
+With these, we should be able to have an outlet state, and velocity.
+
+If pressure then is still lower than this critical pressure, then we 
+can consider the process non isentropic. The new pressure is this 
+pressure at the next control volume, and the new enthalpy is the 
+existing enthalpy plus the kinetic energy. Entropy will likely increase,
+shockwaves may occur but we will not waste effort here to calculate that.
+This is abstracted out
+
+This will be the flow added into the control volume for proper mixing.
+
+
 \paragraph{Case 3: Choked flow and shocks occur, subsonic outlet flow}
 
+In this case, the outlet pressure is higher than said critical pressure.
+We will then have:
+
+\begin{equation*}
+	s_{out} > s_0
+\end{equation*}
+
+In this case, entropy does not become a constraint. And we need to consider 
+momentum balance, energy balance and mass balance at some point in the 
+supersonic nozzle. We need to then consider the Rayleigh lines and 
+Fanno lines, which are the momentum balances and energy balances 
+respectively.
+
+What we know is that the mass balance constraint must still be satisfied.
+
+\begin{equation*}
+	\dot{m} = \rho_{out} a_{throat} v_{out}
+\end{equation*}
+
+But at the shockwave, energy and mass balance are:
+
+\begin{equation*}
+	h_0 = 0.5 * v_{aftershock}^2 + h_{aftershock}
+	= 0.5 * v_{beforeshock}^2 + h_{beforeshock}
+\end{equation*}
+
+\begin{equation*}
+	\rho_{beforeshock} v_{beforeshock} A_{shock} = \rho_{aftershock} v_{aftershock} A_{shock} = \dot{m}
+\end{equation*}
+
+
+\begin{equation*}
+	\dot{m} v_{beforeshock} + P_{beforeshock} A_{shock} = 
+	\dot{m} v_{aftershock} + P_{aftershock} A_{shock}
+\end{equation*}
+
+It seems as if iterative solution procedure is required to solve for 
+$A_{shock}$ and the states before and after the normal shock.
 
 
 \subsection{stability issues and local time stepping (Courant Number)}
