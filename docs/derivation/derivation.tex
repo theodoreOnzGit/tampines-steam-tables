@@ -1663,7 +1663,104 @@ the shock, the flow is isentropic. Presuming one knows $A_{shock}$,
 a (p,s) flash is quite straightforward to determine all properties 
 of the steam before the shockwave.
 
-TBD (but how to do area of shock?)
+So if guessing $A_{shock}$, one can look at each of the balances 
+and see if they tally.
+
+\begin{itemize}
+	\item Guess $A_{shock}$
+	\item All properties before shock are known
+	\item obtain expression for mass velocity $(\rho v)_{aftershock}$
+	\item it seems iteration will also need to be done after this if we guess $A_{shock}$
+\end{itemize}
+
+Now, we may not know the $A_{shock}$ itself, but we can eliminate this 
+variable from our equations,
+
+Given $\dot{m} = \rho v A$
+
+\begin{equation*}
+	\rho v^2_{beforeshock} A_{shock}  + P_{beforeshock} A_{shock} = 
+	\rho v^2_{aftershock} A_{shock} + P_{aftershock} A_{shock}
+\end{equation*}
+
+We can eliminate $A_{shock}$ to obtain the momentum balance and mass 
+balance combined:
+
+\begin{equation*}
+	(\rho v^2)_{beforeshock}   + P_{beforeshock}  = 
+	(\rho v^2)_{aftershock}  + P_{aftershock} 
+\end{equation*}
+\begin{equation*}
+	h_0 = 0.5 * v_{aftershock}^2 + h_{aftershock}
+	= 0.5 * v_{beforeshock}^2 + h_{beforeshock}
+\end{equation*}
+
+Now, supposing that we combine these equations,
+\begin{equation*}
+	(\rho v^2)_{beforeshock} + 2 (\rho h)_{beforeshock} =
+	\rho_{beforeshock} v_{aftershock}^2 + 2 \rho_{beforeshock} h_{aftershock}
+\end{equation*}
+
+We then subtract this from both sides, to eliminate $\rho v^2$ before the 
+shock
+\begin{align*}
+	P_{beforeshock} - 2 (\rho h)_{beforeshock} =
+	P_{aftershock} - 2 \rho_{beforeshock} h_{aftershock} + \\
+	v^2_{aftershock} (\rho_{beforeshock} - \rho_{aftershock})
+\end{align*}
+
+Yeah this doesn't really work.
+
+Now, this equation is challenging to solve because there are two variables 
+to guess, $(p,h)$. To solve this, we guess $v_{aftershock}$:
+
+\begin{itemize}
+	\item guess $v_{aftershock}$
+	\item determine $h_{aftershock}$ using $h_0 = 0.5 * v_{aftershock}^2 + h_{aftershock}$
+	\item thereafter we have $ (\rho v^2)_{beforeshock}   + P_{beforeshock}  = (\rho v^2)_{aftershock}  + P_{aftershock} $
+	\item in which we guess $P$ and take $\rho(p,h)$ to be the density after shock
+	\item there may or may not be a solution for this depending on $v_{aftershock}$
+\end{itemize}
+
+Now, it's a little hard to guess where this will go, given that we 
+don't even know what $v_{beforeshock}$ will be if we don't have the area.
+
+\subparagraph{Fanno Lines and Rayleigh Lines}
+This Fanno line problem is quite problematic!
+
+The usual solution is to plot the Fanno and Rayleigh Lines on a h-s 
+diagram, tracing the line out for different flow velocity numbers.
+
+Fanno lines fulfil the mass and energy balance 
+
+\begin{equation*}
+	\dot{m} = \rho_1 v_1 = \rho_2 v_2
+\end{equation*}
+
+
+\begin{equation*}
+	h_0 = \frac{v^2_1}{2} + h_1 = \frac{v^2_2}{2} + h_2
+\end{equation*}
+
+So we fix stagnation enthalpy and mass flowrate. We then vary the velocity 
+to find $h_1$, this will be our first thermodynamic variable. 
+However, there is one more degree of freedom. 
+
+From the stagnation enthalpy down to the Fanno line, is it constant 
+enthalpy?
+
+Well, supposing we specify our mass flow, $\rho$ will be determined with 
+fixed velocity, which then fully determines our thermodynamic state.
+
+Computationally, this would require iteration backwards for the steam 
+tables. It is perhaps better to find a (p,h) type equation, where pressure 
+is predetermined at the Fanno line.
+
+Honestly, I don't see an easy way to solve this.
+
+\subparagraph{Rayleigh Lines}
+
+TBD 
 
 
 \subsection{stability issues and local time stepping (Courant Number)}
