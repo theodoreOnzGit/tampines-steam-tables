@@ -1,0 +1,451 @@
+%% thesis.tex 2014/04/11
+%
+% Based on sample files of unknown authorship.
+%
+% The Current Maintainer of this work is Paul Vojta.
+
+\documentclass[masters]{ucbthesis}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{amsfonts}
+\usepackage[normalem]{ulem}
+\usepackage{soul}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{extarrows}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{framed}
+\usepackage[utf8]{inputenc}
+\usepackage[backend=biber,
+natbib=true,
+style=authoryear,
+sorting=none,
+isbn=true,
+doi=true,
+url=true,
+]{biblatex}
+
+\makeatletter
+% special thanks to this guy
+\newrobustcmd*{\parentexttrack}[1]{%
+  \begingroup
+  \blx@blxinit
+  \blx@setsfcodes
+  \blx@bibopenparen#1\blx@bibcloseparen
+  \endgroup}
+
+\AtEveryCite{%
+  \let\parentext=\parentexttrack%
+  \let\bibopenparen=\bibopenbracket%
+  \let\bibcloseparen=\bibclosebracket}
+
+\makeatother
+\addbibresource{library.bib}
+
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage{wasysym}
+\usepackage{enumitem}
+\usepackage{adjustbox}
+\usepackage{ragged2e}
+\usepackage[svgnames,table]{xcolor}
+\usepackage{tikz}
+% csv files and plots
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{csvsimple-l3}
+\usepackage{longtable}
+\usepackage{changepage}
+\usepackage{setspace}
+\usepackage{hhline}
+\usepackage{multicol}
+\usepackage{tabto}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usetikzlibrary{shapes.symbols,shapes.geometric,shadows,arrows.meta,
+positioning,fit,backgrounds}
+\tikzset{>={Latex[width=1.5mm,length=2mm]}}
+\usepackage{tikz}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+
+\usepackage{listings}
+\lstset{
+    language=C++, % Set the programming language
+    backgroundcolor=\color{black!5}, % Light grey background
+    basicstyle=\footnotesize\ttfamily, % Font style and size
+    keywordstyle=\color{blue}, % Keyword color
+    commentstyle=\color{green!60!black}, % Comment color
+    stringstyle=\color{red}, % String color
+    showstringspaces=false,
+    numbers=left, % Line numbers on the left
+    numberstyle=\tiny\color{gray}, % Line number style
+    frame=single, % Add a frame around the code
+    breaklines=true, % Automatic line breaking
+    captionpos=b, % Caption position at the bottom
+}
+
+
+\urlstyle{same}
+
+\renewcommand{\_}{\kern-1.5pt\textunderscore\kern-1.5pt}
+
+%https://tex.stackexchange.com/questions/116534/lstlisting-line-wrapping
+% I copied code from here to format things properly
+% Credit to: Henri Menke who answered on StackExchange
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
+%%  Import package so that we can split the tex files into subfolders
+% for easier compile and real-time edit
+
+\usepackage{import}
+
+%%%%%%%%%%%%%% for transfer function controllers %%%%%%%%%%%%%%
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+%%%% set citation style to square brackets
+
+
+\begin{document}
+
+% Declarations for Front Matter
+
+\title{Derivations for Tampines Steam Tables and TAMPINES}
+\author{Tom Lifesaver}
+%\degreesemester{Spring}
+%\degreeyear{1995}
+%\degree{Doctor of Philosophy}
+%\chair{Professor Richard Francis Sony}
+%\othermembers{Professor Roger Spam \\
+%  Associate Professor Michael Chex}
+%% For a co-chair who is subordinate to the \chair listed above
+%% \cochair{Professor Benedict Francis Pope}
+%% For two co-chairs of equal standing (do not use \chair with this one)
+%% \cochairs{Professor Richard Francis Sony}{Professor Benedict Francis Pope}
+%\numberofmembers{3}
+%% Previous degrees are no longer to be listed on the title page.
+%% \prevdegrees{B.A. (University of Northern South Dakota at Hoople) 1978 \\
+%%   M.S. (Ed's School of Quantum Mechanics and Muffler Repair) 1989}
+%\field{Mathematics}
+%% Designated Emphasis -- this is optional, and rare
+%% \emphasis{Colloidal Telemetry}
+%% This is optional, and rare
+%% \jointinstitution{University of Western Maryland}
+%% This is optional (default is Berkeley)
+%% \campus{Berkeley}
+%
+%% For a masters thesis, replace the above \documentclass line with
+%% \documentclass[masters]{ucbthesis}
+%% This affects the title and approval pages, which by default calls this
+%% document a "dissertation", not a "thesis".
+%
+%\maketitle
+%% Delete (or comment out) the \approvalpage line for the final version.
+%\approvalpage
+%\copyrightpage
+
+\include{abstract}
+
+\begin{frontmatter}
+
+
+% You can delete the \clearpage lines if you don't want these to start on
+% separate pages.
+
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+
+\begin{acknowledgements}
+\end{acknowledgements}
+
+\end{frontmatter}
+
+\pagestyle{headings}
+
+% (Optional) \part{First Part}
+
+\chapter{Introduction}
+
+For steam turbines, there are stators and rotors in there. These 
+stators effectively act as nozzles to accelerate high pressure steam 
+to supersonic speeds for use in the rotor sections of the turbine. 
+
+For impulse turbines, the rotors do not experience pressure drop across
+them (in an ideal situation), but the steam velocity definitely decreases.
+
+The more difficult part is calculating the pressure, enthalpy and entropy 
+of the steam flow out of the nozzle, especially after choked flow. What 
+is especially challenging computationally is computing where the shocks 
+will form. 
+
+Where shocks form, over a constant area, we
+consider the mass, energy and momentum balances:
+
+\begin{equation*}
+	\dot{m} = \rho_1 v_1 A_{shock}= \rho_2 v_2 A_{shock}
+\end{equation*}
+
+The mass balance can be simplified to become:
+
+\begin{equation*}
+	 \rho_1 v_1 = \rho_2 v_2 
+\end{equation*}
+
+\begin{equation*}
+	h_0 = \frac{v^2_1}{2} + h_1 = \frac{v^2_2}{2} + h_2
+\end{equation*}
+
+\begin{equation*}
+	A(P_1 -P_2) = \dot{m} (v_2 - v_1)
+\end{equation*}
+
+Fanno lines fulfil the mass and energy balance 
+\citep{cengel2002thermodynamics} whereas Rayleigh lines fulfil the 
+mass and momentum balances \citep{cengel2002thermodynamics}. This is on page 
+861 of Cengel's thermodynamics, chapter 17 of the 8th edition.
+
+For normal shocks, we generally expect:
+
+\begin{equation*}
+	s_{out} > s_0
+\end{equation*}
+
+However, this inequality does not help us solve the equation necessarily.
+We need to plot the Fanno Lines and Rayliegh lines out in order to find out 
+where the areas lie.
+
+
+\chapter{Problem statement and solution sequence}
+
+\section{How this fits in to the larger C-D nozzle picture}
+
+Now, the problem statement for a nozzle (stator):
+\begin{itemize}
+	\item We have two control volumes between nozzle/rotor pair
+	\item CV-1 before nozzle has known (p,h) state, and stagnation state 
+	\item CV-2 after the rotor, has known (p,h) state
+	\item steam goes from CV-1 to throat, accelerates 
+	\item steam accelerates further or goes through shock before diverging nozzle exit 
+	\item steam goes under no pressure decrease in impulse turbine, only velocity decrease 
+	\item steam isentropically returns to stagnation state before entering CV-2
+	\item mass flowrate is determined iteratively after thermodynamics
+\end{itemize}
+
+The shock happens specifically in the diverging part of the nozzle where 
+flow is accelerated to supersonic speeds and then undergoes a shock where 
+the flow is suddenly subsonic. For the case of choked flow, mass 
+flowrate is known and fixed because the thermodynamic properties at 
+the inlet are known.
+
+So in this case, our mass flowrate should be known prior, because of 
+the presence of choked flow, which should be for sonic conditions. Moreover,
+the stagnation enthalpy and pressure before the shock should also be known.
+
+\section{Knowns}
+\begin{itemize}
+	\item $\dot{m}$, choked mass flowrate
+	\item stagnation enthalpy and entropy $h_0, s_0$
+	\item $s_0 = s_1$ as we expect isentropic flow to that before shock
+\end{itemize}
+\section{Steps}
+
+We still need to solve the mass, energy and momentum balances iteratively.
+The standard way is to draw the Fanno and Rayleigh lines on a h-s diagram 
+and look for its intersection. I'm not quite sure how else to do it.
+
+
+\section{Rayleigh Lines}
+
+For Rayleigh lines, we must satisfy
+\begin{equation*}
+	G_{shock} = \rho_1 v_1 = \rho_2 v_2 
+\end{equation*}
+
+\begin{equation*}
+	A_{shock}(P_1 -P_2) = \dot{m} (v_2 - v_1)
+\end{equation*}
+
+The mass flowrate is the choked mass flowrate:
+
+\begin{equation*}
+	\dot{m} = \rho_{out} a_{throat} v_{out}
+\end{equation*}
+
+Now, we do not know what the area of the shock is, but we can eliminate 
+the $A_{shock}$ from these equations:
+
+
+\begin{equation*}
+	(P_1 -P_2) = G_{shock} (v_2 - v_1)
+\end{equation*}
+
+Where $G$ is the mass velocity, or mass flowrate per unit cross sectional 
+area.
+
+\begin{equation*}
+	G_{shock} A_{shock} = \dot{m}_{choked}
+\end{equation*}
+
+So what we eventually solve for is:
+\begin{equation*}
+	G_{shock} = \rho_1 v_1 = \rho_2 v_2 
+\end{equation*}
+\begin{equation*}
+	(P_1 -P_2) = G_{shock} (v_2 - v_1)
+\end{equation*}
+\begin{equation*}
+	(P_1 -P_2) = \rho_1 v_1 (v_2 - v_1) = \rho_2 v_2 (v_2 - v_1)
+\end{equation*}
+
+But since we have the constant mass flux or mass velocity:
+\begin{equation*}
+	P_1 + \rho_1 v_1^2 = P_2  + \rho_2 v_2^2
+\end{equation*}
+
+However, for Rayleigh Lines, we don't even know what the area is so as 
+to determine the mass velocity.
+
+Now, suppose we have had isentropy and a constant stagnation enthalpy,
+which may help us plot things out on a (h,s) diagram. We specify a shock 
+area. 
+From a function perspective, we take in a mass flux, $G_{shock}$, plus 
+stagnation thermodynamic states. Or rather, we specify mass flowrate, 
+shock area, and then stagnation properties. From thereon, we can plot a 
+Rayleigh line if we want isentropy.
+
+
+%But at the shockwave, energy and mass balance are:
+%
+%\begin{equation*}
+%	h_0 = 0.5 * v_{aftershock}^2 + h_{aftershock}
+%	= 0.5 * v_{beforeshock}^2 + h_{beforeshock}
+%\end{equation*}
+%
+%\begin{equation*}
+%	\rho_{beforeshock} v_{beforeshock} A_{shock} = \rho_{aftershock} v_{aftershock} A_{shock} = \dot{m}
+%\end{equation*}
+%
+%
+%\begin{equation*}
+%	\dot{m} v_{beforeshock} + P_{beforeshock} A_{shock} = 
+%	\dot{m} v_{aftershock} + P_{aftershock} A_{shock}
+%\end{equation*}
+%
+%It seems as if iterative solution procedure is required to solve for 
+%$A_{shock}$ and the states before and after the normal shock.
+%
+%The solution procedure should be as such. From choke point to before 
+%the shock, the flow is isentropic. Presuming one knows $A_{shock}$, 
+%a (p,s) flash is quite straightforward to determine all properties 
+%of the steam before the shockwave.
+%
+%So if guessing $A_{shock}$, one can look at each of the balances 
+%and see if they tally.
+%
+%\begin{itemize}
+%	\item Guess $A_{shock}$
+%	\item All properties before shock are known
+%	\item obtain expression for mass velocity $(\rho v)_{aftershock}$
+%	\item it seems iteration will also need to be done after this if we guess $A_{shock}$
+%\end{itemize}
+%
+%Now, we may not know the $A_{shock}$ itself, but we can eliminate this 
+%variable from our equations,
+%
+%Given $\dot{m} = \rho v A$
+%
+%\begin{equation*}
+%	\rho v^2_{beforeshock} A_{shock}  + P_{beforeshock} A_{shock} = 
+%	\rho v^2_{aftershock} A_{shock} + P_{aftershock} A_{shock}
+%\end{equation*}
+%
+%We can eliminate $A_{shock}$ to obtain the momentum balance and mass 
+%balance combined:
+%
+%\begin{equation*}
+%	(\rho v^2)_{beforeshock}   + P_{beforeshock}  = 
+%	(\rho v^2)_{aftershock}  + P_{aftershock} 
+%\end{equation*}
+%\begin{equation*}
+%	h_0 = 0.5 * v_{aftershock}^2 + h_{aftershock}
+%	= 0.5 * v_{beforeshock}^2 + h_{beforeshock}
+%\end{equation*}
+%
+%Now, supposing that we combine these equations,
+%\begin{equation*}
+%	(\rho v^2)_{beforeshock} + 2 (\rho h)_{beforeshock} =
+%	\rho_{beforeshock} v_{aftershock}^2 + 2 \rho_{beforeshock} h_{aftershock}
+%\end{equation*}
+%
+%We then subtract this from both sides, to eliminate $\rho v^2$ before the 
+%shock
+%\begin{align*}
+%	P_{beforeshock} - 2 (\rho h)_{beforeshock} =
+%	P_{aftershock} - 2 \rho_{beforeshock} h_{aftershock} + \\
+%	v^2_{aftershock} (\rho_{beforeshock} - \rho_{aftershock})
+%\end{align*}
+%
+%Yeah this doesn't really work.
+%
+%Now, this equation is challenging to solve because there are two variables 
+%to guess, $(p,h)$. To solve this, we guess $v_{aftershock}$:
+%
+%\begin{itemize}
+%	\item guess $v_{aftershock}$
+%	\item determine $h_{aftershock}$ using $h_0 = 0.5 * v_{aftershock}^2 + h_{aftershock}$
+%	\item thereafter we have $ (\rho v^2)_{beforeshock}   + P_{beforeshock}  = (\rho v^2)_{aftershock}  + P_{aftershock} $
+%	\item in which we guess $P$ and take $\rho(p,h)$ to be the density after shock
+%	\item there may or may not be a solution for this depending on $v_{aftershock}$
+%\end{itemize}
+%
+%Now, it's a little hard to guess where this will go, given that we 
+%don't even know what $v_{beforeshock}$ will be if we don't have the area.
+%
+%This Fanno line problem is quite problematic!
+%
+%So we fix stagnation enthalpy and mass flowrate. We then vary the velocity 
+%to find $h_1$, this will be our first thermodynamic variable. 
+%However, there is one more degree of freedom. 
+%
+%From the stagnation enthalpy down to the Fanno line, is it constant 
+%enthalpy?
+%
+%Well, supposing we specify our mass flow, $\rho$ will be determined with 
+%fixed velocity, which then fully determines our thermodynamic state.
+%
+%Computationally, this would require iteration backwards for the steam 
+%tables. It is perhaps better to find a (p,h) type equation, where pressure 
+%is predetermined at the Fanno line.
+%
+%Honestly, I don't see an easy way to solve this.
+%
+%Based on the (h-s) graphs, is going through the different entropy 
+%values. As seen from the balance, there will likely be two different values 
+%of enthalpy that satisfy the Fanno line equations, for a given entropy 
+%value.
+%
+%I possibly want to make an app that plots these fanno lines in real time.
+
+
+
+
+
+
+\printbibliography
+
+% \appendix
+\end{document}
