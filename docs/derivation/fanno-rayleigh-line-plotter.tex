@@ -380,7 +380,53 @@ do the following steps after knowing the inlet state:
 	\item Guess $v_2$
 	\item obtain $\rho_2$ from $\rho_2 = \frac{G_{shock}}{v_2}$
 	\item obtain $P_2$ from: $P_2 = P_1 + \rho_1 v_1^2 - \rho_2 v_2^2$
+	\item From $P_2,\rho_2$, the thermodynamic state is known, but 
+		not readily obtained from steam tables
+	\item Using (p,s) algorithm, we guess until $\rho_2$ is obtained, 
+		from this we get $s_2$
 \end{itemize}
+
+In doing so, we have two rounds of iteration just to plot one point 
+on the Fanno line, kind of a waste in my opinion. So guessing $v_2$ isn't 
+quite going to cut it. 
+
+Now, we know that the outlet pressure is known. We can use this to bound 
+our equation, from low pressure all the way to outlet pressure. Doing so,
+we get a pressure sweep.
+
+
+\begin{itemize}
+	\item Guess $h_2$ and $P_2$
+	\item problem is, not all points will satisfy both momentum and 
+		mass balance, there is still a need to iterate
+\end{itemize}
+
+We can try this:
+
+\begin{itemize}
+	\item $P_1 + \rho_1 v_1^2 = P_2 + G v_2$
+\end{itemize}
+
+Knowing that 
+\begin{equation*}
+	v_2 = G/\rho_2
+\end{equation*}
+
+\begin{itemize}
+	\item $P_1 + \rho_1 v_1^2 = P_2 + \frac{G^2}{\rho_2}$
+\end{itemize}
+
+Or
+\begin{equation*}
+	 P_2 + \frac{G^2}{\rho_2} =\text{constant}
+\end{equation*}
+
+This means that for every density $\rho_2$, only one pressure is suitable 
+for this equation. This would be a new thermodynamic state. However, it 
+requires iteration to find out what this thermodynamic state is.
+
+Aye, I'm trying to avoid iteration, but looks very hard to avoid. Seems 
+that the $(p,s)$ flash is the way to go.
 
 %But at the shockwave, energy and mass balance are:
 %
