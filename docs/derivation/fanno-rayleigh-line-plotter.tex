@@ -360,6 +360,27 @@ The iteration algo is
 Note: guessing using $v$ is quite problematic, cos we need to get bounds 
 of $v$
 
+This requires a function, and we should be able to iterate our way to 
+an inlet state.
+
+Now, given this inlet state, we should know the mass flux $G_{shock}$:
+\begin{equation*}
+	G_{shock} = \rho_1 v_1 = \rho_2 v_2 
+\end{equation*}
+
+And we will know the LHS of this momentum balance equation:
+\begin{equation*}
+	P_1 + \rho_1 v_1^2 = P_2  + \rho_2 v_2^2
+\end{equation*}
+
+We can then guess sweep through values of $v_2$. In doing so, we can 
+do the following steps after knowing the inlet state:
+
+\begin{itemize}
+	\item Guess $v_2$
+	\item obtain $\rho_2$ from $\rho_2 = \frac{G_{shock}}{v_2}$
+	\item obtain $P_2$ from: $P_2 = P_1 + \rho_1 v_1^2 - \rho_2 v_2^2$
+\end{itemize}
 
 %But at the shockwave, energy and mass balance are:
 %
