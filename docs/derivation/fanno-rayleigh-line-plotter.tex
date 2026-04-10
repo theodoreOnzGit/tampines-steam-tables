@@ -327,6 +327,39 @@ stagnation thermodynamic states. Or rather, we specify mass flowrate,
 shock area, and then stagnation properties. From thereon, we can plot a 
 Rayleigh line if we want isentropy.
 
+Or perhaps, a better way is this. Assume $A_{shock}$ is known, this will
+be user controlled. When $A_{shock}$ and $\dot{m}$ is known as inputs,
+and the stagnation state $h_0, s_0$ is known, the entire input state 
+is known. 
+
+With this, we can vary $v_2$ across all values in the range 
+$v_1 < v_2 < 0$ as we expect a slowdown in the velocity in the shock.
+
+Hence, to draw the Rayleigh line:
+
+\begin{itemize}
+	\item $\dot{m}$, choked mass flowrate
+	\item stagnation enthalpy and entropy $h_0, s_0$
+	\item $s_0 = s_1$ as we expect isentropic flow to that before shock
+	\item we specify $A_{shock}$ before starting 
+	\item we calculate $G_{shock}$ 
+	\item $h_0 = h_1 + v_1^2/2$
+	\item $\dot{m} = \rho_1 v_1 A_{shock}$
+	\item use (h,s) flash, or (p,s) flash iterate until mass balance fulfilled.
+\end{itemize}
+
+The iteration algo is
+
+\begin{itemize}
+	\item we will guess using a (h,s) flash, 
+	\item expect bounds between $h_{choked}$ and $h_{saturated,water}$
+	\item from guessed (h,s), $\rho_1$ and $v_1$
+	\item obtain $\dot{m}$, guess again.
+\end{itemize}
+
+Note: guessing using $v$ is quite problematic, cos we need to get bounds 
+of $v$
+
 
 %But at the shockwave, energy and mass balance are:
 %
