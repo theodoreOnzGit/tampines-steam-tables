@@ -250,7 +250,7 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
         ).get::<ratio>();
 
 
-    let mut h_outlet: AvailableEnergy;
+    let h_outlet: AvailableEnergy;
     if (mass_velocity_error).abs() < 0.0001 {
         h_outlet = h2_ideal;
         return TampinesSteamTableCV::new_from_ph(
@@ -284,6 +284,8 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
     // https://www.youtube.com/watch?v=GGrJXbkxRIs
     //
 
+    // 1 kJ/kg tolerance
+    let tolerance = AvailableEnergy::new::<kilojoule_per_kilogram>(1.0); 
 
     for _ in 0..max_iterations {
         let h_mid_bound = 0.5 * (upper_bound + lower_bound);
@@ -310,26 +312,32 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
                 p2, h_outlet, ref_vol
             );
         }
+        // if mass velocity error > 0 , we are guessing too high a mass 
+        // flowrate, we may want to decrease enthalpy
 
-    //    // Adjust bounds
-    //    if mach_value < 1.0 {
-    //        p_high = p_mid; // Need lower pressure (more expansion)
-    //    } else {
-    //        p_low = p_mid;  // Need higher pressure (less expansion)
-    //    }
+        // Adjust bounds
+        if mass_velocity_error > 0.0 {
+            // mass velocity too high, we need to have less enthalpy 
+            upper_bound = h_mid_bound; 
+        } else {
+            lower_bound = h_mid_bound;  // Need higher pressure (less expansion)
+        }
 
-    //    // Check convergence
-    //    if (p_high - p_low) < tolerance {
-    //        return (p_low + p_high) / 2.0;
-    //    }
+        // Check convergence
+        if (upper_bound - lower_bound) < tolerance {
+            let h_mid_bound = 0.5 * (upper_bound + lower_bound);
+            return TampinesSteamTableCV::new_from_ph(
+                p2, h_mid_bound, ref_vol
+            );
+        }
     }
 
     // Return midpoint if not converged
     let h_mid_bound = 0.5 * (upper_bound + lower_bound);
 
-
-
-    todo!()
+    return TampinesSteamTableCV::new_from_ph(
+        p2, h_mid_bound, ref_vol
+    );
 }
 // 
 //
