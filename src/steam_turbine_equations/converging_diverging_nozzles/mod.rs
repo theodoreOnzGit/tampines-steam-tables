@@ -46,6 +46,8 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     p2: Pressure,
     ) -> (Velocity, MassRate, TampinesSteamTableCV) {
 
+    assert!(p1 > p2);
+
     // first let's obtain stagnation enthalpy 
 
     let h0: AvailableEnergy = h1 + 0.5 * v1 * v1;
@@ -60,10 +62,25 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let p0 = state_0.get_pressure();
 
     // now we can calculate choked flow 
+    // this assumes that pressure does go to choked flow state
     let (choked_mass_flowrate, choked_state) = 
         get_choked_flow_massrate_and_state_from_stagnation_properties_and_area(
             p0, h0, a_throat
         );
+    let p_throat_critical = choked_state.get_pressure();
+
+    // now for subsonic flow, we can just take pressure difference between 
+    // these two states
+
+    let s2_ideal = s1;
+    let outlet_flow_state_ideal = 
+        TampinesSteamTableCV::new_from_ps(p2, s2_ideal, ref_vol);
+    let rho_out_ideal = outlet_flow_state_ideal.get_rho();
+    let h_out_ideal = outlet_flow_state_ideal.get_specific_enthalpy();
+    let v_out_ideal: Velocity = (2.0 * (h0 - h_out_ideal)).sqrt();
+    let m_ideal: MassRate = rho_out_ideal * v_out_ideal * a2;
+
+    let choked_flow: bool = p2 < p_throat_critical;
 
 
     todo!()
