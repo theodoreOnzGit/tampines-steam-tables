@@ -176,7 +176,7 @@ pub fn guess_state_for_diverge_nozzle_from_choked_throat(
     a_throat: Area,
     mass_rate_throat: MassRate,
     state_throat: TampinesSteamTableCV,
-) -> TampinesSteamTableCV {
+) -> (Velocity, TampinesSteamTableCV) {
     // let's have a reference mass flux first 
 
     let mass_velocity_ref: MassFlux = mass_rate_throat/a_throat;
@@ -249,9 +249,10 @@ pub fn guess_state_for_diverge_nozzle_from_choked_throat(
     let h_outlet: AvailableEnergy;
     if (mass_velocity_error).abs() < 0.0001 {
         h_outlet = h2_ideal;
-        return TampinesSteamTableCV::new_from_ph(
-            p2, h_outlet, ref_vol
-        );
+        let v2: Velocity = (2.0 * (h0- h_outlet)).sqrt();
+        return (v2,TampinesSteamTableCV::new_from_ph(
+                p2, h_outlet, ref_vol
+        ));
     }
 
     // what would be our upper and lower bounds for h2?
@@ -304,9 +305,10 @@ pub fn guess_state_for_diverge_nozzle_from_choked_throat(
 
         if (mass_velocity_error).abs() < 0.0001 {
             h_outlet = h2_guess;
-            return TampinesSteamTableCV::new_from_ph(
+            let v2: Velocity = (2.0 * (h0- h_outlet)).sqrt();
+            return (v2,TampinesSteamTableCV::new_from_ph(
                 p2, h_outlet, ref_vol
-            );
+            ));
         }
         // if mass velocity error > 0 , we are guessing too high a mass 
         // flowrate, we may want to decrease enthalpy
@@ -323,19 +325,20 @@ pub fn guess_state_for_diverge_nozzle_from_choked_throat(
         // Check convergence
         if (upper_bound - lower_bound) < tolerance {
             h_outlet = 0.5 * (upper_bound + lower_bound);
-            return TampinesSteamTableCV::new_from_ph(
+            let v2: Velocity = (2.0 * (h0- h_outlet)).sqrt();
+            return (v2,TampinesSteamTableCV::new_from_ph(
                 p2, h_outlet, ref_vol
-            );
+            ));
         }
     }
 
     // Return midpoint if not converged
     h_outlet = 0.5 * (upper_bound + lower_bound);
+    let v2: Velocity = (2.0 * (h0- h_outlet)).sqrt();
 
-
-    return TampinesSteamTableCV::new_from_ph(
+    return (v2,TampinesSteamTableCV::new_from_ph(
         p2, h_outlet, ref_vol
-    );
+    ));
 }
 // 
 //
