@@ -179,6 +179,9 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
     mass_rate_throat: MassRate,
     state_throat: TampinesSteamTableCV,
 ){
+    // let's have a reference mass flux first 
+
+    let mass_velocity: MassFlux = mass_rate_throat/a_throat;
 
     // first I need throat pressure,
 
@@ -211,37 +214,47 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
     let rho2 = isentropic_outlet_state.get_rho();
     // (h0 - h2) = v2*v2/2
 
-    let h2 = isentropic_outlet_state.get_specific_enthalpy();
+    let h2_ideal = isentropic_outlet_state.get_specific_enthalpy();
 
-    let v2: Velocity = (2.0 * (h0-h2)).sqrt();
+    let v2_ideal: Velocity = (2.0 * (h0-h2_ideal)).sqrt();
 
     // there is a good chance this won't match
     // the outlet rate, but the threshold pressure for which this 
     // matches means that this is the upper bound for isentropic flow
-    let _mass_rate_isentropic: MassRate = v2 * rho2 * a_out;
+    let _mass_rate_isentropic: MassRate = v2_ideal * rho2 * a_out;
     
     // perhaps in general, a (p,h) algorithm may work... so long as the 
     // mass flowrate is satisfied
     //
     // this would abstract away any irreversibility
 
-    fn guess_mass_flowrate_given_enthalpy(
+    fn guess_mass_velocity_given_ph_flash(
         h0: AvailableEnergy,
         p2: Pressure,
-        h2: AvailableEnergy,
-        a_out: Area) -> MassRate {
+        h2_guess: AvailableEnergy) -> MassFlux {
 
-        let v2: Velocity = (2.0 * (h0-h2)).sqrt();
+        let v2: Velocity = (2.0 * (h0-h2_guess)).sqrt();
         let ref_vol = Volume::new::<cubic_meter>(1.0);
         let outlet_state = 
             TampinesSteamTableCV::new_from_ph(
-                p2, h2, ref_vol
+                p2, h2_guess, ref_vol
             );
         let rho2 = outlet_state.get_rho();
-        let mass_flowrate: MassRate = v2 * rho2 * a_out;
+        let mass_velocity: MassFlux = v2 * rho2;
 
-        return mass_flowrate;
+        return mass_velocity;
     }
+
+    // what would be our upper and lower bounds for h2?
+    // if we are going to experience shocks and subsonic flow, 
+    // h2 > h_throat, but it will be lower than stagnation enthalpy 
+    // so h0 should be the upper bound
+    // The lower bound should be h2_isentropic, since this is the 
+    // lowest possible given an isentropic state (higher h2 is irreversible)
+    //
+    let mut upper_bound = h0;
+    let mut lower_bound = h2_ideal;
+    let mut h_mid_bound = 0.5 * (upper_bound + lower_bound);
 
     if p_throat <= p2 {
         // expect deceleration to subsonic flow 
