@@ -19,19 +19,19 @@ use crate::prelude::{TampinesSteamTableCV};
 ///
 /// Now, tricky thing is that we are not sure of the outlet entropy
 #[inline]
-pub fn rayleigh_line_point(
-    p1: Pressure,
-    h1: AvailableEnergy,
-    mass_flowrate: MassRate,
-    a1: Area,
-    p2: Pressure,
+pub fn _rayleigh_line_point(
+    _p1: Pressure,
+    _h1: AvailableEnergy,
+    _mass_flowrate: MassRate,
+    _a1: Area,
+    _p2: Pressure,
 ){
 
 
 }
 
 #[inline]
-pub fn momentum_balance_nozzle_residual(
+pub fn _momentum_balance_nozzle_residual(
     p1: Pressure,
     p2: Pressure,
     h1: AvailableEnergy,
@@ -67,7 +67,7 @@ pub fn momentum_balance_nozzle_residual(
 /// it won't work for isentropy for choked flow scenario
 /// as in mass and energy balance solves at the same time
 #[inline]
-pub fn force_balance_isentropic_nozzle(
+pub fn _force_balance_isentropic_nozzle(
     p1: Pressure,
     p2: Pressure,
     h1: AvailableEnergy,
@@ -101,7 +101,7 @@ pub fn force_balance_isentropic_nozzle(
 }
 
 #[inline]
-pub fn print_graph_pts_for_outlet_pressure_and_force_balance_isentropic(
+pub fn _print_graph_pts_for_outlet_pressure_and_force_balance_isentropic(
     p1: Pressure,
     h1: AvailableEnergy,
     a1: Area,
@@ -117,7 +117,7 @@ pub fn print_graph_pts_for_outlet_pressure_and_force_balance_isentropic(
         p2 = (n as f64 - i as f64)/(n as f64) * p1;
 
         let force_bal: Force = 
-            force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2);
+            _force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2);
 
         println!("{:?}",&(p2.get::<bar>(),force_bal.get::<newton>()));
 
@@ -134,7 +134,7 @@ pub fn print_graph_pts_for_outlet_pressure_and_force_balance_isentropic(
 
 
             let force_bal: Force = 
-                force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2);
+                _force_balance_isentropic_nozzle(p1, p2, h1, mass_flowrate, a1, a2);
 
             println!("{:?}",&(p2.get::<bar>(),force_bal.get::<newton>()));
 

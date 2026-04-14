@@ -6,20 +6,10 @@ use uom::si::volume::cubic_meter;
 use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
-
-#[cfg(test)]
-mod tests;
-
-
-/// these are converging_diverging_nozzles,
-/// may not be isentropic in the diverging part, but only the 
-/// converging part
-pub mod converging_diverging_nozzle;
-
 // for isentropic/adiabatic diffusers/nozzles, we follow the mach number
 // formulae 
 //
-pub fn get_dp_isentropic_nozzle_diffuser(
+pub fn _get_dp_isentropic_nozzle_diffuser(
     a1: Area,
     a2: Area,
     p1: Pressure,
@@ -43,7 +33,7 @@ pub fn get_dp_isentropic_nozzle_diffuser(
 // for isentropic/adiabatic diffusers/nozzles, we follow the mach number
 // formulae 
 //
-pub fn get_dv_isentropic_nozzle_diffuser(
+pub fn _get_dv_isentropic_nozzle_diffuser(
     a1: Area,
     a2: Area,
     p1: Pressure,
@@ -66,7 +56,7 @@ pub fn get_dv_isentropic_nozzle_diffuser(
 /// More efficient than calling get_dp and get_dv separately
 ///
 /// note that this only includes mass and energy balances
-pub fn get_dp_dv_isentropic_nozzle_diffuser(
+pub fn _get_dp_dv_isentropic_nozzle_diffuser(
     a1: Area,
     a2: Area,
     p1: Pressure,
@@ -130,7 +120,7 @@ pub fn get_dp_dv_isentropic_nozzle_diffuser(
 /// note: written originally, used AI to check
 ///
 /// this is good for mach number 0-0.7 and 1.3 onwards
-pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
+pub fn _get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
     a1: Area,
     a2: Area,
     p1: Pressure,
@@ -181,7 +171,7 @@ pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
         let area_after = area_before * (Ratio::new::<ratio>(1.0) + da_by_a_signed);
 
         // Get pressure and velocity changes
-        let (dp, dv) = get_dp_dv_isentropic_nozzle_diffuser(
+        let (dp, dv) = _get_dp_dv_isentropic_nozzle_diffuser(
             area_before, 
             area_after, 
             p_intermediate, 
@@ -206,11 +196,3 @@ pub fn get_outlet_pressure_velocity_enthalpy_isentropic_nozzle_diffuser(
     (p2, v2, h2)
 }
 
-
-
-
-pub mod momentum_balance_rayleigh_line;
-
-/// for sonic flow, we need to get conditions where choked flow is 
-/// achieved
-pub mod choked_flow;
