@@ -170,7 +170,7 @@ use crate::prelude::{TampinesSteamTableCV};
 ///
 /// note that this is no longer isentropic
 #[inline]
-pub fn guess_state_for_diverge_nozzle_from_throat(
+pub fn guess_state_for_diverge_nozzle_from_choked_throat(
     h0: AvailableEnergy,
     p2: Pressure,
     a_throat: Area,
@@ -313,18 +313,18 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
 
         // Adjust bounds
         if mass_velocity_error > 0.0 {
-            // mass velocity too high, we need to have less enthalpy 
+            // mass velocity too high, need higher h2 (lower velocity)
             lower_bound = h_mid_bound;  
         } else {
-            // mass velocity too low, need more enthalpy
+            // mass velocity too low, need lower h2 (higher velocity)
             upper_bound = h_mid_bound; 
         }
 
         // Check convergence
         if (upper_bound - lower_bound) < tolerance {
-            let h_mid_bound = 0.5 * (upper_bound + lower_bound);
+            h_outlet = 0.5 * (upper_bound + lower_bound);
             return TampinesSteamTableCV::new_from_ph(
-                p2, h_mid_bound, ref_vol
+                p2, h_outlet, ref_vol
             );
         }
     }
