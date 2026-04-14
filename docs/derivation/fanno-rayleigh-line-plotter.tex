@@ -429,6 +429,46 @@ Aye, I'm trying to avoid iteration, but looks very hard to avoid. Seems
 that the $(p,s)$ flash is the way to go. These algorithms are unavoidable 
 at least for this set of steam tables.
 
+\section{Avoiding Shock Calculation Altogether}
+
+The main purpose of shock calculation is to obtain the end state. That is,
+what is the enthalpy and (especially) entropy of the steam leaving the nozzle.
+The key calculation is to obtain an accurate velocity.
+Perhaps, we could skip shock calculation altogether.
+
+Considering that at choked flow, we will have a fixed flowrate $\dot{m}$.
+
+\begin{equation*}
+	\dot{m} = (\rho v A)_\text{outlet} 
+\end{equation*}
+
+We have a fixed mass flux or mass velocity. 
+
+\begin{equation*}
+	(\rho v)_\text{outlet} = \frac{\dot{m}}{A_\text{outlet}}
+\end{equation*}
+
+We also specify the pressure at the outlet, so that is known.
+The stagnation enthalpy at the outlet is known too, since this is an 
+adiabatic nozzle with no work done.
+
+\begin{equation*}
+	h_0 = h_\text{outlet} + \frac{v_\text{outlet}^2}{2}
+\end{equation*}
+
+We can skip shock calculation, and just iterate enthalpy straight using a 
+(p,h) flash algorithm.
+
+\begin{itemize}
+	\item first, we guess $h_\text{outlet}$
+	\item we calculate the $v_\text{outlet}$
+	\item $(p,h)_\text{outlet}$, we obtain $\rho_\text{outlet}$
+	\item with $\rho_\text{outlet}$ and $v_\text{outlet}$, we can calculate 
+		velocity/flux $\rho v$
+	\item compare this against the reference mass flux
+\end{itemize}
+
+
 %But at the shockwave, energy and mass balance are:
 %
 %\begin{equation*}
