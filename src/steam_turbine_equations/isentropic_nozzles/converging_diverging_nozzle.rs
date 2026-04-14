@@ -158,24 +158,22 @@ use crate::prelude::{TampinesSteamTableCV};
 //
 
 
-// given a sonic flow, 
-//
-// note, shocks may occur here 
-// 
-// given a pressure at the outlet, p2,
-// and throat state, guess the state of flow going out
-// mass flowrate is based on choked flow
-//
-// stagnation properties should also be supplied to facilitate calculation
-//
-// note that this is no longer isentropic
+/// given a sonic flow, 
+///
+/// note, shocks may occur here 
+/// 
+/// given a pressure at the outlet, p2,
+/// and throat state, guess the state of flow going out
+/// mass flowrate is based on choked flow
+///
+/// stagnation properties should also be supplied to facilitate calculation
+///
+/// note that this is no longer isentropic
 #[inline]
 pub fn guess_state_for_diverge_nozzle_from_throat(
-    p0: Pressure,
     h0: AvailableEnergy,
     p2: Pressure,
     a_throat: Area,
-    a_out: Area,
     mass_rate_throat: MassRate,
     state_throat: TampinesSteamTableCV,
 ) -> TampinesSteamTableCV {
@@ -184,8 +182,6 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
     let mass_velocity_ref: MassFlux = mass_rate_throat/a_throat;
 
     // first I need throat pressure,
-
-    let p_throat = state_throat.get_pressure();
 
     // then we need to compare this to outlet pressure 
     //
@@ -318,9 +314,10 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
         // Adjust bounds
         if mass_velocity_error > 0.0 {
             // mass velocity too high, we need to have less enthalpy 
-            upper_bound = h_mid_bound; 
+            lower_bound = h_mid_bound;  
         } else {
-            lower_bound = h_mid_bound;  // Need higher pressure (less expansion)
+            // mass velocity too low, need more enthalpy
+            upper_bound = h_mid_bound; 
         }
 
         // Check convergence
@@ -333,10 +330,11 @@ pub fn guess_state_for_diverge_nozzle_from_throat(
     }
 
     // Return midpoint if not converged
-    let h_mid_bound = 0.5 * (upper_bound + lower_bound);
+    h_outlet = 0.5 * (upper_bound + lower_bound);
+
 
     return TampinesSteamTableCV::new_from_ph(
-        p2, h_mid_bound, ref_vol
+        p2, h_outlet, ref_vol
     );
 }
 // 
