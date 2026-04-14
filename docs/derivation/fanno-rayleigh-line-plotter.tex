@@ -457,7 +457,7 @@ adiabatic nozzle with no work done.
 \end{equation*}
 
 We can skip shock calculation, and just iterate enthalpy straight using a 
-(p,h) flash algorithm.
+(p,h) flash algorithm:
 
 \begin{itemize}
 	\item first, we guess $h_\text{outlet}$
@@ -466,7 +466,28 @@ We can skip shock calculation, and just iterate enthalpy straight using a
 	\item with $\rho_\text{outlet}$ and $v_\text{outlet}$, we can calculate 
 		velocity/flux $\rho v$
 	\item compare this against the reference mass flux
+	\item use bisection or some method to iterate until this is correct 
+	\item constraint on the fact entropy MUST increase or be constant
 \end{itemize}
+
+Now this will let us know the end thermodynamic state and outlet velocity.
+Don't even need to calculate shocks and such, which saves us a lot of 
+trouble.
+
+If we want to calculate shocks after this, it will be much easier.
+
+How are shocks calculated then?
+
+We now have the entropy before and after, as well as stagnation enthalpy 
+before and after. Plus mass flowrates.
+
+With this iteration procedure, we can just guess the area of the shock.
+With this area, use (p,s) or (h,s) algorithms on both sides. This will 
+allow us to obtain mass flux at both ides of the shock.
+
+At the end of the day, we may avoid plotting Fanno and Rayleigh lines 
+altogether, and use a (p,h) algorithm to iteratively obtain the outlet 
+conditions instead.
 
 
 %But at the shockwave, energy and mass balance are:

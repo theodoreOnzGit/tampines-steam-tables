@@ -163,14 +163,20 @@ use crate::prelude::{TampinesSteamTableCV};
 // note, shocks may occur here 
 // 
 // given a pressure at the outlet, p2,
-// and throat state, we need to guess mass flowrate
-// and state of flow going out
+// and throat state, guess the state of flow going out
+// mass flowrate is based on choked flow
+//
+// stagnation properties should also be supplied to facilitate calculation
+//
+// note that this is no longer isentropic
 #[inline]
-pub fn guess_massrate_and_state_for_diverge_nozzle_from_throat(
+pub fn guess_state_for_diverge_nozzle_from_throat(
+    p0: Pressure,
+    h0: AvailableEnergy,
     p2: Pressure,
     a_throat: Area,
     a_out: Area,
-    v_throat: Velocity,
+    mass_rate_throat: MassRate,
     state_throat: TampinesSteamTableCV,
 ){
 
@@ -184,6 +190,58 @@ pub fn guess_massrate_and_state_for_diverge_nozzle_from_throat(
     //
     // otherwise, we should expect deceleration 
     //
+
+    // now at some threshold pressure, we should get smooth isentropic 
+    // acceleration to supersonic flow
+    //
+    // This can be done using a (p,s) or (h,s) 
+    // flash, and ensuring the mass balance 
+    // holds
+
+    let s2_ideal = state_throat.get_specific_entropy();
+    // so we assume isentropy first
+
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+
+
+    let isentropic_outlet_state = 
+        TampinesSteamTableCV::new_from_ps(
+            p2, s2_ideal, ref_vol
+        );
+    let rho2 = isentropic_outlet_state.get_rho();
+    // (h0 - h2) = v2*v2/2
+
+    let h2 = isentropic_outlet_state.get_specific_enthalpy();
+
+    let v2: Velocity = (2.0 * (h0-h2)).sqrt();
+
+    // there is a good chance this won't match
+    // the outlet rate, but the threshold pressure for which this 
+    // matches means that this is the upper bound for isentropic flow
+    let _mass_rate_isentropic: MassRate = v2 * rho2 * a_out;
+    
+    // perhaps in general, a (p,h) algorithm may work... so long as the 
+    // mass flowrate is satisfied
+    //
+    // this would abstract away any irreversibility
+
+    fn guess_mass_flowrate_given_enthalpy(
+        h0: AvailableEnergy,
+        p2: Pressure,
+        h2: AvailableEnergy,
+        a_out: Area) -> MassRate {
+
+        let v2: Velocity = (2.0 * (h0-h2)).sqrt();
+        let ref_vol = Volume::new::<cubic_meter>(1.0);
+        let outlet_state = 
+            TampinesSteamTableCV::new_from_ph(
+                p2, h2, ref_vol
+            );
+        let rho2 = outlet_state.get_rho();
+        let mass_flowrate: MassRate = v2 * rho2 * a_out;
+
+        return mass_flowrate;
+    }
 
     if p_throat <= p2 {
         // expect deceleration to subsonic flow 
