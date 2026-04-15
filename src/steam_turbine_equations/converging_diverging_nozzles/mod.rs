@@ -106,8 +106,10 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let (v, state_outlet) = 
         guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             h0, 
+            s0,
             p2, 
             a_throat, 
+            a2,
             m, 
             state_throat
         );

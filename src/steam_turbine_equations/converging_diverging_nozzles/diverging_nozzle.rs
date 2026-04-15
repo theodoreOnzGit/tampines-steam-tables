@@ -1,5 +1,6 @@
 use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::f64::*;
+use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
@@ -19,8 +20,10 @@ use crate::prelude::TampinesSteamTableCV;
 #[inline]
 pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     h0: AvailableEnergy,
+    s0: SpecificHeatCapacity,
     p2: Pressure,
     a_throat: Area,
+    a_exit: Area,
     mass_rate_throat: MassRate,
     state_throat: TampinesSteamTableCV,
 ) -> (Velocity, TampinesSteamTableCV) {
@@ -28,6 +31,16 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     // Calculate reference mass flux (must be conserved through nozzle)
     let mass_flux_ref: MassFlux = mass_rate_throat / a_throat;
     let ref_vol = Volume::new::<cubic_meter>(1.0);
+    let inlet_stagnation_state = 
+        TampinesSteamTableCV::new_from_hs(h0, s0, ref_vol);
+
+    // Calculate perfectly expanded solution 
+    let (p_ideal_expansion, v_ideal_expansion, state_ideal_expansion) 
+        = calculate_isentropic_exit_pressure_velocity_and_state(
+            inlet_stagnation_state, 
+            a_exit, 
+            mass_rate_throat,
+        );
 
     // Helper: Calculate mass flux given outlet enthalpy (p,h) flash
     fn calculate_mass_flux_at_outlet(
@@ -93,7 +106,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     let enthalpy_tolerance = AvailableEnergy::new::<kilojoule_per_kilogram>(1.0);
     
     // Bisection loop to find h₂ that satisfies mass balance
-    for iteration in 0..max_iterations {
+    for _iteration in 0..max_iterations {
         // Midpoint guess
         let h_mid = 0.5 * (h_lower + h_upper);
         
@@ -142,4 +155,79 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     let state_outlet = TampinesSteamTableCV::new_from_ph(p2, h_outlet, ref_vol);
     
     return (v_outlet, state_outlet);
+}
+
+/// Calculate exit pressure for isentropic expansion through CD nozzle
+/// assuming choked flow
+///
+/// this is for perfectly expanded flow
+#[inline]
+pub fn calculate_isentropic_exit_pressure_velocity_and_state(
+    inlet_stagnation_state: TampinesSteamTableCV,
+    a_exit: Area,
+    mass_flowrate_choked: MassRate,
+) -> (Pressure, Velocity, TampinesSteamTableCV) {
+    
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    
+    // For isentropic flow: s_exit = s0
+    // Mass continuity: ṁ = ρ_exit * v_exit * A_exit
+    // Energy: v_exit = sqrt(2*(h0 - h_exit))
+    //
+    // Need to find p_exit such that these are satisfied
+    let h0: AvailableEnergy = inlet_stagnation_state.get_specific_enthalpy();
+    let s0: SpecificHeatCapacity = inlet_stagnation_state.get_specific_entropy();
+    let p0: Pressure = inlet_stagnation_state.get_pressure();
+    
+    // Use bisection to find p_exit
+    let mut p_lower = Pressure::new::<pascal>(1000.0);  // Very low pressure
+    let mut p_upper = p0;      
+    
+    let max_iterations = 50;
+    let tolerance = Pressure::new::<pascal>(100.0);
+    let mut state_exit: TampinesSteamTableCV;
+    let mut v_exit: Velocity;
+    
+    for _ in 0..max_iterations {
+        let p_mid = 0.5 * (p_lower + p_upper);
+        
+        // Calculate state at this pressure (isentropic)
+        state_exit = TampinesSteamTableCV::new_from_ps(p_mid, s0, ref_vol);
+        let h_exit = state_exit.get_specific_enthalpy();
+        let rho_exit = state_exit.get_rho();
+        
+        // Calculate velocity from energy equation
+        v_exit = (2.0 * (h0 - h_exit)).sqrt();
+        
+        // Calculate mass flowrate
+        let mass_flowrate_calc = rho_exit * v_exit * a_exit;
+        
+        // Check error
+        let error = (mass_flowrate_calc - mass_flowrate_choked) / mass_flowrate_choked;
+        
+        if error.get::<ratio>().abs() < 0.0001 {
+            return (p_mid, v_exit, state_exit);
+        }
+        
+        // Adjust bounds
+        // Lower pressure → higher velocity → higher mass flow (for supersonic)
+        if error.get::<ratio>() > 0.0 {
+            // Mass flow too high, increase pressure
+            p_lower = p_mid;
+        } else {
+            // Mass flow too low, decrease pressure
+            p_upper = p_mid;
+        }
+        
+        if (p_upper - p_lower) < tolerance {
+            return (p_mid, v_exit, state_exit);
+        }
+    }
+
+    let p_mid = 0.5 * (p_lower + p_upper);
+    state_exit = TampinesSteamTableCV::new_from_ps(p_mid, s0, ref_vol);
+    let h_exit = state_exit.get_specific_enthalpy();
+    v_exit = (2.0 * (h0 - h_exit)).sqrt();
+    
+    return (p_mid, v_exit, state_exit);
 }
