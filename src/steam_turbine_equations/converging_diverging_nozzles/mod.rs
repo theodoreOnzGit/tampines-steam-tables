@@ -35,6 +35,15 @@ use crate::steam_turbine_equations::isentropic_converging_nozzle::get_choked_flo
 ///
 /// note for this, velocity v1 is not used to calculate mass flowrate, 
 /// but just to get stagnation enthalpy
+///
+/// For subsonic flows, isentropy is assumed 
+/// For sonic flows without chokes, isentropy is also assumed 
+///
+/// For sonic flows with underexpansion, Joule Thomson throttling is assumed 
+/// as a conservative estimate for entropy generation
+///
+/// For sonic flows with over expansion, a (p,h) algorithm is used to 
+/// iteratively determine the outlet flow properties.
 #[inline]
 pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     p1: Pressure,
