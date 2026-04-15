@@ -1,11 +1,8 @@
-use uom::ConstZero;
 use uom::si::f64::*;
-use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
-use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
-use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::{TampinesSteamTableCV};
+use crate::steam_turbine_equations::diverging_nozzle::guess_velocity_and_state_for_diverge_nozzle_from_choked_throat;
 use crate::steam_turbine_equations::isentropic_converging_nozzle::get_choked_flow_massrate_and_state_from_stagnation_properties_and_area;
 
 /// here is the main function meant to calculate mass flowrates between 
@@ -35,12 +32,14 @@ use crate::steam_turbine_equations::isentropic_converging_nozzle::get_choked_flo
 ///
 ///
 /// note that for this code to work, p1 needs to be greater than p2
+///
+/// note for this, velocity v1 is not used to calculate mass flowrate, 
+/// but just to get stagnation enthalpy
 #[inline]
 pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     p1: Pressure,
     h1: AvailableEnergy,
     v1: Velocity,
-    a1: Area,
     a_throat: Area,
     a2: Area,
     p2: Pressure,
@@ -80,10 +79,43 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let v_out_ideal: Velocity = (2.0 * (h0 - h_out_ideal)).sqrt();
     let m_ideal: MassRate = rho_out_ideal * v_out_ideal * a2;
 
-    let choked_flow: bool = p2 < p_throat_critical;
+    let throat_has_choked_flow: bool = p2 < p_throat_critical;
+
+    if !throat_has_choked_flow {
+        // in this case, we have subsonic flow
+        // we use a (p,s) algorithm to find the flowrate at the back
+        // these are already calculated, we can just return this
+
+        let state_outlet = 
+            outlet_flow_state_ideal;
+
+        let m = m_ideal;
+        let v = v_out_ideal;
+
+        return (v, m , state_outlet);
 
 
-    todo!()
+    }
+
+    // this is in the case we do have choked flow
+    // mass flowrate is fixed 
+    let m = choked_mass_flowrate;
+    // outlet flow is now decided upon using a (p,h) algorithm
+    let state_throat = choked_state;
+
+    let (v, state_outlet) = 
+        guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
+            h0, 
+            p2, 
+            a_throat, 
+            m, 
+            state_throat
+        );
+
+
+
+
+    return (v, m , state_outlet);
 }
 
 #[cfg(test)]
