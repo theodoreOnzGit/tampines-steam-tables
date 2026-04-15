@@ -1,6 +1,6 @@
 use uom::si::f64::*;
 
-use crate::{interfaces::functional_programming::*, prelude::functional_programming::hs_flash_eqm::p_hs_eqm};
+use crate::{interfaces::functional_programming::*, prelude::functional_programming::hs_flash_eqm::p_hs_eqm, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}};
 
 /// this is the bread and butter for tampines steam tables, 
 /// the control volume
@@ -165,6 +165,19 @@ impl TampinesSteamTableCV {
 
         let p = p_hs_eqm(h, s);
         return Self::new_from_ph(p, h, volume);
+    }
+
+    pub fn new_from_sat_pressure_quality(
+        p: Pressure,
+        x: f64,
+        volume: Volume,) -> Self {
+
+        let t: ThermodynamicTemperature = sat_temp_4(p);
+
+        return Self::new_from_tp_quality(
+            t, p, volume, x
+        );
+
     }
 
 }
