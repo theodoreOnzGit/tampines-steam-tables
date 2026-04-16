@@ -166,6 +166,9 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         // Check error
         let error: f64 = 
             ((mass_flux_guess - mass_flux_ref) / mass_flux_ref).get::<ratio>();
+        dbg!(&mass_flux_guess);
+        dbg!(&mass_flux_ref);
+        dbg!(&error);
         
         // Check if converged
         if error.abs() < TOLERANCE {
@@ -180,7 +183,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         
         // Adjust bounds based on error
         // Physical reasoning: higher h₂ → lower v₂ → lower mass flux
-        if error > 0.0 {
+        if error.abs() > 0.0 {
             // Mass flux too high, need to increase h₂
             h_lower = h_mid;
         } else {
@@ -195,6 +198,8 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             let state_outlet = TampinesSteamTableCV::new_from_ph(
                 p2_nozzle_boundary, h_outlet, ref_vol
             );
+            dbg!(&(mass_flux_ref,mass_flux_guess));
+            dbg!(&(h_upper,h_lower));
             
             return (v_outlet, state_outlet);
         }

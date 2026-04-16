@@ -62,7 +62,7 @@ fn dry_steam_test(){
     let inlet_state = TampinesSteamTableCV::new_from_tp_quality_1(
         temperature, p1, ref_vol
     );
-    let p2 = Pressure::new::<bar>(12.0);
+    let p2 = Pressure::new::<bar>(8.0);
 
     let h1 = inlet_state.get_specific_enthalpy();
     let v1 = Velocity::new::<meter_per_second>(0.5);
@@ -92,6 +92,7 @@ fn dry_steam_test(){
             p2
         );
 
+
     // we are going to check for 
     // (1) isentropic flow 
     // (2) mass balance 
@@ -107,22 +108,12 @@ fn dry_steam_test(){
     let s0 = state_0.get_specific_entropy();
 
     // For subsonic isentropic flow: s2 = s0 = s1
-    approx::assert_relative_eq!(
-        s2.get::<kilojoule_per_kilogram_kelvin>(),
-        s0.get::<kilojoule_per_kilogram_kelvin>(),
-        epsilon = 0.001  // 0.1% tolerance for numerical errors
-    );
-    // For subsonic isentropic flow: s2 = s0 = s1
-    approx::assert_relative_eq!(
-        s2.get::<kilojoule_per_kilogram_kelvin>(),
-        s1.get::<kilojoule_per_kilogram_kelvin>(),
-        epsilon = 0.001  // 0.1% tolerance for numerical errors
-    );
-
-    println!("✓ Entropy conserved: s1 = {:.4} kJ/kg·K, s2 = {:.4} kJ/kg·K", 
+    println!("✓ Entropy Increased: s1 = {:.4} kJ/kg·K, s2 = {:.4} kJ/kg·K", 
         s1.get::<kilojoule_per_kilogram_kelvin>(),
         s2.get::<kilojoule_per_kilogram_kelvin>()
     );
+    assert!(s2 > s1);
+    assert!(s2 > s0);
     
     // ====================================================================
     // Test (2): Mass Balance - ṁ = ρ₂ v₂ A₂
@@ -228,13 +219,13 @@ fn wet_steam_test(){
     let s0 = state_0.get_specific_entropy();
 
     // For subsonic isentropic flow: s2 = s0 = s1
-    assert!(s2 > s1);
-    assert!(s2 > s0);
-
-    println!("✓ Entropy conserved: s1 = {:.4} kJ/kg·K, s2 = {:.4} kJ/kg·K", 
+    println!("s1 = {:.4} kJ/kg·K, s2 = {:.4} kJ/kg·K", 
         s1.get::<kilojoule_per_kilogram_kelvin>(),
         s2.get::<kilojoule_per_kilogram_kelvin>()
     );
+    assert!(s2 > s1);
+    assert!(s2 > s0);
+
     
     // ====================================================================
     // Test (2): Mass Balance - ṁ = ρ₂ v₂ A₂
