@@ -183,7 +183,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         
         // Adjust bounds based on error
         // Physical reasoning: higher h₂ → lower v₂ → lower mass flux
-        if error.abs() > 0.0 {
+        if error > 0.0 {
             // Mass flux too high, need to increase h₂
             h_lower = h_mid;
         } else {
