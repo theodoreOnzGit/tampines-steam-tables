@@ -1,7 +1,7 @@
 /// this is the struct to contain the thermal hydraulics state of the fhr
 use uom::si::f64::*;
 #[derive(Debug,Clone)]
-pub(crate) struct FHRThermalHydraulicsState {
+pub struct FHRThermalHydraulicsState {
     /// reactor branch flow (upwards through the core)
     /// note that positive flow means from bottom mixing node to top
     pub reactor_branch_flow: MassRate,

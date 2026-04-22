@@ -2,10 +2,13 @@ use std::time::Duration;
 
 use egui::{vec2, Pos2, Rect, Vec2};
 use local_widgets_and_buttons::{fhr_reactor_widget::FHRReactorWidget, pipes::SinglePipeColourBlueRedTempSensitive};
+use uom::si::angular_velocity::revolution_per_minute;
 use uom::si::f64::*;
 use uom::si::thermodynamic_temperature::degree_celsius;
+use uom::si::time::second;
 
 use crate::app::local_widgets_and_buttons::pipes::{SinglePipeColourBlackRedTempSensitive, SinglePipeColourBlueWhiteQualitySensitive};
+use crate::app::local_widgets_and_buttons::turbine_widget::TurbineWidget;
 use crate::{FHRSimulatorApp, FHRState};
 use crate::Panel;
 
@@ -92,7 +95,11 @@ impl eframe::App for FHRSimulatorApp {
         
 
 
-        ctx.request_repaint_after(Duration::from_millis(50));
+        // 60 fps 
+        // 
+        //let repaint_time = Frequency::new::<hertz>(60.0).recip().get::<millisecond>().round();
+        // this is 16.67 ms
+        ctx.request_repaint_after(Duration::from_millis(16));
 
         // adding the return here because there are too many closing 
         // parantheses
@@ -855,7 +862,7 @@ impl FHRSimulatorApp {
         let sg_tube_14a_start_point = sg_tube_14_start_point;
         let sg_tube_14a_coordinate_chg_percentage = 
             vec2(30.0,0.0);
-        let sg_tube_14a_end_point = create_pipe_widget_secondary_loop(
+        let _sg_tube_14a_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_pump, 
             sg_tube_14a_start_point, 
             sg_tube_14a_coordinate_chg_percentage, 
@@ -901,6 +908,8 @@ impl FHRSimulatorApp {
             turbine_tube_18c_start_point, 
             turbine_tube_18c_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
+
+
 
         // turbine outline 
 
@@ -949,7 +958,7 @@ impl FHRSimulatorApp {
             turbine_tube_18g_end_point;
         let turbine_tube_18h_coordinate_chg_percentage = 
             vec2(0.0,40.0);
-        let turbine_tube_18h_end_point = create_pipe_widget_secondary_loop(
+        let _turbine_tube_18h_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_turbine, 
             turbine_tube_18h_start_point, 
             turbine_tube_18h_coordinate_chg_percentage, 
@@ -960,7 +969,7 @@ impl FHRSimulatorApp {
             turbine_tube_18c_end_point;
         let turbine_tube_18i_coordinate_chg_percentage = 
             vec2(-45.0,15.0);
-        let turbine_tube_18i_end_point = create_pipe_widget_secondary_loop(
+        let _turbine_tube_18i_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_turbine, 
             turbine_tube_18i_start_point, 
             turbine_tube_18i_coordinate_chg_percentage, 
@@ -995,6 +1004,33 @@ impl FHRSimulatorApp {
             turbine_tube_18l_start_point, 
             turbine_tube_18l_coordinate_chg_percentage, 
             ui, reactor_width, reactor_height);
+        // turbine rotors 
+        {
+            let omega = AngularVelocity::new::<revolution_per_minute>(
+                fhr_state_clone.turbine_rpm
+            );
+
+            let t: Time = Time::new::<second>(
+                fhr_state_clone.prke_elapsed_time_seconds
+            );
+
+            let theta: Angle = (omega * t).into();
+
+            let size = vec2(15.0, 30.0);
+
+            let turbine_moving = TurbineWidget::new(size, theta);
+
+            // now in the case that end point is 
+            // higher in x and y position than the start point:
+            let turbine_rect = 
+                egui::Rect {
+                    min: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18j_end_point,
+                    max: Pos2 { x: 0.0, y: 0.0 } + turbine_tube_18f_end_point,
+                };
+            // only paint turbines moving in one direction
+            ui.put(turbine_rect, turbine_moving);
+
+        }
 
         // condenser
         let condenser_tube_19a_start_point = 
@@ -1028,6 +1064,7 @@ impl FHRSimulatorApp {
             ui, reactor_width, reactor_height);
         ui.separator();
 
+
         // pump
         let pump_20a_start_point = 
             condenser_tube_19c_end_point;
@@ -1043,7 +1080,7 @@ impl FHRSimulatorApp {
             pump_20a_end_point;
         let pump_20b_coordinate_chg_percentage = 
             vec2(-100.0,0.0);
-        let pump_20b_end_point = create_pipe_widget_secondary_loop(
+        let _pump_20b_end_point = create_pipe_widget_secondary_loop(
             fhr_state_clone.steam_quality_after_condenser, 
             pump_20b_start_point, 
             pump_20b_coordinate_chg_percentage, 

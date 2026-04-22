@@ -1,3 +1,6 @@
+/// allows for easy importing as with most rust 
+/// crates. 
+pub mod prelude;
 #[warn(missing_docs)]
 /// constants for the steam table calculations
 pub mod constants;
@@ -77,14 +80,18 @@ pub mod surface_tension;
 /// dielectric constant 
 pub mod dielectric_constant;
 
-/// allows for easy importing as with most rust 
-/// crates. 
-pub mod prelude;
 
+/// useful equations for steam turbines 
+/// These include nozzles, impulse turbines 
+/// and reaction turbines at some steady 
+/// state,
+/// as well as angular momentum balance
+pub mod steam_turbine_equations;
 
 /// reference openfoam algorithms which will be combined with steam 
 /// tables for solving simple two phase flow problems
 pub mod openfoam_algorithms;
+
 
 // pool boiling code for use within the fhr sim v1
 mod fhr_sim_debugging_tests;

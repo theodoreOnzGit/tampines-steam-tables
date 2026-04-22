@@ -81,6 +81,7 @@ impl FHRSimulatorApp {
 
                 ui.add(secondary_loop_mass_flowrate_slider);
 
+
                 ui.separator();
 
                 // cloning the entire fhr state for diagnostics
@@ -430,6 +431,11 @@ impl FHRSimulatorApp {
 
                 ui.label("Turbine Power (MWe)");
                 ui.label(((1000.0*turbine_power_megawatts).round() / 1000.0).to_string());
+
+                let turbine_rpm = fhr_state_clone.turbine_rpm;
+                ui.label("Turbine RPM");
+                ui.label(((1000.0*turbine_rpm).round() / 1000.0).to_string());
+
 
                 let condenser_duty_megawatts = fhr_state_clone.condenser_duty_megawatts;
 

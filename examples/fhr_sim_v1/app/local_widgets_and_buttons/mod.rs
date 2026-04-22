@@ -98,8 +98,8 @@ pub fn new_temp_sensitive_button_blue_red(
     min_temp_degc: f32, 
     max_temp_degc: f32,
     button_temp_degc: f32,
-    name: &str,
-) -> egui::Button {
+    name: &'_ str,
+) -> egui::Button<'_> {
 
     let hotness: f32 = 
         (button_temp_degc - min_temp_degc)/(max_temp_degc- min_temp_degc);
@@ -116,8 +116,8 @@ pub fn new_temp_sensitive_button_black_red(
     min_temp_degc: f32, 
     max_temp_degc: f32,
     button_temp_degc: f32,
-    name: &str,
-) -> egui::Button {
+    name: &'_ str,
+) -> egui::Button<'_> {
 
     let hotness: f32 = 
         (button_temp_degc - min_temp_degc)/(max_temp_degc- min_temp_degc);

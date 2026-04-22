@@ -3,8 +3,11 @@ use crate::app::thermal_hydraulics_backend::fhr_thermal_hydraulics_state::FHRThe
 use tampines_steam_tables::interfaces::functional_programming::ph_flash_eqm::x_ph_flash;
 use tampines_steam_tables::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use tampines_steam_tables::interfaces::functional_programming::{ph_flash_eqm, ps_flash_eqm, pt_flash_eqm};
+use tampines_steam_tables::prelude::functional_programming::ph_flash_eqm::v_ph_eqm;
 use tampines_steam_tables::region_4_vap_liq_equilibrium::sat_temp_4;
+use tampines_steam_tables::steam_turbine_equations::ThreePhaseElectricGeneratorTurbine;
 use uom::si::f64::*;
+use uom::si::length::{inch, meter};
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::pressure::bar;
 use uom::si::thermodynamic_temperature::degree_celsius;
@@ -17,12 +20,15 @@ impl FHRSimulatorApp {
     ///
     /// note that in this simplified steam generator calculation,
     /// everything instantly goes to steady state
-    pub(crate) fn secondary_loop_single_timestep_steady_state_simplified(
+    pub(crate) fn secondary_loop_single_timestep(
         fhr_th_state: &mut FHRThermalHydraulicsState,
         timestep: Time,
         user_specified_secondary_loop_mass_flowrate: &mut MassRate,
         // pump settings 
         user_specified_pump_outlet_pressure: Pressure,
+        current_simulation_time: Time,
+        turbine_omega: AngularVelocity,
+        load_resistance: ElectricalResistance,
     ) -> SecondaryLoopState {
         let heat_rate_to_steam_generator_tube = 
             -fhr_th_state.heat_added_to_steam_generator_shell_side
@@ -162,10 +168,6 @@ impl FHRSimulatorApp {
                 turbine_outlet_enthalpy);
 
 
-        let work_done_by_turbine_per_unit_mass = 
-            turbine_inlet_enthalpy - turbine_outlet_enthalpy;
-        let turbine_power: Power = 
-            *user_specified_secondary_loop_mass_flowrate * work_done_by_turbine_per_unit_mass;
 
         // now it goes into the condenser 
         let condenser_inlet_enthalpy = turbine_outlet_enthalpy;
@@ -179,6 +181,66 @@ impl FHRSimulatorApp {
             *user_specified_secondary_loop_mass_flowrate * 
             (condenser_inlet_enthalpy - condenser_outlet_enthalpy);
 
+        // now the steam turbine, 
+        let mut steam_turbine = 
+            ThreePhaseElectricGeneratorTurbine::new_250_megawatt_generator();
+
+        steam_turbine.set_omega(turbine_omega);
+
+
+        let torque_source: Torque;
+        // these are some arbitrary Parameters
+        let turbine_enthalpy_loss: AvailableEnergy = 
+            turbine_inlet_enthalpy - turbine_outlet_enthalpy;
+
+        let turbine_power_input: Power = 
+            *user_specified_secondary_loop_mass_flowrate * 
+            turbine_enthalpy_loss;
+
+        let turbine_inlet_area = Length::new::<inch>(20.0) * Length::new::<inch>(20.0);
+
+
+        let turbine_radius = Length::new::<meter>(5.0);
+        let turbine_blade_speed: Velocity = 
+            turbine_radius * turbine_omega;
+
+        let turbine_steam_speed: Velocity;
+        let turbine_inlet_rho: MassDensity = 
+            v_ph_eqm(turbine_inlet_pressure, turbine_inlet_enthalpy).recip();
+
+        turbine_steam_speed = *user_specified_secondary_loop_mass_flowrate
+            /turbine_inlet_rho/ 
+            turbine_inlet_area;
+
+        // note: using relative velocity is kind of unstable
+        // numerically
+        let _turbine_steam_relative_velocity: Velocity = 
+            turbine_steam_speed - turbine_blade_speed;
+
+        let turbine_force: Force = 
+            turbine_power_input/turbine_blade_speed;
+
+        // this is just an arbitrary efficiency factor
+        // I don't have actual figures, so the efficiency ratios may 
+        // be incorrect
+        let efficiency_factor = 0.75;
+
+
+
+        torque_source = 
+            (turbine_force * turbine_radius * efficiency_factor).into();
+
+
+        steam_turbine.advance_timestep(
+            torque_source, 
+            load_resistance, 
+            current_simulation_time, 
+            timestep,
+        );
+        let turbine_power: Power = 
+            steam_turbine.get_power(load_resistance, current_simulation_time);
+
+
 
         let secondary_loop_state = 
             SecondaryLoopState {
@@ -190,6 +252,7 @@ impl FHRSimulatorApp {
                 steam_quality_after_steam_generator_tube_side,
                 steam_quality_after_turbine,
                 sat_temperature_in_sg_tube_degc,
+                steam_turbine,
             };
 
 
@@ -221,6 +284,10 @@ pub struct SecondaryLoopState {
 
     /// sat temperature in sg tube 
     pub sat_temperature_in_sg_tube_degc: f64,
+
+    /// steam turbine 
+    pub steam_turbine: ThreePhaseElectricGeneratorTurbine,
+
 }
 
 /// some code for departure from nucleate boiling.

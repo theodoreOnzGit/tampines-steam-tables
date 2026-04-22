@@ -45,3 +45,13 @@ mod driftFluxFoam;
 //
 // Rusche, H. (2002). Computational fluid dynamics of dispersed two-phase 
 // flow at high phase fractions. Ph. D. thesis, University of London.
+//
+
+// 
+// rhoPimpleFoam
+// pimple algorithm for compressible flow
+// rust code for rhoPimpleFoam 
+// is also here
+#[allow(non_snake_case)]
+pub mod rhoPimpleFoam;
+

@@ -347,5 +347,3 @@ fn assert_hs_flash_near_crit(t_deg_c: f64,
 
 }
 
-
-

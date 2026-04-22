@@ -52,15 +52,31 @@ rustup update stable
 
 # Changelog 
 
+v0.1.6
+
+more to be added towards the fhr\_sim\_v2, including turbine animation
+
+Now, (h,s) algorithm is implemented and tested against steam table.
+These tests are under interfaces folder of source code.
+The backward equations are slightly less accurate 
+than (p,h) and (p,s) algorithm. And for low quality steam, it reverts 
+to iteratively doing a (p,h) flashing with bisection method. Not too 
+efficient, but it does the job (ish).
+
+
+
+v0.1.5 
+
+minor update: added a get\_mass() method for the TampinesSteamTableCV
+
+v0.1.4
+
+added object oriented interfaces, aka TampinesSteamTableCV
+
 v0.1.3 
 
 Added a depressurisation example
 
-=======
-
-# Changelog 
-
->>>>>>> main
 v0.1.2
 
 Added the FHR educational simulator with a STEADY STATE steam turbine cycle 

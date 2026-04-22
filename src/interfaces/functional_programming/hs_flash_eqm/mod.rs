@@ -1,13 +1,15 @@
 
 use uom::si::f64::*;
 use uom::si::ratio::ratio;
-use uom::si::thermodynamic_temperature::kelvin;
+use uom::si::thermodynamic_temperature::{degree_celsius, kelvin};
 use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
-use uom::si::pressure::megapascal;
+use uom::si::pressure::{kilopascal, megapascal};
 use uom::si::available_energy::kilojoule_per_kilogram;
 use validity_range::s_crit;
 
 
+use crate::constants::p_crit_water;
+use crate::prelude::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::region_1_subcooled_liquid::{p_hs_1, t_ph_1};
 use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, tsat_hs_4};
 use crate::region_3_single_phase_plus_supercritical_steam::v_ps_flash::v_ps_3b;
@@ -27,7 +29,7 @@ use crate::backward_eqn_hs_region_1_to_4::region_2_and_3::tb23_s_boundary_enthal
 use crate::backward_eqn_hs_region_1_to_4::region_1_and_3::hb13_s_boundary_enthalpy;
 
 use super::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, mu_ph_eqm, t_ph_eqm, w_ph_eqm};
-use super::pt_flash_eqm::{s_tp_eqm_two_phase, FwdEqnRegion};
+use super::pt_flash_eqm::FwdEqnRegion;
 use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
 use super::ps_flash_eqm::v_ps_eqm;
@@ -203,9 +205,9 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
     match region {
         BackwdEqnSubRegion::Region1 => {
             // page 87 of Kretzchmar textbook
-            let mut pressure =  p_hs_1(h, s); 
+            let pressure =  p_hs_1(h, s); 
             // correct this once 
-            pressure = p_hs_newton_raphson_single_correction_fixed_t_estimate(h, s, pressure);
+            //pressure = p_hs_newton_raphson_single_correction_fixed_t_estimate(h, s, pressure);
             let temperature = t_ph_1(pressure, h);
             // in region 1, we are necessarily liquid,
             // quality is zero
@@ -276,26 +278,26 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
             return (temperature, pressure, specific_volume, quality.into());
         },
         BackwdEqnSubRegion::Region4 => {
-            // page 101
-            // note, this only works for temperatures below 623.15 K
+            // page 101-102 of Kretzchmar's book
+            // note, this only works for temperatures above 623.15 K
             // not for temperatures near critical point.
                 
             let max_sat_temp_for_backward = 
                 ThermodynamicTemperature::new::<kelvin>(623.15);
-            let sat_pressure_for_backward = 
-                sat_pressure_4(max_sat_temp_for_backward);
-
-            let steam_quality_bound = 1.0;
             let min_entropy_for_backward_eqn = 
-                s_tp_eqm_two_phase(max_sat_temp_for_backward, 
-                    sat_pressure_for_backward, steam_quality_bound);
+                SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(
+                    5.210_887_825_f64
+                );
 
 
             let sat_temp = tsat_hs_4(h, s);
 
-            if s >= min_entropy_for_backward_eqn {
+            if s >= min_entropy_for_backward_eqn && 
+                sat_temp <= max_sat_temp_for_backward 
+            {
 
                 // page 103 
+                let sat_temp = tsat_hs_4(h, s);
                 let sat_pressure = sat_pressure_4(sat_temp);
 
                 // now, we are using the enthalpy, temperature and 
@@ -310,16 +312,39 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
                 // I'm not overly concerned about computational cost now 
                 // but it is an inefficiency
                 let specific_volume = v_ps_eqm(sat_pressure, s);
+                //dbg!("taking h,s algorithm, temperature is:");
+                //dbg!(&sat_temp.get::<degree_celsius>());
                 return (sat_temp, sat_pressure, specific_volume, quality.into());
             } else {
 
+                //dbg!("taking iterative algorithm");
                 // if in regime above 623.15 K, 
                 // or below the threshold entropy 
                 // we need another procedure...
                 // may include iteration...
                 // to determine temperature
+
+                // first, I'm given (h,s) point
+                // 
+                // I can try to guess the pressure to get the root 
+
+
+                // now, I need to either bound pressure, or use a 
+                // newton raphson method.
+                //
+                // For this method, I would like to bound between 
+                // the critical pressure 
+                // and the minimum pressure
+                // which is 0.000 611 MPa,
+                // I'm increasing this slightly due to numerical error
+
+                let sat_pressure = find_pressure_from_hs_region_4(h, s);
+                let sat_temp = t_ph_eqm(sat_pressure, h);
+                
+
+                dbg!(&sat_temp.get::<degree_celsius>());
+
                 // page 103 
-                let sat_pressure = sat_pressure_4(sat_temp);
 
                 // now, we are using the enthalpy, temperature and 
                 // pressure to find quality using 
@@ -343,28 +368,7 @@ pub fn tpvx_hs_flash_eqm(h: AvailableEnergy,
 
 }
 
-// for some pressures eg. 0.1 bar
-// the guessed pressure is inaccurate
-//
-// this does a single manual newton raphson correction in order to get 
-// it closer to the actual pressure
-// not implemented
-#[inline]
-fn p_hs_newton_raphson_single_correction_fixed_t_estimate(
-    _h: AvailableEnergy,
-    _s: SpecificHeatCapacity, 
-    _p_guess: Pressure) -> Pressure {
 
-    // we are trying to converge to a correct pressure using (h,s)
-    //
-    // however, first p(h,s) fails for low pressure
-    //
-
-
-
-    todo!();
-
-}
 
 /// allows the user to check which region one is in based on a ph flash
 ///
@@ -983,3 +987,96 @@ fn additional_temperature_check_for_1073_15_k_isotherm(
 /// for simplicity to avoid iterations
 pub mod validity_range;
 
+
+/// Finds pressure given enthalpy and entropy using bisection method
+/// 
+/// Given: h and s (known state point)
+/// Find: p such that s(p, h) = s_target
+///
+/// Uses bisection between minimum pressure 
+/// (triple point) and critical pressure
+/// vibe coded and edited
+pub fn find_pressure_from_hs_region_4(
+    h_target: AvailableEnergy,
+    s_target: SpecificHeatCapacity,
+) -> Pressure {
+    
+    use uom::si::pressure::megapascal;
+    use uom::si::specific_heat_capacity::joule_per_kilogram_kelvin;
+    
+    // Bounds for bisection
+    let minimum_pressure_bound = Pressure::new::<megapascal>(0.000_622);
+    let maximum_pressure_bound = p_crit_water();
+    
+    let mut p_low = minimum_pressure_bound;
+    let mut p_high = maximum_pressure_bound;
+    
+    // Tolerances
+    let pressure_tolerance = Pressure::new::<kilopascal>(0.001); 
+    let entropy_tolerance = SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(0.1); // 0.1 J/(kg·K)
+    let max_iterations = 100;
+    
+    // Residual function
+    let residual = |p: Pressure| -> SpecificHeatCapacity {
+        let s_calc = s_ph_eqm(p, h_target);
+        s_calc - s_target
+    };
+    
+    // Check if solution exists in bounds
+    let f_low = residual(p_low);
+    let f_high = residual(p_high);
+    
+    // Check if bounds bracket the solution
+    if f_low.get::<joule_per_kilogram_kelvin>() * f_high.get::<joule_per_kilogram_kelvin>() > 0.0 {
+        panic!("Solution not bracketed by pressure bounds. Check if (h,s) point is physically valid.");
+    }
+    let mut n_iter = 0;
+    
+    // Bisection iteration
+    for iteration in 0..max_iterations {
+        let p_mid = (p_low + p_high) / 2.0;
+        let f_mid = residual(p_mid);
+        
+        // Check convergence on entropy
+        if f_mid.abs() < entropy_tolerance {
+            dbg!("number of iterations for (h,s) iterative solver:");
+            dbg!(&iteration);
+            return p_mid;
+        }
+        
+        // Check convergence on pressure
+        if (p_high - p_low) < pressure_tolerance {
+            dbg!("number of iterations for (h,s) iterative solver:");
+            dbg!(&iteration);
+            return p_mid;
+        }
+        
+        // Update bounds
+        let f_low_val = residual(p_low).get::<joule_per_kilogram_kelvin>();
+        let f_mid_val = f_mid.get::<joule_per_kilogram_kelvin>();
+        
+        if f_low_val * f_mid_val < 0.0 {
+            // Root is between p_low and p_mid
+            p_high = p_mid;
+        } else {
+            // Root is between p_mid and p_high
+            p_low = p_mid;
+        }
+
+        n_iter += 1;
+    }
+
+    dbg!("number of iterations for (h,s) iterative solver:");
+    dbg!(&n_iter);
+    
+    // Return best estimate if max iterations reached
+    let p_final = (p_low + p_high) / 2.0;
+    let final_error = residual(p_final);
+    
+    eprintln!("Warning: Bisection did not converge after {} iterations. \
+               Final error = {:.3} J/(kg·K)", 
+              max_iterations, 
+              final_error.get::<joule_per_kilogram_kelvin>());
+    
+    p_final
+}

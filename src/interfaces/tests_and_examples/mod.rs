@@ -19,6 +19,5 @@ pub mod pt_flash_steam_table;
 #[cfg(test)]
 pub mod ps_flash_steam_table;
 ///// aims to reproduce steam tables using hs flash
-//#[cfg(test)]
-//#[ignore]
-//pub mod hs_flash_steam_table;
+#[cfg(test)]
+pub mod hs_flash_steam_table;

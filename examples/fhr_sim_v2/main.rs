@@ -74,7 +74,7 @@ pub fn fhr_simulator_v2() -> eframe::Result<()> {
         ..Default::default()
     };
     eframe::run_native(
-        "FHR Core / Primary Simulator V1 Powered by TUAS and teh-o-prke",
+        "FHR Simulator V1.1 Powered by TUAS and teh-o-prke",
         native_options,
         Box::new(|cc| {
             // image support,
@@ -208,6 +208,7 @@ pub struct FHRState {
     // performance metrics for steam cycle 
     pub turbine_power_megawatts: f64,
     pub condenser_duty_megawatts: f64,
+    pub turbine_rpm: f64,
 }
 
 impl Default for FHRState {
@@ -274,6 +275,7 @@ impl Default for FHRState {
             steam_quality_after_turbine: 0.0,
             turbine_power_megawatts: 0.0,
             condenser_duty_megawatts: 0.0,
+            turbine_rpm: 10.0,
         }
     }
 }
