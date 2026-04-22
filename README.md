@@ -51,6 +51,10 @@ rustup update stable
 
 # Changelog 
 
+v0.1.7
+
+
+
 v0.1.6
 
 more to be added towards the fhr\_sim\_v2, including turbine animation
