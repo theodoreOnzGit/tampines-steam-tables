@@ -27,7 +27,6 @@ calculations for simplicity.
 cargo run --release --example fhr_vim_v1
 ```
 
-<<<<<<< HEAD
 Note that for windows PCs, sometimes there will be problems where 
 windows defender blocks the fhr_vim_v1 from being run. In those cases,
 it's better to use windows subsystem for linux (WSL). One needs to note 
