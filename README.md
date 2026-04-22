@@ -54,7 +54,7 @@ rustup update stable
 
 v0.1.6
 
-more to be added towards the fhr\_sim\_v2
+more to be added towards the fhr\_sim\_v2, including turbine animation
 
 Now, (h,s) algorithm is implemented and tested against steam table.
 These tests are under interfaces folder of source code.

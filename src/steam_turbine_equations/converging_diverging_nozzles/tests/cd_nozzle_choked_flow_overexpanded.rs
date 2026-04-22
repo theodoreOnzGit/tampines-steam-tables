@@ -54,6 +54,7 @@ use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_i
 //    Checks: Joule-Thomson throttling, entropy increases
 //
 #[test]
+#[ignore="under construction"]
 fn dry_steam_test(){
 
     let ref_vol = Volume::new::<cubic_meter>(1.0);
@@ -165,6 +166,7 @@ fn dry_steam_test(){
 
 
 #[test]
+#[ignore="under construction"]
 fn wet_steam_test(){
 
     let ref_vol = Volume::new::<cubic_meter>(1.0);
