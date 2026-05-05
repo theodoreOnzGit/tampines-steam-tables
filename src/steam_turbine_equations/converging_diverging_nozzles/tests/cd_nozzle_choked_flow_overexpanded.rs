@@ -54,7 +54,6 @@ use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_i
 //    Checks: Joule-Thomson throttling, entropy increases
 //
 #[test]
-#[ignore="under construction"]
 fn dry_steam_test(){
 
     let ref_vol = Volume::new::<cubic_meter>(1.0);
@@ -92,6 +91,10 @@ fn dry_steam_test(){
             a2, 
             p2
         );
+
+    // note the 
+    // guess_velocity_and_state_for_diverge_nozzle_from_choked_throat 
+    // is the problematic one, will need to test the bisection algorithm
 
 
     // we are going to check for 
