@@ -70,7 +70,7 @@ pub fn fhr_simulator_v2() -> eframe::Result<()> {
     env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
 
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 800.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([1920.0, 1080.0]),
         ..Default::default()
     };
     eframe::run_native(
