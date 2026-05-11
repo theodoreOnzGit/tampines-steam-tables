@@ -19,16 +19,22 @@ Hence, I am putting the rust-steam license here.
 
 # FHR Educational Simulator 
 
+## To Run on Windows
+
+For installation, you can just download the fhr_sim_v2.exe from the 
+release tags. Just download the exe file will do
+
+## Development and Testing
 tampines-steam-tables was used to construct the secondary loop of the  
 a Fluoride Salt Cooled High Temperature Reactor (FHR) educational 
 simulator. The secondary loop just runs at steady state (no transient 
 calculations for simplicity.
 ```bash
-cargo run --release --example fhr_vim_v1
+cargo run --release --example fhr_sim_v2
 ```
 
 Note that for windows PCs, sometimes there will be problems where 
-windows defender blocks the fhr_vim_v1 from being run. In those cases,
+windows defender blocks the fhr_sim_v2 from being run. In those cases,
 it's better to use windows subsystem for linux (WSL). One needs to note 
 to use:
 
@@ -38,7 +44,7 @@ sudo apt install libopenblas-dev
 
 Before running:
 ```bash
-cargo run --release --example fhr_vim_v1
+cargo run --release --example fhr_sim_v2
 ```
 
 I used rustup to install rust. So if versions of Rust are outdated 
@@ -47,6 +53,12 @@ I used rustup to install rust. So if versions of Rust are outdated
 ```bash
 rustup update stable
 ```
+
+
+## To resize
+
+Note: If you want to resize, use Ctrl+ and Ctrl- to change the size of the 
+simulator.
 
 
 # Changelog 
