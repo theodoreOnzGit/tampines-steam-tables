@@ -266,11 +266,11 @@ impl FHRSimulatorApp {
         fhr_widget.set_left_cr_frac(left_control_rod_insertion_frac);
         fhr_widget.set_right_cr_frac(right_control_rod_insertion_frac);
 
-        // this is for popups
+        // this is simple code for popups
         ui.put(reactor_rectangle, fhr_widget)
             .on_hover_ui(|ui|{
                 ui.heading("FHR core");
-                ui.heading("Adjust the Control Rods here:");
+                ui.label("Adjust the Control Rods here:");
                 let mut fhr_state_ptr = self.fhr_state.lock().unwrap();
 
                 let left_cr_slider = egui::Slider::new(

@@ -28,8 +28,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     state_throat: TampinesSteamTableCV,
 ) -> (Velocity, TampinesSteamTableCV) {
     
-    // Calculate reference mass flux (must be conserved through nozzle)
-    let mass_flux_ref: MassFlux = mass_rate_throat / a_throat;
+    // Calculate reference mass flowrate
     let ref_vol = Volume::new::<cubic_meter>(1.0);
     let inlet_stagnation_state = 
         TampinesSteamTableCV::new_from_hs(h0, s0, ref_vol);
@@ -43,11 +42,12 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         );
 
     // Helper: Calculate mass flux given outlet enthalpy (p,h) flash
-    fn calculate_mass_flux_at_outlet(
+    fn calculate_mass_rate_at_outlet(
         h0: AvailableEnergy,
         p2: Pressure,
         h2: AvailableEnergy,
-    ) -> MassFlux {
+        a2: Area,
+    ) -> MassRate {
         // Energy equation: v₂ = √(2(h₀ - h₂))
         let v2: Velocity = (2.0 * (h0 - h2)).sqrt();
         
@@ -57,9 +57,10 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         let rho2 = state_2.get_rho();
         
         // Mass flux: G = ρv
-        let mass_flux: MassFlux = rho2 * v2;
+        // Mass rate: G*a2
+        let mass_rate = rho2 * v2 * a2;
         
-        mass_flux
+        mass_rate
     }
 
     // ========================================================================
@@ -83,18 +84,27 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     let h2_isentropic = state_2_isentropic.get_specific_enthalpy();
     
     // Check if isentropic solution satisfies mass balance
-    let mass_flux_isentropic = 
-        calculate_mass_flux_at_outlet(h0, p2_nozzle_boundary, h2_isentropic);
+    let mass_rate_isentropic = 
+        calculate_mass_rate_at_outlet(
+            h0, 
+            p2_nozzle_boundary, 
+            h2_isentropic,
+            a_exit,
+        );
     
-    let mass_flux_error: f64 = 
-        ((mass_flux_isentropic - mass_flux_ref) / mass_flux_ref).get::<ratio>();
+    let mass_rate_error: f64 = 
+        ((mass_rate_isentropic - mass_rate_throat) / mass_rate_throat).get::<ratio>();
+    dbg!(&mass_rate_error);
+    dbg!(&mass_rate_isentropic);
+    dbg!(&mass_rate_throat);
     
     const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
     
     let pressure_tolerance = Pressure::new::<pascal>(100.0); // or appropriate tolerance
     let pressure_diff = (p2 - p_ideal_expansion).abs();
+    dbg!(&(p2, p_ideal_expansion));
 
-    if mass_flux_error.abs() < TOLERANCE && pressure_diff < pressure_tolerance {
+    if mass_rate_error.abs() < TOLERANCE && pressure_diff < pressure_tolerance {
         // Isentropic solution is valid!
         // That means either we have perfect expansions
         let v_outlet: Velocity = v_ideal_expansion;
@@ -102,7 +112,9 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         
         return (v_outlet, state_outlet);
     }
-    if mass_flux_error.abs() < TOLERANCE && p2 < p_ideal_expansion {
+
+    if mass_rate_error.abs() < TOLERANCE && p2 < p_ideal_expansion {
+        println!("expecting shockwaves outside nozzle as p2 is less than p ideal expansion");
         // if outlet pressure is more than ideal expansion pressure, we 
         // will have the correct mass flux in the outlet
         // in this case, we will have oblique shocks outside the nozzle
@@ -129,6 +141,8 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         // but a pressure decrease, ie joule thompson effect. 
         // that is after mixing and such
         //
+
+
         let state_outlet = TampinesSteamTableCV::new_from_ph(
             p2, h_nozzle_outlet, ref_vol
         );
@@ -161,13 +175,15 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         let h_mid = 0.5 * (h_lower + h_upper);
         
         // Calculate mass flux at this enthalpy
-        let mass_flux_guess = calculate_mass_flux_at_outlet(h0, p2, h_mid);
+        let mass_rate_guess = calculate_mass_rate_at_outlet(
+            h0, p2, h_mid,a_exit
+        );
         
         // Check error
         let error: f64 = 
-            ((mass_flux_guess - mass_flux_ref) / mass_flux_ref).get::<ratio>();
-        dbg!(&mass_flux_guess);
-        dbg!(&mass_flux_ref);
+            ((mass_rate_guess - mass_rate_throat) / mass_rate_throat).get::<ratio>();
+        dbg!(&mass_rate_guess);
+        dbg!(&mass_rate_throat);
         dbg!(&error);
         
         // Check if converged
@@ -198,7 +214,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             let state_outlet = TampinesSteamTableCV::new_from_ph(
                 p2_nozzle_boundary, h_outlet, ref_vol
             );
-            dbg!(&(mass_flux_ref,mass_flux_guess));
+            dbg!(&(mass_rate_throat,mass_rate_guess));
             dbg!(&(h_upper,h_lower));
             
             return (v_outlet, state_outlet);
