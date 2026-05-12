@@ -238,6 +238,12 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
 /// assuming choked flow
 ///
 /// this is for perfectly expanded flow
+///
+///
+/// Now, there are two pressures that would work,
+/// the lower bound pressure and upper bound pressure 
+/// the lower bound pressure is supersonic 
+/// and the upper bound pressure is subsonic
 #[inline]
 pub fn calculate_isentropic_exit_pressure_velocity_and_state(
     inlet_stagnation_state: TampinesSteamTableCV,
@@ -264,6 +270,9 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state(
     let tolerance = Pressure::new::<pascal>(100.0);
     let mut state_exit: TampinesSteamTableCV;
     let mut v_exit: Velocity;
+    // this is the speed of sound at the exit,
+    // for this round, I'm just having a placeholder
+    let mut c_exit: Velocity = inlet_stagnation_state.get_speed_of_sound();
     
     for _ in 0..max_iterations {
         let p_mid = 0.5 * (p_lower + p_upper);
@@ -272,17 +281,27 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state(
         state_exit = TampinesSteamTableCV::new_from_ps(p_mid, s0, ref_vol);
         let h_exit = state_exit.get_specific_enthalpy();
         let rho_exit = state_exit.get_rho();
+        c_exit = state_exit.get_speed_of_sound();
         
         // Calculate velocity from energy equation
         v_exit = (2.0 * (h0 - h_exit)).sqrt();
+
         
         // Calculate mass flowrate
         let mass_flowrate_calc = rho_exit * v_exit * a_exit;
+        dbg!(&(mass_flowrate_calc,
+                mass_flowrate_choked,
+                p_mid,
+                v_exit,
+                c_exit,
+        ));
         
         // Check error
         let error = (mass_flowrate_calc - mass_flowrate_choked) / mass_flowrate_choked;
         
         if error.get::<ratio>().abs() < 0.0001 {
+            // note that the exit velocity MUST be supersonic
+            assert!(v_exit > c_exit);
             return (p_mid, v_exit, state_exit);
         }
         
@@ -297,6 +316,8 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state(
         }
         
         if (p_upper - p_lower) < tolerance {
+            // note that the exit velocity MUST be supersonic
+            assert!(v_exit > c_exit);
             return (p_mid, v_exit, state_exit);
         }
     }
@@ -306,5 +327,7 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state(
     let h_exit = state_exit.get_specific_enthalpy();
     v_exit = (2.0 * (h0 - h_exit)).sqrt();
     
+    // note that the exit velocity MUST be supersonic
+    assert!(v_exit > c_exit);
     return (p_mid, v_exit, state_exit);
 }

@@ -82,7 +82,7 @@ fn dry_steam_test_overexpanded(){
 
 
 
-    let (v, mass_rate, outlet_state) = 
+    let (v, _mass_rate, outlet_state) = 
         calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
             p1, 
             h1, 
@@ -122,7 +122,7 @@ fn dry_steam_test_overexpanded(){
     // ====================================================================
     // Test (2): Mass Balance - ṁ = ρ₂ v₂ A₂
     // ====================================================================
-    let rho2 = outlet_state.get_rho();
+    let _rho2 = outlet_state.get_rho();
 
     // mass balance will not pass in overexpansion, there are shock waves
     //let mass_rate_calculated = rho2 * v * a2;
@@ -238,14 +238,14 @@ fn wet_steam_test(){
     // Test (2): Mass Balance - ṁ = ρ₂ v₂ A₂
     // ====================================================================
     // mass flowrate is impossible to calculate without the area 
-    //let rho2 = outlet_state.get_rho();
-    //let mass_rate_calculated = rho2 * v * a2;
+    let rho2 = outlet_state.get_rho();
+    let mass_rate_calculated = rho2 * v * a2;
 
-    //approx::assert_relative_eq!(
-    //    mass_rate.get::<kilogram_per_second>(),
-    //    mass_rate_calculated.get::<kilogram_per_second>(),
-    //    epsilon = 1e-6
-    //);
+    approx::assert_relative_eq!(
+        mass_rate.get::<kilogram_per_second>(),
+        mass_rate_calculated.get::<kilogram_per_second>(),
+        epsilon = 1e-6
+    );
 
     println!("✓ Mass balance: ṁ = {:.6} kg/s", 
         mass_rate.get::<kilogram_per_second>()
