@@ -89,6 +89,8 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let m_ideal: MassRate = rho_out_ideal * v_out_ideal * a2;
 
     let throat_has_choked_flow: bool = p2 < p_throat_critical;
+    dbg!(&(p_throat_critical,p2));
+    dbg!(&throat_has_choked_flow);
 
     if !throat_has_choked_flow {
         // in this case, we have subsonic flow
