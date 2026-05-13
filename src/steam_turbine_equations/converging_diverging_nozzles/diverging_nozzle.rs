@@ -35,7 +35,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
 
     // Calculate perfectly expanded solution 
     let (p_ideal_expansion, v_ideal_expansion, state_ideal_expansion) 
-        = calculate_isentropic_exit_pressure_velocity_and_state(
+        = calculate_isentropic_exit_pressure_velocity_and_state_pressure_algo(
             inlet_stagnation_state, 
             a_exit, 
             mass_rate_throat,
@@ -244,8 +244,11 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
 /// the lower bound pressure and upper bound pressure 
 /// the lower bound pressure is supersonic 
 /// and the upper bound pressure is subsonic
+///
+/// This bisection method is based on a pressure algorithm,
+/// that is to change pressure until the right mass flowrate is achieved
 #[inline]
-pub fn calculate_isentropic_exit_pressure_velocity_and_state(
+pub fn calculate_isentropic_exit_pressure_velocity_and_state_pressure_algo(
     inlet_stagnation_state: TampinesSteamTableCV,
     a_exit: Area,
     mass_flowrate_choked: MassRate,
@@ -274,6 +277,55 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state(
     // for this round, I'm just having a placeholder
     let mut c_exit: Velocity = inlet_stagnation_state.get_speed_of_sound();
     
+    // upper and lower bounds of velocity gauged by speed of sound at 
+    // stagnation state
+    let mut v_upper = c_exit * 2.0;
+    let mut v_lower = c_exit * 0.1;
+
+    fn guess_state_exit_and_mass_flow_based_on_velocity(
+        v: Velocity,
+        h0: AvailableEnergy,
+        s0: SpecificHeatCapacity,
+        ref_vol: Volume,
+        a_exit: Area,
+        ) -> (TampinesSteamTableCV, MassRate, Velocity) {
+
+        let h_exit = -0.5 * v * v + h0;
+        let state_exit = TampinesSteamTableCV::new_from_hs(
+            h_exit, s0, ref_vol
+        );
+
+        let rho_exit = state_exit.get_rho();
+        let mass_flowrate_calc = rho_exit * v * a_exit;
+        let c_exit = state_exit.get_speed_of_sound();
+
+
+        return (state_exit, mass_flowrate_calc, c_exit);
+
+    }
+
+    let mut v_test = v_lower;
+
+    while v_test <= v_upper {
+
+        let (state_exit, mass_flowrate_calc, c_exit) = 
+            guess_state_exit_and_mass_flow_based_on_velocity(
+                v_test, 
+                h0, 
+                s0, 
+                ref_vol, 
+                a_exit
+            );
+        dbg!(&(
+                mass_flowrate_choked,
+                mass_flowrate_calc,
+                v_test,
+                c_exit,
+        ));
+
+        v_test += v_lower;
+
+    }
     for _ in 0..max_iterations {
         let p_mid = 0.5 * (p_lower + p_upper);
         
@@ -289,12 +341,12 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state(
         
         // Calculate mass flowrate
         let mass_flowrate_calc = rho_exit * v_exit * a_exit;
-        dbg!(&(mass_flowrate_calc,
-                mass_flowrate_choked,
-                p_mid,
-                v_exit,
-                c_exit,
-        ));
+        //dbg!(&(mass_flowrate_calc,
+        //        mass_flowrate_choked,
+        //        p_mid,
+        //        v_exit,
+        //        c_exit,
+        //));
         
         // Check error
         let error = (mass_flowrate_calc - mass_flowrate_choked) / mass_flowrate_choked;
@@ -330,4 +382,170 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state(
     // note that the exit velocity MUST be supersonic
     assert!(v_exit > c_exit);
     return (p_mid, v_exit, state_exit);
+}
+
+
+/// Calculate exit pressure for isentropic expansion through CD nozzle
+/// assuming choked flow
+///
+/// this is for perfectly expanded flow
+///
+///
+/// Now, there are two pressures that would work,
+/// the lower bound pressure and upper bound pressure 
+/// the lower bound pressure is supersonic 
+/// and the upper bound pressure is subsonic
+///
+/// This bisection method is based on a velocity algorithm,
+/// that is to change velocity until the right mass flowrate is achieved
+#[inline]
+pub fn calculate_isentropic_exit_pressure_velocity_and_state_velocity_algo(
+    inlet_stagnation_state: TampinesSteamTableCV,
+    a_exit: Area,
+    mass_flowrate_choked: MassRate,
+) -> (Pressure, Velocity, TampinesSteamTableCV) {
+    
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    
+    // For isentropic flow: s_exit = s0
+    // Mass continuity: ṁ = ρ_exit * v_exit * A_exit
+    // Energy: v_exit = sqrt(2*(h0 - h_exit))
+    //
+    // Need to find p_exit such that these are satisfied
+    let h0: AvailableEnergy = inlet_stagnation_state.get_specific_enthalpy();
+    let s0: SpecificHeatCapacity = inlet_stagnation_state.get_specific_entropy();
+    let p0: Pressure = inlet_stagnation_state.get_pressure();
+    
+    // Use bisection to find p_exit
+    let mut p_lower = Pressure::new::<pascal>(1000.0);  // Very low pressure
+    let mut p_upper = p0;      
+    
+    let max_iterations = 50;
+    let tolerance = Pressure::new::<pascal>(100.0);
+    let mut state_exit: TampinesSteamTableCV;
+    let mut v_mid: Velocity;
+    // this is the speed of sound at the exit,
+    // for this round, I'm just having a placeholder
+    let mut c_exit: Velocity = inlet_stagnation_state.get_speed_of_sound();
+
+    // upper and lower bounds of velocity gauged by speed of sound at 
+    // stagnation state
+    let mut v_upper = c_exit * 2.0;
+    let mut v_lower = c_exit * 0.1;
+
+    fn guess_state_exit_and_mass_flow_based_on_velocity(
+        v: Velocity,
+        h0: AvailableEnergy,
+        s0: SpecificHeatCapacity,
+        ref_vol: Volume,
+        a_exit: Area,
+        ) -> (TampinesSteamTableCV, MassRate, Velocity) {
+
+        let h_exit = -0.5 * v * v + h0;
+        let state_exit = TampinesSteamTableCV::new_from_hs(
+            h_exit, s0, ref_vol
+        );
+
+        let rho_exit = state_exit.get_rho();
+        let mass_flowrate_calc = rho_exit * v * a_exit;
+        let c_exit = state_exit.get_speed_of_sound();
+        dbg!(&(mass_flowrate_calc,
+                v,
+                c_exit,
+        ));
+
+
+        return (state_exit, mass_flowrate_calc, c_exit);
+
+    }
+
+    let mut v_test = v_lower;
+
+    while v_test <= v_upper {
+
+        let (state_exit, mass_flowrate_calc, c_exit) = 
+            guess_state_exit_and_mass_flow_based_on_velocity(
+                v_test, 
+                h0, 
+                s0, 
+                ref_vol, 
+                a_exit
+            );
+
+        v_test += v_lower;
+
+    }
+
+
+
+    
+    for _ in 0..max_iterations {
+        let mut p_mid = 0.5 * (p_lower + p_upper);
+        
+        // Calculate state at this pressure (isentropic)
+        state_exit = TampinesSteamTableCV::new_from_ps(p_mid, s0, ref_vol);
+        let mut h_exit = state_exit.get_specific_enthalpy();
+        let mut rho_exit = state_exit.get_rho();
+        c_exit = state_exit.get_speed_of_sound();
+        
+        // Calculate velocity from energy equation
+        v_mid = (2.0 * (h0 - h_exit)).sqrt();
+
+        // velocity algo 
+        // first estimate velocity 
+        // then estimate exit enthalpy
+
+        v_mid = 0.5 * (v_upper + v_lower);
+        h_exit = -0.5 * v_mid * v_mid + h0;
+        state_exit = TampinesSteamTableCV::new_from_hs(
+            h_exit, s0, ref_vol
+        );
+
+        rho_exit = state_exit.get_rho();
+        p_mid = state_exit.get_pressure();
+
+        
+        // Calculate mass flowrate
+        let mass_flowrate_calc = rho_exit * v_mid * a_exit;
+        dbg!(&(mass_flowrate_calc,
+                mass_flowrate_choked,
+                p_mid,
+                v_mid,
+                c_exit,
+        ));
+        
+        // Check error
+        let error = (mass_flowrate_calc - mass_flowrate_choked) / mass_flowrate_choked;
+        
+        if error.get::<ratio>().abs() < 0.0001 {
+            // note that the exit velocity MUST be supersonic
+            assert!(v_mid > c_exit);
+            return (p_mid, v_mid, state_exit);
+        }
+        
+        // Adjust bounds
+        // Lower pressure → higher velocity → higher mass flow (for supersonic)
+        if error.get::<ratio>() > 0.0 {
+            // Mass flow too high, increase pressure
+            p_lower = p_mid;
+        } else {
+            // Mass flow too low, decrease pressure
+            p_upper = p_mid;
+        }
+        
+        if (p_upper - p_lower) < tolerance {
+            // note that the exit velocity MUST be supersonic
+            assert!(v_mid > c_exit);
+            return (p_mid, v_mid, state_exit);
+        }
+    }
+
+    let p_mid = 0.5 * (p_lower + p_upper);
+    state_exit = TampinesSteamTableCV::new_from_ps(p_mid, s0, ref_vol);
+    let h_exit = state_exit.get_specific_enthalpy();
+    v_mid = (2.0 * (h0 - h_exit)).sqrt();
+    
+    // note that the exit velocity MUST be supersonic
+    assert!(v_mid > c_exit);
+    return (p_mid, v_mid, state_exit);
 }
