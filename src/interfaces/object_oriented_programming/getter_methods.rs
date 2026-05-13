@@ -3,6 +3,8 @@ use uom::si::f64::*;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 
+use crate::constants::p_crit_water;
+use crate::constants::t_crit_water;
 use crate::prelude::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::prelude::functional_programming::ph_flash_eqm::x_ph_flash;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
@@ -13,6 +15,8 @@ use crate::prelude::functional_programming::ph_flash_eqm::cp_ph_eqm;
 use crate::dynamic_viscosity::mu_ph_eqm;
 use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
 use crate::region_2_vapour::*;
+use crate::region_4_vap_liq_equilibrium::sat_pressure_4;
+use crate::region_4_vap_liq_equilibrium::sat_temp_4;
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
     pub fn get_pressure(&self) -> Pressure {
@@ -430,5 +434,40 @@ impl super::TampinesSteamTableCV {
         x
     }
 
+    /// get the saturation temperature based on pressure 
+    /// provided pressure is less than p_crit
+    pub fn get_tsat_based_on_pressure(&self) -> Option<ThermodynamicTemperature>{
+        let p_crit = p_crit_water();
+
+        if self.pressure < p_crit {
+            return None;
+        }
+
+        if self.pressure == p_crit {
+            return Some(t_crit_water());
+        }
+
+        let tsat = sat_temp_4(self.pressure);
+
+        return Some(tsat);
+    }
+
+    /// get the saturation pressure based on temperature 
+    /// provided temperature is less than t_crit
+    pub fn get_psat_based_on_temperature(&self) -> Option<Pressure>{
+        let t_crit = t_crit_water();
+
+        if self.temperature < t_crit {
+            return None;
+        }
+
+        if self.temperature == t_crit {
+            return Some(p_crit_water());
+        }
+
+        let psat = sat_pressure_4(self.temperature);
+
+        return Some(psat);
+    }
 }
 
