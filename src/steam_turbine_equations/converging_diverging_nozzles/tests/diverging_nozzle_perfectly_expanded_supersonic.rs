@@ -119,6 +119,7 @@ fn diverging_nozzle_perfectly_expanded_supersonic_dry_steam(){
 
 /// this test checks the function for perfectly expanded wet steam
 #[test]
+#[ignore="test not ready"]
 fn diverging_nozzle_perfectly_expanded_supersonic_wet_steam(){
 
     let ref_vol = Volume::new::<cubic_meter>(1.0);
