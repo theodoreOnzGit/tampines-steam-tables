@@ -4,5 +4,12 @@
 /// 
 pub mod cd_nozzle_subsonic_flow;
 
+
+/// for perfectly expanded flow 
+/// 
+/// in this case, the flow is choked, so there is an isentropic 
+/// process from 
+pub mod diverging_nozzle_perfectly_expanded_supersonic;
+
 /// for overexpanded flow, 
 pub mod cd_nozzle_choked_flow_overexpanded;
