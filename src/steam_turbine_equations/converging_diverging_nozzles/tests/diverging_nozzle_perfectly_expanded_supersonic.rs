@@ -2,6 +2,7 @@ use uom::si::f64::*;
 use uom::si::length::meter;
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::pressure::{bar, pascal};
+use uom::si::ratio::ratio;
 use uom::si::specific_heat_capacity::joule_per_kilogram_kelvin;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
@@ -105,5 +106,12 @@ fn diverging_nozzle_perfectly_expanded_supersonic(){
         max_relative=1e-6
         );
 
+    // also want to check the mach number
+    // is about 1.76 (quite reasonable)
+    approx::assert_relative_eq!(
+        state_exit.get_mach_number(v_exit).get::<ratio>(),
+        1.76125,
+        max_relative=1e-6
+        );
 
 }
