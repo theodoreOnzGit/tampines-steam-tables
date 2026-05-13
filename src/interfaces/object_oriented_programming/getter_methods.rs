@@ -4,6 +4,7 @@ use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 
 use crate::prelude::functional_programming::ph_flash_eqm::ph_flash_region;
+use crate::prelude::functional_programming::ph_flash_eqm::x_ph_flash;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::w_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::lambda_ph_eqm;
@@ -415,6 +416,18 @@ impl super::TampinesSteamTableCV {
             FwdEqnRegion::Region4 => None,
             FwdEqnRegion::Region5 => None,
         }
+    }
+
+    
+    /// get the steam quality, only if the region is in region 4
+    /// region 4 is the vapour liquid equilibrium
+    pub fn get_quality(&self) -> f64{
+
+        let p = self.pressure;
+        let h = self.specific_enthalpy;
+
+        let x = x_ph_flash(p,h);
+        x
     }
 
 }
