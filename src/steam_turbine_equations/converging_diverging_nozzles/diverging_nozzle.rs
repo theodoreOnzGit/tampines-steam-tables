@@ -289,7 +289,7 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state_supersonic(
     let max_iterations = 50;
     let mut state_exit: TampinesSteamTableCV;
     let mut v_exit: Velocity;
-    let mut c_exit: Velocity = inlet_stagnation_state.get_speed_of_sound();
+    let mut c_exit: Velocity;
     
     // --- Stage 1: Heuristic scan to find a tight pressure bracket for the supersonic root ---
     // The relationship between exit velocity (v) and mass flow rate (ṁ) for a fixed exit
@@ -402,3 +402,69 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state_supersonic(
 }
 
 
+
+#[inline]
+pub fn calculate_isentropic_exit_pressure_velocity_and_state_subsonic(
+    inlet_stagnation_state: TampinesSteamTableCV,
+    a_exit: Area,
+    mass_flowrate_choked: MassRate,
+) -> (Pressure, Velocity, TampinesSteamTableCV) {
+    
+    let ref_vol = Volume::new::<cubic_meter>(1.0);
+    
+    let h0: AvailableEnergy = inlet_stagnation_state.get_specific_enthalpy();
+    let s0: SpecificHeatCapacity = inlet_stagnation_state.get_specific_entropy();
+    let p0: Pressure = inlet_stagnation_state.get_pressure();
+    
+    // --- Stage 1: Set pressure bounds based on physics ---
+    // The subsonic solution for a diverging nozzle must lie between the critical pressure
+    // at the throat (p*) and the stagnation pressure (p0).
+    let p_critical = inlet_stagnation_state.get_critical_pressure_ratio() * p0;
+    let mut p_lower = p_critical;
+    let mut p_upper = p0;      
+    
+    let max_iterations = 50;
+    let mut state_exit: TampinesSteamTableCV;
+    let mut v_exit: Velocity;
+    let mut c_exit: Velocity;
+
+    // --- Stage 2: Refine the pressure using a bisection method ---
+    for _ in 0..max_iterations {
+        let p_mid = 0.5 * (p_lower + p_upper);
+        
+        state_exit = TampinesSteamTableCV::new_from_ps(p_mid, s0, ref_vol);
+        let h_exit = state_exit.get_specific_enthalpy();
+        let rho_exit = state_exit.get_rho();
+        c_exit = state_exit.get_speed_of_sound();
+        
+        v_exit = (2.0 * (h0 - h_exit)).sqrt();
+        
+        let mass_flowrate_calc = rho_exit * v_exit * a_exit;
+        let error = (mass_flowrate_calc - mass_flowrate_choked) / mass_flowrate_choked;
+        
+        if error.get::<ratio>().abs() < 1e-6 {
+            assert!(v_exit < c_exit, "Sanity check failed: Converged to a supersonic velocity!");
+            return (p_mid, v_exit, state_exit);
+        }
+        
+        // Bisection logic for the SUBSONIC branch (negative slope):
+        // In this regime, increasing pressure decreases mass flow rate.
+        if error.get::<ratio>() > 0.0 {
+            // Mass flow is too high. To reduce it, we must INCREASE the pressure.
+            p_lower = p_mid;
+        } else {
+            // Mass flow is too low. To increase it, we must DECREASE the pressure.
+            p_upper = p_mid;
+        }
+    }
+
+    // Return the best-effort result after max iterations.
+    let p_mid = 0.5 * (p_lower + p_upper);
+    state_exit = TampinesSteamTableCV::new_from_ps(p_mid, s0, ref_vol);
+    let h_exit = state_exit.get_specific_enthalpy();
+    v_exit = (2.0 * (h0 - h_exit)).sqrt();
+    
+    // Final sanity check to ensure the result is physically correct.
+    assert!(v_exit < state_exit.get_speed_of_sound(), "Final result must be subsonic!");
+    (p_mid, v_exit, state_exit)
+}
