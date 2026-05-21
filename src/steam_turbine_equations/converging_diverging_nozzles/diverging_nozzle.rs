@@ -313,6 +313,8 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
 
     }
 
+    // the rest of this is work in progress
+
     let mut p2_nozzle_boundary = p_ideal_exp_subsonic;
     
     // For isentropic flow: s₂ = s_throat
