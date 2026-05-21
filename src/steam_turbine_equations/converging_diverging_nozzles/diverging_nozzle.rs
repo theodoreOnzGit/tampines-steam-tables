@@ -185,7 +185,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         // we are going to do a velocity scan algorithm again
         let mut v_upper_limit = v_ideal_exp_supersonic;
         let mut v_lower_limit = v_ideal_exp_subsonic;
-        let v_increment = (v_upper_limit - v_lower_limit) / 20_f64;
+        let v_increment = (v_upper_limit - v_lower_limit) * 0.1;
 
         // remember, we are supposed to vary v until the mass flowrate 
         // calculated reaches that of the throat
@@ -220,6 +220,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         dbg!(&(initial_error,outlet_state));
         
 
+        // this is the initial velocity scan
         while v_test < v_upper_limit {
             let (test_error, outlet_state) = root_finder(v_test);
 
@@ -249,15 +250,65 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             dbg!(&(v_test));
             dbg!(&(test_error,outlet_state));
             v_upper_limit = v_test; 
-            dbg!(&(v_lower_limit,v_upper_limit));
             break;
 
         }
-        // now i can do bisection between these two limits
+        // now i can do bisection (or a secant method) 
+        // between these two limits
+        // since it's quite near the root
+        //
+        // or as AI suggested, I'm going to try Regula Falsi
+        // near this region
 
-        todo!();
+        println!("Regula Falsi bounds found");
+        dbg!(&(v_lower_limit,v_upper_limit));
+
+        let mut iteration = 0;
+
+        let (mut error_lower_limit, _state_lower_limit) = 
+            root_finder(v_lower_limit);
+        let (mut error_upper_limit, _state_upper_limit) = 
+            root_finder(v_upper_limit);
+
+        if error_lower_limit.value * error_upper_limit.value >= 0.0 {
+            panic!("bounds are same sign!");
+        }
+
+        // this is regula falsi
+        while relative_error.abs() > TOLERANCE && iteration < max_iterations {
+
+            // using secant formula
+            v_test = 
+                v_upper_limit - (v_upper_limit - v_lower_limit) * 
+                error_upper_limit/(error_upper_limit - error_lower_limit);
+
+            // check mass flowrate using velocity
+            let (test_error, test_outlet_state) = root_finder(v_test);
+            // update relative error
+            relative_error = (test_error/mass_rate_throat).get::<ratio>();
+
+            if relative_error.abs() < TOLERANCE {
+                return (v_test, test_outlet_state);
+            }
+
+            // update bounds, keep root bracketed 
+
+            if error_lower_limit.value * test_error.value < 0.0 {
+
+                v_upper_limit = v_test;
+                error_upper_limit = test_error;
+            } else {
+
+                v_lower_limit = v_test;
+                error_lower_limit = test_error;
+            }
+
+
+            dbg!(&(v_lower_limit,v_upper_limit));
+            iteration += 1;
+
+        }
         
-
         
 
     }
