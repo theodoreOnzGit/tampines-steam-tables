@@ -206,7 +206,7 @@ fn diverging_nozzle_perfectly_expanded_subsonic_dry_steam(){
 
 
     // for regression, let's see the exit pressure
-    // should be about 379.2 kPa
+    // should be about 1750 kPa
     approx::assert_relative_eq!(
         p_exit_ideal.get::<pascal>(),
         1750063_f64,
@@ -214,7 +214,8 @@ fn diverging_nozzle_perfectly_expanded_subsonic_dry_steam(){
         );
 
     // also want to check the mach number
-    // is about 1.76 (quite reasonable)
+    // is about 0.458 (quite reasonable)
+    // below mach 1, subsonic is correct
     approx::assert_relative_eq!(
         state_exit.get_mach_number(v_exit).get::<ratio>(),
         0.4585318,
