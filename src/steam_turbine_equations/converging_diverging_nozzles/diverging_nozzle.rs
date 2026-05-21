@@ -33,8 +33,9 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     let inlet_stagnation_state = 
         TampinesSteamTableCV::new_from_hs(h0, s0, ref_vol);
 
+    let p0 = inlet_stagnation_state.get_pressure();
     // Calculate perfectly expanded solution (supersonic branch)
-    let (p_ideal_expansion, v_ideal_expansion, state_ideal_expansion) 
+    let (p_ideal_exp_supersonic, v_ideal_exp_supersonic, state_ideal_exp_supersonic) 
         = calculate_isentropic_exit_pressure_velocity_and_state_supersonic(
             inlet_stagnation_state, 
             a_exit, 
@@ -42,7 +43,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         );
 
     // Calculate isentropic subsonic branch
-    let (p_ideal_expansion, v_ideal_expansion, state_ideal_expansion) 
+    let (p_ideal_exp_subsonic, v_ideal_exp_subsonic, state_ideal_exp_subsonic) 
         = calculate_isentropic_exit_pressure_velocity_and_state_subsonic(
             inlet_stagnation_state, 
             a_exit, 
@@ -71,6 +72,35 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         mass_rate
     }
 
+    // so before anything, we have a few pressures to take note of 
+    // 
+    // Since we already assume choked flow
+    // 
+    // 1. stagnation pressure (the absolute upper bound)
+    // 2. critical pressure (the pressure at the throat)
+    // 3. subsonic ideal expansion pressure, that is if we happen to hv choked 
+    // flow, and then it falls back down to subsonic speed isentropically,
+    // then it is this pressure 
+    //
+    // 4. supersonic ideal expansion pressure, that is, if we happen to 
+    // have choked flow, and then it accelerates to supersonic speed 
+    // isentropically, it will leave the exit at this pressure
+    //
+    // 5. p2, the outlet pressure
+
+    // first off, if pressure is higher than subsonic ideal expansion 
+    // pressure, we should not even have choked flow in the first place 
+
+    if p2 > p_ideal_exp_subsonic {
+        eprintln!("outlet pressure is too high for choked flow to happen");
+        eprintln!("outlet_pressure:");
+        dbg!(&(p2));
+        eprintln!("whereas isentropic subsonic expansion pressure is:");
+        dbg!(&(p_ideal_exp_subsonic));
+        panic!("");
+    }
+
+
     // ========================================================================
     // Step 1: Try isentropic solution (no shocks)
     // ========================================================================
@@ -79,7 +109,30 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     // it should be at least, the ideal expansion pressure
     // if p2 is lower than this ideal expansion pressure, oblique shocks 
     // will form outside
-    let mut p2_nozzle_boundary = p_ideal_expansion;
+    // to save us some trouble, we will do this to within a tolerance 
+    // of 10 Pa
+
+    // or appropriate tolerance
+    let pressure_tolerance = Pressure::new::<pascal>(10.0); 
+    let pressure_diff_subsonic = (p2 - p_ideal_exp_subsonic).abs();
+    let pressure_diff_supersonic = (p2 - p_ideal_exp_supersonic).abs();
+
+
+    if pressure_diff_subsonic < pressure_tolerance {
+        return (v_ideal_exp_supersonic, state_ideal_exp_supersonic);
+    }
+
+    if pressure_diff_supersonic < pressure_tolerance {
+        return (v_ideal_exp_subsonic, state_ideal_exp_subsonic);
+    }
+
+    // ========================================================================
+    // Step 2: Non-isentropic solution (shocks present) - Use bisection
+    // ========================================================================
+    //
+    // 
+
+    let mut p2_nozzle_boundary = p_ideal_exp_subsonic;
     
     // For isentropic flow: s₂ = s_throat
     let s2_isentropic = state_throat.get_specific_entropy();
@@ -100,34 +153,32 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             a_exit,
         );
     
+    const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
     let mass_rate_error: f64 = 
         ((mass_rate_isentropic - mass_rate_throat) / mass_rate_throat).get::<ratio>();
     dbg!(&mass_rate_error);
     dbg!(&mass_rate_isentropic);
     dbg!(&mass_rate_throat);
     
-    const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
     
-    let pressure_tolerance = Pressure::new::<pascal>(100.0); // or appropriate tolerance
-    let pressure_diff = (p2 - p_ideal_expansion).abs();
-    dbg!(&(p2, p_ideal_expansion));
+    dbg!(&(p2, p_ideal_exp_subsonic));
 
-    if mass_rate_error.abs() < TOLERANCE && pressure_diff < pressure_tolerance {
+    if mass_rate_error.abs() < TOLERANCE && pressure_diff_subsonic < pressure_tolerance {
         // Isentropic solution is valid!
         // That means either we have perfect expansions
-        let v_outlet: Velocity = v_ideal_expansion;
-        let state_outlet = state_ideal_expansion;
+        let v_outlet: Velocity = v_ideal_exp_subsonic;
+        let state_outlet = state_ideal_exp_subsonic;
         
         return (v_outlet, state_outlet);
     }
 
-    if mass_rate_error.abs() < TOLERANCE && p2 < p_ideal_expansion {
+    if mass_rate_error.abs() < TOLERANCE && p2 < p_ideal_exp_subsonic {
         println!("expecting shockwaves outside nozzle as p2 is less than p ideal expansion");
         // if outlet pressure is more than ideal expansion pressure, we 
         // will have the correct mass flux in the outlet
         // in this case, we will have oblique shocks outside the nozzle
         let h_nozzle_outlet = h2_isentropic;
-        let v_nozzle_outlet: Velocity = v_ideal_expansion;
+        let v_nozzle_outlet: Velocity = v_ideal_exp_subsonic;
         //let state_nozzle_outlet = state_ideal_expansion;
 
         // now after this ideal expansion, 
@@ -163,9 +214,6 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         return (v_nozzle_outlet, state_outlet);
     }
 
-    // ========================================================================
-    // Step 2: Non-isentropic solution (shocks present) - Use bisection
-    // ========================================================================
     
     // Physical bounds on outlet enthalpy:
     // - Lower bound: h2_isentropic (minimum possible, maximum expansion)
