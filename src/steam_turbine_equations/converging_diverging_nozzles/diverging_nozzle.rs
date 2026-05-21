@@ -33,9 +33,17 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     let inlet_stagnation_state = 
         TampinesSteamTableCV::new_from_hs(h0, s0, ref_vol);
 
-    // Calculate perfectly expanded solution 
+    // Calculate perfectly expanded solution (supersonic branch)
     let (p_ideal_expansion, v_ideal_expansion, state_ideal_expansion) 
         = calculate_isentropic_exit_pressure_velocity_and_state_supersonic(
+            inlet_stagnation_state, 
+            a_exit, 
+            mass_rate_throat,
+        );
+
+    // Calculate isentropic subsonic branch
+    let (p_ideal_expansion, v_ideal_expansion, state_ideal_expansion) 
+        = calculate_isentropic_exit_pressure_velocity_and_state_subsonic(
             inlet_stagnation_state, 
             a_exit, 
             mass_rate_throat,
