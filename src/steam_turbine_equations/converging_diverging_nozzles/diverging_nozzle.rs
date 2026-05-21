@@ -1,3 +1,4 @@
+use uom::ConstZero;
 use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::f64::*;
 use uom::si::pressure::pascal;
@@ -49,9 +50,11 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             a_exit, 
             mass_rate_throat,
         );
+    dbg!(&(p_ideal_exp_subsonic,p_ideal_exp_supersonic));
+    dbg!(&(v_ideal_exp_subsonic,v_ideal_exp_supersonic));
 
-    // Helper: Calculate mass flux given outlet enthalpy (p,h) flash
-    fn calculate_mass_rate_at_outlet(
+    // Helper: Calculate mass flowrate given outlet enthalpy (p,h) flash
+    fn calculate_mass_rate_at_outlet_ph(
         h0: AvailableEnergy,
         p2: Pressure,
         h2: AvailableEnergy,
@@ -70,6 +73,30 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         let mass_rate = rho2 * v2 * a2;
         
         mass_rate
+    }
+    // Helper: calculate mass flowrate using outlet enthalpy (p,h) flash 
+    // using velocit as input
+    fn calculate_mass_rate_and_state_at_outlet_ph_velocity(
+        h0: AvailableEnergy,
+        p2: Pressure,
+        v2: Velocity,
+        a2: Area,
+    ) -> (MassRate, TampinesSteamTableCV) {
+        // Energy equation: v₂ = √(2(h₀ - h₂))
+        //
+        // we use: h2 = h0 - 0.5 * v2^2
+        let h2: AvailableEnergy = h0 - 0.5 * v2 * v2;
+        
+        // Get density from (p,h) flash
+        let ref_vol = Volume::new::<cubic_meter>(1.0);
+        let state_2 = TampinesSteamTableCV::new_from_ph(p2, h2, ref_vol);
+        let rho2 = state_2.get_rho();
+        
+        // Mass flux: G = ρv
+        // Mass rate: G*a2
+        let mass_rate = rho2 * v2 * a2;
+        
+        (mass_rate, state_2)
     }
 
     // so before anything, we have a few pressures to take note of 
@@ -130,7 +157,110 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     // Step 2: Non-isentropic solution (shocks present) - Use bisection
     // ========================================================================
     //
+    // in this case, p2 lies between the supersonic and subsonic 
+    // expansion pressure branches, 
+    // we should expect normal shocks
+    //
+    // So, the outlet thermodynamic state is fixed using p2
+    // and we have a fixed (choked) mass flowrate
+    // entropy won't be constant, so we cannot use that
     // 
+    // we can vary velocity, 
+    // calculate an enthalpy, 
+    //
+    // check the mass flowrate, and then guess the outlet state 
+    //
+    // for this, the velocity bounds should be between 
+    // the supersonic ideal velocity and the subsonic velocity
+    //
+    // Shocks will occur, but the resulting velocities may or may not 
+    // be supersonic.
+    //
+    // The bottom line is that mass flowrate must be conserved
+
+    let max_iterations = 50;
+    const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
+    if p2 > p_ideal_exp_supersonic && p2 < p_ideal_exp_subsonic {
+
+        // we are going to do a velocity scan algorithm again
+        let mut v_upper_limit = v_ideal_exp_supersonic;
+        let mut v_lower_limit = v_ideal_exp_subsonic;
+        let v_increment = (v_upper_limit - v_lower_limit) / 20_f64;
+
+        // remember, we are supposed to vary v until the mass flowrate 
+        // calculated reaches that of the throat
+
+        let root_finder = |v_test: Velocity| -> (MassRate, TampinesSteamTableCV) {
+
+            let (mass_flowrate_calc, outlet_state_with_shocks) = 
+                calculate_mass_rate_and_state_at_outlet_ph_velocity(
+                h0, p2, v_test, a_exit);
+
+            let error = mass_flowrate_calc - mass_rate_throat;
+
+
+            (error, outlet_state_with_shocks)
+        };
+
+        let mut v_test = v_lower_limit;
+        let mut relative_error: f64 = 20_f64 * TOLERANCE;
+        let (initial_error, outlet_state) = root_finder(v_lower_limit);
+
+        // get the sign of the initial error
+
+        let initial_error_positive: bool;
+
+        if initial_error > MassRate::ZERO {
+            initial_error_positive = true;
+        } else {
+            initial_error_positive = false;
+        }
+
+        dbg!(&(v_test));
+        dbg!(&(initial_error,outlet_state));
+        
+
+        while v_test < v_upper_limit {
+            let (test_error, outlet_state) = root_finder(v_test);
+
+            // next is to check the sign of the error
+
+            let test_error_positive: bool;
+
+            if test_error > MassRate::ZERO {
+                test_error_positive = true;
+            } else {
+                test_error_positive = false;
+            }
+
+            // if the signs are same, then continue 
+
+            if initial_error_positive == test_error_positive {
+                v_lower_limit = v_test;
+                v_test += v_increment;
+
+                dbg!(&(v_test));
+                dbg!(&(test_error,outlet_state));
+                continue;
+            };
+
+            // if signs are not same
+
+            dbg!(&(v_test));
+            dbg!(&(test_error,outlet_state));
+            v_upper_limit = v_test; 
+            dbg!(&(v_lower_limit,v_upper_limit));
+            break;
+
+        }
+        // now i can do bisection between these two limits
+
+        todo!();
+        
+
+        
+
+    }
 
     let mut p2_nozzle_boundary = p_ideal_exp_subsonic;
     
@@ -146,14 +276,13 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     
     // Check if isentropic solution satisfies mass balance
     let mass_rate_isentropic = 
-        calculate_mass_rate_at_outlet(
+        calculate_mass_rate_at_outlet_ph(
             h0, 
             p2_nozzle_boundary, 
             h2_isentropic,
             a_exit,
         );
     
-    const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
     let mass_rate_error: f64 = 
         ((mass_rate_isentropic - mass_rate_throat) / mass_rate_throat).get::<ratio>();
     dbg!(&mass_rate_error);
@@ -222,7 +351,6 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     let mut h_upper = h0;
     p2_nozzle_boundary = p2;
     
-    let max_iterations = 50;
     let enthalpy_tolerance = AvailableEnergy::new::<kilojoule_per_kilogram>(1.0);
     
     // Bisection loop to find h₂ that satisfies mass balance
@@ -231,7 +359,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         let h_mid = 0.5 * (h_lower + h_upper);
         
         // Calculate mass flux at this enthalpy
-        let mass_rate_guess = calculate_mass_rate_at_outlet(
+        let mass_rate_guess = calculate_mass_rate_at_outlet_ph(
             h0, p2, h_mid,a_exit
         );
         
