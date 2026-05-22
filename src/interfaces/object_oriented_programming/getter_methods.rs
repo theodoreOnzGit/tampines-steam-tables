@@ -2,6 +2,7 @@ use uom::ConstZero;
 use uom::si::f64::*;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
+use uom::si::volume::cubic_meter;
 
 use crate::constants::p_crit_water;
 use crate::constants::t_crit_water;
@@ -469,5 +470,12 @@ impl super::TampinesSteamTableCV {
 
         return Some(psat);
     }
+
+    /// just a convenience function to get ref volume 
+    /// 1m3
+    pub fn get_ref_vol() -> Volume {
+        Volume::new::<cubic_meter>(1.0)
+    }
 }
+
 

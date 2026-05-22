@@ -50,30 +50,13 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             a_exit, 
             mass_rate_throat,
         );
-    dbg!(&(p_ideal_exp_subsonic,p_ideal_exp_supersonic));
-    dbg!(&(v_ideal_exp_subsonic,v_ideal_exp_supersonic));
+    let debug = false;
 
-    // Helper: Calculate mass flowrate given outlet enthalpy (p,h) flash
-    fn calculate_mass_rate_at_outlet_ph(
-        h0: AvailableEnergy,
-        p2: Pressure,
-        h2: AvailableEnergy,
-        a2: Area,
-    ) -> MassRate {
-        // Energy equation: v₂ = √(2(h₀ - h₂))
-        let v2: Velocity = (2.0 * (h0 - h2)).sqrt();
-        
-        // Get density from (p,h) flash
-        let ref_vol = Volume::new::<cubic_meter>(1.0);
-        let state_2 = TampinesSteamTableCV::new_from_ph(p2, h2, ref_vol);
-        let rho2 = state_2.get_rho();
-        
-        // Mass flux: G = ρv
-        // Mass rate: G*a2
-        let mass_rate = rho2 * v2 * a2;
-        
-        mass_rate
+    if debug {
+        dbg!(&(p_ideal_exp_subsonic,p_ideal_exp_supersonic));
+        dbg!(&(v_ideal_exp_subsonic,v_ideal_exp_supersonic));
     }
+
     // Helper: calculate mass flowrate using outlet enthalpy (p,h) flash 
     // using velocit as input
     fn calculate_mass_rate_and_state_at_outlet_ph_velocity(
@@ -180,7 +163,6 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
 
     let max_iterations = 50;
     const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
-    let debug = false;
     if p2 > p_ideal_exp_supersonic && p2 < p_ideal_exp_subsonic {
 
         // we are going to do a velocity scan algorithm again
@@ -324,7 +306,27 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     }
 
     // now, third part, is where the outlet pressure is lower than 
-    // the 
+    // the perfectly expanded supersonic pressure.
+    //
+    // We expect shock waves to form outside the nozzle
+    // This is beyond the scope of Cengel 
+    //
+    // This is in an underexpanded nozzle
+    //
+    // Now, for this to work, mass flowrate is the same. 
+    // Moreover we know the nozzle pressure and eventual pressure 
+    //
+    // m_nozzle = m_out 
+    //
+    // p_nozzle known (p_ideal_exp_supersonic) --> This thermodynamic 
+    // state is known
+    // p_out known (p2)
+    //
+    // p_ideal_exp_supersonic > p2
+    //
+    // If area is constant, we can assume a joule thompson effect
+    // perhaps I want to do this in another part
+    
 
     todo!();
 

@@ -163,3 +163,10 @@ mod momentum_balance_rayleigh_line;
 /// these are for textbook questions, where basic verification is performed
 /// to see if choked flow calculation is correct
 pub mod choked_flow;
+
+/// Joule-Thomson depressurisation 
+///
+/// this is where flow goes through a pipe, and suddenly pressure drops 
+/// from p1 to p2, at constant enthalpy and mass flowrate
+pub mod joule_thomson;
+
