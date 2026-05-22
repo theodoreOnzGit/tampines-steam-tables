@@ -90,6 +90,19 @@ pub fn get_outlet_state_joule_thomson(
     // we will start at 5% density reduction at each step, until the 
     // sign changes
 
+    let mut test_rho = rho1;
+
+    let max_iter = 50;
+
+    for i in 0..max_iter {
+
+        // first let's test the mass flowrate and state 
+        // by obtaining the velocity
+
+        
+
+    }
+
     
 
 
@@ -104,7 +117,7 @@ pub fn get_outlet_state_joule_thomson(
 #[cfg(test)]
 mod joule_thomson_test {
     use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
-use crate::steam_turbine_equations::joule_thomson::get_outlet_state_joule_thomson;
+    use crate::steam_turbine_equations::joule_thomson::get_outlet_state_joule_thomson;
     use uom::si::area::square_meter;
     use uom::si::f64::*;
     use uom::si::velocity::meter_per_second;
