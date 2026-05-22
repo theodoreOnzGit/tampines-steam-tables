@@ -88,9 +88,13 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let v_out_ideal: Velocity = (2.0 * (h0 - h_out_ideal)).sqrt();
     let m_ideal: MassRate = rho_out_ideal * v_out_ideal * a2;
 
-    let throat_has_choked_flow: bool = p2 < p_throat_critical;
-    dbg!(&(p_throat_critical,p2));
-    dbg!(&throat_has_choked_flow);
+    let debug = true;
+
+    let throat_has_choked_flow: bool = m_ideal >= choked_mass_flowrate;
+    if debug == true {
+        dbg!(&(p_throat_critical,p2));
+        dbg!(&throat_has_choked_flow);
+    }
 
     if !throat_has_choked_flow {
         // in this case, we have subsonic flow
@@ -113,7 +117,9 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let m = choked_mass_flowrate;
     // outlet flow is now decided upon using a (p,h) algorithm
     let state_throat = choked_state;
-    dbg!("choked flow detected!");
+    if debug == true {
+        dbg!("choked flow detected!");
+    }
 
     let (v, state_outlet) = 
         guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
