@@ -296,7 +296,9 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             }
 
 
-            dbg!(&(v_lower_limit,v_upper_limit));
+            if debug {
+                dbg!(&(v_lower_limit,v_upper_limit));
+            }
             iteration += 1;
 
         }
