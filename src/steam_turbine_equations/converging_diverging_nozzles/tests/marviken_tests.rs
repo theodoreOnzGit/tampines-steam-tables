@@ -17,6 +17,16 @@ use uom::si::velocity::meter_per_second;
 use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
 use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_in_cd_nozzle;
 /// note: this is vibe coded using Gemini
+///
+/// probably start as a template 
+/// but i just want nozzle flow 
+///
+/// looks like fig 8:24 on page 113 seems to be the best 
+/// as most nozzles have pipe which may cause extra pressure loss and 
+/// reduce flowrate.
+///
+/// But Fig 8:24 has L/D at 0.3 
+/// which makes it as pure a nozzle as it gets
 #[test]
 fn validate_against_marviken_test_24() {
     // --- Step 1: Define Initial Conditions from Table 4.1.1 ---
