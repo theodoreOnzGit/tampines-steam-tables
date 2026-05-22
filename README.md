@@ -65,7 +65,16 @@ simulator.
 
 v0.1.7
 
+Added and tested some diverging nozzle functions post choked flow.
+This includes where choked flow isentropically decelerates to subsonic 
+speeds at outlet pressure, or isentropically accelerates supersonically to 
+outlet pressure. This is done using a combination of (p,s) and/or (h,s)
+algorithms.
 
+Moreover, between these two pressures, we expect normal shocks to occur 
+in the nozzle. For this, we use a combination of (p,h) algorithms with a 
+velocity scanning method with regula falsi, to solve for v, such that 
+the outlet mass flowrate equals that at the choke.
 
 v0.1.6
 

@@ -180,6 +180,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
 
     let max_iterations = 50;
     const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
+    let debug = false;
     if p2 > p_ideal_exp_supersonic && p2 < p_ideal_exp_subsonic {
 
         // we are going to do a velocity scan algorithm again
@@ -216,8 +217,11 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             initial_error_positive = false;
         }
 
-        dbg!(&(v_test));
-        dbg!(&(initial_error,outlet_state));
+
+        if debug {
+            dbg!(&(v_test));
+            dbg!(&(initial_error,outlet_state));
+        }
         
 
         // this is the initial velocity scan
@@ -240,15 +244,19 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
                 v_lower_limit = v_test;
                 v_test += v_increment;
 
-                dbg!(&(v_test));
-                dbg!(&(test_error,outlet_state));
+                if debug {
+                    dbg!(&(v_test));
+                    dbg!(&(test_error,outlet_state));
+                }
                 continue;
             };
 
             // if signs are not same
 
-            dbg!(&(v_test));
-            dbg!(&(test_error,outlet_state));
+            if debug {
+                dbg!(&(v_test));
+                dbg!(&(test_error,outlet_state));
+            }
             v_upper_limit = v_test; 
             break;
 
@@ -260,8 +268,10 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         // or as AI suggested, I'm going to try Regula Falsi
         // near this region
 
-        println!("Regula Falsi bounds found");
-        dbg!(&(v_lower_limit,v_upper_limit));
+        if debug{
+            println!("Regula Falsi bounds found");
+            dbg!(&(v_lower_limit,v_upper_limit));
+        }
 
         let mut iteration = 0;
 
@@ -313,162 +323,11 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
 
     }
 
-    // the rest of this is work in progress
+    // now, third part, is where the outlet pressure is lower than 
+    // the 
 
-    let mut p2_nozzle_boundary = p_ideal_exp_subsonic;
-    
-    // For isentropic flow: s₂ = s_throat
-    let s2_isentropic = state_throat.get_specific_entropy();
-    
-    // (p,s) flash to get isentropic outlet state
-    let state_2_isentropic = 
-        TampinesSteamTableCV::new_from_ps(
-            p2_nozzle_boundary, s2_isentropic, ref_vol
-        );
-    let h2_isentropic = state_2_isentropic.get_specific_enthalpy();
-    
-    // Check if isentropic solution satisfies mass balance
-    let mass_rate_isentropic = 
-        calculate_mass_rate_at_outlet_ph(
-            h0, 
-            p2_nozzle_boundary, 
-            h2_isentropic,
-            a_exit,
-        );
-    
-    let mass_rate_error: f64 = 
-        ((mass_rate_isentropic - mass_rate_throat) / mass_rate_throat).get::<ratio>();
-    dbg!(&mass_rate_error);
-    dbg!(&mass_rate_isentropic);
-    dbg!(&mass_rate_throat);
-    
-    
-    dbg!(&(p2, p_ideal_exp_subsonic));
+    todo!();
 
-    if mass_rate_error.abs() < TOLERANCE && pressure_diff_subsonic < pressure_tolerance {
-        // Isentropic solution is valid!
-        // That means either we have perfect expansions
-        let v_outlet: Velocity = v_ideal_exp_subsonic;
-        let state_outlet = state_ideal_exp_subsonic;
-        
-        return (v_outlet, state_outlet);
-    }
-
-    if mass_rate_error.abs() < TOLERANCE && p2 < p_ideal_exp_subsonic {
-        println!("expecting shockwaves outside nozzle as p2 is less than p ideal expansion");
-        // if outlet pressure is more than ideal expansion pressure, we 
-        // will have the correct mass flux in the outlet
-        // in this case, we will have oblique shocks outside the nozzle
-        let h_nozzle_outlet = h2_isentropic;
-        let v_nozzle_outlet: Velocity = v_ideal_exp_subsonic;
-        //let state_nozzle_outlet = state_ideal_expansion;
-
-        // now after this ideal expansion, 
-        // we should have a certain enthalpy and entropy
-        //
-        // (p_nozzle_outlet, s_ideal) -> (p2, unknown state)
-        //
-        // Note: (p_nozzle_outlet > p2)
-        //
-        // I'm not quite sure as to how expansion is going to occur
-        // But there is going to be further pressure decrease, and then 
-        // some mixing
-        //
-        // What is going to be our state after these shocks?
-        // Indeed, in the most ideal case, it is further isentropic 
-        // expansion to achieve higher velocities 
-        //
-        // In the non ideal case, we assume there is not velocity increase, 
-        // but a pressure decrease, ie joule thompson effect. 
-        // that is after mixing and such
-        //
-
-
-        let state_outlet = TampinesSteamTableCV::new_from_ph(
-            p2, h_nozzle_outlet, ref_vol
-        );
-        // this will give some estimate as to what the outlet state should 
-        // be. A conservative estimate
-        //
-        // We won't be doing a mass conservation equation so to speak.
-
-
-        return (v_nozzle_outlet, state_outlet);
-    }
-
-    
-    // Physical bounds on outlet enthalpy:
-    // - Lower bound: h2_isentropic (minimum possible, maximum expansion)
-    // - Upper bound: h0 (maximum possible, zero velocity)
-    let mut h_lower = h2_isentropic;
-    let mut h_upper = h0;
-    p2_nozzle_boundary = p2;
-    
-    let enthalpy_tolerance = AvailableEnergy::new::<kilojoule_per_kilogram>(1.0);
-    
-    // Bisection loop to find h₂ that satisfies mass balance
-    for _iteration in 0..max_iterations {
-        // Midpoint guess
-        let h_mid = 0.5 * (h_lower + h_upper);
-        
-        // Calculate mass flux at this enthalpy
-        let mass_rate_guess = calculate_mass_rate_at_outlet_ph(
-            h0, p2, h_mid,a_exit
-        );
-        
-        // Check error
-        let error: f64 = 
-            ((mass_rate_guess - mass_rate_throat) / mass_rate_throat).get::<ratio>();
-        dbg!(&mass_rate_guess);
-        dbg!(&mass_rate_throat);
-        dbg!(&error);
-        
-        // Check if converged
-        if error.abs() < TOLERANCE {
-            let h_outlet = h_mid;
-            let v_outlet: Velocity = (2.0 * (h0 - h_outlet)).sqrt();
-            let state_outlet = TampinesSteamTableCV::new_from_ph(
-                p2_nozzle_boundary, h_outlet, ref_vol
-            );
-            
-            return (v_outlet, state_outlet);
-        }
-        
-        // Adjust bounds based on error
-        // Physical reasoning: higher h₂ → lower v₂ → lower mass flux
-        if error > 0.0 {
-            // Mass flux too high, need to increase h₂
-            h_lower = h_mid;
-        } else {
-            // Mass flux too low, need to decrease h₂
-            h_upper = h_mid;
-        }
-        
-        // Check if bounds have converged
-        if (h_upper - h_lower) < enthalpy_tolerance {
-            let h_outlet = 0.5 * (h_lower + h_upper);
-            let v_outlet: Velocity = (2.0 * (h0 - h_outlet)).sqrt();
-            let state_outlet = TampinesSteamTableCV::new_from_ph(
-                p2_nozzle_boundary, h_outlet, ref_vol
-            );
-            dbg!(&(mass_rate_throat,mass_rate_guess));
-            dbg!(&(h_upper,h_lower));
-            
-            return (v_outlet, state_outlet);
-        }
-    }
-    
-    // ========================================================================
-    // Step 3: Max iterations reached - return best guess
-    // ========================================================================
-    
-    let h_outlet = 0.5 * (h_lower + h_upper);
-    let v_outlet: Velocity = (2.0 * (h0 - h_outlet)).sqrt();
-    let state_outlet = TampinesSteamTableCV::new_from_ph(
-        p2_nozzle_boundary, h_outlet, ref_vol
-    );
-    
-    return (v_outlet, state_outlet);
 }
 
 /// Calculate exit pressure for isentropic expansion through CD nozzle
