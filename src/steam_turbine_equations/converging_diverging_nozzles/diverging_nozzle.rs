@@ -1,11 +1,11 @@
 use uom::ConstZero;
-use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::f64::*;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
 use crate::prelude::TampinesSteamTableCV;
+use crate::steam_turbine_equations::joule_thomson::get_outlet_velocity_and_state_joule_thomson;
 
 /// given a sonic flow, 
 ///
@@ -23,7 +23,6 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     h0: AvailableEnergy,
     s0: SpecificHeatCapacity,
     p2: Pressure,
-    a_throat: Area,
     a_exit: Area,
     mass_rate_throat: MassRate,
     state_throat: TampinesSteamTableCV,
@@ -82,6 +81,17 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
         (mass_rate, state_2)
     }
 
+    let p_crit = state_throat.get_pressure();
+
+    // now let's have a sanity check 
+    // p0 > p_ideal_exp_subsonic > p_crit > p_ideal_exp_supersonic
+
+    assert!(p0 > p_ideal_exp_subsonic);
+    assert!(p_ideal_exp_subsonic > p_crit);
+    assert!(p_crit > p_ideal_exp_supersonic);
+
+
+
     // so before anything, we have a few pressures to take note of 
     // 
     // Since we already assume choked flow
@@ -137,7 +147,7 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     }
 
     // ========================================================================
-    // Step 2: Non-isentropic solution (shocks present) - Use bisection
+    // Step 2: Non-isentropic solution (shocks present) - Use Regula Falsi
     // ========================================================================
     //
     // in this case, p2 lies between the supersonic and subsonic 
@@ -327,10 +337,25 @@ pub fn guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
     // p_ideal_exp_supersonic > p2
     //
     // If area is constant, we can assume a joule thompson effect
-    // perhaps I want to do this in another part
-    
+    // I have this coded in another part of code
 
-    todo!();
+    if p2 < p_ideal_exp_supersonic {
+        // joule thomson effect 
+
+        let p1 = p_ideal_exp_supersonic;
+        let h1 = state_ideal_exp_supersonic.get_specific_enthalpy();
+        let (v2, state2) = 
+            get_outlet_velocity_and_state_joule_thomson(
+                p1, h1, p2, mass_rate_throat, a_exit
+            );
+
+        return (v2, state2);
+
+    }
+    
+    // if none of these cases fit, panic
+
+    panic!("Choked flow solver could not converge");
 
 }
 

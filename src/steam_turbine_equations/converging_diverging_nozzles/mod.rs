@@ -120,7 +120,6 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
             h0, 
             s0,
             p2, 
-            a_throat, 
             a2,
             m, 
             state_throat
