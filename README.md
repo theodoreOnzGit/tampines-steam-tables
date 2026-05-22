@@ -76,6 +76,9 @@ in the nozzle. For this, we use a combination of (p,h) algorithms with a
 velocity scanning method with regula falsi, to solve for v, such that 
 the outlet mass flowrate equals that at the choke.
 
+Added a joule thomson algorithm for throttling where kinetic energy is 
+non negligible.
+
 v0.1.6
 
 more to be added towards the fhr\_sim\_v2, including turbine animation

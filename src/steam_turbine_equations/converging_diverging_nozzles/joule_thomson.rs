@@ -212,7 +212,8 @@ mod joule_thomson_test {
     use crate::steam_turbine_equations::joule_thomson::get_outlet_velocity_and_state_joule_thomson;
     use uom::si::area::square_meter;
     use uom::si::f64::*;
-    use uom::si::velocity::meter_per_second;
+    use uom::si::ratio::ratio;
+use uom::si::velocity::meter_per_second;
     use uom::si::thermodynamic_temperature::degree_celsius;
     use uom::si::pressure::atmosphere;
 
@@ -242,8 +243,14 @@ mod joule_thomson_test {
 
         dbg!(&(v1,state_1));
         dbg!(&(v2,state_2));
+        let h2 = state_2.get_specific_enthalpy();
 
-        todo!();
+        let h0_ref = 0.5 * v1 * v1 + h1;
+        let h0_test = 0.5 * v2 * v2 + h2;
+
+        let enthalpy_error = ((h0_test - h0_ref)/h0_ref).get::<ratio>();
+
+        assert!(enthalpy_error < 1e-5);
 
     }
 }
