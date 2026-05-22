@@ -213,7 +213,7 @@ mod joule_thomson_test {
     use uom::si::area::square_meter;
     use uom::si::f64::*;
     use uom::si::ratio::ratio;
-use uom::si::velocity::meter_per_second;
+    use uom::si::velocity::meter_per_second;
     use uom::si::thermodynamic_temperature::degree_celsius;
     use uom::si::pressure::atmosphere;
 
@@ -251,6 +251,18 @@ use uom::si::velocity::meter_per_second;
         let enthalpy_error = ((h0_test - h0_ref)/h0_ref).get::<ratio>();
 
         assert!(enthalpy_error < 1e-5);
+
+        // we also just check v2 
+        // it is higher than 700 m/s, this just gives an idea of the 
+        // acceleration involved
+        //
+        // and is a regression test
+
+        approx::assert_relative_eq!(
+            v2.get::<meter_per_second>(),
+            1035.67,
+            max_relative=1e-4
+        );
 
     }
 }
