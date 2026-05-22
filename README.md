@@ -79,6 +79,31 @@ the outlet mass flowrate equals that at the choke.
 Added a joule thomson algorithm for throttling where kinetic energy is 
 non negligible.
 
+For verification and validation, I'm considering using:
+```
+https://www-pub.iaea.org/MTCD/Publications/PDF/TE-1677_web.pdf
+https://www.kns.org/files/pre_paper/11/63%EA%B9%80%EC%8B%9C%EB%8B%AC.pdf
+https://www.osti.gov/servlets/purl/7309475
+```
+
+I am searching for blowdown tests. And it seems this one at NRC may 
+just be the right one:
+
+```
+https://www.nrc.gov/docs/ML1927/ML19270F127.pdf
+```
+
+RELAP5 - MODELS, CODE STRUCTURE, AND APPLICATIONS
+
+And then, based on an AI search (Gemini), Marviken tests:
+
+```
+Marviken critical flow test data
+https://www.nrc.gov/docs/ML2005/ML20052H367.pdf
+```
+
+The Marviken tests seem to best fit these.
+
 v0.1.6
 
 more to be added towards the fhr\_sim\_v2, including turbine animation
