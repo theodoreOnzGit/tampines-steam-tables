@@ -44,6 +44,8 @@ use crate::steam_turbine_equations::isentropic_converging_nozzle::get_choked_flo
 ///
 /// For sonic flows with over expansion, a (p,h) algorithm is used to 
 /// iteratively determine the outlet flow properties.
+///
+/// 
 #[inline]
 pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     p1: Pressure,
@@ -88,7 +90,13 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let v_out_ideal: Velocity = (2.0 * (h0 - h_out_ideal)).sqrt();
     let m_ideal: MassRate = rho_out_ideal * v_out_ideal * a2;
 
-    let throat_has_choked_flow: bool = p2 < p_throat_critical;
+    let debug = false;
+
+    let throat_has_choked_flow: bool = m_ideal >= choked_mass_flowrate;
+    if debug == true {
+        dbg!(&(p_throat_critical,p2));
+        dbg!(&throat_has_choked_flow);
+    }
 
     if !throat_has_choked_flow {
         // in this case, we have subsonic flow
@@ -111,13 +119,15 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let m = choked_mass_flowrate;
     // outlet flow is now decided upon using a (p,h) algorithm
     let state_throat = choked_state;
+    if debug == true {
+        dbg!("choked flow detected!");
+    }
 
     let (v, state_outlet) = 
         guess_velocity_and_state_for_diverge_nozzle_from_choked_throat(
             h0, 
             s0,
             p2, 
-            a_throat, 
             a2,
             m, 
             state_throat
@@ -160,3 +170,10 @@ mod momentum_balance_rayleigh_line;
 /// these are for textbook questions, where basic verification is performed
 /// to see if choked flow calculation is correct
 pub mod choked_flow;
+
+/// Joule-Thomson depressurisation 
+///
+/// this is where flow goes through a pipe, and suddenly pressure drops 
+/// from p1 to p2, at constant enthalpy and mass flowrate
+pub mod joule_thomson;
+

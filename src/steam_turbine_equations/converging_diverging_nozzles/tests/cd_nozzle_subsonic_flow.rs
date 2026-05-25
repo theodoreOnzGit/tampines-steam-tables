@@ -10,49 +10,32 @@ use uom::si::volume::cubic_meter;
 
 use crate::prelude::TampinesSteamTableCV;
 use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_in_cd_nozzle;
-// note: From google AI,
-//
-// International Test Series on Steam Nozzles
-// is a good place to look for steam nozzle (validation)
-// Moore Nozzles (specifically Nozzle B)
-// IWSEP Nozzle
-//
-// The other thing:
-// NASA CDV Nozzle Reference
-//
-// For moore nozzle B,
-// throat area is 
-//
-// These are AI generated test cases
-// Test Cases Created
-//1. Subsonic Flow (No Choking)
-//
-//    Dry Steam: 10 bar, 300°C → 8 bar
-//    Wet Steam: 10 bar, quality 0.95 → 8 bar
-//    Checks: Isentropic flow, energy conservation, pressure match
-//
-//2. Choked Flow Back to Subsonic
-//
-//    Skipped (physically unlikely in CD nozzles - would need special geometry)
-//
-//3. Over-Expanded (Normal Shock Inside)
-//
-//    Dry Steam: 20 bar, 400°C → 12 bar (with shock)
-//    Wet Steam: 15 bar, saturated → 10 bar
-//    Checks: Entropy increases, non-isentropic, energy conserved
-//
-//4. Perfectly Expanded (Isentropic Throughout)
-//
-//    Dry Steam: 30 bar, 450°C → design pressure
-//    Wet Steam: 20 bar, saturated → design pressure
-//    Checks: Zero entropy change, matches ideal expansion
-//
-//5. Under-Expanded (Oblique Shocks Outside)
-//
-//    Dry Steam: 40 bar, 500°C → 60% of design pressure
-//    Wet Steam: 25 bar, saturated → 50% of design pressure
-//    Checks: Joule-Thomson throttling, entropy increases
-//
+
+/// # Test: `dry_steam_test`
+///
+/// ## Purpose
+/// This test validates the behavior of the master nozzle function for a simple,
+/// **un-choked, subsonic flow** scenario using **superheated (dry) steam**.
+///
+/// ## Scenario
+/// - **Inlet:** Superheated steam at 300°C and 10 bar.
+/// - **Outlet:** A high back pressure of 9 bar is set.
+/// - **Expected Outcome:** The pressure drop is insufficient to cause choked flow at the
+///   throat. The model should correctly identify this as a simple isentropic expansion
+///   and calculate the corresponding subsonic outlet state.
+///
+/// ## Validation Checks
+/// The test confirms the physical correctness of the result by verifying four
+/// fundamental conservation laws and model assumptions:
+///
+/// 1.  **Isentropic Flow (`s₁ ≈ s₂`):** Asserts that the specific entropy at the outlet
+///     is the same as the inlet, which is the core assumption for this flow regime.
+/// 2.  **Mass Balance (`ṁ = ρ₂v₂A₂`):** A self-consistency check confirming that the
+///     returned mass flow rate matches the value calculated from the outlet state.
+/// 3.  **Energy Balance (`h₀ ≈ h₂ + v₂²/2`):** Asserts that the stagnation enthalpy
+///     is conserved throughout the process, confirming the First Law of Thermodynamics.
+/// 4.  **Pressure Match (`p₂_actual ≈ p₂_input`):** Verifies that the thermodynamic state
+///     returned by the function corresponds to the specified back pressure.
 #[test]
 fn dry_steam_test(){
 
@@ -62,7 +45,7 @@ fn dry_steam_test(){
     let inlet_state = TampinesSteamTableCV::new_from_tp_quality_1(
         temperature, p1, ref_vol
     );
-    let p2 = Pressure::new::<bar>(8.0);
+    let p2 = Pressure::new::<bar>(9.0);
 
     let h1 = inlet_state.get_specific_enthalpy();
     let v1 = Velocity::new::<meter_per_second>(0.5);
@@ -173,6 +156,29 @@ fn dry_steam_test(){
 }
 
 
+/// # Test: `wet_steam_test`
+///
+/// ## Purpose
+/// This test validates the behavior of the master nozzle function for an
+/// **un-choked, subsonic flow** scenario, but this time using a **two-phase (wet) steam**
+/// mixture.
+///
+/// ## Scenario
+/// - **Inlet:** A saturated steam mixture at 10 bar with a quality of 80%.
+/// - **Outlet:** A high back pressure of 9 bar is set.
+/// - **Expected Outcome:** Similar to the `dry_steam_test`, the flow should remain
+///   subsonic and un-choked. The test verifies that the model handles the isentropic
+///   expansion correctly even when starting from a two-phase state.
+///
+/// ## Validation Checks
+/// The test performs the same four fundamental checks as `dry_steam_test` to ensure
+/// the model's physical consistency across different fluid phases:
+///
+/// 1.  **Isentropic Flow (`s₁ ≈ s₂`):** Verifies that entropy is conserved.
+/// 2.  **Mass Balance (`ṁ = ρ₂v₂A₂`):** Ensures self-consistency of the returned state.
+/// 3.  **Energy Balance (`h₀ ≈ h₂ + v₂²/2`):** Confirms conservation of stagnation enthalpy.
+/// 4.  **Pressure Match (`p₂_actual ≈ p₂_input`):** Ensures the outlet state matches the
+///     specified back pressure.
 #[test]
 fn wet_steam_test(){
 
@@ -183,7 +189,7 @@ fn wet_steam_test(){
         p1, x, ref_vol
     );
 
-    let p2 = Pressure::new::<bar>(8.0);
+    let p2 = Pressure::new::<bar>(9.0);
 
     let h1 = inlet_state.get_specific_enthalpy();
     let v1 = Velocity::new::<meter_per_second>(0.5);

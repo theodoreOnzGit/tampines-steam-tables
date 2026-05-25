@@ -56,6 +56,7 @@ impl eframe::App for FHRSimulatorApp {
         egui::CentralPanel::default().show(ctx, |ui| {
 
             ui.separator();
+            ui.heading("Use Ctrl+ and Ctrl- to adjust zoom");
             egui::ScrollArea::both()
                 .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysVisible)
                 .drag_to_scroll(true)
@@ -265,7 +266,32 @@ impl FHRSimulatorApp {
         fhr_widget.set_left_cr_frac(left_control_rod_insertion_frac);
         fhr_widget.set_right_cr_frac(right_control_rod_insertion_frac);
 
-        ui.put(reactor_rectangle, fhr_widget);
+        // this is simple code for popups
+        ui.put(reactor_rectangle, fhr_widget)
+            .on_hover_ui(|ui|{
+                ui.heading("FHR core");
+                ui.label("Adjust the Control Rods here:");
+                let mut fhr_state_ptr = self.fhr_state.lock().unwrap();
+
+                let left_cr_slider = egui::Slider::new(
+                    &mut fhr_state_ptr.left_cr_insertion_frac, 
+                    0.0000..=1.0)
+                    .logarithmic(false)
+                    .text("Left Control Rod insertion Fraction")
+                    .drag_value_speed(0.001);
+
+                ui.add(left_cr_slider);
+
+                let right_cr_slider = egui::Slider::new(
+                    &mut fhr_state_ptr.right_cr_insertion_frac, 
+                    0.0000..=1.0)
+                    .logarithmic(false)
+                    .text("Right Control Rod insertion Fraction")
+                    .drag_value_speed(0.001);
+
+                ui.add(right_cr_slider);
+            });
+
         
         fn average_temp(temp_vec_degc: &Vec<f64>) -> ThermodynamicTemperature {
 

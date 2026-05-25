@@ -19,17 +19,22 @@ Hence, I am putting the rust-steam license here.
 
 # FHR Educational Simulator 
 
+## To Run on Windows
+
+For installation, you can just download the fhr_sim_v2.exe from the 
+release tags. Just download the exe file will do
+
+## Development and Testing
 tampines-steam-tables was used to construct the secondary loop of the  
 a Fluoride Salt Cooled High Temperature Reactor (FHR) educational 
 simulator. The secondary loop just runs at steady state (no transient 
 calculations for simplicity.
 ```bash
-cargo run --release --example fhr_vim_v1
+cargo run --release --example fhr_sim_v2
 ```
 
-<<<<<<< HEAD
 Note that for windows PCs, sometimes there will be problems where 
-windows defender blocks the fhr_vim_v1 from being run. In those cases,
+windows defender blocks the fhr_sim_v2 from being run. In those cases,
 it's better to use windows subsystem for linux (WSL). One needs to note 
 to use:
 
@@ -39,7 +44,7 @@ sudo apt install libopenblas-dev
 
 Before running:
 ```bash
-cargo run --release --example fhr_vim_v1
+cargo run --release --example fhr_sim_v2
 ```
 
 I used rustup to install rust. So if versions of Rust are outdated 
@@ -50,7 +55,62 @@ rustup update stable
 ```
 
 
+## To resize
+
+Note: If you want to resize, use Ctrl+ and Ctrl- to change the size of the 
+simulator.
+
+
 # Changelog 
+
+v0.1.7
+
+Added and tested some diverging nozzle functions post choked flow.
+This includes where choked flow isentropically decelerates to subsonic 
+speeds at outlet pressure, or isentropically accelerates supersonically to 
+outlet pressure. This is done using a combination of (p,s) and/or (h,s)
+algorithms.
+
+Moreover, between these two pressures, we expect normal shocks to occur 
+in the nozzle. For this, we use a combination of (p,h) algorithms with a 
+velocity scanning method with regula falsi, to solve for v, such that 
+the outlet mass flowrate equals that at the choke.
+
+Added a joule thomson algorithm for throttling where kinetic energy is 
+non negligible.
+
+For verification and validation, I'm considering using:
+```
+https://www-pub.iaea.org/MTCD/Publications/PDF/TE-1677_web.pdf
+https://www.kns.org/files/pre_paper/11/63%EA%B9%80%EC%8B%9C%EB%8B%AC.pdf
+https://www.osti.gov/servlets/purl/7309475
+```
+
+I am searching for blowdown tests. And it seems this one at NRC may 
+just be the right one:
+
+```
+https://www.nrc.gov/docs/ML1927/ML19270F127.pdf
+```
+
+RELAP5 - MODELS, CODE STRUCTURE, AND APPLICATIONS
+
+And then, based on an AI search (Gemini), Marviken tests:
+
+```
+Marviken critical flow test data
+https://www.nrc.gov/docs/ML2005/ML20052H367.pdf
+```
+
+The Marviken tests seem to best fit these.
+
+However, doing these tests do involve phase equilibria, and some metastable 
+states. Hence, these are not yet implemented. What are implemented are 
+tests that deal with superheated steam. For these, the CD nozzle equations 
+work relatively well.
+
+Moreover, TampinesSteamTableCV has been given a few more functions for 
+convenience such as obtaining saturation temperature and pressure.
 
 v0.1.6
 
