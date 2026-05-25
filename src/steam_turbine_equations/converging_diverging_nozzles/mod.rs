@@ -90,7 +90,7 @@ pub fn calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
     let v_out_ideal: Velocity = (2.0 * (h0 - h_out_ideal)).sqrt();
     let m_ideal: MassRate = rho_out_ideal * v_out_ideal * a2;
 
-    let debug = true;
+    let debug = false;
 
     let throat_has_choked_flow: bool = m_ideal >= choked_mass_flowrate;
     if debug == true {

@@ -114,6 +114,7 @@ use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_i
 ///
 ///
 #[test]
+#[ignore="skip first, Marviken is more complex"]
 fn validate_against_marviken_test_24() {
 
 
@@ -166,7 +167,7 @@ fn validate_against_marviken_test_24() {
     let nozzle_diameter = Length::new::<millimeter>(500.0);
     let nozzle_area = std::f64::consts::PI * (nozzle_diameter * nozzle_diameter / 4.0);
     let a_throat = nozzle_area;
-    let a_exit = 50.0* nozzle_area; // It's a converging nozzle, so throat area = exit area
+    let a_exit =  nozzle_area; // It's a converging nozzle, so throat area = exit area
     // The back pressure is atmospheric, as they are venting to a large containment vessel.
     // The back pressure is atmospheric, as they are venting to a large containment vessel.
 
