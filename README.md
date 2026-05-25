@@ -104,6 +104,14 @@ https://www.nrc.gov/docs/ML2005/ML20052H367.pdf
 
 The Marviken tests seem to best fit these.
 
+However, doing these tests do involve phase equilibria, and some metastable 
+states. Hence, these are not yet implemented. What are implemented are 
+tests that deal with superheated steam. For these, the CD nozzle equations 
+work relatively well.
+
+Moreover, TampinesSteamTableCV has been given a few more functions for 
+convenience such as obtaining saturation temperature and pressure.
+
 v0.1.6
 
 more to be added towards the fhr\_sim\_v2, including turbine animation
