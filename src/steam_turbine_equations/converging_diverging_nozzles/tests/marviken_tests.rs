@@ -7,9 +7,10 @@
 // In your test module
 
 use uom::si::f64::*;
+use uom::si::mass_flux::kilogram_per_square_meter_second;
 use uom::si::mass_rate::kilogram_per_second;
 use uom::si::ratio::ratio;
-use uom::si::pressure::{atmosphere, megapascal};
+use uom::si::pressure::{atmosphere, kilopascal, megapascal};
 use uom::si::length::millimeter;
 use uom::si::velocity::meter_per_second;
 
@@ -114,46 +115,110 @@ use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_i
 ///
 #[test]
 fn validate_against_marviken_test_24() {
-    // --- Step 1: Define Initial Conditions from Table 4.1.1 ---
-    let p1 = Pressure::new::<megapascal>(4.95);
-    let t1 = TampinesSteamTableCV::try_get_tsat(p1).unwrap() - 
-        TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(33.0);
-    
-    // The back pressure is atmospheric, as they are venting to a large containment vessel.
-    let p2 = Pressure::new::<atmosphere>(1.0);
+
+
+    // let's first have our datapoints 
+
+    let pressure_and_mass_flux_vec_test_24 = vec![
+        (2828.757,16735.967),
+        (2868.497,17318.087),
+        (2904.624,16881.497),
+        (2947.977,16735.967),
+        (2984.104,17172.557),
+        (3027.457,22266.112),
+        (3049.133,20083.16),
+        (3063.584,21247.401),
+        (3085.26,20519.751),
+        (3121.387,30124.74),
+        (3150.289,26049.896),
+        (3164.74,27214.137),
+        (3193.642,34636.175),
+        (3215.318,33180.873),
+        (3273.121,35509.356),
+        (3287.572,37546.778),
+        (3316.474,39147.609),
+        (3352.601,40020.79),
+        (3417.63,41767.152),
+        (3453.757,40020.79),
+        (3576.59,43513.514),
+        (3612.717,44386.694),
+        (3634.393,43513.514),
+        (3706.647,44386.694),
+        (3778.902,45405.405),
+        (3822.254,44823.285),
+        (3901.734,45405.405),
+        (3916.185,46424.116),
+        (3959.538,46133.056),
+        (4060.694,47442.827),
+        (4075.145,48898.129),
+        (4161.85,51808.732),
+        (4255.78,50935.551),
+        (4306.358,51808.732),
+        (4356.936,52827.443),
+        (4421.965,53700.624),
+        (4515.896,53409.563),
+        (4580.925,54573.805),
+        (4703.757,54137.214),
+        (4772.399,56611.227), 
+        ];
 
     // --- Step 2: Define Geometry from Figure 3.2.2 ---
     let nozzle_diameter = Length::new::<millimeter>(500.0);
     let nozzle_area = std::f64::consts::PI * (nozzle_diameter * nozzle_diameter / 4.0);
     let a_throat = nozzle_area;
     let a_exit = nozzle_area; // It's a converging nozzle, so throat area = exit area
+    // The back pressure is atmospheric, as they are venting to a large containment vessel.
+    // The back pressure is atmospheric, as they are venting to a large containment vessel.
 
-    // --- Step 3: Get Initial State from your Steam Tables ---
-    let ref_vol = TampinesSteamTableCV::get_ref_vol();
-    let state_1 = TampinesSteamTableCV::new_from_tp_quality_1(t1, p1, ref_vol);
-    let h1 = state_1.get_specific_enthalpy();
+    for (pressure_kpa_ptr, mass_flux_kg_per_s_m2) 
+        in pressure_and_mass_flux_vec_test_24.iter() {
 
-    // The velocity inside the huge Marviken pressure vessel is effectively zero.
-    let v1 = Velocity::new::<meter_per_second>(0.0);
+        let vessel_pressure = Pressure::new::<megapascal>(4.95);
+        // --- Step 3: Get Initial State from your Steam Tables ---
+        let ref_vol = TampinesSteamTableCV::get_ref_vol();
+        let p2 = Pressure::new::<atmosphere>(1.0);
+        let t1 = TampinesSteamTableCV::try_get_tsat(vessel_pressure).unwrap() - 
+            TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(33.0);
+        let p1 = Pressure::new::<kilopascal>(*pressure_kpa_ptr);
+        let state_1 = TampinesSteamTableCV::new_from_tp_quality_1(t1, p1, ref_vol);
+        let h1 = state_1.get_specific_enthalpy();
 
-    // --- Step 4: Call Your Master Function ---
-    let (v_out, m_dot_out, state_out) = 
-        calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
-            p1, h1, v1, a_throat, a_exit, p2
-        );
+        // The velocity inside the huge Marviken pressure vessel is effectively zero.
+        let v1 = Velocity::new::<meter_per_second>(0.0);
 
-    // --- Step 5: Compare to the Experimental Result from Table 5.1.1 ---
-    let experimental_mass_flowrate = MassRate::new::<kilogram_per_second>(895.0);
+        // --- Step 4: Call Your Master Function ---
+        let (v_out, m_dot_out, state_out) = 
+            calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
+                p1, h1, v1, a_throat, a_exit, p2
+            );
+        // --- Step 5: Compare to the Experimental Result from Table 5.1.1 ---
+        let experimental_mass_flux = 
+            MassFlux::new::<kilogram_per_square_meter_second>(
+                *mass_flux_kg_per_s_m2
+            );
 
-    println!("Calculated Mass Flow Rate: {:.2} kg/s", m_dot_out.get::<kilogram_per_second>());
-    println!("Experimental Mass Flow Rate: {:.2} kg/s", experimental_mass_flowrate.get::<kilogram_per_second>());
+        let calculated_mass_flux = 
+            m_dot_out/a_throat;
 
-    // Use a relative difference assertion. Don't expect a perfect match!
-    // Getting within 10-15% would be a fantastic result for a 1D model.
-    let relative_difference = ((m_dot_out - experimental_mass_flowrate) / experimental_mass_flowrate).abs();
+            
+
+        println!("Calculated Mass Flux: {:.2} kg/(m2 s)", calculated_mass_flux.get::<kilogram_per_square_meter_second>());
+        println!("Experimental Mass Flux: {:.2} kg/(m2 s)", experimental_mass_flux.get::<kilogram_per_square_meter_second>());
+
+        // Use a relative difference assertion. Don't expect a perfect match!
+        // Getting within 10-15% would be a fantastic result for a 1D model.
+        let relative_difference = ((calculated_mass_flux - experimental_mass_flux) / experimental_mass_flux).abs();
+
+        println!("Relative Difference: {:.2}%", relative_difference.get::<ratio>() * 100.0);
+
+        // Assert that your result is within a reasonable tolerance, e.g., 20%
+        assert!(relative_difference.get::<ratio>() < 0.20);
+
+    }
+
+
     
-    println!("Relative Difference: {:.2}%", relative_difference.get::<ratio>() * 100.0);
 
-    // Assert that your result is within a reasonable tolerance, e.g., 20%
-    assert!(relative_difference.get::<ratio>() < 0.20);
+
+
 }
