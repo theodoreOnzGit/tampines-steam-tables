@@ -349,19 +349,25 @@ fn validate_against_cengel_choked_flow_nozzle() {
     // which depends only on stagnation properties, and then finding the area.
 
     // Stagnation properties are the same as the inlet since v1 is negligible.
-    let h0 = h1;
-    let p0 = p1;
     let s0 = s1;
 
-    // Calculate choked mass flux by finding the flow rate for a dummy area of 1.0 m².
-    let dummy_area = Area::new::<square_meter>(1.0);
-    let (choked_mass_flowrate, _choked_state) = 
-        get_choked_flow_massrate_and_state_from_stagnation_properties_and_area(
-            p0, h0, dummy_area
-        );
+    // now, flow is isentropic,
+    // and we know it is choked 
+    // let's get the throat state 
+    //
+    let p_throat = inlet_state.get_critical_pressure();
+    let s_throat = s0;
 
-    // The required throat area is the target mass flow divided by the choked mass flux.
-    let a_throat: Area = expected_mass_rate / choked_mass_flowrate;
+    let state_throat = TampinesSteamTableCV::new_from_ps(
+        p_throat, s_throat, ref_vol
+    );
+
+    // now, mass flowrate is rho * a * v 
+
+    let v_throat = state_throat.get_speed_of_sound();
+    let rho_throat = state_throat.get_rho();
+    let a_throat = expected_mass_rate/v_throat/rho_throat;
+
     
     println!("--- Pre-calculation ---");
     println!("Calculated required throat area: {:.2} cm²", a_throat.get::<square_centimeter>());
