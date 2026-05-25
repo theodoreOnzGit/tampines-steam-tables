@@ -11,7 +11,7 @@ use uom::si::mass_rate::kilogram_per_second;
 use uom::si::ratio::ratio;
 use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::pressure::{atmosphere, megapascal};
-use uom::si::length::meter;
+use uom::si::length::{meter, millimeter};
 use uom::si::velocity::meter_per_second;
 
 use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
@@ -46,7 +46,7 @@ fn validate_against_marviken_test_24() {
     let p2 = Pressure::new::<atmosphere>(1.0);
 
     // --- Step 2: Define Geometry from Figure 3.2.2 ---
-    let nozzle_diameter = Length::new::<meter>(0.5);
+    let nozzle_diameter = Length::new::<millimeter>(500.0);
     let nozzle_area = std::f64::consts::PI * (nozzle_diameter * nozzle_diameter / 4.0);
     let a_throat = nozzle_area;
     let a_exit = nozzle_area; // It's a converging nozzle, so throat area = exit area
