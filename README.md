@@ -63,6 +63,20 @@ simulator.
 
 # Changelog 
 
+v0.1.8 
+
+The key part for this is to do verification and validation for critical 
+flow using the homogeneous equation model. The steam tables themselves are 
+done, but the sonic flow thermodynamics equations are to be added, with 
+simple demonstration of the rhoPimpleFoam derived algorithms
+
+```
+https://www.osti.gov/servlets/purl/7309475
+```
+Moody, F. J. (1975). Maximum discharge rate of liquid-vapor mixtures 
+from vessels (No. NEDO--21052). General Electric Co., San Jose, 
+CA (United States). BWR Projects Dept..
+
 v0.1.7
 
 Added and tested some diverging nozzle functions post choked flow.
