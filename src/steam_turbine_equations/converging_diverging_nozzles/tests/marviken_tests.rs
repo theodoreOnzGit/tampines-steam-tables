@@ -178,7 +178,7 @@ fn validate_against_marviken_test_24() {
         let ref_vol = TampinesSteamTableCV::get_ref_vol();
         let p2 = Pressure::new::<atmosphere>(1.0);
         let t1 = TampinesSteamTableCV::try_get_tsat(vessel_pressure).unwrap() - 
-            TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(33.0);
+            TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(0.0);
         let p1 = Pressure::new::<kilopascal>(*pressure_kpa_ptr);
         let state_1 = TampinesSteamTableCV::new_from_tp_quality_1(t1, p1, ref_vol);
         let h1 = state_1.get_specific_enthalpy();
@@ -200,6 +200,7 @@ fn validate_against_marviken_test_24() {
         let calculated_mass_flux = 
             m_dot_out/a_throat;
 
+        dbg!(&(p1,p2));
             
 
         println!("Calculated Mass Flux: {:.2} kg/(m2 s)", calculated_mass_flux.get::<kilogram_per_square_meter_second>());
