@@ -39,7 +39,7 @@ use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_i
 fn validate_against_marviken_test_24() {
     // --- Step 1: Define Initial Conditions from Table 4.1.1 ---
     let p1 = Pressure::new::<megapascal>(4.95);
-    let t1 = ThermodynamicTemperature::new::<degree_celsius>(251.0);
+    let t1 = TampinesSteamTableCV::new_tsat_based_on_pressure(&self)
     
     // The back pressure is atmospheric, as they are venting to a large containment vessel.
     let p2 = Pressure::new::<atmosphere>(1.0);
