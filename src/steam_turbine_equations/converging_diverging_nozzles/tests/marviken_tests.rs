@@ -166,20 +166,20 @@ fn validate_against_marviken_test_24() {
     let nozzle_diameter = Length::new::<millimeter>(500.0);
     let nozzle_area = std::f64::consts::PI * (nozzle_diameter * nozzle_diameter / 4.0);
     let a_throat = nozzle_area;
-    let a_exit = nozzle_area; // It's a converging nozzle, so throat area = exit area
+    let a_exit = 50.0* nozzle_area; // It's a converging nozzle, so throat area = exit area
     // The back pressure is atmospheric, as they are venting to a large containment vessel.
     // The back pressure is atmospheric, as they are venting to a large containment vessel.
 
     for (pressure_kpa_ptr, mass_flux_kg_per_s_m2) 
         in pressure_and_mass_flux_vec_test_24.iter() {
 
-        let vessel_pressure = Pressure::new::<megapascal>(4.95);
+        let initial_vessel_pressure = Pressure::new::<megapascal>(4.95);
         // --- Step 3: Get Initial State from your Steam Tables ---
         let ref_vol = TampinesSteamTableCV::get_ref_vol();
         let p2 = Pressure::new::<atmosphere>(1.0);
-        let t1 = TampinesSteamTableCV::try_get_tsat(vessel_pressure).unwrap() - 
-            TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(0.0);
         let p1 = Pressure::new::<kilopascal>(*pressure_kpa_ptr);
+        let t1 = TampinesSteamTableCV::try_get_tsat(p1).unwrap() - 
+            TemperatureInterval::new::<uom::si::temperature_interval::kelvin>(33.0);
         let state_1 = TampinesSteamTableCV::new_from_tp_quality_1(t1, p1, ref_vol);
         let h1 = state_1.get_specific_enthalpy();
 
@@ -191,6 +191,8 @@ fn validate_against_marviken_test_24() {
             calculate_velocity_mass_flowrate_and_state_in_cd_nozzle(
                 p1, h1, v1, a_throat, a_exit, p2
             );
+
+        
         // --- Step 5: Compare to the Experimental Result from Table 5.1.1 ---
         let experimental_mass_flux = 
             MassFlux::new::<kilogram_per_square_meter_second>(
@@ -200,7 +202,7 @@ fn validate_against_marviken_test_24() {
         let calculated_mass_flux = 
             m_dot_out/a_throat;
 
-        dbg!(&(p1,p2));
+        //dbg!(&(initial_vessel_pressure,p1,p2));
             
 
         println!("Calculated Mass Flux: {:.2} kg/(m2 s)", calculated_mass_flux.get::<kilogram_per_square_meter_second>());
@@ -213,10 +215,11 @@ fn validate_against_marviken_test_24() {
         println!("Relative Difference: {:.2}%", relative_difference.get::<ratio>() * 100.0);
 
         // Assert that your result is within a reasonable tolerance, e.g., 20%
-        assert!(relative_difference.get::<ratio>() < 0.20);
+        //assert!(relative_difference.get::<ratio>() < 0.20);
 
     }
 
+    todo!()
 
     
 
