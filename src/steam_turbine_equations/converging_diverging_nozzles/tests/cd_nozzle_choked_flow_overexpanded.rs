@@ -10,7 +10,6 @@ use uom::si::volume::cubic_meter;
 
 use crate::prelude::TampinesSteamTableCV;
 use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_in_cd_nozzle;
-use crate::steam_turbine_equations::isentropic_converging_nozzle::get_choked_flow_massrate_and_state_from_stagnation_properties_and_area;
 // note: From google AI,
 //
 // International Test Series on Steam Nozzles
@@ -170,7 +169,7 @@ fn dry_steam_test_overexpanded(){
 
 }
 
-use uom::si::area::{square_centimeter, square_meter};
+use uom::si::area::square_centimeter;
 use uom::si::pressure::megapascal;
 use uom::si::ratio::ratio;
 
