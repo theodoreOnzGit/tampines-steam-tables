@@ -434,7 +434,6 @@ impl super::TampinesSteamTableCV {
         let x = x_ph_flash(p,h);
         x
     }
-
     /// get the saturation temperature based on pressure 
     /// provided pressure is less than p_crit
     pub fn new_tsat_based_on_pressure(&self) -> Option<ThermodynamicTemperature>{
@@ -470,9 +469,10 @@ impl super::TampinesSteamTableCV {
 
         return Some(psat);
     }
+
     /// get the saturation temperature based on pressure 
     /// provided pressure is less than p_crit
-    pub fn get_tsat_based_on_pressure(p: Pressure) -> Option<ThermodynamicTemperature>{
+    pub fn get_tsat(p: Pressure) -> Option<ThermodynamicTemperature>{
         let p_crit = p_crit_water();
 
         if p < p_crit {
@@ -490,7 +490,7 @@ impl super::TampinesSteamTableCV {
 
     /// get the saturation pressure based on temperature 
     /// provided temperature is less than t_crit
-    pub fn get_psat_based_on_temperature(t: ThermodynamicTemperature) -> Option<Pressure>{
+    pub fn get_psat(t: ThermodynamicTemperature) -> Option<Pressure>{
         let t_crit = t_crit_water();
 
         if t < t_crit {
