@@ -30,6 +30,10 @@ use crate::steam_turbine_equations::calculate_velocity_mass_flowrate_and_state_i
 /// The conditions of test 23 and 24 are in table 4:2 on 
 /// page 21 (page 34 of the pdf)
 ///
+/// https://www.nrc.gov/docs/ML2005/ML20052H367.pdf
+/// NUREG/CR-2671
+/// MXC-301
+///
 /// Theri
 #[test]
 fn validate_against_marviken_test_24() {
