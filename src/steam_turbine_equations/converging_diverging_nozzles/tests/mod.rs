@@ -17,3 +17,16 @@ pub mod cd_nozzle_choked_flow_overexpanded;
 
 /// Marviken tests 
 pub mod marviken_tests;
+
+/// From Figure 1 of:
+///
+/// Moody, F. J. (1975). Maximum discharge rate of liquid-vapor mixtures 
+/// from vessels (No.
+/// NEDO--21052). General Electric Co., San Jose, CA (United States). 
+/// BWR Projects Dept..0 
+///
+/// Downloaded at:
+/// https://www.osti.gov/servlets/purl/7309475
+///
+///
+pub mod moody_critical_mass_flux_homogeneous_eqm;

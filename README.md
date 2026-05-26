@@ -68,7 +68,10 @@ v0.1.8
 The key part for this is to do verification and validation for critical 
 flow using the homogeneous equation model. The steam tables themselves are 
 done, but the sonic flow thermodynamics equations are to be added, with 
-simple demonstration of the rhoPimpleFoam derived algorithms
+simple demonstration of the rhoPimpleFoam derived algorithms.
+
+The critical mass flux for homogeneous equilibrium steam-water will be 
+verified and validated against figure 1 in Moody's publication:
 
 ```
 https://www.osti.gov/servlets/purl/7309475
@@ -76,6 +79,9 @@ https://www.osti.gov/servlets/purl/7309475
 Moody, F. J. (1975). Maximum discharge rate of liquid-vapor mixtures 
 from vessels (No. NEDO--21052). General Electric Co., San Jose, 
 CA (United States). BWR Projects Dept..
+
+
+Data was read via graph reader
 
 v0.1.7
 
