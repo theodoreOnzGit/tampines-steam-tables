@@ -527,12 +527,8 @@ impl super::TampinesSteamTableCV {
         // let's use the critical pressure 
 
 
-        let critical_pressure_ratio: Ratio = 
-            self.get_critical_pressure_ratio();
-        let p0 = self.pressure;
-
         // this is critical pressure for mach 1
-        let p2 = critical_pressure_ratio * p0;
+        let p2 = self.get_critical_pressure();
         // let's get speed of sound here 
         let s2 = s1;
         let v2 = self.get_volume();
