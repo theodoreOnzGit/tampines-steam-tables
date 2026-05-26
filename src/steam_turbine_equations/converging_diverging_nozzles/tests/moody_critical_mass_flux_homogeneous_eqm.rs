@@ -103,7 +103,7 @@ fn isobar_pref_0_25() {
         //(9.902,0.057),
         //(10.1765,0.057),
         //(10.549,0.0564),
-        //(11.0784,0.0551),
+        (11.0784,0.0551),
         (11.5098,0.0533),
         ];
 
@@ -137,6 +137,8 @@ fn isobar_pref_0_25() {
             let g_test = state_0.get_stagnation_critical_mass_flux();
             // this helps see which point we are at on the graph
             dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr));
+            dbg!(&(*g_dimensionless_ptr,g_test/g_ref));
+
 
             approx::assert_relative_eq!(
                 g_ref_expected.get::<kilogram_per_square_meter_second>(),
@@ -148,9 +150,6 @@ fn isobar_pref_0_25() {
     }
 
     todo!()
-
-    
-
 
 
 }
