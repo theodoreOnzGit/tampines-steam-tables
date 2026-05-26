@@ -512,6 +512,36 @@ impl super::TampinesSteamTableCV {
         Volume::new::<cubic_meter>(1.0)
     }
 
+    /// critical mass flux 
+    /// for choked flow
+    /// assumes state supplied is stagnation state
+    pub fn get_stagnation_critical_mass_flux(&self) -> MassFlux {
+
+
+        let s0 = self.get_specific_entropy();
+        let s1 = s0;
+
+
+        // now, i'll have to get a solver for choked flow 
+
+        // let's use the critical pressure 
+
+
+        let critical_pressure_ratio: Ratio = 
+            self.get_critical_pressure_ratio();
+        let p0 = self.pressure;
+
+        // this is critical pressure for mach 1
+        let p2 = critical_pressure_ratio * p0;
+        // let's get speed of sound here 
+        let s2 = s1;
+        let v2 = self.get_volume();
+        let state_2 = Self::new_from_ps(p2, s2, v2);
+        let c = state_2.get_speed_of_sound();
+        let rho_2 = state_2.get_rho();
+
+        return c*rho_2;
+    }
 }
 
 
