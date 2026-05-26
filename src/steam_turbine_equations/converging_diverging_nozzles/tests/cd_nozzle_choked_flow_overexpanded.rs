@@ -354,7 +354,7 @@ fn validate_against_cengel_choked_flow_nozzle() {
     // and we know it is choked 
     // let's get the throat state 
     //
-    let p_throat = inlet_state.get_critical_pressure();
+    let p_throat = inlet_state.get_critical_pressure_pure_vapour();
     let s_throat = s0;
 
     let state_throat = TampinesSteamTableCV::new_from_ps(

@@ -544,7 +544,7 @@ pub fn calculate_isentropic_exit_pressure_velocity_and_state_subsonic(
     // --- Stage 1: Set pressure bounds based on physics ---
     // The subsonic solution for a diverging nozzle must lie between the critical pressure
     // at the throat (p*) and the stagnation pressure (p0).
-    let p_critical = inlet_stagnation_state.get_critical_pressure_ratio() * p0;
+    let p_critical = inlet_stagnation_state.get_critical_pressure_ratio_pure_vapour() * p0;
     let mut p_lower = p_critical;
     let mut p_upper = p0;      
     

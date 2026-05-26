@@ -150,18 +150,20 @@ impl super::TampinesSteamTableCV {
     ///
     /// The critical pressure P* is found where the flow reaches Mach 1 during
     /// isentropic expansion from stagnation conditions (P0, h0)
-    pub fn get_critical_pressure_ratio(&self) -> Ratio {
+    /// This only works for vapour
+    pub fn get_critical_pressure_ratio_pure_vapour(&self) -> Ratio {
         let p0 = self.pressure;
 
         // Find critical pressure where Mach = 1
         // This requires iterative solution
-        let p_star = self.get_critical_pressure();
+        let p_star = self.get_critical_pressure_pure_vapour();
 
         p_star / p0
     }
 
     /// Finds the pressure where Mach number = 1 during isentropic expansion
-    pub fn get_critical_pressure(&self) -> Pressure {
+    /// This only works for vapour
+    pub fn get_critical_pressure_pure_vapour(&self) -> Pressure {
 
         let ideal_gas_critical_pressure_ratio = 
             self.get_critical_pressure_ratio_ideal_gas();
@@ -528,7 +530,7 @@ impl super::TampinesSteamTableCV {
 
 
         // this is critical pressure for mach 1
-        let p2 = self.get_critical_pressure();
+        let p2 = self.get_critical_pressure_pure_vapour();
         // let's get speed of sound here 
         let s2 = s1;
         let v2 = self.get_volume();

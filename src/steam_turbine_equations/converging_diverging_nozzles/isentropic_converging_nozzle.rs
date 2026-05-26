@@ -175,7 +175,7 @@ pub fn guess_massrate_and_state_for_converge_nozzle_from_stagnation(
 
     // calculate critical pressure
     let critical_pressure_ratio: Ratio = 
-        state_0.get_critical_pressure_ratio();
+        state_0.get_critical_pressure_ratio_pure_vapour();
 
     // this is critical pressure for mach 1
     let p_critical = critical_pressure_ratio * p0;
@@ -249,7 +249,7 @@ pub fn get_choked_flow_massrate_and_state_from_stagnation_properties_and_area(
 
     // calculate critical pressure
     let critical_pressure_ratio: Ratio = 
-        state_0.get_critical_pressure_ratio();
+        state_0.get_critical_pressure_ratio_pure_vapour();
 
     // this is critical pressure for mach 1
     let p_critical = critical_pressure_ratio * p0;

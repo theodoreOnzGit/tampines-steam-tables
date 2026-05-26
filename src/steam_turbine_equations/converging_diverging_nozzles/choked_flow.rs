@@ -52,7 +52,7 @@ pub fn get_choked_flow_state_for_nozzle_subsonic_to_sonic(
     // let's use the critical pressure 
 
     let critical_pressure_ratio: Ratio = 
-        state_0.get_critical_pressure_ratio();
+        state_0.get_critical_pressure_ratio_pure_vapour();
 
     // this is critical pressure for mach 1
     let p2 = critical_pressure_ratio * p0;
@@ -144,7 +144,7 @@ pub fn get_choked_flow_nozzle_area(
 
 
     let critical_pressure_ratio: Ratio = 
-        state_0.get_critical_pressure_ratio();
+        state_0.get_critical_pressure_ratio_pure_vapour();
 
     // this is critical pressure for mach 1
     let p2 = critical_pressure_ratio * p0;
@@ -259,7 +259,7 @@ mod choked_flow_examples{
         let s0 = state_0.get_specific_entropy();
 
         let critical_pressure_ratio = 
-            state_0.get_critical_pressure_ratio();
+            state_0.get_critical_pressure_ratio_pure_vapour();
 
         // In Cengel's textbook, critical pressure ratio is approximated 
         // as 0.546 
@@ -475,7 +475,7 @@ mod choked_flow_examples{
 
 
         let critical_pressure_ratio: Ratio = 
-            state_0.get_critical_pressure_ratio();
+            state_0.get_critical_pressure_ratio_pure_vapour();
 
         // this is critical pressure for mach 1
         let p_throat = critical_pressure_ratio * p0;

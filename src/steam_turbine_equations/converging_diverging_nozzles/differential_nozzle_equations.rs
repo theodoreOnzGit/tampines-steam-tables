@@ -94,7 +94,7 @@ pub fn _get_dp_dv_isentropic_nozzle_diffuser(
         let speed_of_sound = state_1.get_speed_of_sound();
         let dv = speed_of_sound - v1;
         let critical_pressure_ratio: Ratio 
-            = state_1.get_critical_pressure_ratio();
+            = state_1.get_critical_pressure_ratio_pure_vapour();
 
         let critical_pressure = critical_pressure_ratio * p1;
 
