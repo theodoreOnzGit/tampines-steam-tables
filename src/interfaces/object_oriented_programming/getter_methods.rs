@@ -223,8 +223,8 @@ impl super::TampinesSteamTableCV {
         let h_min_steam_table = AvailableEnergy::new::<kilojoule_per_kilogram>(4.17665);
         // another practical limit is the lower bound enthalpy for hs 
         // flashing
-        let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
-        let hs_flash_lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s0);
+        let p_min_steam_table = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+        let hs_flash_lower_bound_enthalpy = h_ps_eqm(p_min_steam_table, s0);
 
         if h_lower_limit < h_min_steam_table {
             // we set the v_upper limit according to this 
@@ -241,6 +241,8 @@ impl super::TampinesSteamTableCV {
                 dbg!(&(h_lower_limit));
             }
 
+            // in this case, we must use the (p,s) algorithm,
+
         }
 
 
@@ -253,18 +255,55 @@ impl super::TampinesSteamTableCV {
         let v_decrement = v_upper_limit * 0.05;
         let mut v_test = v_upper_limit - v_decrement;
 
-        let root_finder_velocity_ps_algo = |p_test: Pressure| -> f64 {
-            let w_test = w_ps_eqm(p_test, s0);
-            let h_test = h_ps_eqm(p_test, s0);
+        // now, (h,s) algorithm doesn't work below a certain entropy 
+        // value and enthalpy value
+        // 
+        // if we have this issue, we must use (p,s) algorithm
+        // 
+        if h_lower_limit < hs_flash_lower_bound_enthalpy {
 
-            let kinetic_energy_available = h0 - h_test;
-            v_test = (2.0 * kinetic_energy_available).sqrt();
+            let root_finder_pressure_ps_algo = |p_test: Pressure| -> f64 {
+                let w_test = w_ps_eqm(p_test, s0);
+                let h_test = h_ps_eqm(p_test, s0);
 
-            let mach = v_test / w_test;
-            let mach_value = mach.get::<ratio>();
+                let kinetic_energy_available = h0 - h_test;
+                let v_test_ps_algo = (2.0 * kinetic_energy_available).sqrt();
 
-            return mach_value - 1.0;
-        };
+                let mach = v_test_ps_algo / w_test;
+                let mach_value = mach.get::<ratio>();
+
+                if debug {
+                    dbg!(&(p_test,h_test));
+                    dbg!(&(v_test_ps_algo,w_test,mach_value));
+                }
+
+                return mach_value - 1.0;
+            };
+
+
+            // how shall we start?
+            // we need bounds of high and low pressure
+
+            let mut p_upper_limit = self.get_pressure();
+            let mut p_lower_limit = p_min_steam_table;
+
+            let mut p_test = p_upper_limit;
+
+            while p_test > p_lower_limit {
+
+                let error = root_finder_pressure_ps_algo(p_test);
+                p_test *= 0.98;
+
+
+            }
+
+
+        }
+
+
+        // in other case, we are okay using (h,s) algorithm
+
+
 
         // now, for velocity scanning, this only works for h,s 
         // algorithm, if the enthalpy is high enough.
