@@ -176,34 +176,8 @@ impl super::TampinesSteamTableCV {
         //
 
         // first we get stagnation properties 
-        // and p0 will be the high bound pressure
-        let p0 = self.pressure;
         let s0 = self.specific_entropy;
         let h0 = self.specific_enthalpy;
-
-        let mut p_high = p0;
-        let mut p_low = 0.1 * p_high;
-
-        // at stagnation pressure, the pressure would be the highest 
-        // so it is closest to liquid 
-        // so the speed of sound is the highest 
-
-        let root_finder_pressure = |p_test: Pressure| -> f64 {
-
-            let h_test = h_ps_eqm(p_test, s0);
-            let w_test = w_ph_eqm(p_test, h_test);
-            // Calculate velocity from energy equation
-            // h0 = h + v²/2  =>  v = sqrt(2*(h0 - h))
-            let delta_h = h0 - h_test;
-
-            let v_squared = 2.0 * delta_h;
-            let v = v_squared.sqrt();
-            // Check if Mach = 1 (v = w)
-            let mach = v / w_test;
-            let mach_value = mach.get::<ratio>();
-
-            return mach_value - 1.0;
-        };
 
         // the high bound for velocity is the speed of sound at stagnation,
         // which should be the highest possible
@@ -282,7 +256,6 @@ impl super::TampinesSteamTableCV {
             dbg!(&(v_lower_limit,v_upper_limit));
         }
 
-        let tolerance = Pressure::new::<pascal>(1.0); // 1 Pa tolerance
         let max_iterations = 50;
 
         let mut error_lower_limit = root_finder_velocity(v_lower_limit);
