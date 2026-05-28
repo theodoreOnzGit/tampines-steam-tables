@@ -446,6 +446,37 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
 /// - w_g = speed of sound in vapor
 /// - w_f = speed of sound in liquid
 /// - rho_mix = mixture density = 1/((x/rho_g) + ((1-x)/rho_f))
+///
+/// Though to be fair, 
+/// we find that the speed of sound drops drastically in steam 
+/// we need to account for that
+///
+/// This is shown in:
+///
+/// Kieffer, S. W. (1977). Sound speed in liquid‐gas mixtures: 
+/// Water‐air and water‐steam. Journal of Geophysical research, 
+/// 82(20), 2895-2904.
+/// https://geology.illinois.edu/~skieffer/papers/SoundSpeed_JGR1977.pdf
+///
+/// The steam tables aren't that helpful 
+/// Though page 364 of Kretzchmar wagner provides the speed of sound 
+/// for purely vapour or purely fluid, and supercritical phase 
+/// 
+/// However, VLE is not covered
+///
+/// The illinois paper is more useful, and so is this 
+///
+/// https://ojs.cvut.cz/ojs/index.php/ap/article/view/2321/3200
+/// Fig 1. also gives a similar diagram.
+///
+/// This is quite important for choked flow behaviour
+///
+/// Unless one assumes that speed of sound in this region does not 
+/// directly correlate to choked flow due to the non-equilibrium process 
+/// of choking
+///
+///
+///
 pub fn w_two_phase_homogeneous(
     steam_quality: Ratio,
     w_liq: Velocity,
