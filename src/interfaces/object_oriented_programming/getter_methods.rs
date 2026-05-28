@@ -170,6 +170,13 @@ impl super::TampinesSteamTableCV {
     /// it should work vapour as well, just that the vapour algorithm 
     /// tends to use ideal gas critical pressure to bound the search
     /// this one does not
+    ///
+    ///
+    /// Note: I tried mechanical equilibrium where slip ratio = 1 
+    /// that is both liquid and vapour move at same velocity 
+    /// this does NOT work.
+    /// because no matter how low i go in terms of pressure, the 
+    /// vle velocity never reaches close to mach 1
     pub fn get_critical_pressure_vle(&self) -> Pressure {
 
         // for this, the same thing applies 

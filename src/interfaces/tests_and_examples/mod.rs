@@ -21,3 +21,10 @@ pub mod ps_flash_steam_table;
 ///// aims to reproduce steam tables using hs flash
 #[cfg(test)]
 pub mod hs_flash_steam_table;
+
+/// this aims to produce critical pressure values for 
+/// VLE 
+/// Based on figure 2 of:
+/// https://www.osti.gov/servlets/purl/7309475
+#[cfg(test)]
+pub mod critical_pressure_moody_fig2;
