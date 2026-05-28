@@ -1,5 +1,7 @@
 use uom::ConstZero;
+use uom::si::available_energy::kilojoule_per_kilogram;
 use uom::si::f64::*;
+use uom::si::pressure::megapascal;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
@@ -187,12 +189,50 @@ impl super::TampinesSteamTableCV {
         let mut v_upper_limit = self.get_speed_of_sound() * 1.3;
 
         // sometimes the upper limit for velocity is way too high 
-        
+        // so that h_lower_limit is too low (there is not enough enthalpy 
+        // to keep it going and expand to supersonic velocity)
+        let h_lower_limit = h0 - 0.5 * v_upper_limit * v_upper_limit;
+
+        // in this case, we have a lower bound for h is based on saturation 
+        // table
+        ///// saturation table (see page 174)
+        ///// note: doesn't work well at triple point or near boundary
+        //    //[t_deg_c,t_kelvin,psat_bar,v_liq_m3_per_kg,v_vap_m3_per_kg,h_liq_kj_per_kg,h_vap_kj_per_kg,enthalpy_of_vap,s_liq_kj_per_kg_k,s_vap_kj_per_kg_k],
+        //    let steam_table: Vec<[f64; 10]> =
+        //        vec![
+        //        //[0.0,273.15,0.006112127,0.00100021,206.14,-0.041588,2500.89,2500.93,-0.00015455,9.1558],
+        //        //[0.01,273.16,0.00611657,0.00100021,205.997,0.00061178,2500.91,2500.91,0.0,9.1555],
+        //        [1.0,274.15,0.00657088,0.00100015,192.445,4.17665,2502.73,2498.55,0.01526,9.1291],
+        //
+        //        ...
+        //
+        // this is from the steam table tests
+        // safe to say, i don't have water at triple point near 0C near there 
+        // so my h_lower limit should not be less than about 0 kj/kg 
+        // or at least 4.17665 kj/kg 
+
+        let h_min_steam_table = AvailableEnergy::new::<kilojoule_per_kilogram>(4.17665);
+        // another practical limit is the lower bound enthalpy for hs 
+        // flashing
+        let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+        let hs_flash_lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s0);
+
+        if h_lower_limit < hs_flash_lower_bound_enthalpy {
+            // we set the v_upper limit according to this 
+            // this is 0.5 * v^2
+            let kinetic_energy_available = h0 - hs_flash_lower_bound_enthalpy;
+            v_upper_limit = (2.0 * kinetic_energy_available).sqrt();
+
+        }
+
 
         let mut v_lower_limit = Velocity::ZERO;
         if debug {
             dbg!(&(v_lower_limit,v_upper_limit));
+            dbg!(&(h_lower_limit));
         }
+
+
         let v_decrement = v_upper_limit * 0.05;
         let mut v_test = v_upper_limit - v_decrement;
 
