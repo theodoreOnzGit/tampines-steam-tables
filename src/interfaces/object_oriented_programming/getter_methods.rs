@@ -175,6 +175,7 @@ impl super::TampinesSteamTableCV {
         // such that the mach value is 1
         //
 
+        let debug = true;
         // first we get stagnation properties 
         let s0 = self.specific_entropy;
         let h0 = self.specific_enthalpy;
@@ -184,12 +185,23 @@ impl super::TampinesSteamTableCV {
         // I am giving a 30% factor up
         // the lowest is velocity = 0 m/s (stagnation)
         let mut v_upper_limit = self.get_speed_of_sound() * 1.3;
+
+        // sometimes the upper limit for velocity is way too high 
+        
+
         let mut v_lower_limit = Velocity::ZERO;
+        if debug {
+            dbg!(&(v_lower_limit,v_upper_limit));
+        }
         let v_decrement = v_upper_limit * 0.05;
         let mut v_test = v_upper_limit - v_decrement;
 
         let root_finder_velocity = |v_test: Velocity| -> f64 {
             let h_test = h0 - 0.5 * v_test * v_test;
+
+            if debug {
+                dbg!(&h_test);
+            }
             let p_test = p_hs_eqm(h_test, s0);
             let w_test = w_ps_eqm(p_test, s0);
 
@@ -204,7 +216,6 @@ impl super::TampinesSteamTableCV {
 
         let mach_error_initial: f64 = root_finder_velocity(v_test);
 
-        let debug = false;
 
         // if i were to use a velocity scanner, I would go from supersonic 
         // speed down to subsonic
@@ -677,10 +688,18 @@ impl super::TampinesSteamTableCV {
         // now, i'll have to get a solver for choked flow 
 
         // let's use the critical pressure 
-
-
         // this is critical pressure for mach 1
-        let p2 = self.get_critical_pressure_pure_vapour();
+
+        // for pure vapour, (region 2 specifically) we will use the 
+        // pure vapour critical pressure 
+
+        let region = self.get_region();
+
+        let p2 = match region {
+            FwdEqnRegion::Region2 => self.get_critical_pressure_pure_vapour(),
+            _ => self.get_critical_pressure_vle(),
+        };
+
         // let's get speed of sound here 
         let s2 = s1;
         let v2 = self.get_volume();
