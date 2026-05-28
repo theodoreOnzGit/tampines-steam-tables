@@ -18,6 +18,12 @@ use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
 /// Downloaded at:
 /// https://www.osti.gov/servlets/purl/7309475
 ///
+/// Based on Kretzchmar,
+/// we can use eq 2.80 and table 2.140 to calculate any property 
+/// desired directly rather than through iteration 
+/// Unsure whether this is helpful, but it is a clue...
+///
+///
 /// p0/p_ref = 0.25
 ///"dimensionless stagnation enthalpy","dimensionless critical mass flux"
 /// 0.4902,3.8593
