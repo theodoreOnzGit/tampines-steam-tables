@@ -211,22 +211,39 @@ impl super::TampinesSteamTableCV {
         // so my h_lower limit should not be less than about 0 kj/kg 
         // or at least 4.17665 kj/kg 
 
+        let mut v_lower_limit = Velocity::ZERO;
+
+            if debug {
+                println!("before adjustment of enthalpy bounds");
+                dbg!(&(v_lower_limit,v_upper_limit));
+                dbg!(&(h_lower_limit));
+            }
+
+
         let h_min_steam_table = AvailableEnergy::new::<kilojoule_per_kilogram>(4.17665);
         // another practical limit is the lower bound enthalpy for hs 
         // flashing
         let lower_bound_pressure = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
         let hs_flash_lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s0);
 
-        if h_lower_limit < hs_flash_lower_bound_enthalpy {
+        if h_lower_limit < h_min_steam_table {
             // we set the v_upper limit according to this 
             // this is 0.5 * v^2
-            let kinetic_energy_available = h0 - hs_flash_lower_bound_enthalpy;
+            //
+            // there is no conceivable way that for turbines or large break 
+            // LOCA, the steam enthalpy would decrease to freezing point
+            let kinetic_energy_available = h0 - h_min_steam_table;
             v_upper_limit = (2.0 * kinetic_energy_available).sqrt();
+
+            if debug {
+                println!("v is based on steam table enthalpy bounds");
+                dbg!(&(v_lower_limit,v_upper_limit));
+                dbg!(&(h_lower_limit));
+            }
 
         }
 
 
-        let mut v_lower_limit = Velocity::ZERO;
         if debug {
             dbg!(&(v_lower_limit,v_upper_limit));
             dbg!(&(h_lower_limit));
@@ -236,7 +253,24 @@ impl super::TampinesSteamTableCV {
         let v_decrement = v_upper_limit * 0.05;
         let mut v_test = v_upper_limit - v_decrement;
 
-        let root_finder_velocity = |v_test: Velocity| -> f64 {
+        let root_finder_velocity_ps_algo = |p_test: Pressure| -> f64 {
+            let w_test = w_ps_eqm(p_test, s0);
+            let h_test = h_ps_eqm(p_test, s0);
+
+            let kinetic_energy_available = h0 - h_test;
+            v_test = (2.0 * kinetic_energy_available).sqrt();
+
+            let mach = v_test / w_test;
+            let mach_value = mach.get::<ratio>();
+
+            return mach_value - 1.0;
+        };
+
+        // now, for velocity scanning, this only works for h,s 
+        // algorithm, if the enthalpy is high enough.
+        // In saturation region, the algorithm doesn't work above the entropy 
+        // line
+        let root_finder_velocity_hs_algo = |v_test: Velocity| -> f64 {
             let h_test = h0 - 0.5 * v_test * v_test;
 
             if debug {
@@ -254,7 +288,7 @@ impl super::TampinesSteamTableCV {
         };
         // we shall test for sign change 
 
-        let mach_error_initial: f64 = root_finder_velocity(v_test);
+        let mach_error_initial: f64 = root_finder_velocity_hs_algo(v_test);
 
 
         // if i were to use a velocity scanner, I would go from supersonic 
@@ -269,7 +303,7 @@ impl super::TampinesSteamTableCV {
             // we are going down to mach 1
 
             
-            let mach_error: f64 = root_finder_velocity(v_test);
+            let mach_error: f64 = root_finder_velocity_hs_algo(v_test);
 
             // check if signs are same, then continue
             if mach_error * mach_error_initial >= 0.0 {
@@ -309,8 +343,8 @@ impl super::TampinesSteamTableCV {
 
         let max_iterations = 50;
 
-        let mut error_lower_limit = root_finder_velocity(v_lower_limit);
-        let mut error_upper_limit = root_finder_velocity(v_upper_limit);
+        let mut error_lower_limit = root_finder_velocity_hs_algo(v_lower_limit);
+        let mut error_upper_limit = root_finder_velocity_hs_algo(v_upper_limit);
         // this time i use regula falsi
         //
         // this ensures the bounds are not the same sign 
@@ -329,7 +363,7 @@ impl super::TampinesSteamTableCV {
                 error_upper_limit/(error_upper_limit - error_lower_limit);
             // check mach number error 
 
-            let mach_error = root_finder_velocity(v_test);
+            let mach_error = root_finder_velocity_hs_algo(v_test);
 
             if mach_error.abs() < TOLERANCE {
                 // we found the critical pressure 
