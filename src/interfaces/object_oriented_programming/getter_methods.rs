@@ -6,6 +6,8 @@ use uom::si::volume::cubic_meter;
 
 use crate::constants::p_crit_water;
 use crate::constants::t_crit_water;
+use crate::interfaces::functional_programming::hs_flash_eqm::p_hs_eqm;
+use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::prelude::functional_programming::ph_flash_eqm::x_ph_flash;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
@@ -159,6 +161,181 @@ impl super::TampinesSteamTableCV {
         let p_star = self.get_critical_pressure_pure_vapour();
 
         p_star / p0
+    }
+
+    /// finds pressure where mach number = 1 during isentropic expansion 
+    /// for vapour liquid eqm and subcooled liquid 
+    /// it should work vapour as well, just that the vapour algorithm 
+    /// tends to use ideal gas critical pressure to bound the search
+    /// this one does not
+    pub fn get_critical_pressure_vle(&self) -> Pressure {
+
+        // for this, the same thing applies 
+        // we have isentropic expansion (ie reduction of pressure)
+        // such that the mach value is 1
+        //
+
+        // first we get stagnation properties 
+        // and p0 will be the high bound pressure
+        let p0 = self.pressure;
+        let s0 = self.specific_entropy;
+        let h0 = self.specific_enthalpy;
+
+        let mut p_high = p0;
+        let mut p_low = 0.1 * p_high;
+
+        // at stagnation pressure, the pressure would be the highest 
+        // so it is closest to liquid 
+        // so the speed of sound is the highest 
+
+        let root_finder_pressure = |p_test: Pressure| -> f64 {
+
+            let h_test = h_ps_eqm(p_test, s0);
+            let w_test = w_ph_eqm(p_test, h_test);
+            // Calculate velocity from energy equation
+            // h0 = h + v²/2  =>  v = sqrt(2*(h0 - h))
+            let delta_h = h0 - h_test;
+
+            let v_squared = 2.0 * delta_h;
+            let v = v_squared.sqrt();
+            // Check if Mach = 1 (v = w)
+            let mach = v / w_test;
+            let mach_value = mach.get::<ratio>();
+
+            return mach_value - 1.0;
+        };
+
+        // the high bound for velocity is the speed of sound at stagnation,
+        // which should be the highest possible
+        // I am giving a 30% factor up
+        // the lowest is velocity = 0 m/s (stagnation)
+        let mut v_upper_limit = self.get_speed_of_sound() * 1.3;
+        let mut v_lower_limit = Velocity::ZERO;
+        let v_decrement = v_upper_limit * 0.05;
+        let mut v_test = v_upper_limit - v_decrement;
+
+        let root_finder_velocity = |v_test: Velocity| -> f64 {
+            let h_test = h0 - 0.5 * v_test * v_test;
+            let p_test = p_hs_eqm(h_test, s0);
+            let w_test = w_ps_eqm(p_test, s0);
+
+
+            // Check if Mach = 1 (v = w)
+            let mach = v_test / w_test;
+            let mach_value = mach.get::<ratio>();
+
+            return mach_value - 1.0;
+        };
+        // we shall test for sign change 
+
+        let mach_error_initial: f64 = root_finder_velocity(v_test);
+
+        let debug = false;
+
+        // if i were to use a velocity scanner, I would go from supersonic 
+        // speed down to subsonic
+        //
+        // here is my velocity scanner
+
+        // so I'm going to do the velocity scan first
+
+        while v_test > v_lower_limit {
+
+            // we are going down to mach 1
+
+            
+            let mach_error: f64 = root_finder_velocity(v_test);
+
+            // check if signs are same, then continue
+            if mach_error * mach_error_initial >= 0.0 {
+                v_upper_limit = v_test;
+                v_test -= v_decrement;
+
+                if debug {
+                    dbg!(&(v_test));
+                    dbg!(&(mach_error));
+                }
+                continue;
+            }
+
+            // if signs are not the same, then break out
+
+            // if signs are not same
+
+            if debug {
+                dbg!(&(v_test));
+                dbg!(&(mach_error));
+            }
+            v_lower_limit = v_test; 
+            break;
+        };
+        
+        // now i can do bisection (or a secant method) 
+        // between these two limits
+        // since it's quite near the root
+        //
+        // or as AI suggested, I'm going to try Regula Falsi
+        // near this region
+
+        if debug{
+            println!("Regula Falsi bounds found");
+            dbg!(&(v_lower_limit,v_upper_limit));
+        }
+
+        let tolerance = Pressure::new::<pascal>(1.0); // 1 Pa tolerance
+        let max_iterations = 50;
+
+        let mut error_lower_limit = root_finder_velocity(v_lower_limit);
+        let mut error_upper_limit = root_finder_velocity(v_upper_limit);
+        // this time i use regula falsi
+        //
+        // this ensures the bounds are not the same sign 
+        // just a sanity check
+        if error_lower_limit * error_upper_limit>= 0.0 {
+            panic!("bounds are same sign!");
+        }
+
+        const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
+        // this is regula falsi
+        for _ in 0..max_iterations {
+
+            // using secant formula
+            v_test = 
+                v_upper_limit - (v_upper_limit - v_lower_limit) * 
+                error_upper_limit/(error_upper_limit - error_lower_limit);
+            // check mach number error 
+
+            let mach_error = root_finder_velocity(v_test);
+
+            if mach_error.abs() < TOLERANCE {
+                // we found the critical pressure 
+                let h_test = h0 - 0.5 * v_test * v_test;
+                let p_test = p_hs_eqm(h_test, s0);
+                return p_test;
+            }
+
+            // if not, keep updating the bounds
+            // keep root bracketed 
+
+            if error_lower_limit * mach_error < 0.0 {
+
+                v_upper_limit = v_test;
+                error_upper_limit = mach_error;
+            } else {
+
+                v_lower_limit = v_test;
+                error_lower_limit = mach_error;
+            }
+
+
+            if debug {
+                dbg!(&(v_lower_limit,v_upper_limit));
+            }
+
+
+        }
+        panic!("unable to find critical pressure");
+
     }
 
     /// Finds the pressure where Mach number = 1 during isentropic expansion
