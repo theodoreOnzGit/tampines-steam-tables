@@ -26,5 +26,9 @@ pub mod hs_flash_steam_table;
 /// VLE 
 /// Based on figure 2 of:
 /// https://www.osti.gov/servlets/purl/7309475
+///
+/// for speed of sound in VLE mixtures, refer to:
+///
+/// https://geology.illinois.edu/~skieffer/papers/SoundSpeed_JGR1977.pdf
 #[cfg(test)]
 pub mod critical_pressure_moody_fig2;
