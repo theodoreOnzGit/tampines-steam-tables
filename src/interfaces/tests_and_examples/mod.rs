@@ -76,6 +76,9 @@ pub mod critical_pressure_moody_fig2;
 /// For this, the critical pressure and critical mass flux are returned 
 /// as a pair. Nothing here deals with sonic velocity. So speed of sound 
 /// is not really a matter here.
+///
+/// There also needs to be an algorithm with which to obtain these
+/// minimum points outside the speed of sound.
 /// 
 ///
 #[cfg(test)]
