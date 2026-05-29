@@ -32,3 +32,52 @@ pub mod hs_flash_steam_table;
 /// https://geology.illinois.edu/~skieffer/papers/SoundSpeed_JGR1977.pdf
 #[cfg(test)]
 pub mod critical_pressure_moody_fig2;
+
+/// Saha, P. (1978). A review of two-phase steam-water 
+/// critical flow models with emphasis on thermal nonequilibrium.
+/// https://www.nrc.gov/docs/ML1925/ML19256F779.pdf
+///
+/// This provides a homogeneous equilibrium model (HEM) for critical 
+/// flow
+///
+/// From page 2-5 of Saha's publication.
+///
+/// G = rho_mean * u_mean 
+///
+/// h_0 = h + 0.5 * u_mean * u_mean 
+///
+/// For homogeneous flow, 
+/// 1/rho_m = (1-x)/rho_l + x/rho_v
+///
+/// h = (1-x) h_l + x h_v 
+///
+/// Assuming flow comes out saturated at the critical Pressure (P):
+///
+/// T_l = T_v = T_sat (P)
+///
+/// The vapour and liquid properties then take on their saturated 
+/// properties
+/// rho_l = rho_l (P) 
+/// rho_v = rho_v (P)
+/// h_l = h_l (P) 
+/// h_v = h_v (P)
+///
+/// We then substitute these values to find u_mean, and rho_mean
+///
+/// The quality x as a function of the critical pressure (a saturation 
+/// pressure) is:
+///
+/// x = (s_0 - s_l(P))/(s_v (P) - s_l (P))
+///
+/// Of course, changing P will change x, and we are just changing the 
+/// pressure values to find the maximum flowrate. This is an optimisation 
+/// problem.
+///
+/// For this, the critical pressure and critical mass flux are returned 
+/// as a pair. Nothing here deals with sonic velocity. So speed of sound 
+/// is not really a matter here.
+/// 
+///
+#[cfg(test)]
+pub mod critical_flow_hem;
+
