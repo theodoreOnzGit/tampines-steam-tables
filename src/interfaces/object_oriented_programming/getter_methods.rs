@@ -18,6 +18,7 @@ use crate::prelude::functional_programming::ph_flash_eqm::lambda_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::cv_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::cp_ph_eqm;
 use crate::dynamic_viscosity::mu_ph_eqm;
+use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
 use crate::region_2_vapour::*;
 use crate::region_4_vap_liq_equilibrium::sat_pressure_4;
@@ -165,6 +166,126 @@ impl super::TampinesSteamTableCV {
         p_star / p0
     }
 
+    /// This algorithm uses a more generic approach to 
+    /// critical pressure and mass flux,
+    ///
+    /// basically, one doesn't even find the speed of sound 
+    /// but uses a scanning algorithm in order to obtain the 
+    /// critical mass flux
+    /// this assumes the properties supplied are all stagnation properties
+    #[inline]
+    pub fn get_crit_pressure_and_massflux(&self) -> (Pressure, MassFlux) {
+
+        let debug = false;
+        // first we get stagnation properties (assuming stagnation)
+        let s0 = self.specific_entropy;
+        let h0 = self.specific_enthalpy;
+        let p0 = self.pressure;
+
+        // i'm going to get pressure bounds
+
+        let mut p_upper_limit = p0;
+        let p_min_steam_table = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+        let mut p_lower_limit = p_min_steam_table;
+        let p_decrement: Pressure = 0.05 *(p_upper_limit - p_lower_limit);
+
+        let mut max_mass_flux = MassFlux::ZERO;
+
+        // thereafter, I'm going to find a maximum point 
+        // there is no finding of the speed of sound whatsoever
+        let mass_flux_pressure_ps_algo = |p_test: Pressure| -> MassFlux {
+            let h_test = h_ps_eqm(p_test, s0);
+            let rho_test_ps_algo: MassDensity = v_ps_eqm(p_test, s0).recip();
+            // h0 = h_test + 0.5 * v_test * v_test 
+            let kinetic_energy_available = h0 - h_test;
+            let v_test_ps_algo = (2.0 * kinetic_energy_available).sqrt();
+
+            let mass_flux_ps_algo: MassFlux = rho_test_ps_algo * v_test_ps_algo;
+
+
+
+            if debug {
+                dbg!(&(p_test,h_test));
+                dbg!(&(v_test_ps_algo, mass_flux_ps_algo));
+            }
+
+            return mass_flux_ps_algo;
+        };
+
+        // this is a search to find the maximum 
+        //
+        // basically, we systematically decrease pressure until we find  
+        // a maximum point 
+        // that is, where decreasing pressure decreases mass flux
+        while p_upper_limit > p_min_steam_table {
+            let p_test = p_upper_limit - p_decrement;
+
+            let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+
+            // now, this code will activate if the latest mass flux 
+            // is more than the stored maximum mass flux 
+            if mass_flux_test >= max_mass_flux {
+                max_mass_flux = mass_flux_test;
+                p_upper_limit = p_test;
+            } else {
+                // if it starts decreasing, break out of the loop 
+
+                p_lower_limit = p_test;
+                break;
+
+            }
+
+        };
+
+        // by now, we should have our lower and upper limits
+        // we can slowly bisect our way to a maximum point
+        let max_iterations = 50;
+        // 0.01% tolerance
+        const TOLERANCE: f64 = 0.0001;  
+        let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo(p_lower_limit);
+        let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo(p_upper_limit);
+
+        // now this is a bisection loop, of sorts
+        for _ in 0..max_iterations {
+            let p_test = 0.5 * (p_upper_limit + p_lower_limit);
+
+            let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+
+            let convergence_error = 
+                ((mass_flux_test - max_mass_flux)/max_mass_flux).get::<ratio>().abs();
+
+            // if this convergence error is less than the tolernace
+            // return straightaway
+            if convergence_error < TOLERANCE {
+                return (p_test, mass_flux_test);
+            }
+
+            // now, we test if the new mass flux is more 
+            // than the previous one (it should be if it is a parabola)
+            if mass_flux_test >= max_mass_flux {
+                max_mass_flux = mass_flux_test;
+            }
+
+            // let's see if this is within tolerance 
+
+
+            // now we check which bound is more
+            if mass_flux_at_p_low > mass_flux_at_p_high {
+                p_upper_limit = p_test;
+                mass_flux_at_p_high = mass_flux_test;
+            } else {
+                p_lower_limit = p_test;
+                mass_flux_at_p_low = mass_flux_test;
+            }
+
+            if debug {
+                dbg!(&(p_test,mass_flux_test));
+            }
+
+        }
+        panic!("unable to converge and find critical mass flux");
+    }
+
     /// finds pressure where mach number = 1 during isentropic expansion 
     /// for vapour liquid eqm and subcooled liquid 
     /// it should work vapour as well, just that the vapour algorithm 
@@ -177,269 +298,11 @@ impl super::TampinesSteamTableCV {
     /// this does NOT work.
     /// because no matter how low i go in terms of pressure, the 
     /// vle velocity never reaches close to mach 1
+    ///
     pub fn get_critical_pressure_vle(&self) -> Pressure {
+        let (pressure, _mass_flux) = self.get_crit_pressure_and_massflux();
 
-        // for this, the same thing applies 
-        // we have isentropic expansion (ie reduction of pressure)
-        // such that the mach value is 1
-        //
-
-        let debug = true;
-        // first we get stagnation properties 
-        let s0 = self.specific_entropy;
-        let h0 = self.specific_enthalpy;
-
-        // the high bound for velocity is the speed of sound at stagnation,
-        // which should be the highest possible
-        // I am giving a 30% factor up
-        // the lowest is velocity = 0 m/s (stagnation)
-        let mut v_upper_limit = self.get_speed_of_sound() * 1.3;
-
-        // sometimes the upper limit for velocity is way too high 
-        // so that h_lower_limit is too low (there is not enough enthalpy 
-        // to keep it going and expand to supersonic velocity)
-        let h_lower_limit = h0 - 0.5 * v_upper_limit * v_upper_limit;
-
-        // in this case, we have a lower bound for h is based on saturation 
-        // table
-        ///// saturation table (see page 174)
-        ///// note: doesn't work well at triple point or near boundary
-        //    //[t_deg_c,t_kelvin,psat_bar,v_liq_m3_per_kg,v_vap_m3_per_kg,h_liq_kj_per_kg,h_vap_kj_per_kg,enthalpy_of_vap,s_liq_kj_per_kg_k,s_vap_kj_per_kg_k],
-        //    let steam_table: Vec<[f64; 10]> =
-        //        vec![
-        //        //[0.0,273.15,0.006112127,0.00100021,206.14,-0.041588,2500.89,2500.93,-0.00015455,9.1558],
-        //        //[0.01,273.16,0.00611657,0.00100021,205.997,0.00061178,2500.91,2500.91,0.0,9.1555],
-        //        [1.0,274.15,0.00657088,0.00100015,192.445,4.17665,2502.73,2498.55,0.01526,9.1291],
-        //
-        //        ...
-        //
-        // this is from the steam table tests
-        // safe to say, i don't have water at triple point near 0C near there 
-        // so my h_lower limit should not be less than about 0 kj/kg 
-        // or at least 4.17665 kj/kg 
-
-        let mut v_lower_limit = Velocity::ZERO;
-
-            if debug {
-                println!("before adjustment of enthalpy bounds");
-                dbg!(&(v_lower_limit,v_upper_limit));
-                dbg!(&(h_lower_limit));
-            }
-
-
-        let h_min_steam_table = AvailableEnergy::new::<kilojoule_per_kilogram>(4.17665);
-        // another practical limit is the lower bound enthalpy for hs 
-        // flashing
-        let p_min_steam_table = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
-        let hs_flash_lower_bound_enthalpy = h_ps_eqm(p_min_steam_table, s0);
-
-        if h_lower_limit < h_min_steam_table {
-            // we set the v_upper limit according to this 
-            // this is 0.5 * v^2
-            //
-            // there is no conceivable way that for turbines or large break 
-            // LOCA, the steam enthalpy would decrease to freezing point
-            let kinetic_energy_available = h0 - h_min_steam_table;
-            v_upper_limit = (2.0 * kinetic_energy_available).sqrt();
-
-            if debug {
-                println!("v is based on steam table enthalpy bounds");
-                dbg!(&(v_lower_limit,v_upper_limit));
-                dbg!(&(h_lower_limit));
-            }
-
-            // in this case, we must use the (p,s) algorithm,
-
-        }
-
-
-        if debug {
-            dbg!(&(v_lower_limit,v_upper_limit));
-            dbg!(&(h_lower_limit));
-        }
-
-
-        let v_decrement = v_upper_limit * 0.05;
-        let mut v_test = v_upper_limit - v_decrement;
-
-        // now, (h,s) algorithm doesn't work below a certain entropy 
-        // value and enthalpy value
-        // 
-        // if we have this issue, we must use (p,s) algorithm
-        // 
-        if h_lower_limit < hs_flash_lower_bound_enthalpy {
-
-            let root_finder_pressure_ps_algo = |p_test: Pressure| -> f64 {
-                let w_test = w_ps_eqm(p_test, s0);
-                let h_test = h_ps_eqm(p_test, s0);
-
-                let kinetic_energy_available = h0 - h_test;
-                let v_test_ps_algo = (2.0 * kinetic_energy_available).sqrt();
-
-                let mach = v_test_ps_algo / w_test;
-                let mach_value = mach.get::<ratio>();
-
-                if debug {
-                    dbg!(&(p_test,h_test));
-                    dbg!(&(v_test_ps_algo,w_test,mach_value));
-                }
-
-                return mach_value - 1.0;
-            };
-
-
-            // how shall we start?
-            // we need bounds of high and low pressure
-
-            let mut p_upper_limit = self.get_pressure();
-            let mut p_lower_limit = p_min_steam_table;
-
-            let mut p_test = p_upper_limit;
-
-            while p_test > p_lower_limit {
-
-                let error = root_finder_pressure_ps_algo(p_test);
-                p_test *= 0.98;
-
-
-            }
-
-
-        }
-
-
-        // in other case, we are okay using (h,s) algorithm
-
-
-
-        // now, for velocity scanning, this only works for h,s 
-        // algorithm, if the enthalpy is high enough.
-        // In saturation region, the algorithm doesn't work above the entropy 
-        // line
-        let root_finder_velocity_hs_algo = |v_test: Velocity| -> f64 {
-            let h_test = h0 - 0.5 * v_test * v_test;
-
-            if debug {
-                dbg!(&h_test);
-            }
-            let p_test = p_hs_eqm(h_test, s0);
-            let w_test = w_ps_eqm(p_test, s0);
-
-
-            // Check if Mach = 1 (v = w)
-            let mach = v_test / w_test;
-            let mach_value = mach.get::<ratio>();
-
-            return mach_value - 1.0;
-        };
-        // we shall test for sign change 
-
-        let mach_error_initial: f64 = root_finder_velocity_hs_algo(v_test);
-
-
-        // if i were to use a velocity scanner, I would go from supersonic 
-        // speed down to subsonic
-        //
-        // here is my velocity scanner
-
-        // so I'm going to do the velocity scan first
-
-        while v_test > v_lower_limit {
-
-            // we are going down to mach 1
-
-            
-            let mach_error: f64 = root_finder_velocity_hs_algo(v_test);
-
-            // check if signs are same, then continue
-            if mach_error * mach_error_initial >= 0.0 {
-                v_upper_limit = v_test;
-                v_test -= v_decrement;
-
-                if debug {
-                    dbg!(&(v_test));
-                    dbg!(&(mach_error));
-                }
-                continue;
-            }
-
-            // if signs are not the same, then break out
-
-            // if signs are not same
-
-            if debug {
-                dbg!(&(v_test));
-                dbg!(&(mach_error));
-            }
-            v_lower_limit = v_test; 
-            break;
-        };
-        
-        // now i can do bisection (or a secant method) 
-        // between these two limits
-        // since it's quite near the root
-        //
-        // or as AI suggested, I'm going to try Regula Falsi
-        // near this region
-
-        if debug{
-            println!("Regula Falsi bounds found");
-            dbg!(&(v_lower_limit,v_upper_limit));
-        }
-
-        let max_iterations = 50;
-
-        let mut error_lower_limit = root_finder_velocity_hs_algo(v_lower_limit);
-        let mut error_upper_limit = root_finder_velocity_hs_algo(v_upper_limit);
-        // this time i use regula falsi
-        //
-        // this ensures the bounds are not the same sign 
-        // just a sanity check
-        if error_lower_limit * error_upper_limit>= 0.0 {
-            panic!("bounds are same sign!");
-        }
-
-        const TOLERANCE: f64 = 0.0001;  // 0.01% tolerance
-        // this is regula falsi
-        for _ in 0..max_iterations {
-
-            // using secant formula
-            v_test = 
-                v_upper_limit - (v_upper_limit - v_lower_limit) * 
-                error_upper_limit/(error_upper_limit - error_lower_limit);
-            // check mach number error 
-
-            let mach_error = root_finder_velocity_hs_algo(v_test);
-
-            if mach_error.abs() < TOLERANCE {
-                // we found the critical pressure 
-                let h_test = h0 - 0.5 * v_test * v_test;
-                let p_test = p_hs_eqm(h_test, s0);
-                return p_test;
-            }
-
-            // if not, keep updating the bounds
-            // keep root bracketed 
-
-            if error_lower_limit * mach_error < 0.0 {
-
-                v_upper_limit = v_test;
-                error_upper_limit = mach_error;
-            } else {
-
-                v_lower_limit = v_test;
-                error_lower_limit = mach_error;
-            }
-
-
-            if debug {
-                dbg!(&(v_lower_limit,v_upper_limit));
-            }
-
-
-        }
-        panic!("unable to find critical pressure");
-
+        return pressure;
     }
 
     /// Finds the pressure where Mach number = 1 during isentropic expansion
@@ -803,6 +666,7 @@ impl super::TampinesSteamTableCV {
 
         let s0 = self.get_specific_entropy();
         let s1 = s0;
+        let h0 = self.get_specific_enthalpy();
 
 
         // now, i'll have to get a solver for choked flow 
@@ -820,14 +684,15 @@ impl super::TampinesSteamTableCV {
             _ => self.get_critical_pressure_vle(),
         };
 
-        // let's get speed of sound here 
-        let s2 = s1;
-        let v2 = self.get_volume();
-        let state_2 = Self::new_from_ps(p2, s2, v2);
-        let c = state_2.get_speed_of_sound();
-        let rho_2 = state_2.get_rho();
+        let h_test = h_ps_eqm(p2, s0);
+        let kinetic_energy_available = h0 - h_test;
+        let v: Velocity = (2.0 * kinetic_energy_available).sqrt();
+        let rho = self.get_rho();
 
-        return c*rho_2;
+        let mass_flux_ps_algo: MassFlux = rho * v;
+
+
+        return mass_flux_ps_algo;
     }
 }
 
