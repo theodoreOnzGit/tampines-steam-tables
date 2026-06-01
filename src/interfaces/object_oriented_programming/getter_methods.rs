@@ -241,7 +241,7 @@ impl super::TampinesSteamTableCV {
         // we can slowly bisect our way to a maximum point
         let max_iterations = 50;
         // 0.01% tolerance
-        const TOLERANCE: f64 = 0.0001;  
+        const TOLERANCE: f64 = 1e-8;  
         let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo(p_lower_limit);
         let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo(p_upper_limit);
 
