@@ -133,11 +133,18 @@ fn isobar_pref_0_25() {
             dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr));
             dbg!(&(*g_dimensionless_ptr,g_test/g_ref));
 
+            // note: I took these values from a log (y) vs x graph 
+            // as in log (g_dimensionless) vs h_dimensionless graph 
+            // hence, errors will be big on for the larger values, for 
+            // graphreader
+            // it is better to assert errors on the log scale rather than 
+            // the linear scale, until such time I get data from linear 
+            // scale graph
 
             approx::assert_relative_eq!(
-                g_ref_expected.get::<kilogram_per_square_meter_second>(),
-                g_test.get::<kilogram_per_square_meter_second>(),
-                max_relative=0.02
+                g_ref_expected.get::<kilogram_per_square_meter_second>().log10(),
+                g_test.get::<kilogram_per_square_meter_second>().log10(),
+                max_relative=1e-2
             );
 
 
@@ -190,8 +197,8 @@ fn validate_moody_isobar(
         // The assertion uses the provided tolerance to compare the model's result
         // against the theoretical value from the Moody chart.
         approx::assert_relative_eq!(
-            g_ref_expected.get::<kilogram_per_square_meter_second>(),
-            g_test.get::<kilogram_per_square_meter_second>(),
+            g_ref_expected.get::<kilogram_per_square_meter_second>().log10(),
+            g_test.get::<kilogram_per_square_meter_second>().log10(),
             max_relative = tolerance
         );
     }
@@ -238,7 +245,7 @@ fn isobar_pref_0_50() {
         (6.2157, 0.1612), (7.1569, 0.144), (8.1373, 0.133), (8.8627, 0.1271),
         (9.8431, 0.1148), (10.5686, 0.111), (11.2549, 0.1073), (11.7255, 0.1037),
     ];
-    validate_moody_isobar(0.50, &data, 0.02);
+    validate_moody_isobar(0.50, &data, 1e-2);
 }
 
 // For p0/p_ref = 1.00
@@ -279,7 +286,7 @@ fn isobar_pref_1_00() {
         (8.2549, 0.2591), (9.2353, 0.2394), (10.1373, 0.2263), (11.1961, 0.2138),
         (11.8235, 0.2067),
     ];
-    validate_moody_isobar(1.00, &data, 0.02);
+    validate_moody_isobar(1.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 2.0
@@ -316,7 +323,7 @@ fn isobar_pref_2_00() {
         (5.2353, 0.7843), (6.0784, 0.6695), (7.3725, 0.5716), (8.9804, 0.4879),
         (10.4314, 0.4358), (11.902, 0.3981),
     ];
-    validate_moody_isobar(2.00, &data, 0.02);
+    validate_moody_isobar(2.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 4.0 
@@ -359,7 +366,7 @@ fn isobar_pref_4_00() {
         (6.451, 0.9832), (7.451, 0.8393), (8.4118, 0.7581), (9.1569, 0.7005),
         (10.098, 0.6771), (10.9804, 0.6327), (11.8235, 0.6256),
     ];
-    validate_moody_isobar(4.00, &data, 0.02);
+    validate_moody_isobar(4.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 6.0 
@@ -407,7 +414,7 @@ fn isobar_pref_6_00() {
         (8.4314, 1.5451), (9.0196, 1.4768), (9.7647, 1.3645), (10.549, 1.275),
         (11.2549, 1.2187), (11.7843, 1.1517),
     ];
-    validate_moody_isobar(6.00, &data, 0.02);
+    validate_moody_isobar(6.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 8.0
@@ -460,7 +467,7 @@ fn isobar_pref_8_00() {
         (9.7059, 1.8513), (10.1765, 1.7496), (10.6471, 1.73), (11.0784, 1.6165),
         (11.6078, 1.5804), (11.9608, 1.5804),
     ];
-    validate_moody_isobar(8.00, &data, 0.02);
+    validate_moody_isobar(8.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 10.0 
@@ -503,7 +510,7 @@ fn isobar_pref_10_00() {
         (7.5294, 3.0439), (8.2745, 2.6881), (9.2353, 2.4282), (10.0, 2.2183),
         (10.8431, 2.0964), (11.4118, 2.0495), (11.7451, 2.0037),
     ];
-    validate_moody_isobar(10.00, &data, 0.02);
+    validate_moody_isobar(10.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 12.0 
@@ -549,7 +556,7 @@ fn isobar_pref_12_00() {
         (9.3333, 2.8444), (9.8431, 2.7187), (10.4314, 2.5985), (11.098, 2.4557),
         (11.7451, 2.3739),
     ];
-    validate_moody_isobar(12.00, &data, 0.02);
+    validate_moody_isobar(12.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 14.0 
@@ -595,7 +602,7 @@ fn isobar_pref_14_00() {
         (9.2941, 3.3698), (9.9804, 3.1135), (10.6078, 2.9425), (11.2549, 2.8444),
         (11.7255, 2.7496),
     ];
-    validate_moody_isobar(14.00, &data, 0.02);
+    validate_moody_isobar(14.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 16.0 
@@ -643,7 +650,7 @@ fn isobar_pref_16_00() {
         (7.7059, 4.9486), (8.3137, 4.5208), (8.902, 4.1769), (9.5294, 3.773),
         (10.3137, 3.5257), (10.9804, 3.3698), (11.5882, 3.2209),
     ];
-    validate_moody_isobar(16.00, &data, 0.02);
+    validate_moody_isobar(16.00, &data, 1e-2);
 }
 
 // For p0/p_ref = 20.0 
@@ -690,7 +697,7 @@ fn isobar_pref_20_00() {
         (7.8431, 6.274), (8.3137, 5.8627), (8.8235, 5.4168), (9.3333, 5.0617),
         (9.9216, 4.6767), (10.3725, 4.47), (10.9608, 4.2244), (11.2941, 4.13),
     ];
-    validate_moody_isobar(20.00, &data, 0.02);
+    validate_moody_isobar(20.00, &data, 1e-2);
 }
 
 
@@ -755,5 +762,5 @@ fn isobar_pref_30_00() {
         (9.7255,7.6893),
         (10.1961,7.2669),
     ];
-    validate_moody_isobar(30.00, &data, 0.02);
+    validate_moody_isobar(30.00, &data, 1e-2);
 }

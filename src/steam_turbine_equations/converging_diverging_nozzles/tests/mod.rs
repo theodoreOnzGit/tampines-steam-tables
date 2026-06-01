@@ -28,5 +28,12 @@ pub mod marviken_tests;
 /// Downloaded at:
 /// https://www.osti.gov/servlets/purl/7309475
 ///
+/// note: I took these values from a log (y) vs x graph 
+/// as in log (g_dimensionless) vs h_dimensionless graph 
+/// hence, errors will be big on for the larger values, for 
+/// graphreader
+/// it is better to assert errors on the log scale rather than 
+/// the linear scale, until such time I get data from linear 
+/// scale graph
 ///
 pub mod moody_critical_mass_flux_homogeneous_eqm;
