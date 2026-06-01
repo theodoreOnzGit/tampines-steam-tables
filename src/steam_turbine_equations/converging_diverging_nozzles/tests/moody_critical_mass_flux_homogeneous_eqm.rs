@@ -130,8 +130,7 @@ fn isobar_pref_0_25() {
 
             let g_test = state_0.get_stagnation_critical_mass_flux();
             // this helps see which point we are at on the graph
-            dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr));
-            dbg!(&(*g_dimensionless_ptr,g_test/g_ref));
+            dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr,g_test/g_ref));
 
             // note: I took these values from a log (y) vs x graph 
             // as in log (g_dimensionless) vs h_dimensionless graph 
@@ -191,8 +190,7 @@ fn validate_moody_isobar(
         let state_0 = TampinesSteamTableCV::new_from_ph(p0, h0, ref_vol);
         let g_test = state_0.get_stagnation_critical_mass_flux();
         // this helps see which point we are at on the graph
-        dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr));
-        dbg!(&(*g_dimensionless_ptr,g_test/g_ref));
+        dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr,g_test/g_ref));
 
         // The assertion uses the provided tolerance to compare the model's result
         // against the theoretical value from the Moody chart.
