@@ -665,7 +665,6 @@ impl super::TampinesSteamTableCV {
 
 
         let s0 = self.get_specific_entropy();
-        let s1 = s0;
         let h0 = self.get_specific_enthalpy();
 
 
