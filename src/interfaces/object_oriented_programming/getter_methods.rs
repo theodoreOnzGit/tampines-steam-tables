@@ -239,52 +239,51 @@ impl super::TampinesSteamTableCV {
 
         // by now, we should have our lower and upper limits
         // we can slowly bisect our way to a maximum point
+        let max_iterations = 50;
         // 0.01% tolerance
+        const TOLERANCE: f64 = 0.0001;  
         let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo(p_lower_limit);
         let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo(p_upper_limit);
 
-        // ... (The first half of your function, including the `while` loop, is excellent and can remain)
-
-        // by now, we should have our lower and upper limits
-        // we can now use a gradient-based bisection to find the maximum point
-        let max_iterations = 50;
-        const TOLERANCE: f64 = 1e-8; // Using a tighter tolerance for the refinement stage
-
+        // now this is a bisection loop, of sorts
         for _ in 0..max_iterations {
-            // Check if the bracket is small enough to stop
-            let relative_width = ((p_upper_limit - p_lower_limit) / p_upper_limit).get::<ratio>().abs();
-            if relative_width < TOLERANCE {
-                let p_crit = 0.5 * (p_upper_limit + p_lower_limit);
-                let g_crit = mass_flux_pressure_ps_algo(p_crit);
-                return (p_crit, g_crit);
+            let p_test = 0.5 * (p_upper_limit + p_lower_limit);
+
+            let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+
+            let convergence_error = 
+                ((mass_flux_test - max_mass_flux)/max_mass_flux).get::<ratio>().abs();
+
+            // if this convergence error is less than the tolernace
+            // return straightaway
+            if convergence_error < TOLERANCE {
+                return (p_test, mass_flux_test);
             }
 
-            // --- Corrected Bisection Logic for Finding a Maximum ---
-            let p_mid = 0.5 * (p_upper_limit + p_lower_limit);
+            // now, we test if the new mass flux is more 
+            // than the previous one (it should be if it is a parabola)
+            if mass_flux_test >= max_mass_flux {
+                max_mass_flux = mass_flux_test;
+            }
 
-            // Create a very small pressure perturbation to check the gradient
-            let p_epsilon = p_mid * 1e-7;
-            let p_mid_plus_epsilon = p_mid + p_epsilon;
+            // let's see if this is within tolerance 
 
-            let mass_flux_mid = mass_flux_pressure_ps_algo(p_mid);
-            let mass_flux_mid_plus = mass_flux_pressure_ps_algo(p_mid_plus_epsilon);
 
-            // If flux decreases with a tiny decrease in pressure, the peak is to the left (higher pressure).
-            if mass_flux_mid > mass_flux_mid_plus {
-                p_upper_limit = p_mid; // The peak is in the upper half of the pressure range
+            // now we check which bound is more
+            if mass_flux_at_p_low > mass_flux_at_p_high {
+                p_upper_limit = p_test;
+                mass_flux_at_p_high = mass_flux_test;
             } else {
-                p_lower_limit = p_mid; // The peak is in the lower half of the pressure range
+                p_lower_limit = p_test;
+                mass_flux_at_p_low = mass_flux_test;
             }
 
             if debug {
-                dbg!(&(p_lower_limit, p_upper_limit));
+                dbg!(&(p_test,mass_flux_test));
             }
-        }
 
-        let p_final = 0.5 * (p_upper_limit + p_lower_limit);
-        let g_final = mass_flux_pressure_ps_algo(p_final);
-        return (p_final, g_final);
-        //panic!("unable to converge and find critical mass flux");
+        }
+        panic!("unable to converge and find critical mass flux");
     }
 
     /// finds pressure where mach number = 1 during isentropic expansion 
