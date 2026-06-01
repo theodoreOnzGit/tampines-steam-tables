@@ -686,7 +686,7 @@ impl super::TampinesSteamTableCV {
         let h_test = h_ps_eqm(p2, s0);
         let kinetic_energy_available = h0 - h_test;
         let v: Velocity = (2.0 * kinetic_energy_available).sqrt();
-        let rho = self.get_rho();
+        let rho = v_ps_eqm(p2, s0).recip();
 
         let mass_flux_ps_algo: MassFlux = rho * v;
 
