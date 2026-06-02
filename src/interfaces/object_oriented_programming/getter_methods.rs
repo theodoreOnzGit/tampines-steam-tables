@@ -242,8 +242,12 @@ impl super::TampinesSteamTableCV {
 
             if debug {
 
-                dbg!(&(p0,p_test,mass_flux_test,
-                        last_region_in_pressure_scan));
+                let quality = x_ps_flash(p_test, s0);
+                dbg!(&(p0,p_test,
+                        mass_flux_test,
+                        last_region_in_pressure_scan,
+                        quality
+                        ));
             }
 
             // now, this code will activate if the latest mass flux 
@@ -263,7 +267,16 @@ impl super::TampinesSteamTableCV {
                 max_mass_flux = mass_flux_test;
                 p_upper_limit = p_test;
             } else {
+
                 // if it starts decreasing, break out of the loop 
+                let quality = x_ps_flash(p_test, s0);
+
+                if last_region_in_pressure_scan == FwdEqnRegion::Region4 && quality < 1e-3 {
+                        max_mass_flux = mass_flux_test;
+                        p_upper_limit = p_test;
+                        continue;
+
+                }
 
                 p_lower_limit = p_test;
                 if debug {
@@ -308,6 +321,12 @@ impl super::TampinesSteamTableCV {
             // if this convergence error is less than the tolernace
             // return straightaway
             if convergence_error < TOLERANCE {
+                let region = ps_flash_region(p_test, s0);
+                let quality = x_ps_flash(p_test, s0);
+                if debug {
+                    dbg!(&(p_test,region,quality,mass_flux_test));
+                }
+
                 return (p_test, mass_flux_test);
             }
 

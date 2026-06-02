@@ -44,6 +44,7 @@ fn test_moody_isobar(
         let g_test = state_0.get_stagnation_critical_mass_flux();
         // this helps see which point we are at on the graph
         dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr,g_test/g_ref));
+        dbg!(&(g_ref_expected,g_test));
 
         // The assertion uses the provided tolerance to compare the model's result
         // against the theoretical value from the Moody chart.
