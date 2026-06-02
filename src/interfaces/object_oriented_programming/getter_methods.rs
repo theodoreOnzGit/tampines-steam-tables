@@ -217,11 +217,11 @@ impl super::TampinesSteamTableCV {
 
 
 
-            if debug {
-                dbg!(&region);
-                dbg!(&(p_test,h_test,steam_quality));
-                dbg!(&(v_test_ps_algo, mass_flux_ps_algo));
-            }
+            //if debug {
+            //    dbg!(&region);
+            //    dbg!(&(p_test,h_test,steam_quality));
+            //    dbg!(&(v_test_ps_algo, mass_flux_ps_algo));
+            //}
 
             return mass_flux_ps_algo;
         };
@@ -232,10 +232,16 @@ impl super::TampinesSteamTableCV {
         // a maximum point 
         // that is, where decreasing pressure decreases mass flux
         let mut p_test = p_upper_limit;
-        while p_test > p_min_steam_table {
+        while (p_test - p_decrement) > p_min_steam_table {
             p_test -= p_decrement;
 
             let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            if debug {
+                let region = ps_flash_region(p_test, s0);
+
+                dbg!(&(p0,p_test,mass_flux_test,
+                        region));
+            }
 
             // now, this code will activate if the latest mass flux 
             // is more than the stored maximum mass flux 
@@ -246,13 +252,12 @@ impl super::TampinesSteamTableCV {
                 // if it starts decreasing, break out of the loop 
 
                 p_lower_limit = p_test;
-                break;
+                //break;
+
+                dbg!(&max_mass_flux);
 
             }
 
-            if debug {
-                dbg!(&(p_test,mass_flux_test));
-            }
 
         };
 
@@ -297,9 +302,9 @@ impl super::TampinesSteamTableCV {
                 mass_flux_at_p_low = mass_flux_test;
             }
 
-            if debug {
-                dbg!(&(p_test,mass_flux_test));
-            }
+            //if debug {
+            //    dbg!(&(p_test,mass_flux_test));
+            //}
 
         }
         panic!("unable to converge and find critical mass flux");
