@@ -6,6 +6,16 @@ use uom::si::mass_rate::pound_per_second;
 use uom::si::pressure::pound_force_per_square_inch;
 
 use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
+///// @misc{claude2026tampines,
+//  author       = {{Anthropic}},
+//  title        = {Conversation on {TAMPINES} {HEM} Critical Flow Implementation},
+//  year         = {2026},
+//  month        = {June},
+//  note         = {AI assistant conversation with Claude Sonnet 4.6 via claude.ai. 
+//                  Topics covered: Moody HEM critical mass flux, two-phase 
+//                  equilibrium speed of sound, IAPWS-IF97 steam tables in Rust},
+//  url          = {https://claude.ai}
+//}
 /// This is AI generated helper function
 /// A reusable helper function to validate any isobar from the Moody chart
 
