@@ -599,7 +599,6 @@ fn isobar_pref_12_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 14.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
-#[ignore]
 fn isobar_pref_14_00() {
     let data = vec![
         (0.6667, 28.8485), (1.0588, 28.2037), (1.5294, 28.2037), (1.9412, 28.2037),
