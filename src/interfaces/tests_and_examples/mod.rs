@@ -84,3 +84,13 @@ pub mod critical_pressure_moody_fig2;
 #[cfg(test)]
 pub mod critical_flow_hem;
 
+
+/// speed of sound 
+
+/// test data from:
+/// Kieffer, S. W. (1977). Sound speed in liquid‐gas mixtures: 
+/// Water‐air and water‐steam. 
+/// Journal of Geophysical research, 82(20), 2895-2904.
+/// Fig 9.
+#[cfg(test)]
+pub mod vle_speed_of_sound;
