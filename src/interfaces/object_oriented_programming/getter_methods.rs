@@ -178,7 +178,7 @@ impl super::TampinesSteamTableCV {
     #[inline]
     pub fn get_crit_pressure_and_massflux(&self) -> (Pressure, MassFlux) {
 
-        let debug = true;
+        let debug = false;
         // first we get stagnation properties (assuming stagnation)
         let s0 = self.specific_entropy;
         let h0 = self.specific_enthalpy;

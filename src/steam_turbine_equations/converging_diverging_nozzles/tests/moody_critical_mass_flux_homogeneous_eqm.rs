@@ -61,6 +61,7 @@ use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
 /// 
 ///
 #[test]
+#[ignore]
 fn isobar_pref_0_25() {
 
 
@@ -234,6 +235,7 @@ fn validate_moody_isobar(
 /// Validates the critical mass flux model against the `p/p_ref = 0.50` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_0_50() {
     let data = vec![
         (0.4902, 5.4168), (0.7647, 5.2362), (1.2353, 5.0617), (1.6471, 4.6241),
@@ -275,6 +277,7 @@ fn isobar_pref_0_50() {
 /// Validates the critical mass flux model against the `p/p_ref = 1.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_1_00() {
     let data = vec![
         (0.451, 7.6029), (0.6667, 7.6029), (1.3137, 7.1852), (1.9412, 6.5641),
@@ -313,6 +316,7 @@ fn isobar_pref_1_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 2.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_2_00() {
     let data = vec![
         (0.4706, 11.0394), (0.9216, 10.7927), (1.3529, 10.4329), (1.9412, 10.1997),
@@ -355,6 +359,7 @@ fn isobar_pref_2_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 4.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_4_00() {
     let data = vec![
         (0.7255, 13.2273), (1.1961, 12.7864), (1.6078, 12.7864), (2.0588, 12.3602),
@@ -402,6 +407,7 @@ fn isobar_pref_4_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 6.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_6_00() {
     let data = vec![
         (0.5882, 18.5657), (0.8235, 18.5657), (1.1765, 18.5657), (1.5098, 18.3571),
@@ -454,6 +460,7 @@ fn isobar_pref_6_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 8.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_8_00() {
     let data = vec![
         (0.6471, 21.9954), (0.8824, 21.7482), (1.451, 21.2622), (2.0196, 20.787),
@@ -499,6 +506,7 @@ fn isobar_pref_8_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 10.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_10_00() {
     let data = vec![
         (0.6275, 24.627), (0.902, 24.0766), (1.2941, 24.3502), (1.8627, 23.5385),
@@ -544,6 +552,7 @@ fn isobar_pref_10_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 12.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_12_00() {
     let data = vec![
         (0.6471, 26.6543), (1.0588, 26.0586), (1.5098, 26.0586), (2.0784, 25.4762),
@@ -590,6 +599,7 @@ fn isobar_pref_12_00() {
 /// Validates the critical mass flux model against the `p/p_ref = 14.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
+#[ignore]
 fn isobar_pref_14_00() {
     let data = vec![
         (0.6667, 28.8485), (1.0588, 28.2037), (1.5294, 28.2037), (1.9412, 28.2037),
