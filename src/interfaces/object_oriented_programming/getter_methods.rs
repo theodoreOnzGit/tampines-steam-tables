@@ -195,17 +195,24 @@ impl super::TampinesSteamTableCV {
 
         // thereafter, I'm going to find a maximum point 
         // there is no finding of the speed of sound whatsoever
-        let mass_flux_pressure_ps_algo = |p_test: Pressure| -> MassFlux {
+        let mass_flux_pressure_ps_algo_region_1_only = |p_test: Pressure| -> MassFlux {
             let h_test = h_ps_eqm(p_test, s0);
             let rho_test_ps_algo: MassDensity = v_ps_eqm(p_test, s0).recip();
             // h0 = h_test + 0.5 * v_test * v_test 
             let kinetic_energy_available = h0 - h_test;
+            let region = ps_flash_region(p_test, s0);
             let mut v_test_ps_algo = (2.0 * kinetic_energy_available).sqrt();
+            // in region 1, velocity cannot exceed speed of sound also
+            if region == FwdEqnRegion::Region1 {
+
+                // in region 1, we cannot have 
+                let c = w_ps_eqm(p_test, s0);
+                v_test_ps_algo = v_test_ps_algo.min(c);
+            }
 
             // now, I want to check if the quality is 1 
             // if so, then need to use speed of sound
             let steam_quality = x_ph_flash(p_test, h_test);
-            let region = ps_flash_region(p_test, s0);
 
             if steam_quality >= 1.0 {
                 // if steam quality is more than 1 or equal to 1, then 
@@ -213,9 +220,10 @@ impl super::TampinesSteamTableCV {
                 v_test_ps_algo = w_ps_eqm(p_test, s0);
             }
 
+
+
+
             let mass_flux_ps_algo: MassFlux = rho_test_ps_algo * v_test_ps_algo;
-
-
 
             //if debug {
             //    dbg!(&region);
@@ -231,16 +239,33 @@ impl super::TampinesSteamTableCV {
         // basically, we systematically decrease pressure until we find  
         // a maximum point 
         // that is, where decreasing pressure decreases mass flux
+        //
+
+        // now, there are a few regimes, 
+        // if in the reduction of pressure, the fluid stays subcooled 
+        // or critical, then we don't have any issue
+
+
         let mut p_test = p_upper_limit;
+        let mut last_region_in_pressure_scan: FwdEqnRegion = FwdEqnRegion::Region1;
+        // this algorithm works for the isobar staying in region 1
+        // (subcooled water)
         while (p_test - p_decrement) > p_min_steam_table {
             p_test -= p_decrement;
 
-            let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            let mass_flux_test = mass_flux_pressure_ps_algo_region_1_only(p_test);
+            // found that some of the higher mass flowrates were in 
+            // the subcooled region, 
+            // hence if i was in the subcooled region, skip this entirely 
+            let region = ps_flash_region(p_test, s0);
+
+            last_region_in_pressure_scan = region;
+
+
             if debug {
-                let region = ps_flash_region(p_test, s0);
 
                 dbg!(&(p0,p_test,mass_flux_test,
-                        region));
+                        last_region_in_pressure_scan));
             }
 
             // now, this code will activate if the latest mass flux 
@@ -254,26 +279,40 @@ impl super::TampinesSteamTableCV {
                 p_lower_limit = p_test;
                 //break;
 
-                dbg!(&max_mass_flux);
+                if debug {
+                    dbg!(&max_mass_flux);
+                }
 
             }
 
 
         };
 
+        // if all of a sudden, we have vapour liquid equilibrium,
+        // this is Region4
+        // then we cannot use this algorithm,
+        // 
+
+        if last_region_in_pressure_scan == FwdEqnRegion::Region4 {
+
+        }
+
+
+        
+
         // by now, we should have our lower and upper limits
         // we can slowly bisect our way to a maximum point
         let max_iterations = 50;
         // 0.01% tolerance
         const TOLERANCE: f64 = 1e-8;  
-        let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo(p_lower_limit);
-        let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo(p_upper_limit);
+        let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo_region_1_only(p_lower_limit);
+        let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo_region_1_only(p_upper_limit);
 
         // now this is a bisection loop, of sorts
         for _ in 0..max_iterations {
             let p_test = 0.5 * (p_upper_limit + p_lower_limit);
 
-            let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            let mass_flux_test = mass_flux_pressure_ps_algo_region_1_only(p_test);
 
             let convergence_error = 
                 ((mass_flux_test - max_mass_flux)/max_mass_flux).get::<ratio>().abs();
