@@ -178,7 +178,7 @@ impl super::TampinesSteamTableCV {
     #[inline]
     pub fn get_crit_pressure_and_massflux(&self) -> (Pressure, MassFlux) {
 
-        let debug = false;
+        let debug = true;
         // first we get stagnation properties (assuming stagnation)
         let s0 = self.specific_entropy;
         let h0 = self.specific_enthalpy;
@@ -231,8 +231,9 @@ impl super::TampinesSteamTableCV {
         // basically, we systematically decrease pressure until we find  
         // a maximum point 
         // that is, where decreasing pressure decreases mass flux
-        while p_upper_limit > p_min_steam_table {
-            let p_test = p_upper_limit - p_decrement;
+        let mut p_test = p_upper_limit;
+        while p_test > p_min_steam_table {
+            p_test -= p_decrement;
 
             let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
 
@@ -247,6 +248,10 @@ impl super::TampinesSteamTableCV {
                 p_lower_limit = p_test;
                 break;
 
+            }
+
+            if debug {
+                dbg!(&(p_test,mass_flux_test));
             }
 
         };

@@ -22,7 +22,7 @@ use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
 /// 4.  It calls the model to get the calculated critical mass flux (`g_test`).
 /// 5.  It asserts that the calculated flux is within a given tolerance of the
 ///     theoretical flux from the Moody chart.
-fn test_nmoody_isobar(
+fn test_moody_isobar(
     dimensionless_stagnation_pressure: f64,
     data_points: &[(f64, f64)],
     tolerance: f64,
@@ -58,7 +58,6 @@ fn test_nmoody_isobar(
 /// Validates the critical mass flux model against the `p/p_ref = 12.00` isobar
 /// from Figure 1 of Moody (1975).
 #[test]
-#[ignore]
 fn isobar_pref_12_00() {
     let data = vec![
         (0.6471, 26.6543), (1.0588, 26.0586), (1.5098, 26.0586), (2.0784, 25.4762),
@@ -69,6 +68,6 @@ fn isobar_pref_12_00() {
         (9.3333, 2.8444), (9.8431, 2.7187), (10.4314, 2.5985), (11.098, 2.4557),
         (11.7451, 2.3739),
     ];
-    test_nmoody_isobar(12.00, &data, 1e-2);
+    test_moody_isobar(12.00, &data, 1e-2);
 }
 
