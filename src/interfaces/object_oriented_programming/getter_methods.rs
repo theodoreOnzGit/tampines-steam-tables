@@ -9,7 +9,9 @@ use uom::si::volume::cubic_meter;
 use crate::constants::p_crit_water;
 use crate::constants::t_crit_water;
 use crate::interfaces::functional_programming::hs_flash_eqm::p_hs_eqm;
+use crate::interfaces::functional_programming::ps_flash_eqm::ps_flash_region;
 use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_eqm;
+use crate::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use crate::prelude::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::prelude::functional_programming::ph_flash_eqm::x_ph_flash;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
@@ -176,7 +178,7 @@ impl super::TampinesSteamTableCV {
     #[inline]
     pub fn get_crit_pressure_and_massflux(&self) -> (Pressure, MassFlux) {
 
-        let debug = false;
+        let debug = true;
         // first we get stagnation properties (assuming stagnation)
         let s0 = self.specific_entropy;
         let h0 = self.specific_enthalpy;
@@ -198,14 +200,26 @@ impl super::TampinesSteamTableCV {
             let rho_test_ps_algo: MassDensity = v_ps_eqm(p_test, s0).recip();
             // h0 = h_test + 0.5 * v_test * v_test 
             let kinetic_energy_available = h0 - h_test;
-            let v_test_ps_algo = (2.0 * kinetic_energy_available).sqrt();
+            let mut v_test_ps_algo = (2.0 * kinetic_energy_available).sqrt();
+
+            // now, I want to check if the quality is 1 
+            // if so, then need to use speed of sound
+            let steam_quality = x_ph_flash(p_test, h_test);
+            let region = ps_flash_region(p_test, s0);
+
+            if steam_quality >= 1.0 {
+                // if steam quality is more than 1 or equal to 1, then 
+                // we must cap the velocity at the speed of sound
+                v_test_ps_algo = w_ps_eqm(p_test, s0);
+            }
 
             let mass_flux_ps_algo: MassFlux = rho_test_ps_algo * v_test_ps_algo;
 
 
 
             if debug {
-                dbg!(&(p_test,h_test));
+                dbg!(&region);
+                dbg!(&(p_test,h_test,steam_quality));
                 dbg!(&(v_test_ps_algo, mass_flux_ps_algo));
             }
 
@@ -224,7 +238,7 @@ impl super::TampinesSteamTableCV {
 
             // now, this code will activate if the latest mass flux 
             // is more than the stored maximum mass flux 
-            if mass_flux_test >= max_mass_flux {
+            if mass_flux_test > max_mass_flux {
                 max_mass_flux = mass_flux_test;
                 p_upper_limit = p_test;
             } else {
