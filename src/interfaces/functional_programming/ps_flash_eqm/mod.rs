@@ -626,6 +626,21 @@ pub fn w_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
         FwdEqnRegion::Region4 => {
             // I'm just using quality to interpolate here 
             // not sure if 100% correct
+            let steam_quality = x_ph_flash(p, h);
+            let t_sat = sat_temp_4(p);
+
+            let w_liq = w_tp_1(t_sat, p);
+            let w_vap = w_tp_2(t_sat, p);
+
+
+            let rho_liq = v_tp_1(t_sat, p).recip();  // You'll need these functions
+            let rho_vap = v_tp_2(t_sat, p).recip();  // or calculate from v_tp functions
+
+            // Use homogeneous equilibrium model
+            let c_wood_wallis = w_two_phase_homogeneous_wood_wallis(
+                Ratio::new::<ratio>(steam_quality)
+                , w_liq, w_vap, rho_liq, rho_vap
+            );
 
             // in Region 4 (two-phase equilibrium):
             //
@@ -643,9 +658,9 @@ pub fn w_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
             // c = v * sqrt(-1/dv_dp_s)
             // note: dv_dp_s should be negative (specific volume decreases as pressure increases)
             let v = v_ps_eqm(p, s);
-            let c_hem: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
+            let _c_hem_finite_diff: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
 
-            c_hem
+            c_wood_wallis
         },
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
