@@ -679,7 +679,7 @@ pub fn kappa_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> Ratio {
 }
 
 /// returns the isobaric cubic expansion coefficient
-pub fn alpsa_v_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> TemperatureCoefficient {
+pub fn alpha_v_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> TemperatureCoefficient {
     let t = t_ps_eqm(p, s);
     let region = ps_flash_region(p, s);
 

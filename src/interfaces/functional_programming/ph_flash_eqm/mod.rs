@@ -420,7 +420,7 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
             let rho_vap = v_tp_2(t_sat, p).recip();  // or calculate from v_tp functions
 
             // Use homogeneous equilibrium model
-            w_two_phase_homogeneous(
+            w_two_phase_homogeneous_wood_wallis(
                 Ratio::new::<ratio>(steam_quality)
                 , w_liq, w_vap, rho_liq, rho_vap
             )
@@ -477,7 +477,7 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
 ///
 ///
 ///
-pub fn w_two_phase_homogeneous(
+pub fn w_two_phase_homogeneous_wood_wallis(
     steam_quality: Ratio,
     w_liq: Velocity,
     w_vap: Velocity,
