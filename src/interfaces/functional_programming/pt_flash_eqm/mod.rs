@@ -1,6 +1,6 @@
 use uom::si::{f64::*, pressure::pascal, thermodynamic_temperature::kelvin};
 
-use crate::{region_1_subcooled_liquid::{alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, u_tp_1, v_tp_1, w_tp_1, InversePressure}, region_2_vapour::{alpha_v_tp_2, cp_tp_2, cv_tp_2, h_tp_2, kappa_t_tp_2, kappa_tp_2, s_tp_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{alpha_v_tp_3, cp_tp_3, cv_tp_3, h_tp_3, kappa_t_tp_3, kappa_tp_3, p_boundary_2_3, s_tp_3, u_tp_3, v_tp_3, w_tp_3}, region_4_vap_liq_equilibrium::sat_pressure_4, region_5_steam_at_800_plus_degc::{alpha_v_tp_5, cp_tp_5, cv_tp_5, h_tp_5, kappa_t_tp_5, kappa_tp_5, s_tp_5, u_tp_5, v_tp_5, w_tp_5}};
+use crate::{interfaces::functional_programming::{ph_flash_eqm::s_ph_eqm, ps_flash_eqm::v_ps_eqm}, region_1_subcooled_liquid::{InversePressure, alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1, kappa_t_tp_1, kappa_tp_1, s_tp_1, u_tp_1, v_tp_1, w_tp_1}, region_2_vapour::{alpha_v_tp_2, cp_tp_2, cv_tp_2, h_tp_2, kappa_t_tp_2, kappa_tp_2, s_tp_2, u_tp_2, v_tp_2, w_tp_2}, region_3_single_phase_plus_supercritical_steam::{alpha_v_tp_3, cp_tp_3, cv_tp_3, h_tp_3, kappa_t_tp_3, kappa_tp_3, p_boundary_2_3, s_tp_3, u_tp_3, v_tp_3, w_tp_3}, region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4}, region_5_steam_at_800_plus_degc::{alpha_v_tp_5, cp_tp_5, cv_tp_5, h_tp_5, kappa_t_tp_5, kappa_tp_5, s_tp_5, u_tp_5, v_tp_5, w_tp_5}};
 
 #[derive(Debug,PartialEq, Eq, PartialOrd, Ord,Clone, Copy)]
 /// an enum to help represent the appropriate 
@@ -179,6 +179,53 @@ pub fn w_tp_eqm_single_phase(t: ThermodynamicTemperature, p: Pressure) -> Veloci
         FwdEqnRegion::Region2 => w_tp_2(t, p),
         FwdEqnRegion::Region3 => w_tp_3(t, p),
         FwdEqnRegion::Region4 => todo!("cannot find speed of sound of mixture without steam quality"),
+        FwdEqnRegion::Region5 => w_tp_5(t, p),
+    }
+}
+
+/// returns speed of sound at vle given (t,p and x) 
+/// x being quality
+pub fn w_tpx_eqm(t: ThermodynamicTemperature, p: Pressure,
+    x: f64) -> Velocity {
+    let region = region_fwd_eqn_single_phase(t, p);
+
+    match region {
+        FwdEqnRegion::Region1 => w_tp_1(t, p),
+        FwdEqnRegion::Region2 => w_tp_2(t, p),
+        FwdEqnRegion::Region3 => w_tp_3(t, p),
+        FwdEqnRegion::Region4 => {
+            // I'll just use saturation pressure here 
+            // not going to bother checking because we already sorted 
+            // the region bit
+            let t_sat = sat_temp_4(p);
+            let h_liq = h_tp_1(t_sat, p);
+            let h_vap = h_tp_2(t_sat, p);
+
+            // we need to find the correct enthalpy
+            // so we can find the entropy
+            let h = x * h_vap + (1.0 - x) * h_liq;
+            let s = s_ph_eqm(p, h);
+            // in Region 4 (two-phase equilibrium):
+            //
+            // from Claude AI
+            // c_HEM = v * sqrt(-dp/dv|_s)
+            // rearranged: c_HEM = sqrt(-v² * dp/dv|_s)
+            // using finite difference: dv/dp|_s ≈ (v(p+dp) - v(p-dp)) / (2*dp)
+
+            let dp = p * 1e-4; // small pressure perturbation
+            let v_plus  = v_ps_eqm(p + dp, s);
+            let v_minus = v_ps_eqm(p - dp, s);
+            let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
+
+            // c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
+            // c = v * sqrt(-1/dv_dp_s)
+            // note: dv_dp_s should be negative (specific volume decreases as pressure increases)
+            let v = v_ps_eqm(p, s);
+            let c_hem: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
+
+            c_hem
+
+        },
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
 }
