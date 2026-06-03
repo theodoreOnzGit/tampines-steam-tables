@@ -38,39 +38,41 @@
 
 use uom::si::pressure::bar;
 use uom::si::f64::*;
+use uom::si::velocity::meter_per_second;
 
+use crate::interfaces::functional_programming::ph_flash_eqm::s_ph_eqm;
+use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_eqm;
+use crate::interfaces::functional_programming::pt_flash_eqm::w_tpx_eqm;
+use crate::region_1_subcooled_liquid::h_tp_1;
+use crate::region_2_vapour::h_tp_2;
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
-use crate::region_2_vapour::s_tp_2;
-use crate::region_1_subcooled_liquid::s_tp_1;
 
 #[test]
 pub fn w_px_eqm_1_bar(){
 
     let p = Pressure::new::<bar>(1.0);
     let t_sat = sat_temp_4(p);
-    let s_liq = s_tp_1(t_sat, p);
-    let s_vap = s_tp_2(t_sat, p);
 
     let quality_vs_speed_of_sound_meter_per_s: Vec<(f64, f64)> = vec![
-        (0.00001156, 10.99606032),
-        (0.00001583, 11.17146079),
-        (0.00002829, 11.17146079),
-        (0.00005306, 11.17146079),
-        (0.00010963, 11.53069992),
-        (0.00018218, 12.67922718),
-        (0.00037638, 14.39049064),
-        (0.00064080, 16.85792525),
-        (0.00101462, 20.38348089),
-        (0.00156812, 24.64634806),
-        (0.00242356, 28.87228125),
-        (0.00348351, 36.03305055),
-        (0.00512961, 43.56876582),
-        (0.00737305, 53.52076800),
-        (0.01139522, 68.94264997),
-        (0.01637894, 86.04148628),
-        (0.02656867, 116.22300395),
-        (0.04309767, 149.71238603),
-        (0.06823915, 192.85165388),
+        //(0.00001156, 10.99606032),
+        //(0.00001583, 11.17146079),
+        //(0.00002829, 11.17146079),
+        //(0.00005306, 11.17146079),
+        //(0.00010963, 11.53069992),
+        //(0.00018218, 12.67922718),
+        //(0.00037638, 14.39049064),
+        //(0.00064080, 16.85792525),
+        //(0.00101462, 20.38348089),
+        //(0.00156812, 24.64634806),
+        //(0.00242356, 28.87228125),
+        //(0.00348351, 36.03305055),
+        //(0.00512961, 43.56876582),
+        //(0.00737305, 53.52076800),
+        //(0.01139522, 68.94264997),
+        //(0.01637894, 86.04148628),
+        //(0.02656867, 116.22300395),
+        //(0.04309767, 149.71238603),
+        //(0.06823915, 192.85165388),
         (0.10546522, 244.52099323),
         (0.17107765, 310.03372243),
         (0.27750915, 386.92684842),
@@ -78,6 +80,27 @@ pub fn w_px_eqm_1_bar(){
         (0.73020597, 548.06442790),
         (0.93000952, 583.87922655),
         ];
+
+        for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
+            // interpolate entropy at quality x
+            // compute equilibrium speed of sound
+            let t_sat = sat_temp_4(p);
+            let h_liq = h_tp_1(t_sat, p);
+            let h_vap = h_tp_2(t_sat, p);
+
+            // we need to find the correct enthalpy
+            // so we can find the entropy
+            let h = *x * h_vap + (1.0 - x) * h_liq;
+            let s = s_ph_eqm(p, h);
+            let w_test = w_ps_eqm(p, s);
+            dbg!(&(x,w_test,w_expected));
+            // assert within tolerance
+            approx::assert_relative_eq!(
+                w_test.get::<meter_per_second>(),
+                *w_expected,
+                max_relative = 0.05 // 5% given graph digitisation uncertainty
+            );
+        }
     
 }
 

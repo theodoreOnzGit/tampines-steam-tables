@@ -602,6 +602,7 @@ pub fn cv_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> SpecificHeatCapacity {
 
 
 /// returns the speed of sound given temperature and pressure
+#[inline]
 pub fn w_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
     let t = t_ps_eqm(p, s);
     let region = ps_flash_region(p, s);
@@ -625,15 +626,26 @@ pub fn w_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
         FwdEqnRegion::Region4 => {
             // I'm just using quality to interpolate here 
             // not sure if 100% correct
-            let steam_quality = x_ps_flash(p, s);
-            let t_sat = sat_temp_4(p);
 
-            let w_liq = w_tp_1(t_sat, p);
-            let w_vap = w_tp_2(t_sat, p);
+            // in Region 4 (two-phase equilibrium):
+            //
+            // from Claude AI
+            // c_HEM = v * sqrt(-dp/dv|_s)
+            // rearranged: c_HEM = sqrt(-v² * dp/dv|_s)
+            // using finite difference: dv/dp|_s ≈ (v(p+dp) - v(p-dp)) / (2*dp)
 
-            let w = steam_quality * w_vap + (1.0 - steam_quality) * w_liq;
+            let dp = p * 1e-5; // small pressure perturbation
+            let v_plus  = v_ps_eqm(p + dp, s);
+            let v_minus = v_ps_eqm(p - dp, s);
+            let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
 
-            w
+            // c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
+            // c = v * sqrt(-1/dv_dp_s)
+            // note: dv_dp_s should be negative (specific volume decreases as pressure increases)
+            let v = v_ps_eqm(p, s);
+            let c_hem: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
+
+            c_hem
         },
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
