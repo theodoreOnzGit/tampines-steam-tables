@@ -233,7 +233,7 @@ pub fn w_px_eqm_1_bar(){
             approx::assert_abs_diff_eq!(
                 w_test.get::<meter_per_second>().log10(),
                 w_expected.log10(),
-                epsilon=0.3
+                epsilon=0.1
             );
         }
     
@@ -276,7 +276,7 @@ pub fn w_px_eqm_1_bar_finite_diff_vol(){
             approx::assert_abs_diff_eq!(
                 w_test.get::<meter_per_second>().log10(),
                 w_expected.log10(),
-                epsilon=0.3
+                epsilon=0.1
             );
         }
     
