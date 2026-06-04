@@ -14,10 +14,9 @@ use crate::region_2_vapour::{
     h_tp_2,
     s_tp_2,
 };
-use crate::region_4_vap_liq_equilibrium::{
-    sat_temp_4,
-    sat_pressure_4,
-};
+use crate::region_4_vap_liq_equilibrium::
+    sat_temp_4
+;
 
 pub fn w_ps_eqm_region4_kieffer(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
     
@@ -43,7 +42,7 @@ pub fn w_ps_eqm_region4_kieffer(p: Pressure, s: SpecificHeatCapacity) -> Velocit
     // --- dT_sat/dp via finite difference ---
     let dp = p * 1e-6_f64;
     let dt_kelvin = sat_temp_4(p + dp).get::<kelvin>() - sat_temp_4(p - dp).get::<kelvin>();
-    let dt_dp = TemperatureInterval::new::<degree_celsius>(dt_kelvin) / (2.0 * dp);
+    let _dt_dp = TemperatureInterval::new::<degree_celsius>(dt_kelvin) / (2.0 * dp);
     
     // --- dv_f/dp|_sat via finite difference along saturation curve ---
     let v_f_plus  = v_tp_1(sat_temp_4(p + dp), p + dp);
