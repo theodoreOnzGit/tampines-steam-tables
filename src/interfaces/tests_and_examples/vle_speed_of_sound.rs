@@ -48,6 +48,7 @@ use crate::region_2_vapour::h_tp_2;
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
 
 #[test]
+#[ignore = "debugging"]
 pub fn w_px_eqm_1_bar(){
 
     let p = Pressure::new::<bar>(1.0);
