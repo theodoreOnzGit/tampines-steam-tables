@@ -629,7 +629,7 @@ pub fn cv_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> SpecificHeatCapacity {
 /// Note: when in the equilibrium zone (Region 4) it WILL give the 
 /// wood wallis speed of sound, the frozen speed of sound
 #[inline]
-pub fn w_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
+pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
     let t = t_ps_eqm(p, s);
     let region = ps_flash_region(p, s);
 

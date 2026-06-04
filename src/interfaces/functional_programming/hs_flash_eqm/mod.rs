@@ -28,7 +28,7 @@ use crate::backward_eqn_hs_region_1_to_4::saturated_liquid_line::h1_prime_s_boun
 use crate::backward_eqn_hs_region_1_to_4::region_2_and_3::tb23_s_boundary_enthalpy;
 use crate::backward_eqn_hs_region_1_to_4::region_1_and_3::hb13_s_boundary_enthalpy;
 
-use super::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, mu_ph_eqm, t_ph_eqm, w_ph_eqm};
+use super::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, mu_ph_eqm, t_ph_eqm, w_ph_wood_wallis};
 use super::pt_flash_eqm::FwdEqnRegion;
 use super::pt_flash_eqm::s_tp_eqm_single_phase;
 use super::pt_flash_eqm::h_tp_eqm_single_phase;
@@ -150,7 +150,7 @@ pub fn cp_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> SpecificHeatCa
 pub fn w_hs_eqm(h: AvailableEnergy, s: SpecificHeatCapacity,) -> Velocity {
     let (_t,p,_v,_x) = tpvx_hs_flash_eqm(h, s);
 
-    let w = w_ph_eqm(p, h);
+    let w = w_ph_wood_wallis(p, h);
 
     return w;
 

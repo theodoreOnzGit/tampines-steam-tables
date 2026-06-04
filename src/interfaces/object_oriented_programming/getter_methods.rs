@@ -10,12 +10,12 @@ use crate::constants::p_crit_water;
 use crate::constants::t_crit_water;
 use crate::interfaces::functional_programming::hs_flash_eqm::p_hs_eqm;
 use crate::interfaces::functional_programming::ps_flash_eqm::ps_flash_region;
-use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_eqm;
+use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_wood_wallis;
 use crate::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use crate::prelude::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::prelude::functional_programming::ph_flash_eqm::x_ph_flash;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
-use crate::prelude::functional_programming::ph_flash_eqm::w_ph_eqm;
+use crate::prelude::functional_programming::ph_flash_eqm::w_ph_wood_wallis;
 use crate::prelude::functional_programming::ph_flash_eqm::lambda_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::cv_ph_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::cp_ph_eqm;
@@ -77,7 +77,7 @@ impl super::TampinesSteamTableCV {
         let p = self.pressure;
         let h = self.specific_enthalpy;
 
-        return w_ph_eqm(p, h);
+        return w_ph_wood_wallis(p, h);
     }
 
     /// get mach number 
@@ -419,7 +419,7 @@ impl super::TampinesSteamTableCV {
 
             // Get properties at this pressure (isentropic)
             let h_mid = h_ps_eqm(p_mid, s0);
-            let w_mid = w_ph_eqm(p_mid, h_mid);
+            let w_mid = w_ph_wood_wallis(p_mid, h_mid);
 
             // Calculate velocity from energy equation
             // h0 = h + v²/2  =>  v = sqrt(2*(h0 - h))

@@ -10,7 +10,7 @@ use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
 use crate::dynamic_viscosity::mu_tp_eqm_two_phase;
-use crate::interfaces::functional_programming::ps_flash_eqm::{cp_ps_eqm, h_ps_eqm, kappa_ps_eqm, v_ps_eqm, w_ps_eqm, x_ps_flash};
+use crate::interfaces::functional_programming::ps_flash_eqm::{cp_ps_eqm, h_ps_eqm, kappa_ps_eqm, v_ps_eqm, w_ps_wood_wallis, x_ps_flash};
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
 use crate::thermal_conductivity::lambda_tp_eqm_two_phase;
 
@@ -1265,7 +1265,7 @@ fn assert_ps_flash(
             max_relative=5e-3
         );
         // w 
-        let w_test = w_ps_eqm(p, s);
+        let w_test = w_ps_wood_wallis(p, s);
         approx::assert_relative_eq!(
             w_m_per_s,
             w_test.get::<meter_per_second>(),
@@ -1361,7 +1361,7 @@ fn assert_ps_flash_near_supercritical_region(
             max_relative=5e-3
         );
         // w 
-        let w_test = w_ps_eqm(p, s);
+        let w_test = w_ps_wood_wallis(p, s);
         approx::assert_relative_eq!(
             w_m_per_s,
             w_test.get::<meter_per_second>(),
@@ -1461,7 +1461,7 @@ fn assert_ps_flash_100_to_200_bar(
             max_relative=1e-2
         );
         // w 
-        let w_test = w_ps_eqm(p, s);
+        let w_test = w_ps_wood_wallis(p, s);
         approx::assert_relative_eq!(
             w_m_per_s,
             w_test.get::<meter_per_second>(),

@@ -9,7 +9,7 @@ use uom::si::thermodynamic_temperature::degree_celsius;
 use uom::si::velocity::meter_per_second;
 
 use crate::dynamic_viscosity::mu_ph_eqm;
-use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, s_ph_eqm, t_ph_eqm, v_ph_eqm, w_ph_eqm};
+use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, kappa_ph_eqm, lambda_ph_eqm, s_ph_eqm, t_ph_eqm, v_ph_eqm, w_ph_wood_wallis};
 
 /// single phase table (see page 201)
 ///
@@ -173,7 +173,7 @@ fn assert_ph_flash(
         max_relative=1e-3
         );
     // w 
-    let w_test = w_ph_eqm(p, h);
+    let w_test = w_ph_wood_wallis(p, h);
     approx::assert_relative_eq!(
         w_m_per_s,
         w_test.get::<meter_per_second>(),
