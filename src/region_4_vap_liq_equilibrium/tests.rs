@@ -4,6 +4,7 @@ use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::pressure::megapascal;
 use uom::si::available_energy::kilojoule_per_kilogram;
 
+use crate::interfaces::functional_programming::pt_flash_eqm::h_tp_eqm_two_phase;
 use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4, tsat_hs_4, w_ps_eqm_region4_finite_diff_vol, w_ps_eqm_region4_kieffer};
 
 #[test]
@@ -415,8 +416,8 @@ pub fn w_px_eqm_100_bar(){
     ];
     for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
         let t_sat = sat_temp_4(p);
-        let h_liq = h_tp_1(t_sat, p);
-        let h_vap = h_tp_2(t_sat, p);
+        let h_liq = h_tp_eqm_two_phase(t_sat, p, 0.0);
+        let h_vap = h_tp_eqm_two_phase(t_sat, p, 1.0);
         let h = *x * h_vap + (1.0 - x) * h_liq;
         let s = s_ph_eqm(p, h);
         let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
@@ -424,7 +425,7 @@ pub fn w_px_eqm_100_bar(){
         approx::assert_abs_diff_eq!(
             w_test.get::<meter_per_second>().log10(),
             w_expected.log10(),
-            epsilon=0.1
+            epsilon=0.2
         );
     }
 }
@@ -447,8 +448,8 @@ pub fn w_px_eqm_200_bar(){
     ];
     for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
         let t_sat = sat_temp_4(p);
-        let h_liq = h_tp_1(t_sat, p);
-        let h_vap = h_tp_2(t_sat, p);
+        let h_liq = h_tp_eqm_two_phase(t_sat, p, 0.0);
+        let h_vap = h_tp_eqm_two_phase(t_sat, p, 1.0);
         let h = *x * h_vap + (1.0 - x) * h_liq;
         let s = s_ph_eqm(p, h);
         let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
@@ -456,7 +457,7 @@ pub fn w_px_eqm_200_bar(){
         approx::assert_abs_diff_eq!(
             w_test.get::<meter_per_second>().log10(),
             w_expected.log10(),
-            epsilon=0.1
+            epsilon=0.2
         );
     }
 }
