@@ -59,6 +59,11 @@ pub fn theta_dimensionless_temp_4(t: ThermodynamicTemperature) -> f64 {
 pub mod backward_eqn_hs_4;
 pub use backward_eqn_hs_4::*;
 
+pub mod speed_of_sound_eqm;
+pub use speed_of_sound_eqm::*;
+
 // tests 
 #[cfg(test)]
 mod tests;
+
+
