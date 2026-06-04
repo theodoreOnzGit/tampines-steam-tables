@@ -1,6 +1,7 @@
 use uom::si::thermal_conductivity::watt_per_meter_kelvin;
 use uom::si::{f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
+use crate::interfaces::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::region_5_steam_at_800_plus_degc::*;
 use crate::region_4_vap_liq_equilibrium::*;
 use crate::region_3_single_phase_plus_supercritical_steam::*;
@@ -419,11 +420,26 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
             let rho_liq = v_tp_1(t_sat, p).recip();  // You'll need these functions
             let rho_vap = v_tp_2(t_sat, p).recip();  // or calculate from v_tp functions
 
+            let s = s_ph_eqm(p, h);
+
+            let dp = p * 1e-5; // small pressure perturbation
+            let v_plus  = v_ps_eqm(p + dp, s);
+            let v_minus = v_ps_eqm(p - dp, s);
+            let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
+
+            // c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
+            // c = v * sqrt(-1/dv_dp_s)
+            // note: dv_dp_s should be negative (specific volume decreases as pressure increases)
+            let v = v_ps_eqm(p, s);
+            let _c_hem_finite_diff: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
+
             // Use homogeneous equilibrium model
-            w_two_phase_homogeneous_wood_wallis(
+            let c_wallis = w_two_phase_homogeneous_wood_wallis(
                 Ratio::new::<ratio>(steam_quality)
                 , w_liq, w_vap, rho_liq, rho_vap
-            )
+            );
+
+            _c_hem_finite_diff
         },
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }

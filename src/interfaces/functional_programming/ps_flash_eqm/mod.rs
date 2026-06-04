@@ -684,7 +684,7 @@ pub fn w_ps_eqm(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
             let v = v_ps_eqm(p, s);
             let _c_hem_finite_diff: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
 
-            c_wood_wallis
+            _c_hem_finite_diff
         },
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
