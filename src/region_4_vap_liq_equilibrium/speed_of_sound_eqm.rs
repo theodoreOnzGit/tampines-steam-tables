@@ -1,8 +1,10 @@
 use uom::si::f64::*;
+use uom::si::pressure::megapascal;
 use uom::si::ratio::ratio;
 use uom::si::temperature_interval::degree_celsius;
 use uom::si::thermodynamic_temperature::kelvin;
 
+use crate::interfaces::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::region_1_subcooled_liquid::{
     v_tp_1,
     h_tp_1,
@@ -84,3 +86,26 @@ pub fn w_ps_eqm_region4_kieffer(p: Pressure, s: SpecificHeatCapacity) -> Velocit
     
     c_sq.sqrt()
 }
+
+pub fn w_ps_eqm_region4_finite_diff(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
+    
+    // guard against going below minimum steam table pressure
+    let p_min = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+    let dp = p * 1e-4_f64;
+    let p_plus  = p + dp;
+    let p_minus = if p - dp > p_min { p - dp } else { p_min };
+
+    let v       = v_ps_eqm(p,       s);
+    let v_plus  = v_ps_eqm(p_plus,  s);
+    let v_minus = v_ps_eqm(p_minus, s);
+
+    let dp_actual = p_plus - p_minus;
+    let dv_dp_s = (v_plus - v_minus) / dp_actual;
+
+    // dv_dp_s should be negative in two-phase region
+    // c = v * sqrt(1 / (-dv/dp|_s))
+    let c_hem: Velocity = v * (dv_dp_s * -1.0).recip().sqrt();
+
+    c_hem
+}
+
