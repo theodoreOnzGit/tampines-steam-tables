@@ -285,91 +285,178 @@ pub fn w_px_eqm_1_bar_finite_diff_vol(){
 // 5 bar 
 // x = mass fraction of steam (quality)
 // y = speed of sound (m/s)
-// "x","y"
-// 0.00001306,4.73988624
-// 0.00003049,4.73988624
-// 0.00011018,4.62944587
-// 0.00027676,4.96873384
-// 0.00071225,5.72373055
-// 0.00143845,6.59344865
-// 0.00344225,9.61468707
-// 0.00729723,14.69723015
-// 0.0143845,23.55123315
-// 0.02905079,42.46062164
-// 0.078476,90.28828407
-// 0.17462454,166.66446149
-// 0.61584821,354.3953824
-// 0.90760052,427.9561949
-
+#[test]
+pub fn w_px_eqm_5_bar(){
+    let p = Pressure::new::<bar>(5.0);
+    let quality_vs_speed_of_sound_meter_per_s: Vec<(f64, f64)> = vec![
+        (0.00001306, 4.73988624),
+        (0.00003049, 4.73988624),
+        (0.00011018, 4.62944587),
+        (0.00027676, 4.96873384),
+        (0.00071225, 5.72373055),
+        (0.00143845, 6.59344865),
+        (0.00344225, 9.61468707),
+        (0.00729723, 14.69723015),
+        (0.01438450, 23.55123315),
+        (0.02905079, 42.46062164),
+        (0.07847600, 90.28828407),
+        (0.17462454, 166.66446149),
+        (0.61584821, 354.39538240),
+        (0.90760052, 427.95619490),
+    ];
+    for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
+        let t_sat = sat_temp_4(p);
+        let h_liq = h_tp_1(t_sat, p);
+        let h_vap = h_tp_2(t_sat, p);
+        let h = *x * h_vap + (1.0 - x) * h_liq;
+        let s = s_ph_eqm(p, h);
+        let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
+        dbg!(&(x, w_test, w_expected));
+        approx::assert_abs_diff_eq!(
+            w_test.get::<meter_per_second>().log10(),
+            w_expected.log10(),
+            epsilon=0.1
+        );
+    }
+}
 
 // 10 bar 
 // x = mass fraction of steam (quality)
 // y = speed of sound (m/s)
-// "x","y"
-// 0.00001274,8.74942519
-// 0.00002905,8.95815206
-// 0.00012438,8.5455617
-// 0.00037019,9.17185833
-// 0.00178909,11.07563412
-// 0.0047172,14.69723015
-// 0.01184907,23.55123315
-// 0.0201959,31.99775096
-// 0.0438637,57.68888568
-// 0.08646535,101.58414709
-// 0.15469408,151.66569934
-// 0.33598183,248.83097247
-// 0.80401316,398.7333797
+#[test]
+pub fn w_px_eqm_10_bar(){
+    let p = Pressure::new::<bar>(10.0);
+    let quality_vs_speed_of_sound_meter_per_s: Vec<(f64, f64)> = vec![
+        (0.00001274, 8.74942519),
+        (0.00002905, 8.95815206),
+        (0.00012438, 8.54556170),
+        (0.00037019, 9.17185833),
+        (0.00178909, 11.07563412),
+        (0.00471720, 14.69723015),
+        (0.01184907, 23.55123315),
+        (0.02019590, 31.99775096),
+        (0.04386370, 57.68888568),
+        (0.08646535, 101.58414709),
+        (0.15469408, 151.66569934),
+        (0.33598183, 248.83097247),
+        (0.80401316, 398.73337970),
+    ];
+    for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
+        let t_sat = sat_temp_4(p);
+        let h_liq = h_tp_1(t_sat, p);
+        let h_vap = h_tp_2(t_sat, p);
+        let h = *x * h_vap + (1.0 - x) * h_liq;
+        let s = s_ph_eqm(p, h);
+        let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
+        dbg!(&(x, w_test, w_expected));
+        approx::assert_abs_diff_eq!(
+            w_test.get::<meter_per_second>().log10(),
+            w_expected.log10(),
+            epsilon=0.1
+        );
+    }
+}
 
 // 50 bar 
 // x = mass fraction of steam (quality)
 // y = speed of sound (m/s)
-//
-// "x","y"
-// 0.00001338,32.76109143
-// 0.00003442,32.76109143
-// 0.00011288,31.99775096
-// 0.00049515,31.99775096
-// 0.00162378,31.25219648
-// 0.0047172,35.16212272
-// 0.01509897,47.77282101
-// 0.03613223,64.90627559
-// 0.07122486,90.28828407
-// 0.1274275,134.80091272
-// 0.23930257,206.0597526
-// 0.47171991,293.47883864
-// 0.8439482,398.7333797
-
-
+#[test]
+pub fn w_px_eqm_50_bar(){
+    let p = Pressure::new::<bar>(50.0);
+    let quality_vs_speed_of_sound_meter_per_s: Vec<(f64, f64)> = vec![
+        (0.00001338, 32.76109143),
+        (0.00003442, 32.76109143),
+        (0.00011288, 31.99775096),
+        (0.00049515, 31.99775096),
+        (0.00162378, 31.25219648),
+        (0.00471720, 35.16212272),
+        (0.01509897, 47.77282101),
+        (0.03613223, 64.90627559),
+        (0.07122486, 90.28828407),
+        (0.12742750, 134.80091272),
+        (0.23930257, 206.05975260),
+        (0.47171991, 293.47883864),
+        (0.84394820, 398.73337970),
+    ];
+    for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
+        let t_sat = sat_temp_4(p);
+        let h_liq = h_tp_1(t_sat, p);
+        let h_vap = h_tp_2(t_sat, p);
+        let h = *x * h_vap + (1.0 - x) * h_liq;
+        let s = s_ph_eqm(p, h);
+        let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
+        dbg!(&(x, w_test, w_expected));
+        approx::assert_abs_diff_eq!(
+            w_test.get::<meter_per_second>().log10(),
+            w_expected.log10(),
+            epsilon=0.1
+        );
+    }
+}
 
 // 100 bar 
 // x = mass fraction of steam (quality)
 // y = speed of sound (m/s)
-// "x","y"
-// 0.00001214,66.45468401
-// 0.00006011,68.04003136
-// 0.00030494,68.04003136
-// 0.00127427,68.04003136
-// 0.00765968,68.04003136
-// 0.02171911,78.37868128
-// 0.06464372,101.58414709
-// 0.13055379,138.01673225
-// 0.23930257,206.0597526
-// 0.47171991,307.64836227
-// 0.82373871,408.24558968
-
-
-
+#[test]
+pub fn w_px_eqm_100_bar(){
+    let p = Pressure::new::<bar>(100.0);
+    let quality_vs_speed_of_sound_meter_per_s: Vec<(f64, f64)> = vec![
+        (0.00001214, 66.45468401),
+        (0.00006011, 68.04003136),
+        (0.00030494, 68.04003136),
+        (0.00127427, 68.04003136),
+        (0.00765968, 68.04003136),
+        (0.02171911, 78.37868128),
+        (0.06464372, 101.58414709),
+        (0.13055379, 138.01673225),
+        (0.23930257, 206.05975260),
+        (0.47171991, 307.64836227),
+        (0.82373871, 408.24558968),
+    ];
+    for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
+        let t_sat = sat_temp_4(p);
+        let h_liq = h_tp_1(t_sat, p);
+        let h_vap = h_tp_2(t_sat, p);
+        let h = *x * h_vap + (1.0 - x) * h_liq;
+        let s = s_ph_eqm(p, h);
+        let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
+        dbg!(&(x, w_test, w_expected));
+        approx::assert_abs_diff_eq!(
+            w_test.get::<meter_per_second>().log10(),
+            w_expected.log10(),
+            epsilon=0.1
+        );
+    }
+}
 
 // 200 bar 
 // x = mass fraction of steam (quality)
 // y = speed of sound (m/s)
-// 
-// "x","y"
-// 0.00001157,144.68035187
-// 0.00004952,144.68035187
-// 0.00028355,144.68035187
-// 0.00127427,148.13185595
-// 0.00712249,148.13185595
-// 0.0507298,151.66569934
-// 0.38857395,206.0597526
-// 0.80401316,254.76710068
+#[test]
+pub fn w_px_eqm_200_bar(){
+    let p = Pressure::new::<bar>(200.0);
+    let quality_vs_speed_of_sound_meter_per_s: Vec<(f64, f64)> = vec![
+        (0.00001157, 144.68035187),
+        (0.00004952, 144.68035187),
+        (0.00028355, 144.68035187),
+        (0.00127427, 148.13185595),
+        (0.00712249, 148.13185595),
+        (0.05072980, 151.66569934),
+        (0.38857395, 206.05975260),
+        (0.80401316, 254.76710068),
+    ];
+    for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
+        let t_sat = sat_temp_4(p);
+        let h_liq = h_tp_1(t_sat, p);
+        let h_vap = h_tp_2(t_sat, p);
+        let h = *x * h_vap + (1.0 - x) * h_liq;
+        let s = s_ph_eqm(p, h);
+        let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
+        dbg!(&(x, w_test, w_expected));
+        approx::assert_abs_diff_eq!(
+            w_test.get::<meter_per_second>().log10(),
+            w_expected.log10(),
+            epsilon=0.1
+        );
+    }
+}
