@@ -1,6 +1,5 @@
 use uom::si::f64::*;
 use uom::si::ratio::ratio;
-use uom::si::specific_heat_capacity::joule_per_kilogram_kelvin;
 use uom::si::temperature_interval::degree_celsius;
 use uom::si::thermodynamic_temperature::kelvin;
 
@@ -20,7 +19,7 @@ use crate::region_4_vap_liq_equilibrium::
 
 pub fn w_ps_eqm_region4_kieffer(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
     
-    let r = SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(461.526);
+    //let r = SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(461.526);
     let t_sat = sat_temp_4(p);
     
     // --- saturation properties ---
