@@ -87,7 +87,7 @@ pub fn w_ps_eqm_region4_kieffer(p: Pressure, s: SpecificHeatCapacity) -> Velocit
     c_sq.sqrt()
 }
 
-pub fn w_ps_eqm_region4_finite_diff(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
+pub fn w_ps_eqm_region4_finite_diff_vol(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
     
     // guard against going below minimum steam table pressure
     let p_min = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);

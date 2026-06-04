@@ -4,7 +4,7 @@ use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::pressure::megapascal;
 use uom::si::available_energy::kilojoule_per_kilogram;
 
-use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4, tsat_hs_4, w_ps_eqm_region4_kieffer};
+use crate::region_4_vap_liq_equilibrium::{sat_pressure_4, sat_temp_4, tsat_hs_4, w_ps_eqm_region4_finite_diff_vol, w_ps_eqm_region4_kieffer};
 
 #[test]
 pub fn sat_pressure_test_1(){
@@ -228,6 +228,49 @@ pub fn w_px_eqm_1_bar(){
             let h = *x * h_vap + (1.0 - x) * h_liq;
             let s = s_ph_eqm(p, h);
             let w_test = w_ps_eqm_region4_kieffer(p, s);
+            dbg!(&(x,w_test,w_expected));
+            // assert within tolerance
+            approx::assert_abs_diff_eq!(
+                w_test.get::<meter_per_second>().log10(),
+                w_expected.log10(),
+                epsilon=0.3
+            );
+        }
+    
+}
+#[test]
+pub fn w_px_eqm_1_bar_finite_diff_vol(){
+
+    let p = Pressure::new::<bar>(1.0);
+
+    let quality_vs_speed_of_sound_meter_per_s: Vec<(f64, f64)> = vec![
+        (0.00001185, 1.23637487),
+        (0.00002393, 1.23637487),
+        (0.00007122, 1.20756707),
+        (0.00022252, 1.52862283),
+        (0.00054556, 2.07685484),
+        (0.00133757, 3.40740070),
+        (0.00276761, 5.72373055),
+        (0.00695193, 12.17094310),
+        (0.01438450, 23.00248436),
+        (0.04386370, 59.06511556),
+        (0.12139772, 128.59231566),
+        (0.35266992, 248.83097247),
+        (0.76596782, 398.73337970),
+    ];
+
+        for (x, w_expected) in quality_vs_speed_of_sound_meter_per_s.iter() {
+            // interpolate entropy at quality x
+            // compute equilibrium speed of sound
+            let t_sat = sat_temp_4(p);
+            let h_liq = h_tp_1(t_sat, p);
+            let h_vap = h_tp_2(t_sat, p);
+
+            // we need to find the correct enthalpy
+            // so we can find the entropy
+            let h = *x * h_vap + (1.0 - x) * h_liq;
+            let s = s_ph_eqm(p, h);
+            let w_test = w_ps_eqm_region4_finite_diff_vol(p, s);
             dbg!(&(x,w_test,w_expected));
             // assert within tolerance
             approx::assert_abs_diff_eq!(
