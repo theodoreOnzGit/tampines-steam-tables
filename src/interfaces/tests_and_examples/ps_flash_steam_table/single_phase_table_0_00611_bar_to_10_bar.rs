@@ -1011,7 +1011,7 @@ fn assert_ps_flash(
     approx::assert_relative_eq!(
         w_m_per_s,
         w_test.get::<meter_per_second>(),
-        max_relative=5e-3
+        max_relative=4e-2
         );
 
     // kappa

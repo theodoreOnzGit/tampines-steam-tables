@@ -387,6 +387,8 @@ pub fn cv_ph_eqm(p: Pressure, h: AvailableEnergy) -> SpecificHeatCapacity {
 
 
 /// returns the speed of sound given temperature and pressure
+/// Note: when in the equilibrium zone (Region 4) it WILL give the 
+/// wood wallis speed of sound, the frozen speed of sound
 pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
     let t = t_ph_eqm(p, h);
     let region = ph_flash_region(p, h);
@@ -439,7 +441,7 @@ pub fn w_ph_eqm(p: Pressure, h: AvailableEnergy) -> Velocity {
                 , w_liq, w_vap, rho_liq, rho_vap
             );
 
-            _c_hem_finite_diff
+            c_wallis
         },
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
