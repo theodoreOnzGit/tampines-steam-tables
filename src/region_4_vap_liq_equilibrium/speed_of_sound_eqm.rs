@@ -19,6 +19,11 @@ use crate::region_4_vap_liq_equilibrium::
     sat_temp_4
 ;
 
+/// this is a more complicated version that makes use of derivatives 
+/// directly based on thermodynamic calculus 
+///
+/// AI generated...
+///
 pub fn w_ps_eqm_region4_kieffer(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
     
     //let r = SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(461.526);
@@ -87,6 +92,9 @@ pub fn w_ps_eqm_region4_kieffer(p: Pressure, s: SpecificHeatCapacity) -> Velocit
     c_sq.sqrt()
 }
 
+/// this is a simpler version that makes use of derivatives 
+/// that makes use of derivatives
+/// AI generated
 pub fn w_ps_eqm_region4_finite_diff_vol(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
     
     // guard against going below minimum steam table pressure
