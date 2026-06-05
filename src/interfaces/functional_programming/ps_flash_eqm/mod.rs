@@ -696,10 +696,15 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
 #[inline]
 pub fn g_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlux {
 
+    let p_min = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
     let dp = p * 1e-5; // small pressure perturbation
+    let p_minus = if p - dp > p_min { p - dp } else { p_min };
+
+
     let v_plus  = v_ps_eqm(p + dp, s);
-    let v_minus = v_ps_eqm(p - dp, s);
-    let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
+    let v_minus = v_ps_eqm(p_minus, s);
+    let dp_actual = (p + dp) - p_minus;
+    let dv_dp_s = (v_plus - v_minus) / dp_actual;
     let mass_flux_eqm: MassFlux = (dv_dp_s.recip() * -1.0).sqrt();
 
     mass_flux_eqm
