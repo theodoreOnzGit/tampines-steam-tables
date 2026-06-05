@@ -14,6 +14,7 @@ use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_wood_wallis;
 use crate::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use crate::prelude::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::prelude::functional_programming::ph_flash_eqm::x_ph_flash;
+use crate::prelude::functional_programming::ps_flash_eqm::g_ps_eqm_throat;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::w_ph_wood_wallis;
 use crate::prelude::functional_programming::ph_flash_eqm::lambda_ph_eqm;
@@ -230,14 +231,25 @@ impl super::TampinesSteamTableCV {
         // (subcooled water)
         while (p_test - p_decrement) > p_min_steam_table {
             p_test -= p_decrement;
+            let region = ps_flash_region(p_test, s0);
+            last_region_in_pressure_scan = region;
+            // we determine region first 
 
-            let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            // if it is region 1, we just skip
+            // because there should not be critical flow in this region
+
+            if region == FwdEqnRegion::Region1 {
+                continue;
+            }
+
+
+            let mut mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            let mass_flux_homogeneous_eqm = g_ps_eqm_throat(p_test, s0);
             // found that some of the higher mass flowrates were in 
             // the subcooled region, 
             // hence if i was in the subcooled region, skip this entirely 
-            let region = ps_flash_region(p_test, s0);
 
-            last_region_in_pressure_scan = region;
+            mass_flux_test = mass_flux_homogeneous_eqm;
 
 
             if debug {
@@ -245,6 +257,7 @@ impl super::TampinesSteamTableCV {
                 let quality = x_ps_flash(p_test, s0);
                 dbg!(&(p0,p_test,
                         mass_flux_test,
+                        mass_flux_homogeneous_eqm,
                         last_region_in_pressure_scan,
                         quality
                         ));
