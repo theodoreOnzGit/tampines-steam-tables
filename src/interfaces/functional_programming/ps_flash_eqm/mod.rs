@@ -691,9 +691,8 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
         FwdEqnRegion::Region5 => w_tp_5(t, p),
     }
 }
-/// returns the speed of sound given temperature and pressure
-/// Note: when in the equilibrium zone (Region 4) it WILL give the 
-/// wood wallis speed of sound, the frozen speed of sound
+/// returns the mass flux given properties at throat (this is not 
+/// stagnation pressure)
 #[inline]
 pub fn g_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlux {
 
