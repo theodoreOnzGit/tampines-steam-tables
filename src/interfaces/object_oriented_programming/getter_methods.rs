@@ -320,13 +320,16 @@ impl super::TampinesSteamTableCV {
         // 0.01% tolerance
         const TOLERANCE: f64 = 1e-8;  
         let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo(p_lower_limit);
+        mass_flux_at_p_low = g_ps_eqm_throat(p_lower_limit, s0);
         let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo(p_upper_limit);
+        mass_flux_at_p_high = g_ps_eqm_throat(p_upper_limit, s0);
 
         // now this is a bisection loop, of sorts
         for _ in 0..max_iterations {
             let p_test = 0.5 * (p_upper_limit + p_lower_limit);
 
-            let mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            let mut mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            mass_flux_test = g_ps_eqm_throat(p_test, s0);
 
             let convergence_error = 
                 ((mass_flux_test - max_mass_flux)/max_mass_flux).get::<ratio>().abs();
