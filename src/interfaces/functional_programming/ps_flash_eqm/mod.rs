@@ -693,6 +693,13 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
 }
 /// returns the mass flux given properties at throat (this is not 
 /// stagnation pressure)
+/// c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
+/// c = v * sqrt(-1/dv_dp_s)
+///
+/// consider that critical mass flux in terms of throat properties is c*rho 
+/// which is 1/v
+///
+/// c*rho = sqrt(-1/dv_dp_s)
 #[inline]
 pub fn g_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlux {
 
