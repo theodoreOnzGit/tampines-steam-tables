@@ -7,6 +7,84 @@ use uom::si::pressure::pound_force_per_square_inch;
 
 use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
 
+// please note for the test:
+// For p0/p_ref = 0.25
+// p0 = 1.724 bar (0.78% of p_crit = 220.64 bar)
+// T_sat ≈ 115.2°C
+// Inlet region: Region 4 (wet steam) or Region 2 (superheated steam)
+// #[ignore] - failing
+
+// For p0/p_ref = 0.50
+// p0 = 3.447 bar (1.56% of p_crit)
+// T_sat ≈ 138.9°C
+// Inlet region: Region 4 (wet steam) or Region 2 (superheated steam)
+// #[ignore] - failing
+
+// For p0/p_ref = 1.00
+// p0 = 6.895 bar (3.13% of p_crit)
+// T_sat ≈ 165.0°C
+// Inlet region: Region 4 (wet steam) or Region 2 (superheated steam)
+// #[ignore] - failing
+
+// For p0/p_ref = 2.00
+// p0 = 13.790 bar (6.25% of p_crit)
+// T_sat ≈ 191.6°C
+// Inlet region: Region 4 (wet steam) or Region 2 (superheated steam)
+// #[ignore] - failing
+
+// For p0/p_ref = 4.00
+// p0 = 27.579 bar (12.50% of p_crit)
+// T_sat ≈ 230.1°C
+// Inlet region: Region 4 (wet steam) or Region 2 (superheated steam)
+// #[ignore] - failing
+
+// For p0/p_ref = 6.00
+// p0 = 41.369 bar (18.75% of p_crit)
+// T_sat ≈ 253.3°C
+// Inlet region: Region 4 (wet steam) or Region 2 (superheated steam)
+// #[ignore] - failing
+
+// For p0/p_ref = 8.00
+// p0 = 55.158 bar (25.00% of p_crit)
+// T_sat ≈ 270.3°C
+// Inlet region: Region 4 (wet steam) or Region 2 (superheated steam)
+// #[ignore] - failing
+
+// For p0/p_ref = 10.00
+// p0 = 68.948 bar (31.25% of p_crit)
+// T_sat ≈ 284.6°C
+// Inlet region: Region 4 (wet steam) or Region 1 (subcooled liquid)
+// #[ignore] - failing
+
+// For p0/p_ref = 12.00
+// p0 = 82.737 bar (37.50% of p_crit)
+// T_sat ≈ 296.9°C
+// Inlet region: Region 4 (wet steam) or Region 1 (subcooled liquid)
+// #[ignore] - failing
+
+// For p0/p_ref = 14.00
+// p0 = 96.527 bar (43.75% of p_crit)
+// T_sat ≈ 307.8°C
+// Inlet region: Region 1 (subcooled liquid) for low h, Region 4 for higher h
+// passing
+
+// For p0/p_ref = 16.00
+// p0 = 110.316 bar (50.00% of p_crit)
+// T_sat ≈ 317.6°C
+// Inlet region: Region 1 (subcooled liquid) for low h, Region 4 for higher h
+// passing
+
+// For p0/p_ref = 20.00
+// p0 = 137.895 bar (62.50% of p_crit)
+// T_sat ≈ 335.2°C
+// Inlet region: Region 1 (subcooled liquid) for low h, Region 4 for higher h
+// passing
+
+// For p0/p_ref = 30.00
+// p0 = 206.843 bar (93.74% of p_crit)
+// T_sat ≈ 365.8°C — near critical point, Region 3 behaviour
+// Inlet region: Region 1 (subcooled liquid) for low h, Region 3 near critical
+// passing
 
 /// From Figure 1 of:
 ///
