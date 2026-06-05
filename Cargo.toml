@@ -17,6 +17,7 @@ ndarray-linalg = "0.16.0"
 thiserror = "1.0.58"
 uom = "0.36.0"
 tuas_boussinesq_solver = "0.0.10"
+roots = "0.0.8"
 
 
 [target.'cfg(windows)'.dependencies]
