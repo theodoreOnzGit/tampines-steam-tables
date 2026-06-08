@@ -1,7 +1,7 @@
 use uom::si::{f64::*, pressure::pascal, thermodynamic_temperature::kelvin};
 
 use crate::interfaces::functional_programming::ph_flash_eqm::s_ph_eqm;
-use crate::interfaces::functional_programming::ps_flash_eqm::{v_ps_eqm, w_ps_wood_wallis};
+use crate::interfaces::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::region_1_subcooled_liquid::{
     InversePressure,
     alpha_v_tp_1, cp_tp_1, cv_tp_1, h_tp_1,
