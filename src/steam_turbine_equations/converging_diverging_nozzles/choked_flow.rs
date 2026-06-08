@@ -5,8 +5,13 @@ use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
+use crate::constants::p_crit_water;
+use crate::constants::t_crit_water;
+use crate::interfaces::functional_programming::ph_flash_eqm::ph_flash_region;
 use crate::interfaces::functional_programming::ph_flash_eqm::s_ph_eqm;
+use crate::interfaces::functional_programming::ph_flash_eqm::t_ph_eqm;
 use crate::interfaces::functional_programming::ps_flash_eqm::ps_flash_region;
+use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_wood_wallis;
 use crate::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use crate::prelude::functional_programming::ps_flash_eqm::g_ps_eqm_throat;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
@@ -541,6 +546,9 @@ mod choked_flow_examples{
 /// gets critical pressure and mass flux for water and steam 
 /// given stagnation properties,
 /// should work for all given regions of steam table
+///
+/// Note, this relies on the ph, ps algorithm, for region 5, it is 
+/// not thoroughly implemented yet
 #[inline]
 pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
     s0: SpecificHeatCapacity,
@@ -549,6 +557,78 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
         let debug = true;
         // first we get stagnation properties (assuming stagnation)
+        
+
+        // now before anything, we want to get the region of the scans 
+        // note, 
+        // the four regions in play here:
+        let region_stagnation_props = ph_flash_region(p0, h0);
+
+        // for region 2 which is superheated vapour, we can simply use the 
+        // ideal gas version of the algorithm 
+
+        // for region 3, this is near critical region and in supercritical 
+        // region 
+        // we can use the ideal gas version of the algorithm as it is 
+        // essentially single phase
+        
+        match region_stagnation_props {
+            FwdEqnRegion::Region1 => {
+                // this is region 1, where we have subcooled liquid 
+                // we won't use vapour algorithm here
+            },
+            FwdEqnRegion::Region2 => {
+                let s0_opt = Some(s0);
+
+                // i'm naming this critical pressure for choked flow 
+                // to distinguish it from critical temp and pressure 
+                // for no more VLE (22 MPa, 647 K)
+                let critical_pressure_choked_flow 
+                    = get_critical_pressure_pure_vapour_ph_stagnation_properties(
+                        p0, h0, s0_opt
+                    );
+                // once we get critical pressure, we can obtain speed of sound 
+                // and density in order to get critical mass flux 
+                //
+                // under depressurisation, we surely get more vapour
+
+                let c = w_ps_wood_wallis(critical_pressure_choked_flow, s0);
+                let rho_throat = v_ps_eqm(critical_pressure_choked_flow, s0).recip();
+
+                let critical_mass_flux = c*rho_throat;
+                
+
+                return (critical_pressure_choked_flow, critical_mass_flux);
+
+            },
+            FwdEqnRegion::Region3 => {
+                let t_crit = t_crit_water();
+                let p_crit = p_crit_water();
+                let t0 = t_ph_eqm(p0, h0);
+                // there are several cases to handle here
+                //
+                // that we should use the vapour algorithm 
+                //
+                // firstly, we are in supercritical region
+                // secondly, we are in the vapour region of region 3
+                //
+                // if we are in the liquid zone of region 3, then maybe not, 
+                // use a more generalised algorithm
+                let mut use_vapour_algorithm = false;
+
+                
+
+
+                todo!()
+
+            },
+            FwdEqnRegion::Region4 => {
+                // this is region 4, where we have vapour liquid 
+                // equilibrium,
+                // we won't use the vapour property here
+            },
+            FwdEqnRegion::Region5 => (),
+        }
 
         // i'm going to get pressure bounds
 
