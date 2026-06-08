@@ -668,6 +668,7 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
                 , w_liq, w_vap, rho_liq, rho_vap
             );
 
+            //// just for reference: this is the HEM model
             // in Region 4 (two-phase equilibrium):
             //
             // from Claude AI
@@ -675,16 +676,16 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
             // rearranged: c_HEM = sqrt(-v² * dp/dv|_s)
             // using finite difference: dv/dp|_s ≈ (v(p+dp) - v(p-dp)) / (2*dp)
 
-            let dp = p * 1e-5; // small pressure perturbation
-            let v_plus  = v_ps_eqm(p + dp, s);
-            let v_minus = v_ps_eqm(p - dp, s);
-            let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
+            //let dp = p * 1e-5; // small pressure perturbation
+            //let v_plus  = v_ps_eqm(p + dp, s);
+            //let v_minus = v_ps_eqm(p - dp, s);
+            //let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
 
-            // c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
-            // c = v * sqrt(-1/dv_dp_s)
-            // note: dv_dp_s should be negative (specific volume decreases as pressure increases)
-            let v = v_ps_eqm(p, s);
-            let _c_hem_finite_diff: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
+            //// c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
+            //// c = v * sqrt(-1/dv_dp_s)
+            //// note: dv_dp_s should be negative (specific volume decreases as pressure increases)
+            //let v = v_ps_eqm(p, s);
+            //let _c_hem_finite_diff: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
 
             c_wood_wallis
         },

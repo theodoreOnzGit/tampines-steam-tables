@@ -422,18 +422,19 @@ pub fn w_ph_wood_wallis(p: Pressure, h: AvailableEnergy) -> Velocity {
             let rho_liq = v_tp_1(t_sat, p).recip();  // You'll need these functions
             let rho_vap = v_tp_2(t_sat, p).recip();  // or calculate from v_tp functions
 
-            let s = s_ph_eqm(p, h);
+            //// just for reference: this is the HEM model
+            // let s = s_ph_eqm(p, h);
 
-            let dp = p * 1e-5; // small pressure perturbation
-            let v_plus  = v_ps_eqm(p + dp, s);
-            let v_minus = v_ps_eqm(p - dp, s);
-            let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
+            //let dp = p * 1e-5; // small pressure perturbation
+            //let v_plus  = v_ps_eqm(p + dp, s);
+            //let v_minus = v_ps_eqm(p - dp, s);
+            //let dv_dp_s = (v_plus - v_minus) / (2.0 * dp);
 
-            // c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
-            // c = v * sqrt(-1/dv_dp_s)
-            // note: dv_dp_s should be negative (specific volume decreases as pressure increases)
-            let v = v_ps_eqm(p, s);
-            let _c_hem_finite_diff: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
+            //// c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
+            //// c = v * sqrt(-1/dv_dp_s)
+            //// note: dv_dp_s should be negative (specific volume decreases as pressure increases)
+            //let v = v_ps_eqm(p, s);
+            //let _c_hem_finite_diff: Velocity = v * (dv_dp_s.recip() * -1.0).sqrt();
 
             // Use homogeneous equilibrium model
             let c_wallis = w_two_phase_homogeneous_wood_wallis(
