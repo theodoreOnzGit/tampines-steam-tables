@@ -1,7 +1,6 @@
 use uom::si::thermal_conductivity::watt_per_meter_kelvin;
 use uom::si::{f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
-use crate::interfaces::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::region_5_steam_at_800_plus_degc::*;
 use crate::region_4_vap_liq_equilibrium::*;
 use crate::region_3_single_phase_plus_supercritical_steam::*;
