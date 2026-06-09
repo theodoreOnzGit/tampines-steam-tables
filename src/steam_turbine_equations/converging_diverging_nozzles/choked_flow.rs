@@ -813,11 +813,11 @@ pub fn isentropic_pressure_scan_of_mass_flux(
             break;
         }
 
-        // skip region 1 — no choked flow in subcooled liquid
+        //// skip region 1 — no choked flow in subcooled liquid
         let region = ps_flash_region(p_test, s0);
-        if region == FwdEqnRegion::Region1 {
-            continue;
-        }
+        //if region == FwdEqnRegion::Region1 {
+        //    continue;
+        //}
 
         let g_hem = mass_flux_ps_eqm_throat(p_test, s0);
 
