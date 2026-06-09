@@ -4,6 +4,7 @@ use uom::si::pressure::megapascal;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
 use uom::si::specific_heat_capacity::joule_per_kilogram_kelvin;
+use uom::si::specific_heat_capacity::kilojoule_per_kilogram_kelvin;
 use uom::si::volume::cubic_meter;
 
 use crate::constants::p_crit_water;
@@ -587,7 +588,7 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
         // in this case, we are certain to be in the single phase 
         // region based on the ph diagram
-        if s0 >= SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(9.2) {
+        if s0 >= SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(9.2) {
             
 
             // i'm naming this critical pressure for choked flow 
@@ -608,71 +609,18 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
             let critical_mass_flux = c*rho_throat;
 
+            dbg!(&(s0));
+            dbg!(&(critical_pressure_choked_flow,critical_mass_flux));
 
             return (critical_pressure_choked_flow, critical_mass_flux);
         }
 
         // now from the ph diagram, it is impossible to tell where 
         // the critical pressure is.
+        //
+        // so we'll have to find it manually
         
         
-        match region_stagnation_props {
-            FwdEqnRegion::Region1 => {
-                // this is region 1, where we have subcooled liquid 
-                // we won't use vapour algorithm here
-            },
-            FwdEqnRegion::Region2 => {
-                let s0_opt = Some(s0);
-
-                // i'm naming this critical pressure for choked flow 
-                // to distinguish it from critical temp and pressure 
-                // for no more VLE (22 MPa, 647 K)
-                let critical_pressure_choked_flow 
-                    = get_critical_pressure_pure_vapour_ph_stagnation_properties(
-                        p0, h0, s0_opt
-                    );
-                // once we get critical pressure, we can obtain speed of sound 
-                // and density in order to get critical mass flux 
-                //
-                // under depressurisation, we surely get more vapour
-
-                let c = w_ps_wood_wallis(critical_pressure_choked_flow, s0);
-                let rho_throat = v_ps_eqm(critical_pressure_choked_flow, s0).recip();
-
-                let critical_mass_flux = c*rho_throat;
-                
-
-                return (critical_pressure_choked_flow, critical_mass_flux);
-
-            },
-            FwdEqnRegion::Region3 => {
-                let t_crit = t_crit_water();
-                let p_crit = p_crit_water();
-                let t0 = t_ph_eqm(p0, h0);
-                // there are several cases to handle here
-                //
-                // that we should use the vapour algorithm 
-                //
-                // firstly, we are in supercritical region
-                // secondly, we are in the vapour region of region 3
-                //
-                // if we are in the liquid zone of region 3, then maybe not, 
-                // use a more generalised algorithm
-                let mut use_vapour_algorithm = false;
-
-                
-
-
-                todo!()
-
-            },
-            FwdEqnRegion::Region4 => {
-                // this is region 4, where we have vapour liquid 
-                // equilibrium,
-                // we won't use the vapour property here
-            },
-            FwdEqnRegion::Region5 => (),
-        }
 
         // i'm going to get pressure bounds
 
@@ -685,7 +633,8 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
         // thereafter, I'm going to find a maximum point 
         // there is no finding of the speed of sound whatsoever
-        let mass_flux_pressure_ps_algo = |p_test: Pressure| -> MassFlux {
+        // this is based on energy conservation (1st law)
+        let mass_flux_pressure_ps_energy_conservation = |p_test: Pressure| -> MassFlux {
             let h_test = h_ps_eqm(p_test, s0);
             let rho_test_ps_algo: MassDensity = v_ps_eqm(p_test, s0).recip();
             // h0 = h_test + 0.5 * v_test * v_test 
@@ -728,15 +677,25 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
             // because there should not be critical flow in this region
 
             if region == FwdEqnRegion::Region1 {
+                p_upper_limit = p_test;
                 continue;
             }
 
 
-            let mut mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            let mut mass_flux_test = mass_flux_pressure_ps_energy_conservation(p_test);
             let mass_flux_homogeneous_eqm = mass_flux_ps_eqm_throat(p_test, s0);
+            let mass_flux_energy_conservation = mass_flux_test;
             // found that some of the higher mass flowrates were in 
             // the subcooled region, 
             // hence if i was in the subcooled region, skip this entirely 
+            //
+            // basically if the mass_flux_homogeneous_eqm is greater 
+            // than the energy conservation mass flux, skip this 
+            
+            if mass_flux_homogeneous_eqm > mass_flux_energy_conservation {
+                p_upper_limit = p_test;
+                continue;
+            }
 
             mass_flux_test = mass_flux_homogeneous_eqm;
 
@@ -808,16 +767,16 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
         let max_iterations = 50;
         // 0.01% tolerance
         const TOLERANCE: f64 = 1e-8;  
-        let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo(p_lower_limit);
+        let mut mass_flux_at_p_low = mass_flux_pressure_ps_energy_conservation(p_lower_limit);
         mass_flux_at_p_low = mass_flux_ps_eqm_throat(p_lower_limit, s0);
-        let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo(p_upper_limit);
+        let mut mass_flux_at_p_high = mass_flux_pressure_ps_energy_conservation(p_upper_limit);
         mass_flux_at_p_high = mass_flux_ps_eqm_throat(p_upper_limit, s0);
 
         // now this is a bisection loop, of sorts
         for _ in 0..max_iterations {
             let p_test = 0.5 * (p_upper_limit + p_lower_limit);
 
-            let mut mass_flux_test = mass_flux_pressure_ps_algo(p_test);
+            let mut mass_flux_test = mass_flux_pressure_ps_energy_conservation(p_test);
             mass_flux_test = mass_flux_ps_eqm_throat(p_test, s0);
 
             let convergence_error = 

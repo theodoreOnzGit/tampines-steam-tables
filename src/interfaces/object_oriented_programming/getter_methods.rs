@@ -476,32 +476,16 @@ impl super::TampinesSteamTableCV {
 
         let s0 = self.get_specific_entropy();
         let h0 = self.get_specific_enthalpy();
+        let p0 = self.get_pressure();
 
 
-        // now, i'll have to get a solver for choked flow 
-
-        // let's use the critical pressure 
-        // this is critical pressure for mach 1
-
-        // for pure vapour, (region 2 specifically) we will use the 
-        // pure vapour critical pressure 
-
-        let region = self.get_region();
-
-        let p2 = match region {
-            FwdEqnRegion::Region2 => self.get_critical_pressure_pure_vapour(),
-            _ => self.get_critical_pressure_vle(),
-        };
-
-        let h_test = h_ps_eqm(p2, s0);
-        let kinetic_energy_available = h0 - h_test;
-        let v: Velocity = (2.0 * kinetic_energy_available).sqrt();
-        let rho = v_ps_eqm(p2, s0).recip();
-
-        let mass_flux_ps_algo: MassFlux = rho * v;
+        let (_critical_pressure,mass_flux) = 
+            get_critical_pressure_and_mass_flux_with_stagnation_props(
+                s0, h0, p0
+            );
 
 
-        return mass_flux_ps_algo;
+        return mass_flux;
     }
 }
 
