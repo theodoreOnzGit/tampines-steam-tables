@@ -1,5 +1,6 @@
 use uom::ConstZero;
 use uom::si::f64::*;
+use uom::si::mass_flux::kilogram_per_square_meter_second;
 use uom::si::pressure::megapascal;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
@@ -24,6 +25,8 @@ use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
 
 use crate::prelude::TampinesSteamTableCV;
+use crate::region_2_vapour::s_tp_2;
+use crate::region_4_vap_liq_equilibrium::sat_temp_4;
 
 
 /// This is an algorithm to obtain outlet thermodynamic state 
@@ -551,293 +554,241 @@ mod choked_flow_examples{
 ///
 /// Note, this relies on the ph, ps algorithm, for region 5, it is 
 /// not thoroughly implemented yet
+/// gets critical pressure and mass flux for water and steam 
+/// given stagnation properties,
+/// should work for all given regions of steam table
+///
+/// Note, this relies on the ph, ps algorithm, for region 5, it is 
+/// not thoroughly implemented yet
+/// gets critical pressure and mass flux for water and steam 
+/// given stagnation properties,
+/// should work for all given regions of steam table
+///
+/// Note, this relies on the ph, ps algorithm, for region 5, it is 
+/// not thoroughly implemented yet
 #[inline]
 pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
     s0: SpecificHeatCapacity,
     h0: AvailableEnergy,
     p0: Pressure) -> (Pressure, MassFlux) {
 
-        let debug = true;
-        // first we get stagnation properties (assuming stagnation)
-        
+    let debug = true;
 
-        // now before anything, we want to get the region of the scans 
-        // note, 
-        // the four regions in play here:
-        let region_stagnation_props = ph_flash_region(p0, h0);
+    // now before anything, we want to get the region of the scans 
+    let region_stagnation_props = ph_flash_region(p0, h0);
 
-        // for region 2 which is superheated vapour, we can simply use the 
-        // ideal gas version of the algorithm 
+    // for high entropy states (s0 >= 9.2 kJ/kg/K), 
+    // isentropic depressurisation stays in single phase vapour
+    // so we can use the pure vapour algorithm directly
+    if s0 >= SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(9.2) {
+        if debug { println!("using vapour only algorithm, s0 >= 9.2 kJ/kg/K"); }
 
-        // for region 3, this is near critical region and in supercritical 
-        // region 
-        // we can use the ideal gas version of the algorithm as it is 
-        // essentially single phase
-        //
-        // Now, based on the ph diagram, specifically looking at the 
-        // isentropic lines, isentropic 
-        // depressurisation almost always goes into 
-        // the vapour liquid equilibrium region, 
-        // 
-        // for isentropic lines, 
-        // any isentrope above 9.2 J/(kg K)
-        // will almost surely result in single phase even at 0.01 bar
-        //
-        // How can we have isentropic lines down ...
-        //
+        let s0_opt = Some(s0);
+        let critical_pressure_choked_flow 
+            = get_critical_pressure_pure_vapour_ph_stagnation_properties(
+                p0, h0, s0_opt
+            );
 
-        // in this case, we are certain to be in the single phase 
-        // region based on the ph diagram
-        if s0 >= SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(9.2) {
-            
-            println!("using vapour only algorithm");
+        let c = w_ps_wood_wallis(critical_pressure_choked_flow, s0);
+        let rho_throat = v_ps_eqm(critical_pressure_choked_flow, s0).recip();
+        let critical_mass_flux = c * rho_throat;
 
-            // i'm naming this critical pressure for choked flow 
-            // to distinguish it from critical temp and pressure 
-            // for no more VLE (22 MPa, 647 K)
+        if debug {
+            dbg!(&(s0, critical_pressure_choked_flow, critical_mass_flux));
+        }
+
+        return (critical_pressure_choked_flow, critical_mass_flux);
+    }
+
+    // for region 2 superheated vapour with s0 < 9.2 kJ/kg/K,
+    // check if isentrope crosses into Region 4 during depressurisation
+    // by comparing s0 with s_g at stagnation pressure
+    //
+    // if s0 >= s_g(p0), isentrope stays in vapour — use pure vapour algorithm
+    // if s0 < s_g(p0), isentrope crosses into Region 4 — use generalised algorithm
+    if region_stagnation_props == FwdEqnRegion::Region2 {
+        let p_crit_water_val = p_crit_water();
+        if p0 < p_crit_water_val {
+            let t_sat = sat_temp_4(p0);
+            let s_g = s_tp_2(t_sat, p0);
+            if s0 >= s_g {
+                if debug { println!("Region 2, s0 >= s_g, using pure vapour algorithm"); }
+                let s0_opt = Some(s0);
+                let critical_pressure_choked_flow 
+                    = get_critical_pressure_pure_vapour_ph_stagnation_properties(
+                        p0, h0, s0_opt
+                    );
+                let c = w_ps_wood_wallis(critical_pressure_choked_flow, s0);
+                let rho_throat = v_ps_eqm(critical_pressure_choked_flow, s0).recip();
+                let critical_mass_flux = c * rho_throat;
+                if debug {
+                    dbg!(&(s0, s_g, critical_pressure_choked_flow, critical_mass_flux));
+                }
+                return (critical_pressure_choked_flow, critical_mass_flux);
+            }
+            if debug { println!("Region 2, s0 < s_g, using generalised algorithm"); }
+        }
+    }
+
+    // for region 3, use vapour algorithm only if above critical temperature
+    if region_stagnation_props == FwdEqnRegion::Region3 {
+        let t_crit = t_crit_water();
+        let t0 = t_ph_eqm(p0, h0);
+        if t0 > t_crit {
+            if debug { println!("Region 3, T > T_crit, using pure vapour algorithm"); }
             let s0_opt = Some(s0);
             let critical_pressure_choked_flow 
                 = get_critical_pressure_pure_vapour_ph_stagnation_properties(
                     p0, h0, s0_opt
                 );
-            // once we get critical pressure, we can obtain speed of sound 
-            // and density in order to get critical mass flux 
-            //
-            // under depressurisation, we surely get more vapour
-
             let c = w_ps_wood_wallis(critical_pressure_choked_flow, s0);
             let rho_throat = v_ps_eqm(critical_pressure_choked_flow, s0).recip();
-
-            let critical_mass_flux = c*rho_throat;
-
-            dbg!(&(s0));
-            dbg!(&(critical_pressure_choked_flow,critical_mass_flux));
-
+            let critical_mass_flux = c * rho_throat;
+            if debug {
+                dbg!(&(s0, critical_pressure_choked_flow, critical_mass_flux));
+            }
             return (critical_pressure_choked_flow, critical_mass_flux);
         }
+        if debug { println!("Region 3, T <= T_crit, using generalised algorithm"); }
+    }
 
-        // now from the ph diagram, it is impossible to tell where 
-        // the critical pressure is.
-        //
-        // so we'll have to find it manually
-        
-        
+    // generalised algorithm for:
+    // - Region 1 (subcooled liquid)
+    // - Region 4 (wet steam)
+    // - Region 2 with s0 < s_g (will flash during depressurisation)
+    // - Region 3 liquid-like (T <= T_crit)
+    //
+    // root finding: G_energy = G_HEM
+    // f(p) = G_energy(p) - G_HEM(p) = 0
+    // positive when g_energy > g_hem (past choked point, too low pressure)
+    // negative when g_hem > g_energy (not yet choked, too high pressure)
 
-        // i'm going to get pressure bounds
+    let p_min_steam_table = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+    let p_decrement: Pressure = 0.05 * (p0 - p_min_steam_table);
 
-        let mut p_upper_limit = p0;
-        let p_min_steam_table = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
-        let mut p_lower_limit = p_min_steam_table;
-        let p_decrement: Pressure = 0.05 *(p_upper_limit - p_lower_limit);
+    let root_fn = |p_test_pa: f64| -> f64 {
+        let p_test = Pressure::new::<pascal>(p_test_pa);
+        let region = ps_flash_region(p_test, s0);
 
-        let mut max_mass_flux = MassFlux::ZERO;
+        // no choked flow in subcooled liquid
+        if region == FwdEqnRegion::Region1 {
+            return -1e10_f64;
+        }
 
-        // thereafter, I'm going to find a maximum point 
-        // there is no finding of the speed of sound whatsoever
-        // this is based on energy conservation (1st law)
-        let mass_flux_pressure_ps_energy_conservation = |p_test: Pressure| -> MassFlux {
-            let h_test = h_ps_eqm(p_test, s0);
-            let rho_test_ps_algo: MassDensity = v_ps_eqm(p_test, s0).recip();
-            // h0 = h_test + 0.5 * v_test * v_test 
-            let kinetic_energy_available = h0 - h_test;
-            let v_test_ps_algo = (2.0 * kinetic_energy_available).sqrt();
-            let mass_flux_ps_algo: MassFlux = rho_test_ps_algo * v_test_ps_algo;
+        let h_test = h_ps_eqm(p_test, s0);
+        let kinetic_energy = h0 - h_test;
 
-            //if debug {
-            //    dbg!(&region);
-            //    dbg!(&(p_test,h_test,steam_quality));
-            //    dbg!(&(v_test_ps_algo, mass_flux_ps_algo));
-            //}
+        // pressure too low, expansion exceeded stagnation enthalpy
+        if kinetic_energy < AvailableEnergy::ZERO {
+            return 1e10_f64;
+        }
 
-            return mass_flux_ps_algo;
-        };
+        let rho = v_ps_eqm(p_test, s0).recip();
+        let g_energy: MassFlux = rho * (2.0 * kinetic_energy).sqrt();
+        let g_hem: MassFlux = mass_flux_ps_eqm_throat(p_test, s0);
 
-        // this is a search to find the maximum 
-        //
-        // basically, we systematically decrease pressure until we find  
-        // a maximum point 
-        // that is, where decreasing pressure decreases mass flux
-        //
+        if debug {
+            let quality = x_ps_flash(p_test, s0);
+            dbg!(&(p_test, region, quality, g_energy, g_hem));
+        }
 
-        // now, there are a few regimes, 
-        // if in the reduction of pressure, the fluid stays subcooled 
-        // or critical, then we don't have any issue
+        (g_energy - g_hem).get::<kilogram_per_square_meter_second>()
+    };
 
+    // scan downward from p0 to find sign change bracket
+    let mut p_scan = p0;
+    let mut f_prev = root_fn(p_scan.get::<pascal>());
+    let mut p_upper_bracket = p0;
+    let mut p_lower_bracket = p_min_steam_table;
+    let mut found_bracket = false;
 
-        let mut p_test = p_upper_limit;
-        let mut last_region_in_pressure_scan: FwdEqnRegion = FwdEqnRegion::Region1;
-        // this algorithm works for the isobar staying in region 1
-        // (subcooled water)
-        while (p_test - p_decrement) > p_min_steam_table {
-            println!("using VLE algorithm, pressure scanning");
-            p_test -= p_decrement;
-            let region = ps_flash_region(p_test, s0);
-            last_region_in_pressure_scan = region;
-            // we determine region first 
+    while (p_scan - p_decrement) > p_min_steam_table {
+        p_scan -= p_decrement;
+        let f_curr = root_fn(p_scan.get::<pascal>());
 
-            // if it is region 1, we just skip
-            // because there should not be critical flow in this region
+        if debug {
+            dbg!(&(p_scan, f_prev, f_curr));
+        }
 
-            //if region == FwdEqnRegion::Region1 {
-            //    p_upper_limit = p_test;
-            //    continue;
-            //}
-
-
-            let mut mass_flux_test = mass_flux_pressure_ps_energy_conservation(p_test);
-            let mass_flux_homogeneous_eqm = mass_flux_ps_eqm_throat(p_test, s0);
-            let mass_flux_energy_conservation = mass_flux_test;
-            // found that some of the higher mass flowrates were in 
-            // the subcooled region, 
-            // hence if i was in the subcooled region, skip this entirely 
-            //
-            // basically if the mass_flux_homogeneous_eqm is greater 
-            // than the energy conservation mass flux, skip this 
-            
-            if mass_flux_homogeneous_eqm > mass_flux_energy_conservation {
-                p_upper_limit = p_test;
-                dbg!(&(p_test,p_min_steam_table));
-                dbg!(&(mass_flux_homogeneous_eqm,mass_flux_energy_conservation));
-                continue;
-            }
-
-
-
+        // sign change detected — bracket found
+        if f_prev * f_curr < 0.0 {
+            p_upper_bracket = p_scan + p_decrement;
+            p_lower_bracket = p_scan;
+            found_bracket = true;
             if debug {
-
-                let quality = x_ps_flash(p_test, s0);
-                println!("mass flux in mass_flux_homogeneous_eqm less than energy conservation");
-                dbg!(&(p0,p_test,
-                        mass_flux_energy_conservation,
-                        mass_flux_homogeneous_eqm,
-                        last_region_in_pressure_scan,
-                        quality
-                        ));
+                println!("bracket found!");
+                dbg!(&(p_upper_bracket, p_lower_bracket));
             }
-
-            // now, this code will activate if the latest mass flux 
-            // is more than the stored maximum mass flux 
-            //
-            // for choked flow, i also cannot have the 
-            // velocity larger than the speed of sound
-
-            // for entirety of region 1, i will skip this 
-
-
-            //if last_region_in_pressure_scan == FwdEqnRegion::Region1 {
-            //    continue;
-            //}
-
-            dbg!(&(mass_flux_homogeneous_eqm, max_mass_flux));
-            if mass_flux_homogeneous_eqm >= max_mass_flux {
-                max_mass_flux = mass_flux_homogeneous_eqm;
-                p_upper_limit = p_test;
-                if debug {
-                    dbg!(&(p0,p_test,
-                            mass_flux_energy_conservation,
-                            mass_flux_homogeneous_eqm,
-                            last_region_in_pressure_scan,
-                    ));
-                    dbg!(&max_mass_flux);
-                }
-            } else {
-
-                // if it starts decreasing, break out of the loop 
-                let quality = x_ps_flash(p_test, s0);
-
-                if last_region_in_pressure_scan == FwdEqnRegion::Region4 && quality < 1e-3 {
-                        max_mass_flux = mass_flux_homogeneous_eqm;
-                        p_upper_limit = p_test;
-                        continue;
-
-                }
-
-                p_lower_limit = p_test;
-                if debug {
-                    dbg!(&(p0,p_test,
-                            mass_flux_energy_conservation,
-                            mass_flux_homogeneous_eqm,
-                            last_region_in_pressure_scan,
-                            quality
-                    ));
-                    dbg!(&max_mass_flux);
-                }
-                println!("breaking out of pressure scan loop!");
-                break;
-
-
-            }
-
-
-        };
-
-        // if all of a sudden, we have vapour liquid equilibrium,
-        // this is Region4
-        // then we cannot use this algorithm,
-        // we shall do the pressure scan with 
-
-        if last_region_in_pressure_scan == FwdEqnRegion::Region4 {
+            break;
         }
 
+        f_prev = f_curr;
+    }
 
-        
+    if !found_bracket {
+        panic!("unable to find bracket for critical mass flux root finding");
+    }
 
-        // by now, we should have our lower and upper limits
-        // we can slowly bisect our way to a maximum point
-        let max_iterations = 50;
-        // 0.01% tolerance
-        const TOLERANCE: f64 = 1e-8;  
-        let mut mass_flux_at_p_low = mass_flux_pressure_ps_energy_conservation(p_lower_limit);
-        mass_flux_at_p_low = mass_flux_ps_eqm_throat(p_lower_limit, s0);
-        let mut mass_flux_at_p_high = mass_flux_pressure_ps_energy_conservation(p_upper_limit);
-        mass_flux_at_p_high = mass_flux_ps_eqm_throat(p_upper_limit, s0);
+    // in-house regula falsi (false position) method
+    // converges faster than bisection for smooth functions
+    let max_iterations = 100;
+    let tolerance = 1e-6_f64; // kg/(m²·s)
 
-        // now this is a bisection loop, of sorts
-        for _ in 0..max_iterations {
-            let p_test = 0.5 * (p_upper_limit + p_lower_limit);
+    let mut p_low = p_lower_bracket;
+    let mut p_high = p_upper_bracket;
+    let mut f_low = root_fn(p_low.get::<pascal>());
+    let mut f_high = root_fn(p_high.get::<pascal>());
+    let mut p_crit = p_low;
 
-            let mut mass_flux_test = mass_flux_pressure_ps_energy_conservation(p_test);
-            mass_flux_test = mass_flux_ps_eqm_throat(p_test, s0);
+    for _ in 0..max_iterations {
+        let dp = p_high - p_low;
+        let df = f_high - f_low;
 
-            let convergence_error = 
-                ((mass_flux_test - max_mass_flux)/max_mass_flux).get::<ratio>().abs();
-
-            // if this convergence error is less than the tolernace
-            // return straightaway
-            if convergence_error < TOLERANCE {
-                let region = ps_flash_region(p_test, s0);
-                let quality = x_ps_flash(p_test, s0);
-                if debug {
-                    dbg!(&(p_test,region,quality,mass_flux_test));
-                }
-
-                return (p_test, mass_flux_test);
-            }
-
-            // now, we test if the new mass flux is more 
-            // than the previous one (it should be if it is a parabola)
-            if mass_flux_test >= max_mass_flux {
-                max_mass_flux = mass_flux_test;
-            }
-
-            // let's see if this is within tolerance 
-
-
-            // now we check which bound is more
-            if mass_flux_at_p_low > mass_flux_at_p_high {
-                p_upper_limit = p_test;
-                mass_flux_at_p_high = mass_flux_test;
-            } else {
-                p_lower_limit = p_test;
-                mass_flux_at_p_low = mass_flux_test;
-            }
-
-            //if debug {
-            //    dbg!(&(p_test,mass_flux_test));
-            //}
-
+        // guard against division by zero
+        if df.abs() < 1e-30 {
+            break;
         }
-        panic!("unable to converge and find critical mass flux");
+
+        // regula falsi interpolation:
+        // p_new = p_low - f_low * (p_high - p_low) / (f_high - f_low)
+        p_crit = p_low - Pressure::new::<pascal>(
+            f_low * dp.get::<pascal>() / df
+        );
+
+        // clamp to bounds
+        if p_crit < p_low { p_crit = p_low; }
+        if p_crit > p_high { p_crit = p_high; }
+
+        let f_crit = root_fn(p_crit.get::<pascal>());
+
+        if debug {
+            dbg!(&(p_crit, f_crit));
+        }
+
+        // check convergence
+        if f_crit.abs() < tolerance {
+            break;
+        }
+
+        // update bracket
+        if f_low * f_crit < 0.0 {
+            p_high = p_crit;
+            f_high = f_crit;
+        } else {
+            p_low = p_crit;
+            f_low = f_crit;
+        }
+    }
+
+    let g_crit = mass_flux_ps_eqm_throat(p_crit, s0);
+
+    if debug {
+        let region = ps_flash_region(p_crit, s0);
+        let quality = x_ps_flash(p_crit, s0);
+        dbg!(&(p_crit, region, quality, g_crit));
+    }
+
+    (p_crit, g_crit)
 }
 
 /// estimates critical pressure ratio given ideal gas assumptions
