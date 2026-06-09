@@ -3,6 +3,7 @@ use uom::si::f64::*;
 use uom::si::pressure::megapascal;
 use uom::si::pressure::pascal;
 use uom::si::ratio::ratio;
+use uom::si::specific_heat_capacity::joule_per_kilogram_kelvin;
 use uom::si::volume::cubic_meter;
 
 use crate::constants::p_crit_water;
@@ -571,6 +572,45 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
         // region 
         // we can use the ideal gas version of the algorithm as it is 
         // essentially single phase
+        //
+        // Now, based on the ph diagram, specifically looking at the 
+        // isentropic lines, isentropic 
+        // depressurisation almost always goes into 
+        // the vapour liquid equilibrium region, 
+        // 
+        // for isentropic lines, 
+        // any isentrope above 9.2 J/(kg K)
+        // will almost surely result in single phase even at 0.01 bar
+        //
+        // How can we have isentropic lines down ...
+        //
+
+        // in this case, we are certain to be in the single phase 
+        // region based on the ph diagram
+        if s0 >= SpecificHeatCapacity::new::<joule_per_kilogram_kelvin>(9.2) {
+            
+
+            // i'm naming this critical pressure for choked flow 
+            // to distinguish it from critical temp and pressure 
+            // for no more VLE (22 MPa, 647 K)
+            let s0_opt = Some(s0);
+            let critical_pressure_choked_flow 
+                = get_critical_pressure_pure_vapour_ph_stagnation_properties(
+                    p0, h0, s0_opt
+                );
+            // once we get critical pressure, we can obtain speed of sound 
+            // and density in order to get critical mass flux 
+            //
+            // under depressurisation, we surely get more vapour
+
+            let c = w_ps_wood_wallis(critical_pressure_choked_flow, s0);
+            let rho_throat = v_ps_eqm(critical_pressure_choked_flow, s0).recip();
+
+            let critical_mass_flux = c*rho_throat;
+
+
+            return (critical_pressure_choked_flow, critical_mass_flux);
+        }
         
         match region_stagnation_props {
             FwdEqnRegion::Region1 => {
