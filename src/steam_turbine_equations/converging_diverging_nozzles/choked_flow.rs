@@ -14,7 +14,7 @@ use crate::interfaces::functional_programming::ph_flash_eqm::t_ph_eqm;
 use crate::interfaces::functional_programming::ps_flash_eqm::ps_flash_region;
 use crate::interfaces::functional_programming::ps_flash_eqm::w_ps_wood_wallis;
 use crate::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
-use crate::prelude::functional_programming::ps_flash_eqm::g_ps_eqm_throat;
+use crate::prelude::functional_programming::ps_flash_eqm::mass_flux_ps_eqm_throat;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::w_ph_wood_wallis;
 use crate::prelude::functional_programming::ph_flash_eqm::cv_ph_eqm;
@@ -611,6 +611,10 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
             return (critical_pressure_choked_flow, critical_mass_flux);
         }
+
+        // now from the ph diagram, it is impossible to tell where 
+        // the critical pressure is.
+        
         
         match region_stagnation_props {
             FwdEqnRegion::Region1 => {
@@ -729,7 +733,7 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
 
             let mut mass_flux_test = mass_flux_pressure_ps_algo(p_test);
-            let mass_flux_homogeneous_eqm = g_ps_eqm_throat(p_test, s0);
+            let mass_flux_homogeneous_eqm = mass_flux_ps_eqm_throat(p_test, s0);
             // found that some of the higher mass flowrates were in 
             // the subcooled region, 
             // hence if i was in the subcooled region, skip this entirely 
@@ -805,16 +809,16 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
         // 0.01% tolerance
         const TOLERANCE: f64 = 1e-8;  
         let mut mass_flux_at_p_low = mass_flux_pressure_ps_algo(p_lower_limit);
-        mass_flux_at_p_low = g_ps_eqm_throat(p_lower_limit, s0);
+        mass_flux_at_p_low = mass_flux_ps_eqm_throat(p_lower_limit, s0);
         let mut mass_flux_at_p_high = mass_flux_pressure_ps_algo(p_upper_limit);
-        mass_flux_at_p_high = g_ps_eqm_throat(p_upper_limit, s0);
+        mass_flux_at_p_high = mass_flux_ps_eqm_throat(p_upper_limit, s0);
 
         // now this is a bisection loop, of sorts
         for _ in 0..max_iterations {
             let p_test = 0.5 * (p_upper_limit + p_lower_limit);
 
             let mut mass_flux_test = mass_flux_pressure_ps_algo(p_test);
-            mass_flux_test = g_ps_eqm_throat(p_test, s0);
+            mass_flux_test = mass_flux_ps_eqm_throat(p_test, s0);
 
             let convergence_error = 
                 ((mass_flux_test - max_mass_flux)/max_mass_flux).get::<ratio>().abs();
