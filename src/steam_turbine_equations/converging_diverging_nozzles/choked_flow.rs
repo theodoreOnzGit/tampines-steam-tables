@@ -590,6 +590,7 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
         // region based on the ph diagram
         if s0 >= SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(9.2) {
             
+            println!("using vapour only algorithm");
 
             // i'm naming this critical pressure for choked flow 
             // to distinguish it from critical temp and pressure 
@@ -668,6 +669,7 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
         // this algorithm works for the isobar staying in region 1
         // (subcooled water)
         while (p_test - p_decrement) > p_min_steam_table {
+            println!("using VLE algorithm, pressure scanning");
             p_test -= p_decrement;
             let region = ps_flash_region(p_test, s0);
             last_region_in_pressure_scan = region;
@@ -676,10 +678,10 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
             // if it is region 1, we just skip
             // because there should not be critical flow in this region
 
-            if region == FwdEqnRegion::Region1 {
-                p_upper_limit = p_test;
-                continue;
-            }
+            //if region == FwdEqnRegion::Region1 {
+            //    p_upper_limit = p_test;
+            //    continue;
+            //}
 
 
             let mut mass_flux_test = mass_flux_pressure_ps_energy_conservation(p_test);
@@ -694,17 +696,19 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
             
             if mass_flux_homogeneous_eqm > mass_flux_energy_conservation {
                 p_upper_limit = p_test;
+                dbg!(&(p_test,p_min_steam_table));
+                dbg!(&(mass_flux_homogeneous_eqm,mass_flux_energy_conservation));
                 continue;
             }
 
-            mass_flux_test = mass_flux_homogeneous_eqm;
 
 
             if debug {
 
                 let quality = x_ps_flash(p_test, s0);
+                println!("mass flux in mass_flux_homogeneous_eqm less than energy conservation");
                 dbg!(&(p0,p_test,
-                        mass_flux_test,
+                        mass_flux_energy_conservation,
                         mass_flux_homogeneous_eqm,
                         last_region_in_pressure_scan,
                         quality
@@ -724,16 +728,25 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
             //    continue;
             //}
 
-            if mass_flux_test > max_mass_flux {
-                max_mass_flux = mass_flux_test;
+            dbg!(&(mass_flux_homogeneous_eqm, max_mass_flux));
+            if mass_flux_homogeneous_eqm >= max_mass_flux {
+                max_mass_flux = mass_flux_homogeneous_eqm;
                 p_upper_limit = p_test;
+                if debug {
+                    dbg!(&(p0,p_test,
+                            mass_flux_energy_conservation,
+                            mass_flux_homogeneous_eqm,
+                            last_region_in_pressure_scan,
+                    ));
+                    dbg!(&max_mass_flux);
+                }
             } else {
 
                 // if it starts decreasing, break out of the loop 
                 let quality = x_ps_flash(p_test, s0);
 
                 if last_region_in_pressure_scan == FwdEqnRegion::Region4 && quality < 1e-3 {
-                        max_mass_flux = mass_flux_test;
+                        max_mass_flux = mass_flux_homogeneous_eqm;
                         p_upper_limit = p_test;
                         continue;
 
@@ -741,8 +754,15 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
                 p_lower_limit = p_test;
                 if debug {
+                    dbg!(&(p0,p_test,
+                            mass_flux_energy_conservation,
+                            mass_flux_homogeneous_eqm,
+                            last_region_in_pressure_scan,
+                            quality
+                    ));
                     dbg!(&max_mass_flux);
                 }
+                println!("breaking out of pressure scan loop!");
                 break;
 
 
