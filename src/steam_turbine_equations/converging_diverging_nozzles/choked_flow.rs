@@ -790,6 +790,48 @@ pub fn get_critical_pressure_and_mass_flux_with_stagnation_props(
 
     (p_crit, g_crit)
 }
+#[inline]
+pub fn isentropic_pressure_scan_of_mass_flux(
+    s0: SpecificHeatCapacity,
+    p0: Pressure) -> () {
+
+    let p_min_steam_table = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+    
+    // number of scan steps
+    let n_steps = 1000;
+    let dp = (p0 - p_min_steam_table) / n_steps as f64;
+
+    let mut max_g_hem = MassFlux::ZERO;
+    let mut p_crit = p0;
+
+    let mut p_test = p0;
+
+    for _ in 0..n_steps {
+        p_test -= dp;
+
+        if p_test < p_min_steam_table {
+            break;
+        }
+
+        // skip region 1 — no choked flow in subcooled liquid
+        let region = ps_flash_region(p_test, s0);
+        if region == FwdEqnRegion::Region1 {
+            continue;
+        }
+
+        let g_hem = mass_flux_ps_eqm_throat(p_test, s0);
+
+        let quality = x_ps_flash(p_test, s0);
+        dbg!(&(p_test, region, quality, g_hem, max_g_hem, p_crit));
+
+        if g_hem > max_g_hem {
+            max_g_hem = g_hem;
+            p_crit = p_test;
+            dbg!(&("new maximum found!", p_crit, max_g_hem));
+        }
+    }
+
+}
 
 /// estimates critical pressure ratio given ideal gas assumptions
 /// for ideal gases, critical ratio depends on k 
