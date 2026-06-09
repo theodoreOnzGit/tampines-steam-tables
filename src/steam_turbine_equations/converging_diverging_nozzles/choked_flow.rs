@@ -25,7 +25,10 @@ use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
 
 use crate::prelude::TampinesSteamTableCV;
+use crate::region_1_subcooled_liquid::s_tp_1;
+use crate::region_1_subcooled_liquid::v_tp_1;
 use crate::region_2_vapour::s_tp_2;
+use crate::region_2_vapour::v_tp_2;
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
 
 
@@ -968,4 +971,96 @@ pub fn get_critical_pressure_pure_vapour_ph_stagnation_properties(
 
     // Return midpoint if not converged
     (p_low + p_high) / 2.0
+}
+
+/// Analytical HEM critical mass flux from Saha (1978) NUREG/CR-0417 eq. 10
+///
+/// G²_max = -1 / (dv_mix/dP|_s)
+///
+/// where dv_mix/dP|_s is expanded as:
+/// x * (dv_g/dP)_s + (v_g - v_f) * (dx/dP)_s + (1-x) * (dv_f/dP)_s
+///
+/// This is the analytical version of mass_flux_ps_eqm_throat
+/// which computes the same quantity via finite difference
+///
+/// Takes throat conditions (p, s) or (p, h) — NOT stagnation conditions
+///
+/// This uses region 1 and 2 eqns
+#[inline]
+pub fn g_max_hem_analytical_ps(
+    p: Pressure,
+    s: SpecificHeatCapacity,
+) -> MassFlux {
+
+    let p_min = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+    let dp = p * 1e-5_f64;
+    let p_plus  = p + dp;
+    let p_minus = if p - dp > p_min { p - dp } else { p_min };
+    let dp_actual = p_plus - p_minus;
+
+    let t_sat       = sat_temp_4(p);
+    let t_sat_plus  = sat_temp_4(p_plus);
+    let t_sat_minus = sat_temp_4(p_minus);
+
+    // quality at throat
+    let x = x_ps_flash(p, s);
+
+    // --- term 1: x * (dv_g/dP)_s ---
+    // dv_g/dP along saturation curve
+    let v_g_plus  = v_tp_2(t_sat_plus,  p_plus);
+    let v_g_minus = v_tp_2(t_sat_minus, p_minus);
+    let dv_g_dp = (v_g_plus - v_g_minus) / dp_actual;
+    let term1 = x * dv_g_dp;
+
+    // --- term 2: (v_g - v_f) * (dx/dP)_s ---
+    // dx/dP along isentrope at constant s
+    // x = (s - s_f) / (s_g - s_f)
+    // so dx/dP = d/dP [(s - s_f) / (s_g - s_f)]
+    //          = [-(ds_f/dP)(s_g - s_f) - (s - s_f)(ds_g/dP - ds_f/dP)]
+    //            / (s_g - s_f)²
+    let s_f       = s_tp_1(t_sat,       p);
+    let s_f_plus  = s_tp_1(t_sat_plus,  p_plus);
+    let s_f_minus = s_tp_1(t_sat_minus, p_minus);
+
+    let s_g       = s_tp_2(t_sat,       p);
+    let s_g_plus  = s_tp_2(t_sat_plus,  p_plus);
+    let s_g_minus = s_tp_2(t_sat_minus, p_minus);
+
+    let ds_f_dp = (s_f_plus - s_f_minus) / dp_actual;
+    let ds_g_dp = (s_g_plus - s_g_minus) / dp_actual;
+
+    let s_fg = s_g - s_f;
+    let dx_dp = (-ds_f_dp * s_fg - (s - s_f) * (ds_g_dp - ds_f_dp))
+               / (s_fg * s_fg);
+
+    let v_g = v_tp_2(t_sat, p);
+    let v_f = v_tp_1(t_sat, p);
+    let term2 = (v_g - v_f) * dx_dp;
+
+    // --- term 3: (1-x) * (dv_f/dP)_s ---
+    // dv_f/dP along saturation curve
+    let v_f_plus  = v_tp_1(t_sat_plus,  p_plus);
+    let v_f_minus = v_tp_1(t_sat_minus, p_minus);
+    let dv_f_dp = (v_f_plus - v_f_minus) / dp_actual;
+    let term3 = (1.0 - x) * dv_f_dp;
+
+    // --- G²_max = -1 / (term1 + term2 + term3) ---
+    let dv_mix_dp = term1 + term2 + term3;
+
+    // dv_mix_dp should be negative in two-phase region
+    // G_max = sqrt(-1 / dv_mix_dp)
+    let g_max_squared = dv_mix_dp.recip() * -1.0;
+
+    g_max_squared.sqrt()
+}
+
+/// same as g_max_hem_analytical_ps but takes (p, h) as input
+/// converts h to s internally
+#[inline]
+pub fn g_max_hem_analytical_ph(
+    p: Pressure,
+    h: AvailableEnergy,
+) -> MassFlux {
+    let s = s_ph_eqm(p, h);
+    g_max_hem_analytical_ps(p, s)
 }

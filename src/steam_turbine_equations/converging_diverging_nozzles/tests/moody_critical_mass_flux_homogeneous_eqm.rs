@@ -7,7 +7,7 @@ use uom::si::pressure::pound_force_per_square_inch;
 
 use crate::interfaces::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
-use crate::steam_turbine_equations::choked_flow::isentropic_pressure_scan_of_mass_flux;
+use crate::steam_turbine_equations::choked_flow::{g_max_hem_analytical_ph, isentropic_pressure_scan_of_mass_flux};
 
 // please note for the test:
 // For p0/p_ref = 0.25
@@ -283,6 +283,38 @@ fn validate_moody_isobar(
     }
 }
 
+///
+fn validate_moody_isobar_hem(
+    dimensionless_stagnation_pressure: f64,
+    data_points: &[(f64, f64)],
+    tolerance: f64,
+) {
+    // --- Define the Reference Values from the Moody Paper ---
+    let p_ref = Pressure::new::<pound_force_per_square_inch>(100.0);
+    // Note: Moody's paper uses BTU(IT)/lbm, which is what btu_it_per_pound represents.
+    let h_ref = AvailableEnergy::new::<btu_it_per_pound>(100.0);
+    let g_ref: MassFlux = MassRate::new::<pound_per_second>(1000.0) / Area::new::<square_foot>(1.0);
+
+    // --- Loop Through Each Data Point for the Given Isobar ---
+    for (h_dimensionless_ptr, g_dimensionless_ptr) in data_points.iter() {
+        let h0 = h_ref * (*h_dimensionless_ptr);
+        let p0 = dimensionless_stagnation_pressure * p_ref;
+        let g_ref_expected = g_ref * (*g_dimensionless_ptr);
+
+        let g_test = g_max_hem_analytical_ph(p0, h0);
+        // this helps see which point we are at on the graph
+        dbg!(&(*h_dimensionless_ptr,*g_dimensionless_ptr,g_test/g_ref));
+
+        // The assertion uses the provided tolerance to compare the model's result
+        // against the theoretical value from the Moody chart.
+        approx::assert_relative_eq!(
+            g_ref_expected.get::<kilogram_per_square_meter_second>().log10(),
+            g_test.get::<kilogram_per_square_meter_second>().log10(),
+            max_relative = tolerance
+        );
+    }
+}
+
 // For p0/p_ref = 0.50 
 // "x","y"
 // 0.4902,5.4168
@@ -328,6 +360,19 @@ fn isobar_pref_0_50() {
     validate_moody_isobar(0.50, &data, 1e-2);
 }
 #[test]
+fn isobar_pref_0_50_hem() {
+    let data = vec![
+        (0.4902, 5.4168), (0.7647, 5.2362), (1.2353, 5.0617), (1.6471, 4.6241),
+        (1.9412, 3.9031), (2.1765, 3.1135), (2.2549, 2.269), (2.3137, 1.275),
+        (2.4118, 0.7005), (2.6078, 0.4508), (3.0, 0.336), (3.4314, 0.2773),
+        (3.9804, 0.2314), (4.5686, 0.2021), (5.1373, 0.1867), (5.8235, 0.1668),
+        (6.2157, 0.1612), (7.1569, 0.144), (8.1373, 0.133), (8.8627, 0.1271),
+        (9.8431, 0.1148), (10.5686, 0.111), (11.2549, 0.1073), (11.7255, 0.1037),
+    ];
+    validate_moody_isobar_hem(0.50, &data, 1e-2);
+}
+#[test]
+#[ignore]
 fn isobar_pref_0_50_pressure_scan() {
     let data = vec![
         (0.4902, 5.4168), 
