@@ -3,15 +3,11 @@ use uom::si::available_energy::btu_it_per_pound;
 use uom::si::f64::*;
 use uom::si::mass_flux::kilogram_per_square_meter_second;
 use uom::si::mass_rate::pound_per_second;
-use uom::si::pressure::{megapascal, pound_force_per_square_inch};
-use uom::si::ratio::ratio;
+use uom::si::pressure::pound_force_per_square_inch;
 
 use crate::interfaces::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::interfaces::object_oriented_programming::TampinesSteamTableCV;
-use crate::region_1_subcooled_liquid::s_tp_1;
-use crate::region_2_vapour::s_tp_2;
-use crate::region_4_vap_liq_equilibrium::sat_temp_4;
-use crate::steam_turbine_equations::choked_flow::{g_max_hem_analytical_ph, get_stagnation_conditions_from_throat_ps, isentropic_pressure_scan_of_mass_flux};
+use crate::steam_turbine_equations::choked_flow::{g_max_hem_analytical_ph, isentropic_pressure_scan_of_mass_flux};
 
 // please note for the test:
 // For p0/p_ref = 0.25
