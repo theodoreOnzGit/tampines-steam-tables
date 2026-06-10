@@ -132,7 +132,7 @@ pub(crate) fn is_ps_point_subcooled_liquid_region1_and_below_16_529_mpa(
 
     // if entropy is less than saturated liquid entropy, then it is subcooled liq
 
-    if s <= s_sat_liq {
+    if s < s_sat_liq {
         return true;
     };
 

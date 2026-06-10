@@ -697,10 +697,27 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
 /// c² = -v² * (dp/dv|_s) = -v² / (dv/dp|_s)
 /// c = v * sqrt(-1/dv_dp_s)
 ///
-/// consider that critical mass flux in terms of throat properties is c*rho 
+/// consider that critical mass flux in terms of throat properties is c*rho
 /// which is 1/v
 ///
 /// c*rho = sqrt(-1/dv_dp_s)
+///
+/// # Known limitation — x = 0 (saturated liquid boundary)
+///
+/// When s == s_f(p) exactly (throat quality = 0), the finite-difference step
+/// dp = p * 1e-5 is too small to span a meaningful two-phase region:
+///   - v_ps_eqm(p + dp, s) lands in Region 1 (s < s_f at p+dp) → pure-liquid compressibility
+///   - v_ps_eqm(p - dp, s) barely enters Region 4 with near-zero quality → still ~pure-liquid
+///
+/// The resulting dv/dp_s reflects liquid compressibility, so G ≈ ρ_l · c_l ≈ 1.5×10⁶ kg/m²/s
+/// (liquid sound speed), which is unphysically large for HEM two-phase critical flow.
+/// This inflated G then drives h_0 = h_f + 1125 kJ/kg, causing p_hs_eqm to panic with
+/// "enthalpy too high".
+///
+/// TODO: handle x = 0 as a special case. Options:
+///   (a) detect s ≈ s_f and use a larger dp that crosses into the two-phase region properly, or
+///   (b) return G = ρ_l · w_HEM(x→0⁺) using an analytical two-phase speed-of-sound formula
+///       evaluated at infinitesimally small quality.
 #[inline]
 pub fn mass_flux_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlux {
 
