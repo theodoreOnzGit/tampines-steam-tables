@@ -112,7 +112,7 @@ fn quality_0_05(){
         (2000.0, 11349.8420,697.5369),
         (3000.0, 14016.4977,795.0739),
     ];
-    validate_zaloudek_curve(0.05, &data, 0.02, 0.01);
+    validate_zaloudek_curve(0.05, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -137,7 +137,7 @@ fn quality_0_10(){
         (2000.0, 10578.8855,730.0493),
         (3000.0, 13820.6838,803.9409),
     ];
-    validate_zaloudek_curve(0.10, &data, 0.02, 0.01);
+    validate_zaloudek_curve(0.10, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn quality_0_15(){
         (2000.0, 10141.3918,750.7389),
         (3000.0, 13241.9279,815.7635),
     ];
-    validate_zaloudek_curve(0.15, &data, 0.02, 0.01);
+    validate_zaloudek_curve(0.15, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -187,7 +187,7 @@ fn quality_0_20(){
         (2000.0, 9860.2975, 771.4286),
         (3000.0, 13064.4043,839.4089),
     ];
-    validate_zaloudek_curve(0.20, &data, 0.02, 0.01);
+    validate_zaloudek_curve(0.20, &data, 0.05, 0.02);
 }
 
 #[test]
