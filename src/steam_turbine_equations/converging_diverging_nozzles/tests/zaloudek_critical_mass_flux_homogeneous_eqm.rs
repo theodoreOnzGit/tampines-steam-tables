@@ -196,3 +196,139 @@ fn quality_0_30(){
         (3000.0, 12349.5091,866.0099),
     ];
 }
+
+#[test]
+fn quality_0_35(){
+    // throat quality x_t = 0.35 (35%)
+    // Data from Figure 2 of Zaloudek (as reviewed in):
+    // Saha, P. (1978). A review of two-phase steam-water critical flow models 
+    // with emphasis on thermal nonequilibrium. NUREG/CR-0417, BNL-NUREG-50907.
+    // Brookhaven National Laboratory, Upton, New York.
+    // https://www.nrc.gov/docs/ML1925/ML19256F779.pdf
+    //
+    // Data format: (critical_pressure_psia, critical_mass_flux_lb_per_s_per_ft2, 
+    //               stagnation_enthalpy_btu_per_lb)
+    // Critical pressures: 5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 300, 500, 
+    //                     750, 1000, 1500, 2000, 3000 psia
+    let quality_0_35: Vec<(f64, f64, f64)> = vec![
+        (5.0,    31.6970,   487.6847),
+        (10.0,   58.8650,   517.2414),
+        (15.0,   86.0651,   532.0197),
+        (20.0,   112.4389,  546.7980),
+        (30.0,   173.9105,  567.4877),
+        (50.0,   284.5609,  597.0443),
+        (75.0,   410.2368,  611.8227),
+        (100.0,  543.5434,  632.5123),
+        (150.0,  794.7008,  650.2463),
+        (200.0,  1052.9391, 665.0246),
+        (300.0,  1517.9684, 691.6256),
+        (500.0,  2414.8606, 721.1823),
+        (750.0,  3682.9129, 750.7389),
+        (1000.0, 5018.9284, 777.3399),
+        (1500.0, 7034.7798, 809.8522),
+        (2000.0, 9062.1270, 842.3645),
+        (3000.0, 12006.8680,880.7882),
+    ];
+}
+
+#[test]
+fn quality_0_40(){
+    // throat quality x_t = 0.40 (40%)
+    // Data from Figure 2 of Zaloudek (as reviewed in):
+    // Saha, P. (1978). A review of two-phase steam-water critical flow models 
+    // with emphasis on thermal nonequilibrium. NUREG/CR-0417, BNL-NUREG-50907.
+    // Brookhaven National Laboratory, Upton, New York.
+    // https://www.nrc.gov/docs/ML1925/ML19256F779.pdf
+    //
+    // Data format: (critical_pressure_psia, critical_mass_flux_lb_per_s_per_ft2, 
+    //               stagnation_enthalpy_btu_per_lb)
+    // Critical pressures: 5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 300, 500, 
+    //                     750, 1000, 1500, 2000, 3000 psia
+    let quality_0_40: Vec<(f64, f64, f64)> = vec![
+        (5.0,    29.9625,   540.8867),
+        (10.0,   55.6439,   564.5320),
+        (15.0,   80.2190,   582.2660),
+        (20.0,   109.3192,  600.0000),
+        (30.0,   162.0974,  611.8227),
+        (50.0,   268.9894,  635.4680),
+        (75.0,   382.3708,  659.1133),
+        (100.0,  506.6223,  670.9360),
+        (150.0,  761.8575,  694.5813),
+        (200.0,  1009.4233, 709.3596),
+        (300.0,  1475.8519, 733.0049),
+        (500.0,  2347.8595, 759.6059),
+        (750.0,  3580.7293, 789.1626),
+        (1000.0, 4811.5063, 815.7635),
+        (1500.0, 6649.8307, 839.4089),
+        (2000.0, 8810.6953, 866.0099),
+        (3000.0, 12006.8680,892.6108),
+    ];
+}
+
+#[test]
+fn quality_0_45(){
+    // throat quality x_t = 0.45 (45%)
+    // Data from Figure 2 of Zaloudek (as reviewed in):
+    // Saha, P. (1978). A review of two-phase steam-water critical flow models 
+    // with emphasis on thermal nonequilibrium. NUREG/CR-0417, BNL-NUREG-50907.
+    // Brookhaven National Laboratory, Upton, New York.
+    // https://www.nrc.gov/docs/ML1925/ML19256F779.pdf
+    //
+    // Data format: (critical_pressure_psia, critical_mass_flux_lb_per_s_per_ft2, 
+    //               stagnation_enthalpy_btu_per_lb)
+    // Critical pressures: 5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 300, 500, 
+    //                     750, 1000, 1500, 2000, 3000 psia
+    let quality_0_45: Vec<(f64, f64, f64)> = vec![
+        (5.0,    27.5371,   597.0443),
+        (10.0,   52.5990,   617.7340),
+        (15.0,   75.8293,   635.4680),
+        (20.0,   104.8013,  644.3350),
+        (30.0,   153.2273,  662.0690),
+        (50.0,   254.2701,  685.7143),
+        (75.0,   377.0290,  703.4483),
+        (100.0,  492.5659,  715.2709),
+        (150.0,  740.7195,  735.9606),
+        (200.0,  954.1868,  750.7389),
+        (300.0,  1375.6022, 774.3842),
+        (500.0,  2219.3826, 803.9409),
+        (750.0,  3384.7887, 827.5862),
+        (1000.0, 4612.6566, 848.2759),
+        (1500.0, 6556.9310, 868.9655),
+        (2000.0, 8566.2397, 883.7438),
+        (3000.0, 12006.8680,898.5222),
+    ];
+}
+
+#[test]
+fn quality_0_50(){
+    // throat quality x_t = 0.50 (50%)
+    // Data from Figure 2 of Zaloudek (as reviewed in):
+    // Saha, P. (1978). A review of two-phase steam-water critical flow models 
+    // with emphasis on thermal nonequilibrium. NUREG/CR-0417, BNL-NUREG-50907.
+    // Brookhaven National Laboratory, Upton, New York.
+    // https://www.nrc.gov/docs/ML1925/ML19256F779.pdf
+    //
+    // Data format: (critical_pressure_psia, critical_mass_flux_lb_per_s_per_ft2, 
+    //               stagnation_enthalpy_btu_per_lb)
+    // Critical pressures: 5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 300, 500, 
+    //                     750, 1000, 1500, 2000, 3000 psia
+    let quality_0_50: Vec<(f64, f64, f64)> = vec![
+        (5.0,    26.3991,   650.2463),
+        (10.0,   50.4252,   667.9803),
+        (15.0,   73.7254,   679.8030),
+        (20.0,   96.3178,   697.5369),
+        (30.0,   144.8425,  715.2709),
+        (50.0,   247.2153,  735.9606),
+        (75.0,   356.3976,  753.6946),
+        (100.0,  465.6123,  765.5172),
+        (150.0,  700.1867,  789.1626),
+        (200.0,  940.8566,  800.9852),
+        (300.0,  1337.4357, 821.6749),
+        (500.0,  2157.8051, 848.2759),
+        (750.0,  3290.8767, 871.9212),
+        (1000.0, 4484.6769, 883.7438),
+        (1500.0, 6198.1302, 901.4778),
+        (2000.0, 8446.5673, 913.3005),
+        (3000.0, 12006.8680,913.3005),
+    ];
+}
