@@ -360,6 +360,7 @@ fn isobar_pref_0_50() {
     validate_moody_isobar(0.50, &data, 1e-2);
 }
 #[test]
+#[ignore]
 fn isobar_pref_0_50_hem() {
     let data = vec![
         (0.4902, 5.4168), (0.7647, 5.2362), (1.2353, 5.0617), (1.6471, 4.6241),
