@@ -128,3 +128,71 @@ fn quality_0_20(){
         (3000.0, 13064.4043,839.4089),
     ];
 }
+
+#[test]
+fn quality_0_25(){
+    // throat quality x_t = 0.25 (25%)
+    // Data from Figure 2 of Zaloudek (as reviewed in):
+    // Saha, P. (1978). A review of two-phase steam-water critical flow models 
+    // with emphasis on thermal nonequilibrium. NUREG/CR-0417, BNL-NUREG-50907.
+    // Brookhaven National Laboratory, Upton, New York.
+    // https://www.nrc.gov/docs/ML1925/ML19256F779.pdf
+    //
+    // Data format: (critical_pressure_psia, critical_mass_flux_lb_per_s_per_ft2, 
+    //               stagnation_enthalpy_btu_per_lb)
+    // Critical pressures: 5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 300, 500, 
+    //                     750, 1000, 1500, 2000, 3000 psia
+    let quality_0_25: Vec<(f64, f64, f64)> = vec![
+        (5.0,    36.4853,   387.1921),
+        (10.0,   70.6785,   416.7488),
+        (15.0,   100.4701,  431.5271),
+        (20.0,   133.1178,  443.3498),
+        (30.0,   197.3857,  466.9951),
+        (50.0,   336.8953,  490.6404),
+        (75.0,   478.8995,  514.2857),
+        (100.0,  634.5181,  532.0197),
+        (150.0,  914.7522,  552.7094),
+        (200.0,  1178.3738, 573.3990),
+        (300.0,  1722.8701, 600.0000),
+        (500.0,  2779.6611, 641.3793),
+        (750.0,  4121.6516, 682.7586),
+        (1000.0, 5384.6924, 712.3153),
+        (1500.0, 7338.0463, 759.6059),
+        (2000.0, 9586.7204, 798.0296),
+        (3000.0, 12701.9282,857.1429),
+    ];
+}
+
+#[test]
+fn quality_0_30(){
+    // throat quality x_t = 0.30 (30%)
+    // Data from Figure 2 of Zaloudek (as reviewed in):
+    // Saha, P. (1978). A review of two-phase steam-water critical flow models 
+    // with emphasis on thermal nonequilibrium. NUREG/CR-0417, BNL-NUREG-50907.
+    // Brookhaven National Laboratory, Upton, New York.
+    // https://www.nrc.gov/docs/ML1925/ML19256F779.pdf
+    //
+    // Data format: (critical_pressure_psia, critical_mass_flux_lb_per_s_per_ft2, 
+    //               stagnation_enthalpy_btu_per_lb)
+    // Critical pressures: 5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 300, 500, 
+    //                     750, 1000, 1500, 2000, 3000 psia
+    let quality_0_30: Vec<(f64, f64, f64)> = vec![
+        (5.0,    34.0070,   434.4828),
+        (10.0,   64.9572,   464.0394),
+        (15.0,   92.3372,   481.7734),
+        (20.0,   122.3422,  496.5517),
+        (30.0,   186.5846,  517.2414),
+        (50.0,   305.2988,  546.7980),
+        (75.0,   433.9848,  567.4877),
+        (100.0,  591.4174,  582.2660),
+        (150.0,  840.7049,  605.9113),
+        (200.0,  1098.3309, 620.6897),
+        (300.0,  1583.4074, 647.2906),
+        (500.0,  2554.6533, 676.8473),
+        (750.0,  3841.6818, 712.3153),
+        (1000.0, 5162.1540, 741.8719),
+        (1500.0, 7134.4498, 777.3399),
+        (2000.0, 9190.5208, 815.7635),
+        (3000.0, 12349.5091,866.0099),
+    ];
+}
