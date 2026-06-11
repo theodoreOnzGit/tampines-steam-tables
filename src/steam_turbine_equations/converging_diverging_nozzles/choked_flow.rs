@@ -1084,6 +1084,7 @@ pub fn g_max_hem_analytical_ph(
 ///            Moody (1975) NEDO-21052
 ///
 /// Note that this uses the homogeneous equilibrium model.
+/// This was validated using Zaloudek's data
 #[inline]
 pub fn get_stagnation_conditions_from_throat_ps(
     p_t: Pressure,
@@ -1114,6 +1115,7 @@ pub fn get_stagnation_conditions_from_throat_ps(
 
 /// Same as above but takes throat (p_t, h_t) as input
 /// converts h_t to s_t internally
+/// This was validated using Zaloudek's data
 #[inline]
 pub fn get_stagnation_conditions_from_throat_ph(
     p_t: Pressure,

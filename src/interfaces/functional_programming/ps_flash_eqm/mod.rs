@@ -718,6 +718,8 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
 ///
 /// Basically around bubble point, the function will return a mass flux 
 /// reflective of quality at 1e-4
+///
+/// This was validated using Zaloudek's data
 #[inline]
 pub fn mass_flux_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlux {
 
