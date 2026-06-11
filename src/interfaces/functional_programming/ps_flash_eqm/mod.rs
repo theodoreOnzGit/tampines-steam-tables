@@ -740,7 +740,7 @@ pub fn mass_flux_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlu
     let s_min = s - (s_bubble_pt - s);
 
     let mut s_adjusted = s;
-    if (s >= s_min) || (s <= s_bubble_pt) {
+    if (s >= s_min) && (s <= s_bubble_pt) {
         s_adjusted = s_bubble_pt;
     }
 
