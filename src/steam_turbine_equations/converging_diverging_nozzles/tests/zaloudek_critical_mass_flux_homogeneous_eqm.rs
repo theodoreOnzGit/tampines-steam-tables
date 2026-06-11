@@ -66,8 +66,11 @@ fn validate_zaloudek_curve(
 }
 
 #[test]
-fn quality_0_00(){
-    // throat quality x_t = 0.00 (0%, saturated liquid)
+fn quality_bubble_point(){
+    // throat quality x_t about 0.00 (0%, saturated liquid)
+    // strictly speaking, we are doing this at bubble point, 
+    // not exactly 0%, 
+    // my bubble point here is around quality of 1e-4
     let data: Vec<(f64, f64, f64)> = vec![
         (5.0,    93.6455,   135.9606),
         (10.0,   153.2273,  165.5172),
@@ -87,7 +90,7 @@ fn quality_0_00(){
         (2000.0, 12006.8680,682.7586),
         (3000.0, 13820.6838,803.9409),
     ];
-    validate_zaloudek_curve(0.00, &data, 0.05, 0.02);
+    validate_zaloudek_curve(1e-4, &data, 0.05, 0.02);
 }
 
 #[test]

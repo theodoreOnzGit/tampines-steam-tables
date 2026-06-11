@@ -1082,6 +1082,8 @@ pub fn g_max_hem_analytical_ph(
 ///
 /// Reference: Saha (1978) NUREG/CR-0417, eq. 10
 ///            Moody (1975) NEDO-21052
+///
+/// Note that this uses the homogeneous equilibrium model.
 #[inline]
 pub fn get_stagnation_conditions_from_throat_ps(
     p_t: Pressure,
