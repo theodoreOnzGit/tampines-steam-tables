@@ -737,7 +737,8 @@ pub fn mass_flux_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlu
     // let's have it around a window for bubble pt
     let quality_at_bubblept = 1e-4;
     let s_bubble_pt = s_l * (1.0 - quality_at_bubblept) + quality_at_bubblept * s_v;
-    let s_min = s - (s_bubble_pt - s);
+    let ds = s_bubble_pt - s_l;
+    let s_min = s_l - ds;
 
     let mut s_adjusted = s;
     if (s >= s_min) && (s <= s_bubble_pt) {
