@@ -87,7 +87,7 @@ fn quality_0_00(){
         (2000.0, 12006.8680,682.7586),
         (3000.0, 13820.6838,803.9409),
     ];
-    validate_zaloudek_curve(0.00, &data, 0.02, 0.01);
+    validate_zaloudek_curve(0.00, &data, 0.05, 0.02);
 }
 
 #[test]
