@@ -507,12 +507,12 @@ fn hs_region_low_entropy_region_1_and_4(
     let lower_bound_enthalpy = h_ps_eqm(lower_bound_pressure, s);
 
     if h > upper_bound_enthalpy {
-        dbg!(&upper_bound_enthalpy);
+        dbg!(&(h,upper_bound_enthalpy));
         panic!("enthalpy too high for hs flash");
     };
 
     if h < lower_bound_enthalpy {
-        dbg!(&lower_bound_enthalpy);
+        dbg!(&(h,lower_bound_enthalpy));
         panic!("enthalpy too low for hs flash");
     };
 
