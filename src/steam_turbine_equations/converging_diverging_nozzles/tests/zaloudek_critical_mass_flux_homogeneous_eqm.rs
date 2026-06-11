@@ -26,7 +26,7 @@ use crate::steam_turbine_equations::choked_flow::get_stagnation_conditions_from_
 ///   2. Call the function under test to get (p0_calc, h0_calc, G_calc).
 ///   3. Assert h0_calc matches the tabulated stagnation enthalpy (2% relative).
 ///   4. Assert G_calc matches the tabulated critical mass flux (1% on log10 scale).
-fn validate_zaloudek_curve(
+fn validate_zaloudek_curve_using_throat_conditions(
     x_t: f64,
     data: &[(f64, f64, f64)],
     enthalpy_tolerance: f64,
@@ -90,7 +90,7 @@ fn quality_bubble_point(){
         (2000.0, 12006.8680,682.7586),
         (3000.0, 13820.6838,803.9409),
     ];
-    validate_zaloudek_curve(0.0, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.0, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -115,7 +115,7 @@ fn quality_0_05(){
         (2000.0, 11349.8420,697.5369),
         (3000.0, 14016.4977,795.0739),
     ];
-    validate_zaloudek_curve(0.05, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.05, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -140,7 +140,7 @@ fn quality_0_10(){
         (2000.0, 10578.8855,730.0493),
         (3000.0, 13820.6838,803.9409),
     ];
-    validate_zaloudek_curve(0.10, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.10, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -165,7 +165,7 @@ fn quality_0_15(){
         (2000.0, 10141.3918,750.7389),
         (3000.0, 13241.9279,815.7635),
     ];
-    validate_zaloudek_curve(0.15, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.15, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -190,7 +190,7 @@ fn quality_0_20(){
         (2000.0, 9860.2975, 771.4286),
         (3000.0, 13064.4043,839.4089),
     ];
-    validate_zaloudek_curve(0.20, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.20, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -215,7 +215,7 @@ fn quality_0_25(){
         (2000.0, 9586.7204, 798.0296),
         (3000.0, 12701.9282,857.1429),
     ];
-    validate_zaloudek_curve(0.25, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.25, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -240,7 +240,7 @@ fn quality_0_30(){
         (2000.0, 9190.5208, 815.7635),
         (3000.0, 12349.5091,866.0099),
     ];
-    validate_zaloudek_curve(0.30, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.30, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -265,7 +265,7 @@ fn quality_0_35(){
         (2000.0, 9062.1270, 842.3645),
         (3000.0, 12006.8680,880.7882),
     ];
-    validate_zaloudek_curve(0.35, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.35, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -290,7 +290,7 @@ fn quality_0_40(){
         (2000.0, 8810.6953, 866.0099),
         (3000.0, 12006.8680,892.6108),
     ];
-    validate_zaloudek_curve(0.40, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.40, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -315,7 +315,7 @@ fn quality_0_45(){
         (2000.0, 8566.2397, 883.7438),
         (3000.0, 12006.8680,898.5222),
     ];
-    validate_zaloudek_curve(0.45, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.45, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -340,7 +340,7 @@ fn quality_0_50(){
         (2000.0, 8446.5673, 913.3005),
         (3000.0, 12006.8680,913.3005),
     ];
-    validate_zaloudek_curve(0.50, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.50, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -365,7 +365,7 @@ fn quality_0_55(){
         (2000.0, 8328.5666, 931.0345),
         (3000.0, 11673.7335,931.0345),
     ];
-    validate_zaloudek_curve(0.55, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.55, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -390,7 +390,7 @@ fn quality_0_60(){
         (2000.0, 8097.4879, 957.6355),
         (3000.0, 11510.6486,954.6798),
     ];
-    validate_zaloudek_curve(0.60, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.60, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -415,7 +415,7 @@ fn quality_0_65(){
         (2000.0, 8097.4879, 981.2808),
         (3000.0, 11673.7335,972.4138),
     ];
-    validate_zaloudek_curve(0.65, &data, 0.02, 0.01);
+    validate_zaloudek_curve_using_throat_conditions(0.65, &data, 0.02, 0.01);
 }
 
 #[test]
@@ -440,7 +440,7 @@ fn quality_0_70(){
         (2000.0, 8097.4879, 1010.8374),
         (3000.0, 11510.6486,1001.9704),
     ];
-    validate_zaloudek_curve(0.70, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.70, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -465,7 +465,7 @@ fn quality_0_75(){
         (2000.0, 7762.8352, 1040.3941),
         (3000.0, 11673.7335,1022.6601),
     ];
-    validate_zaloudek_curve(0.75, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.75, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -490,7 +490,7 @@ fn quality_0_80(){
         (2000.0, 7762.8352, 1064.0394),
         (3000.0, 11673.7335,1037.4384),
     ];
-    validate_zaloudek_curve(0.80, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.80, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -515,7 +515,7 @@ fn quality_0_85(){
         (2000.0, 7654.3865, 1081.7734),
         (3000.0, 11673.7335,1043.3498),
     ];
-    validate_zaloudek_curve(0.85, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.85, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -540,7 +540,7 @@ fn quality_0_90(){
         (2000.0, 7872.8204, 1111.3300),
         (3000.0, 11673.7335,1061.0837),
     ];
-    validate_zaloudek_curve(0.90, &data, 0.05, 0.02);
+    validate_zaloudek_curve_using_throat_conditions(0.90, &data, 0.05, 0.02);
 }
 
 #[test]
@@ -566,7 +566,7 @@ fn quality_0_95(){
         (2000.0, 7762.8352, 1134.9754),
         (3000.0, 12006.8680,1064.0394),
     ];
-    validate_zaloudek_curve(0.95, &data, 0.05, 0.03);
+    validate_zaloudek_curve_using_throat_conditions(0.95, &data, 0.05, 0.03);
 }
 
 #[test]
@@ -591,5 +591,5 @@ fn quality_1_00(){
         (2000.0, 7872.8204, 1161.5764),
         (3000.0, 12006.8680,1072.9064),
     ];
-    validate_zaloudek_curve(1.00, &data, 0.05, 0.03);
+    validate_zaloudek_curve_using_throat_conditions(1.00, &data, 0.05, 0.03);
 }
