@@ -13,6 +13,7 @@ pub(crate) mod boundaries_between_single_phase_regions;
 pub(crate) use boundaries_between_single_phase_regions::*;
 use uom::si::{f64::*, pressure::megapascal, ratio::ratio, thermodynamic_temperature::kelvin};
 
+use crate::interfaces::functional_programming::pt_flash_eqm::s_tp_eqm_two_phase;
 use crate::region_1_subcooled_liquid::v_tp_1;
 use crate::region_5_steam_at_800_plus_degc::w_tp_5;
 use crate::region_5_steam_at_800_plus_degc::u_tp_5;
@@ -714,10 +715,9 @@ pub fn w_ps_wood_wallis(p: Pressure, s: SpecificHeatCapacity) -> Velocity {
 /// This inflated G then drives h_0 = h_f + 1125 kJ/kg, causing p_hs_eqm to panic with
 /// "enthalpy too high".
 ///
-/// TODO: handle x = 0 as a special case. Options:
-///   (a) detect s ≈ s_f and use a larger dp that crosses into the two-phase region properly, or
-///   (b) return G = ρ_l · w_HEM(x→0⁺) using an analytical two-phase speed-of-sound formula
-///       evaluated at infinitesimally small quality.
+///
+/// Basically around bubble point, the function will return a mass flux 
+/// reflective of quality at 1e-4
 #[inline]
 pub fn mass_flux_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlux {
 
@@ -725,9 +725,27 @@ pub fn mass_flux_ps_eqm_throat(p: Pressure, s: SpecificHeatCapacity,) -> MassFlu
     let dp = p * 1e-5; // small pressure perturbation
     let p_minus = if p - dp > p_min { p - dp } else { p_min };
 
+    // NOT AI: claude was a bit slow
+    // now we detect if s is close to s_f at bubble point 
+    // let's find s_f first 
+    // 
+    // first let's take the pressure as saturation pressure 
+    // 
+    let tsat = sat_temp_4(p);
+    let s_l = s_tp_eqm_two_phase(tsat, p, 0.0);
+    let s_v = s_tp_eqm_two_phase(tsat, p, 1.0);
+    // let's have it around a window for bubble pt
+    let quality_at_bubblept = 1e-5;
+    let s_bubble_pt = s_l * (1.0 - quality_at_bubblept) + quality_at_bubblept * s_v;
+    let s_min = s - (s_bubble_pt - s);
 
-    let v_plus  = v_ps_eqm(p + dp, s);
-    let v_minus = v_ps_eqm(p_minus, s);
+    let mut s_adjusted = s;
+    if (s >= s_min) || (s <= s_bubble_pt) {
+        s_adjusted = s_bubble_pt;
+    }
+
+    let v_plus  = v_ps_eqm(p + dp, s_adjusted);
+    let v_minus = v_ps_eqm(p_minus, s_adjusted);
     let dp_actual = (p + dp) - p_minus;
     let dv_dp_s = (v_plus - v_minus) / dp_actual;
     let mass_flux_eqm: MassFlux = (dv_dp_s.recip() * -1.0).sqrt();
