@@ -1,9 +1,13 @@
 use uom::si::f64::*;
+use uom::si::pressure::megapascal;
+use crate::constants::p_crit_water;
 use crate::interfaces::functional_programming::hs_flash_eqm::p_hs_eqm;
 use crate::interfaces::functional_programming::ph_flash_eqm::s_ph_eqm;
+use crate::interfaces::functional_programming::pt_flash_eqm::s_tp_eqm_two_phase;
 use crate::prelude::functional_programming::ps_flash_eqm::mass_flux_ps_eqm_throat;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
+use crate::region_4_vap_liq_equilibrium::sat_temp_4;
 /// Given throat conditions (p_t, s_t), compute the critical mass flux
 /// and back-calculate the stagnation conditions (p_0, h_0)
 ///
@@ -63,3 +67,57 @@ pub fn get_stagnation_conditions_from_throat_ph(
     get_stagnation_conditions_from_throat_ps(p_t, s_t)
 }
 
+/// Bubble-point pressure along an isentrope `s = s0`.
+///
+/// Returns the pressure `p_bubble` at which the saturated-liquid entropy
+/// equals `s0` — i.e. the pressure where an isentropic depressurisation of a
+/// subcooled / liquid-like state first reaches saturation (x = 0, flashing
+/// inception).
+///
+/// The saturated-liquid entropy
+///   `s_f(p) = s_tp_eqm_two_phase(T_sat(p), p, 0.0)`
+/// is monotonically increasing in `p` (from ~0 at the triple point up to
+/// `s_crit` at the critical point), so the root `s_f(p_bubble) = s0` is unique
+/// and recovered by bisection. This automatically handles the Region-3 cap
+/// (16.529-22.064 MPa), where the saturated-liquid properties come from the
+/// Region 3 EOS.
+///
+/// Precondition: `s0` lies on the liquid side of the dome, i.e.
+/// `s_f(p_triple) <= s0 <= s_crit`. Values outside that band are clamped to
+/// `[p_min, p_crit]`.
+#[inline]
+pub fn bubble_point_pressure_from_entropy(s0: SpecificHeatCapacity) -> Pressure {
+    let p_min = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+    let p_max = p_crit_water();
+
+    // saturated-liquid entropy at pressure p
+    let s_f = |p: Pressure| -> SpecificHeatCapacity {
+        s_tp_eqm_two_phase(sat_temp_4(p), p, 0.0)
+    };
+
+    // clamp if s0 is outside the liquid-side saturation range
+    if s0 <= s_f(p_min) { return p_min; }
+    if s0 >= s_f(p_max) { return p_max; }
+
+    // bisection: s_f is monotonically increasing in p
+    let mut p_lo = p_min;
+    let mut p_hi = p_max;
+    for _ in 0..80 {
+        let p_mid = 0.5 * (p_lo + p_hi);
+        if s_f(p_mid) < s0 {
+            p_lo = p_mid;
+        } else {
+            p_hi = p_mid;
+        }
+    }
+    0.5 * (p_lo + p_hi)
+}
+
+/// Same as [`bubble_point_pressure_from_entropy`] but takes a `(p, h)`
+/// stagnation state and uses its entropy. Convenient for reading subcooled /
+/// liquid-like points straight off a p-h diagram.
+#[inline]
+pub fn bubble_point_pressure_ph(p0: Pressure, h0: AvailableEnergy) -> Pressure {
+    let s0 = s_ph_eqm(p0, h0);
+    bubble_point_pressure_from_entropy(s0)
+}
