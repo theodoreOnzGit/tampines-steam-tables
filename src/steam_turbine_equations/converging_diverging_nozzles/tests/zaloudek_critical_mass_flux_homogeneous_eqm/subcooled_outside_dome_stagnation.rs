@@ -92,7 +92,7 @@ fn quality_bubble_point_subcooled(){
         (2000.0, 12006.8680,682.7586),
         (3000.0, 13820.6838,803.9409),
     ];
-    validate_zaloudek_curve_subcooled(0.0, &data, 0.03, 0.05);
+    validate_zaloudek_curve_subcooled(1e-4, &data, 0.03, 0.05);
 }
 
 #[test]
