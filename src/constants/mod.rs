@@ -16,6 +16,8 @@ pub const T_C_KELVIN: f64 = 647.096;
 pub const P_C_MPA: f64 = 22.064;
 /// critical vol for water
 pub const RHO_C_KG_PER_M3: f64 = 322.0;
+/// critical specific entropy for water (where s_f = s_g at the critical point)
+pub const S_C_KJ_PER_KG_K: f64 = 4.412_021_482_234_76;
 
 
 /// triple pt temp for water
@@ -63,6 +65,13 @@ pub fn p_crit_water() -> Pressure {
 #[inline]
 pub fn rho_crit_water() -> MassDensity {
     MassDensity::new::<kilogram_per_cubic_meter>(RHO_C_KG_PER_M3)
+}
+
+/// returns the dimensioned critical specific entropy of water
+/// (the entropy at the critical point, where s_f = s_g)
+#[inline]
+pub fn s_crit_water() -> SpecificHeatCapacity {
+    SpecificHeatCapacity::new::<kilojoule_per_kilogram_kelvin>(S_C_KJ_PER_KG_K)
 }
 
 

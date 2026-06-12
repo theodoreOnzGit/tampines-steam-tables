@@ -1,6 +1,7 @@
 use uom::si::f64::*;
 use uom::si::pressure::megapascal;
 use crate::constants::p_crit_water;
+use crate::constants::s_crit_water;
 use crate::interfaces::functional_programming::hs_flash_eqm::p_hs_eqm;
 use crate::interfaces::functional_programming::ph_flash_eqm::s_ph_eqm;
 use crate::interfaces::functional_programming::pt_flash_eqm::s_tp_eqm_two_phase;
@@ -83,25 +84,29 @@ pub fn get_stagnation_conditions_from_throat_ph(
 /// Region 3 EOS.
 ///
 /// Precondition: `s0` lies on the liquid side of the dome, i.e.
-/// `s_f(p_triple) <= s0 <= s_crit`. Values outside that band are clamped to
-/// `[p_min, p_crit]`.
+/// `s_f(p_triple) <= s0 <= s_crit`. At (or above) the critical entropy the
+/// bubble line meets the critical point, so `p_crit` is returned directly.
+/// Below the triple-point saturated-liquid entropy it clamps to `p_min`.
 #[inline]
 pub fn bubble_point_pressure_from_entropy(s0: SpecificHeatCapacity) -> Pressure {
     let p_min = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
-    let p_max = p_crit_water();
+    let p_crit = p_crit_water();
+
+    // at / above the critical entropy the bubble line terminates at the
+    // critical point — return the critical pressure directly
+    if s0 >= s_crit_water() { return p_crit; }
 
     // saturated-liquid entropy at pressure p
     let s_f = |p: Pressure| -> SpecificHeatCapacity {
         s_tp_eqm_two_phase(sat_temp_4(p), p, 0.0)
     };
 
-    // clamp if s0 is outside the liquid-side saturation range
+    // below the triple-point saturated-liquid entropy, clamp to p_min
     if s0 <= s_f(p_min) { return p_min; }
-    if s0 >= s_f(p_max) { return p_max; }
 
     // bisection: s_f is monotonically increasing in p
     let mut p_lo = p_min;
-    let mut p_hi = p_max;
+    let mut p_hi = p_crit;
     for _ in 0..80 {
         let p_mid = 0.5 * (p_lo + p_hi);
         if s_f(p_mid) < s0 {
@@ -120,4 +125,64 @@ pub fn bubble_point_pressure_from_entropy(s0: SpecificHeatCapacity) -> Pressure 
 pub fn bubble_point_pressure_ph(p0: Pressure, h0: AvailableEnergy) -> Pressure {
     let s0 = s_ph_eqm(p0, h0);
     bubble_point_pressure_from_entropy(s0)
+}
+
+/// Dew-point pressure along an isentrope `s = s0`.
+///
+/// Returns the pressure `p_dew` at which the saturated-vapour entropy equals
+/// `s0` — i.e. the pressure where an isentropic depressurisation of a
+/// superheated-vapour / supercritical state first reaches saturation (x = 1,
+/// condensation inception). This is the vapour-side analogue of
+/// [`bubble_point_pressure_from_entropy`].
+///
+/// The saturated-vapour entropy
+///   `s_g(p) = s_tp_eqm_two_phase(T_sat(p), p, 1.0)`
+/// is monotonically *decreasing* in `p` (from large values near the triple
+/// point down to `s_crit` at the critical point), so the root
+/// `s_g(p_dew) = s0` is unique and recovered by bisection. This handles the
+/// Region-3 cap automatically.
+///
+/// Precondition: `s0` lies on the vapour side of the dome, i.e.
+/// `s_crit <= s0 <= s_g(p_triple)`. At (or below) the critical entropy the dew
+/// line meets the critical point, so `p_crit` is returned directly. Above the
+/// triple-point saturated-vapour entropy it clamps to `p_min`.
+#[inline]
+pub fn dew_point_pressure_from_entropy(s0: SpecificHeatCapacity) -> Pressure {
+    let p_min = Pressure::new::<megapascal>(0.000_611_212_677 * 1.01);
+    let p_crit = p_crit_water();
+
+    // at / below the critical entropy the dew line terminates at the
+    // critical point — return the critical pressure directly
+    if s0 <= s_crit_water() { return p_crit; }
+
+    // saturated-vapour entropy at pressure p
+    let s_g = |p: Pressure| -> SpecificHeatCapacity {
+        s_tp_eqm_two_phase(sat_temp_4(p), p, 1.0)
+    };
+
+    // above the triple-point saturated-vapour entropy, clamp to p_min
+    if s0 >= s_g(p_min) { return p_min; }
+
+    // bisection: s_g is monotonically decreasing in p
+    let mut p_lo = p_min;
+    let mut p_hi = p_crit;
+    for _ in 0..80 {
+        let p_mid = 0.5 * (p_lo + p_hi);
+        if s_g(p_mid) > s0 {
+            // s_g still above s0 -> need higher pressure to bring it down
+            p_lo = p_mid;
+        } else {
+            p_hi = p_mid;
+        }
+    }
+    0.5 * (p_lo + p_hi)
+}
+
+/// Same as [`dew_point_pressure_from_entropy`] but takes a `(p, h)` stagnation
+/// state and uses its entropy. Convenient for reading superheated-vapour /
+/// supercritical points straight off a p-h diagram.
+#[inline]
+pub fn dew_point_pressure_ph(p0: Pressure, h0: AvailableEnergy) -> Pressure {
+    let s0 = s_ph_eqm(p0, h0);
+    dew_point_pressure_from_entropy(s0)
 }
