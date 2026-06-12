@@ -14,6 +14,8 @@ use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
 use crate::region_2_vapour::*;
 use crate::region_4_vap_liq_equilibrium::sat_pressure_4;
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
+use crate::steam_turbine_equations::choked_flow::single_phase_basic_choked_flow::get_critical_pressure_pure_vapour_ph_stagnation_properties;
+use crate::steam_turbine_equations::choked_flow::single_phase_basic_choked_flow::get_critical_pressure_ratio_ideal_gas_using_throat_ph;
 use crate::steam_turbine_equations::choked_flow::*;
 impl super::TampinesSteamTableCV {
     /// Returns the pressure of the control volume.
