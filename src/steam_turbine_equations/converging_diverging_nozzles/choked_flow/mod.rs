@@ -44,6 +44,12 @@ pub use basic_multiphase_equations::*;
 pub mod stagnation_point_within_vle_ph_dome_multiphase;
 pub use stagnation_point_within_vle_ph_dome_multiphase::*;
 
+/// critical-flow solvers for when the stagnation state lies outside the
+/// p-h VLE dome (single phase: subcooled liquid / liquid-like, and later
+/// superheated vapour / supercritical)
+pub mod stagnation_point_outside_vle_ph_dome_multiphase;
+pub use stagnation_point_outside_vle_ph_dome_multiphase::*;
+
 
 /// gets critical pressure and mass flux for water and steam 
 /// given stagnation properties,
