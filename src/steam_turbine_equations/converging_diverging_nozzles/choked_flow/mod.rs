@@ -31,6 +31,9 @@ use crate::steam_turbine_equations::choked_flow::single_phase_basic_choked_flow:
 /// where the choked flow is in the pure vapour phase
 pub mod single_phase_basic_choked_flow;
 
+/// precomputed saturation table used to seed the bubble/dew point bisection
+mod saturation_lookup_table;
+
 /// these contain functions for generic multiphase equations
 /// eg. obtaining stagnation properties from throat properties
 pub mod basic_multiphase_equations;

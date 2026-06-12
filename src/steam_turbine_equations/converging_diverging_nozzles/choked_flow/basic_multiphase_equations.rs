@@ -1,5 +1,8 @@
 use uom::si::f64::*;
 use uom::si::pressure::megapascal;
+use uom::si::ratio::ratio;
+use super::saturation_lookup_table::bubble_point_bracket;
+use super::saturation_lookup_table::dew_point_bracket;
 use crate::constants::p_crit_water;
 use crate::constants::s_crit_water;
 use crate::interfaces::functional_programming::hs_flash_eqm::p_hs_eqm;
@@ -104,11 +107,12 @@ pub fn bubble_point_pressure_from_entropy(s0: SpecificHeatCapacity) -> Pressure 
     // below the triple-point saturated-liquid entropy, clamp to p_min
     if s0 <= s_f(p_min) { return p_min; }
 
-    // bisection: s_f is monotonically increasing in p
-    let mut p_lo = p_min;
-    let mut p_hi = p_crit;
-    for _ in 0..80 {
+    // seed a tight bracket from the saturation lookup table, then refine by
+    // bisection within it (s_f is monotonically increasing in p)
+    let (mut p_lo, mut p_hi) = bubble_point_bracket(s0);
+    for _ in 0..40 {
         let p_mid = 0.5 * (p_lo + p_hi);
+        if ((p_hi - p_lo) / p_mid).get::<ratio>() < 1e-9 { break; }
         if s_f(p_mid) < s0 {
             p_lo = p_mid;
         } else {
@@ -163,11 +167,12 @@ pub fn dew_point_pressure_from_entropy(s0: SpecificHeatCapacity) -> Pressure {
     // above the triple-point saturated-vapour entropy, clamp to p_min
     if s0 >= s_g(p_min) { return p_min; }
 
-    // bisection: s_g is monotonically decreasing in p
-    let mut p_lo = p_min;
-    let mut p_hi = p_crit;
-    for _ in 0..80 {
+    // seed a tight bracket from the saturation lookup table, then refine by
+    // bisection within it (s_g is monotonically decreasing in p)
+    let (mut p_lo, mut p_hi) = dew_point_bracket(s0);
+    for _ in 0..40 {
         let p_mid = 0.5 * (p_lo + p_hi);
+        if ((p_hi - p_lo) / p_mid).get::<ratio>() < 1e-9 { break; }
         if s_g(p_mid) > s0 {
             // s_g still above s0 -> need higher pressure to bring it down
             p_lo = p_mid;
