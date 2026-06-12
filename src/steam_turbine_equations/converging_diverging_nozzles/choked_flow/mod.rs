@@ -18,8 +18,6 @@ use crate::interfaces::functional_programming::ps_flash_eqm::x_ps_flash;
 use crate::prelude::functional_programming::ps_flash_eqm::mass_flux_ps_eqm_throat;
 use crate::prelude::functional_programming::ps_flash_eqm::h_ps_eqm;
 use crate::prelude::functional_programming::ph_flash_eqm::w_ph_wood_wallis;
-use crate::prelude::functional_programming::ph_flash_eqm::cv_ph_eqm;
-use crate::prelude::functional_programming::ph_flash_eqm::cp_ph_eqm;
 use crate::prelude::functional_programming::ps_flash_eqm::v_ps_eqm;
 use crate::prelude::functional_programming::pt_flash_eqm::FwdEqnRegion;
 
@@ -28,6 +26,7 @@ use crate::region_1_subcooled_liquid::v_tp_1;
 use crate::region_2_vapour::s_tp_2;
 use crate::region_2_vapour::v_tp_2;
 use crate::region_4_vap_liq_equilibrium::sat_temp_4;
+use crate::steam_turbine_equations::choked_flow::single_phase_basic_choked_flow::get_critical_pressure_ratio_ideal_gas_using_throat_ph;
 
 pub mod single_phase_basic_choked_flow;
 
@@ -318,40 +317,7 @@ pub fn isentropic_pressure_scan_of_mass_flux(
 
 }
 
-/// estimates critical pressure ratio given ideal gas assumptions
-/// for ideal gases, critical ratio depends on k 
-/// but k is generally temperature dependent 
-///
-/// The evaluation here is to use throat properties to get the critical 
-/// pressure ratio
-///
-#[inline]
-pub fn get_critical_pressure_ratio_ideal_gas_using_throat_ph(
-    p: Pressure,
-    h: AvailableEnergy) -> Ratio {
 
-    // note again that these are evaluated at throat
-    let cp = cp_ph_eqm(p, h);
-    let cv = cv_ph_eqm(p, h);
-
-    let k = cp/cv;
-
-    let ratio_one = Ratio::new::<ratio>(1.0);
-
-    let k_plus_one = k + ratio_one;
-
-    let k_minus_one = k - ratio_one;
-
-    let exponent: f64 = (k/k_minus_one).get::<ratio>();
-    let coeff: f64 = (2.0/k_plus_one).get::<ratio>();
-
-    let ratio_value = coeff.powf(exponent);
-
-
-
-
-    Ratio::new::<ratio>(ratio_value)
-}
 
 
 /// Finds the pressure where Mach number = 1 during isentropic expansion

@@ -2,6 +2,7 @@ use uom::si::f64::*;
 use uom::si::ratio::ratio;
 use uom::si::volume::cubic_meter;
 
+use crate::interfaces::functional_programming::ph_flash_eqm::{cp_ph_eqm, cv_ph_eqm};
 use crate::prelude::TampinesSteamTableCV;
 
 /// This is an algorithm to obtain outlet thermodynamic state 
@@ -520,5 +521,39 @@ mod choked_flow_examples{
         );
     }
 
+}
+/// estimates critical pressure ratio given ideal gas assumptions
+/// for ideal gases, critical ratio depends on k 
+/// but k is generally temperature dependent 
+///
+/// The evaluation here is to use throat properties to get the critical 
+/// pressure ratio
+///
+#[inline]
+pub fn get_critical_pressure_ratio_ideal_gas_using_throat_ph(
+    p: Pressure,
+    h: AvailableEnergy) -> Ratio {
+
+    // note again that these are evaluated at throat
+    let cp = cp_ph_eqm(p, h);
+    let cv = cv_ph_eqm(p, h);
+
+    let k = cp/cv;
+
+    let ratio_one = Ratio::new::<ratio>(1.0);
+
+    let k_plus_one = k + ratio_one;
+
+    let k_minus_one = k - ratio_one;
+
+    let exponent: f64 = (k/k_minus_one).get::<ratio>();
+    let coeff: f64 = (2.0/k_plus_one).get::<ratio>();
+
+    let ratio_value = coeff.powf(exponent);
+
+
+
+
+    Ratio::new::<ratio>(ratio_value)
 }
 
