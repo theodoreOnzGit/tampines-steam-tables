@@ -8,7 +8,6 @@
 
 use uom::si::f64::*;
 use uom::si::mass_flux::kilogram_per_square_meter_second;
-use uom::si::mass_rate::kilogram_per_second;
 use uom::si::ratio::ratio;
 use uom::si::pressure::{atmosphere, kilopascal, megapascal};
 use uom::si::length::millimeter;
