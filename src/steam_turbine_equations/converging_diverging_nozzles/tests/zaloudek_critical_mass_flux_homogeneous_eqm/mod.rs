@@ -9,6 +9,16 @@
 //! Critical pressures: 5, 10, 15, 20, 30, 50, 75, 100, 150, 200, 300, 500,
 //!                     750, 1000, 1500, 2000, 3000 psia
 
-mod backward_throat_to_stagnation;
-mod in_dome_stagnation;
-mod generic_multiphase_stagnation;
+/// for this test suite, it uses Zaloudek test data, 
+/// given the throat pressure and enthalpy, it should guess the stagnation 
+/// enthalpy correctly
+pub mod backward_throat_to_stagnation;
+/// this contains a test suite for stagnation (p0,h0) points within 
+/// the vapour liquid equilibrium (VLE)
+///
+/// this VLE looks like a dome on the (p,h) diagram for the steam 
+/// tables.
+///
+/// Hence this test suite is called in dome stagnation
+pub mod in_dome_stagnation;
+pub mod generic_multiphase_stagnation;
