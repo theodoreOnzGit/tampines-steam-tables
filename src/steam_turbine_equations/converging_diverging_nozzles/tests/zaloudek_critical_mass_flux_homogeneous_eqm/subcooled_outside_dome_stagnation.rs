@@ -71,26 +71,52 @@ fn validate_zaloudek_curve_subcooled(
     }
 }
 
-// IGNORED: known HEM limitation, not a solver bug.
+// IGNORED: fundamental HEM limitation on the saturated-liquid line, not a
+// solver bug. This is the x_t = 1e-4 curve (throats essentially ON the
+// saturated-liquid line). Investigated in detail; the findings below are why
+// no solver change fixes it and why it stays ignored.
 //
-// This curve is x_t = 1e-4, i.e. throats sitting essentially ON the saturated
-// liquid line. Only the 5 psia point backward-maps to a (barely) subcooled
-// Region 1 stagnation; the rest land inside the dome. For that point the choke
-// PRESSURE is recovered correctly (matches the throat), but the mass flux is
-// ~7x too high (G_calc ~3347 vs Zaloudek ~457 kg/m^2 s).
+// Region 1 (subcooled) stagnation points on this curve are 5..200 psia
+// (subcooling dHsub = h_f(p0) - h0 ranging 0.7 .. 8.4 kJ/kg); 300..2000 psia
+// are genuinely subcooled (dHsub 12 .. 98 kJ/kg) and DO pass; 3000 psia lands
+// in Region 3. The curve fails in THREE distinct ways:
 //
-// This is the textbook failure of the homogeneous EQUILIBRIUM model for an
-// initially saturated / near-saturated liquid: HEM assumes instantaneous
-// flashing at the bubble point, so just below saturation the density is still
-// liquid-like while the equilibrium enthalpy drop grows fast, driving
-// G = rho * sqrt(2 (h0 - h)) to an artificially high peak. Real flashing has
-// nucleation delay (thermodynamic non-equilibrium) that suppresses G by 2-10x
-// at low subcooling. Capturing this needs a non-equilibrium / relaxation
-// (HRM-style) model, which is out of scope for the HEM solver validated here.
+//   1. Mass-flux artifact at p = 5 psia only. The subcooled solver evaluates
+//      G at the bubble point where rho is still liquid-like (~976 kg/m^3) with
+//      a tiny enthalpy drop, giving a spurious G ~3347 vs Zaloudek ~457 (that
+//      "choke" is liquid at ~3 m/s, far below the ~1400 m/s liquid sound
+//      speed, so it is not a real choke). The in-dome / two-phase-peak solver
+//      instead returns G ~397 (mass-flux log-error 0.023, within tol) BUT its
+//      choke pressure is 4.4% below the throat (>3% tol). So even the "right"
+//      branch only half-passes this one point.
+//
+//   2. Two-phase overprediction at p = 10 psia. Here BOTH solvers agree and
+//      both give G ~2547 vs expected ~748 (3.4x high, log-error 0.185). The
+//      golden section lands on the same place for both; switching solvers does
+//      nothing. This is HEM equilibrium flashing overpredicting at very low
+//      subcooling.
+//
+//   3. Choke-pressure error at p = 15..200 psia. Mass flux is fine here
+//      (log-error ~0.01-0.03) but the choke pressure sits 11-21% BELOW the
+//      throat, identically for both solvers. The HEM max-G point genuinely
+//      does not coincide with the measured throat for a near-saturated inlet.
+//
+// Consequences for any "fix":
+//   * Routing near-saturation points to the in-dome solver changes ONLY the
+//     p = 5 point (and even there leaves pressure 4.4% off). It does not help
+//     p = 10 (mass flux) or p = 15..200 (pressure). Not worth a dispatcher.
+//   * There is no clean subcooling threshold to route on anyway: this curve
+//     spans dHsub 0.7 .. 98 kJ/kg, fully overlapping the genuinely-subcooled
+//     curves that already pass.
+//
+// Root cause is the homogeneous EQUILIBRIUM assumption (instantaneous flashing
+// at the bubble point). Reproducing the saturated-liquid choking line in both
+// mass flux and pressure needs a non-equilibrium / relaxation (HRM-style)
+// model, which is out of scope for the HEM solver validated here.
 //
 // The 20 genuinely-subcooled curves (x_t = 0.05 .. 1.00) pass within tolerance.
 #[test]
-#[ignore = "HEM intrinsically overpredicts critical mass flux for near-saturation flashing; needs a non-equilibrium model"]
+#[ignore = "HEM cannot reproduce the saturated-liquid (x~0) choking line: mass-flux artifact at p=5/10 psia and 11-21% choke-pressure error at p=15-200 psia, in both solver branches; needs a non-equilibrium model"]
 fn quality_bubble_point_subcooled(){
     let data: Vec<(f64, f64, f64)> = vec![
         (5.0,    93.6455,   135.9606),
