@@ -114,6 +114,18 @@ fn validate_zaloudek_curve_subcooled(
 // mass flux and pressure needs a non-equilibrium / relaxation (HRM-style)
 // model, which is out of scope for the HEM solver validated here.
 //
+// OBSERVATION (tentative, not confirmed): the disagreement tracks bubble-point
+// pressure. The mass-flux artifacts are sub-atmospheric (5, 10 psia ~ 0.34,
+// 0.69 bar); the choke-pressure errors start around 1 atm (15 psia) and peak
+// at ~3-5 bar (50-75 psia, ~21%) before recovering by ~300 psia. A plausible
+// (but UNVERIFIED) explanation is the specific-volume ratio: vg/vf ~ 4000 at
+// 5 psia vs ~260 at 100 psia, so at low pressure a tiny amount of flashing
+// causes a huge volume change, the HEM two-phase sound speed collapses, and
+// G(p) becomes stiff/hypersensitive. This is a hypothesis about the trend, not
+// an established cause. It is also unclear how the Zaloudek reference data
+// itself was obtained (measured vs. correlated/extrapolated), which could
+// contribute to the discrepancy independently of the solver.
+//
 // The 20 genuinely-subcooled curves (x_t = 0.05 .. 1.00) pass within tolerance.
 #[test]
 #[ignore = "HEM cannot reproduce the saturated-liquid (x~0) choking line: mass-flux artifact at p=5/10 psia and 11-21% choke-pressure error at p=15-200 psia, in both solver branches; needs a non-equilibrium model"]
