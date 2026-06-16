@@ -17,6 +17,12 @@ International steam tables. Springer Berlin Heidelberg.
 Significant portions of code will be copied from the rust-steam package.
 Hence, I am putting the rust-steam license here.
 
+## Note on AI usage
+
+Until last month, AI was hardly used in this project. From this month
+(June 2026) onwards, Claude Code was used in the testing and development of
+the choked flow algorithms in vapour-liquid equilibrium (VLE).
+
 # FHR Educational Simulator 
 
 ## To Run on Windows
