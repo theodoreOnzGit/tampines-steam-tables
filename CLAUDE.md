@@ -84,6 +84,42 @@ Verification tests are under `.../tests/`, validated against:
   (G) tolerances loose.
 - Marviken critical flow tests — `marviken_tests.rs`.
 
+### Current effort: near-bubble-point HEM artifact
+
+We are trying to solve the **near-bubble-point HEM artifact** that breaks the
+Zaloudek VLE critical-pressure / mass-flux tests. The active canary is
+`zaloudek_*::generic_multiphase_stagnation::quality_0_05_stagnation`
+(intentionally not `#[ignore]`d). It round-trips throat → stagnation →
+forward-solve and should recover the Zaloudek throat pressure.
+
+The canary sweeps x_t = 0.05 over a pressure range; first and last reference
+points:
+
+- first: p = 5 psia, G = 64.0497 lb/(s·ft²), h0 = 177.3399 Btu/lb
+- last:  p = 3000 psia, G = 14016.4977 lb/(s·ft²), h0 = 795.0739 Btu/lb
+
+Diagnosis so far:
+
+- Stagnation reconstruction is fine: `h0_calc ≈ h0_expected` at every point
+  (e.g. 343.98 vs 345.81 Btu/lb at 100 psia).
+- The forward solver in
+  `choked_flow/mod.rs::get_critical_pressure_and_mass_flux_with_stagnation_props`
+  locks onto a spurious root near the bubble point. At 100 psia / x≈0.05 it
+  converges to p_throat ≈ 860.3 kPa vs the reference 689.5 kPa (+25%), at
+  quality ≈ 0.034.
+- `g_energy` (energy balance) and `g_hem` (`mass_flux_ps_eqm_throat`,
+  finite-difference dv/dP) never truly cross: at the "converged" point
+  g_energy ≈ 3092 but g_hem ≈ 5738, so f = g_energy − g_hem ≈ −2646, nowhere
+  near zero. The HEM throat mass flux spikes near the saturated-liquid line, so
+  the only sign change the bracket finder sees is across that artifact, not a
+  physical choke point. Regula falsi then stalls on the discontinuity
+  (retained-endpoint problem) and reports the bogus pressure at max_iterations
+  instead of failing.
+- Pressure-dependent: 5–75 psia stay within the 5% tolerance; 100 psia is the
+  first to break — consistent with the `subcooled` test note (11–21%
+  choke-pressure error at 15–200 psia). It is the known HEM limitation near the
+  saturation line, not a units or reconstruction bug.
+
 ### Known sharp edges
 
 - Near the **bubble point**, near-saturated stagnation states must be routed to
