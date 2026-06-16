@@ -87,13 +87,32 @@ Verification tests are under `.../tests/`, validated against:
 ### Current effort: near-bubble-point HEM artifact
 
 We are trying to solve the **near-bubble-point HEM artifact** that breaks the
-Zaloudek VLE critical-pressure / mass-flux tests. The active canary is
-`zaloudek_*::generic_multiphase_stagnation::quality_0_05_stagnation`
-(intentionally not `#[ignore]`d). It round-trips throat → stagnation →
-forward-solve and should recover the Zaloudek throat pressure.
+Zaloudek VLE critical-pressure / mass-flux tests.
 
-The canary sweeps x_t = 0.05 over a pressure range; first and last reference
-points:
+The original combined canary
+`zaloudek_*::generic_multiphase_stagnation::quality_0_05_stagnation` is now
+`#[ignore]`d. We are splitting the stagnation round-trip by where the stagnation
+state lands relative to the VLE dome:
+
+- `subcooled_outside_dome_stagnation.rs` — stagnation outside the dome (left
+  side, Region 1 subcooled liquid). Backward-maps each Zaloudek throat to a
+  stagnation state, keeps only `ph_flash_region == Region1`, and runs
+  `get_critical_pressure_and_mass_flux_subcooled_liquid_ph`. The 20 genuinely-
+  subcooled curves (x_t = 0.05 … 1.00) pass.
+- in-dome stagnation (two-phase) — counterpart bucket, still being built.
+
+The **active canary** is now
+`subcooled_outside_dome_stagnation::quality_bubble_point_subcooled`
+(x_t = 1e-4, throats essentially on the saturated-liquid line; intentionally not
+`#[ignore]`d while under investigation). It exercises the worst case of the
+saturated-liquid-line artifact. The detailed three-failure-mode writeup lives in
+the comment block directly above that test; in short, HEM cannot reproduce the
+x≈0 choking line in both mass flux and pressure (mass-flux artifact at 5/10 psia,
+11–21% choke-pressure error at 15–200 psia, in both solver branches) and a non-
+equilibrium / relaxation model would be needed.
+
+The older combined canary swept x_t = 0.05 over a pressure range; first and last
+reference points:
 
 - first: p = 5 psia, G = 64.0497 lb/(s·ft²), h0 = 177.3399 Btu/lb
 - last:  p = 3000 psia, G = 14016.4977 lb/(s·ft²), h0 = 795.0739 Btu/lb

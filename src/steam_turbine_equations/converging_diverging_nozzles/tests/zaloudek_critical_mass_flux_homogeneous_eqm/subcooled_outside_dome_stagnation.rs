@@ -128,7 +128,6 @@ fn validate_zaloudek_curve_subcooled(
 //
 // The 20 genuinely-subcooled curves (x_t = 0.05 .. 1.00) pass within tolerance.
 #[test]
-#[ignore = "HEM cannot reproduce the saturated-liquid (x~0) choking line: mass-flux artifact at p=5/10 psia and 11-21% choke-pressure error at p=15-200 psia, in both solver branches; needs a non-equilibrium model"]
 fn quality_bubble_point_subcooled(){
     let data: Vec<(f64, f64, f64)> = vec![
         (5.0,    93.6455,   135.9606),
