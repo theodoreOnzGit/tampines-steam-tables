@@ -91,15 +91,38 @@ Zaloudek VLE critical-pressure / mass-flux tests.
 
 The original combined canary
 `zaloudek_*::generic_multiphase_stagnation::quality_0_05_stagnation` is now
-`#[ignore]`d. We are splitting the stagnation round-trip by where the stagnation
-state lands relative to the VLE dome:
+`#[ignore]`d. The strategy is **two separate solvers, one per stagnation region**,
+with the test files partitioning each Zaloudek throat by where its backward-mapped
+stagnation `(p0, h0)` lands relative to the VLE dome (`ph_flash_region`):
 
-- `subcooled_outside_dome_stagnation.rs` — stagnation outside the dome (left
-  side, Region 1 subcooled liquid). Backward-maps each Zaloudek throat to a
-  stagnation state, keeps only `ph_flash_region == Region1`, and runs
-  `get_critical_pressure_and_mass_flux_subcooled_liquid_ph`. The 20 genuinely-
-  subcooled curves (x_t = 0.05 … 1.00) pass.
-- in-dome stagnation (two-phase) — counterpart bucket, still being built.
+- `subcooled_outside_dome_stagnation.rs` — stagnation OUTSIDE the dome (left
+  side, Region 1 subcooled liquid). Keeps only `ph_flash_region == Region1`,
+  runs `get_critical_pressure_and_mass_flux_subcooled_liquid_ph`. The 20
+  genuinely-subcooled curves (x_t = 0.05 … 1.00) pass.
+- `in_dome_stagnation.rs` — stagnation INSIDE the dome (two-phase, Region 4).
+  Keeps only `ph_flash_region == Region4`, runs
+  `get_critical_pressure_and_mass_flux_ph_vle_dome`. All 21 quality curves
+  (x_t = 0.0 … 1.00) pass.
+
+Both files run the full quality sweep over the same data; the region filter
+routes each point and `continue`-skips the rest (so a green test may have
+silently skipped most points — check the `skip p=…` stderr lines). The two
+buckets are complementary: for a given quality, low-pressure throats keep a
+two-phase stagnation (in-dome runs them, subcooled skips), while the high-
+pressure tail recompresses out of the dome to Region 1 / Region 3 (subcooled
+runs them, in-dome skips).
+
+Diagnostic — the dome routing is what fixed the old +25% artifact. Worked
+example, x_t = 0.05 in-dome: 13 points (5–750 psia) stay in the dome and pass
+(worst pressure error +0.86% at 100 psia — the *same* point the old combined
+canary missed by +25%); the 4 high-pressure points skip out (1000/1500/2000 psia
+→ Region 1, 3000 psia → Region 3). Note `quality_0_05_in_dome` loosens its
+pressure tolerance to 0.01 (bubble-point edge of the dome, ~0.7% round-trip);
+all other in-dome curves use 0.005.
+
+The x = 0.0 bubble-point curve is the curve of primary interest going forward
+(`quality_bubble_point_in_dome`, x_t = 0.0, and its subcooled counterpart at
+x_t = 1e-4).
 
 The **active canary** is now
 `subcooled_outside_dome_stagnation::quality_bubble_point_subcooled`
