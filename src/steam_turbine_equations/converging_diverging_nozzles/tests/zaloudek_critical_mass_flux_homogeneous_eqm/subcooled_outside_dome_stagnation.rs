@@ -71,10 +71,12 @@ fn validate_zaloudek_curve_subcooled(
     }
 }
 
-// IGNORED: fundamental HEM limitation on the saturated-liquid line, not a
-// solver bug. This is the x_t = 1e-4 curve (throats essentially ON the
-// saturated-liquid line). Investigated in detail; the findings below are why
-// no solver change fixes it and why it stays ignored.
+// ACTIVE CANARY — currently failing, intentionally NOT #[ignore]d. This is the
+// item we are actively debugging. It exercises the worst case of the
+// saturated-liquid-line artifact: the x_t = 1e-4 curve (throats essentially ON
+// the saturated-liquid line). The working theory is that this is a fundamental
+// HEM limitation on the saturated-liquid line, not a solver bug; the findings
+// below document why no solver change tried so far fixes it.
 //
 // Region 1 (subcooled) stagnation points on this curve are 5..200 psia
 // (subcooling dHsub = h_f(p0) - h0 ranging 0.7 .. 8.4 kJ/kg); 300..2000 psia
