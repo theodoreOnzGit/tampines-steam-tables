@@ -17,6 +17,7 @@ ndarray-linalg = "0.16.0"
 thiserror = "1.0.58"
 uom = "0.36.0"
 tuas_boussinesq_solver = "0.0.10"
+openblas-src = { version = "0.10", features = ["system", "rustls"] }
 
 
 [target.'cfg(windows)'.dependencies]
